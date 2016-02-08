@@ -4,13 +4,14 @@ var uuid = require('uuid');
 
 //require("./style.css");
 //var content = require('./content.js');
-var id = "id";//eventually this will pass the id
+var id = uuid.v4();//eventually this will pass the id: use uuid v4
 
 var Main = React.createClass({
   render: function(){
     return (
       <div>
-        <p>id:id</p>//not sure how passing variables works
+        <p>id:{id}</p>
+        //not sure how comments work exactly either :P
         <select>//eventually these will not be static
           <option value="gpkg">geopackage</option>
           <option value="json">GeoJSON</option>
