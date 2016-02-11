@@ -2,21 +2,8 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var uuid = require('uuid');
 var val;//do I need to declare this? I see 'val' used a lot
-//var version = array(1.0,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2.0);
 var id;
-var store = [//array...
-  {
-    "name":"GeoJSON",
-    "type":"json",
-    "version":1
-  },
-  {
-    "name":"Geopackage",
-    "type":"gpkg",
-    "version":1
-  }
-]
-var jsonType = [//array...
+var type = [//array...
   {
     "name": "GeoJSON",
     "type": "json",
@@ -66,9 +53,7 @@ var jsonType = [//array...
     "name": "GeoJSON",
     "type": "json",
     "version":2.0
-  }
-]
-var gpkgType = [//array...
+  },
   {
     "name": "geopackage",
     "type": "gpkg",
@@ -126,42 +111,40 @@ var gpkgType = [//array...
   }
 ]
 
-var Json = React.createClass({
+var SelectList = React.createClass({
   render:function(){
     return(
-      <div>
-      {/*create a new id for each new 'store'*/}
-        <p>id:{id}</p>
-        <select>
-        {/*function onchange to be a function in the component: use props & state
-          create an 'add store' button that adds a new form like what is laid out
-          console.log the json array configuration like the github example*/}
-          <option value={this.props.type}>{this.props.name}</option>
-        </select>
-        <select>
-        {/*eventually these will not be static either*/}
-          <option value={this.props.version}>version {this.props.version}</option>
-        </select>
-      </div>
+      <option value={this.props.type}>{this.props.name} version {this.props.version}</option>
+    )
+  }
+})
+//click a button to add a new element to the array
+var AddStore = React.createClass({
+  render:function(){
+    return(
+      <button id="newStore" onClick={this.props.onClick}>new store</button>
     )
   }
 })
 var App = React.createClass({
   getInitialState: function(){
     return {
-      store:store
+      type:type
       //which one is going where?
     }
-    //return gpkgType[0];
+  },
+  //click a button to add a new element to the array
+  addStore: function(data){
+    this.state.type.splice("newData");
+    //nothing in the console log
+    console.log(type);
   },
   render: function(){
     return(
-      //click a button to add a new element to the array
       <div>
-        //<Json version={1.0}></Json>
-        {this.state.store.map(function(data){
+        {this.state.type.map(function(data){
           return(
-            <Json name={data.name} type={data.type} version={data.version}></Json>
+            <SelectList name={data.name} type={data.type} version={data.version}></SelectList>
           )
         })}
       </div>
@@ -169,4 +152,6 @@ var App = React.createClass({
   }
 })
 
-ReactDOM.render(<App></App>, document.body);
+ReactDOM.render(<App></App>, document.getElementById("version"));
+//if both of these are enabled, only the last render method shows
+//ReactDOM.render(<AddStore></AddStore>, document.getElementById("app"))
