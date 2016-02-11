@@ -3,8 +3,19 @@ var ReactDOM = require('react-dom');
 var uuid = require('uuid');
 var val;//do I need to declare this? I see 'val' used a lot
 //var version = array(1.0,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2.0);
-var storeOutput;
 var id;
+var store = [//array...
+  {
+    "name":"GeoJSON",
+    "type":"json",
+    "version":1
+  },
+  {
+    "name":"Geopackage",
+    "type":"gpkg",
+    "version":1
+  }
+]
 var jsonType = [//array...
   {
     "name": "GeoJSON",
@@ -116,10 +127,6 @@ var gpkgType = [//array...
 ]
 
 var Json = React.createClass({
-  getInitialState: function(){
-    return jsonType[0];
-    //return gpkgType[0];
-  },
   render:function(){
     return(
       <div>
@@ -130,25 +137,33 @@ var Json = React.createClass({
           create an 'add store' button that adds a new form like what is laid out
           console.log the json array configuration like the github example*/}
           <option value={this.props.type}>{this.props.name}</option>
-          <option value={this.props.type}>{this.props.name}</option>
         </select>
         <select>
         {/*eventually these will not be static either*/}
-          <option value="1.0">version1</option>
-          <option value="2.0">version2</option>
+          <option value={this.props.version}>version {this.props.version}</option>
         </select>
       </div>
     )
   }
 })
 var App = React.createClass({
+  getInitialState: function(){
+    return {
+      store:store
+      //which one is going where?
+    }
+    //return gpkgType[0];
+  },
   render: function(){
     return(
+      //click a button to add a new element to the array
       <div>
-        <Json>version={1.0}</Json>
-        <Json>version={1.3}</Json>
-        <Json>name={"GeoJSON"}</Json>
-        <Json>type={"gpkg"}</Json>
+        //<Json version={1.0}></Json>
+        {this.state.store.map(function(data){
+          return(
+            <Json name={data.name} type={data.type} version={data.version}></Json>
+          )
+        })}
       </div>
     )
   }
