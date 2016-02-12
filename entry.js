@@ -10,148 +10,146 @@ var type = [//array...
     "version":1.0
   },
   {
-    "name": "GeoJSON",
-    "type": "json",
-    "version":1.2
-  },
-  {
-    "name": "GeoJSON",
-    "type": "json",
-    "version":1.3
-  },
-  {
-    "name": "GeoJSON",
-    "type": "json",
-    "version":1.4
-  },
-  {
-    "name": "GeoJSON",
-    "type": "json",
-    "version":1.5
-  },
-  {
-    "name": "GeoJSON",
-    "type": "json",
-    "version":1.6
-  },
-  {
-    "name": "GeoJSON",
-    "type": "json",
-    "version":1.7
-  },
-  {
-    "name": "GeoJSON",
-    "type": "json",
-    "version":1.8
-  },
-  {
-    "name": "GeoJSON",
-    "type": "json",
-    "version":1.9
-  },
-  {
-    "name": "GeoJSON",
-    "type": "json",
-    "version":2.0
-  },
-  {
     "name": "geopackage",
-    "type": "gpkg",
+    "type": "gppkg",
     "version":1.0
-  },
-  {
-    "name": "geopackage",
-    "type": "gpkg",
-    "version":1.1
-  },
-  {
-    "name": "geopackage",
-    "type": "gpkg",
-    "version":1.2
-  },
-  {
-    "name": "geopackage",
-    "type": "gpkg",
-    "version":1.3
-  },
-  {
-    "name": "geopackage",
-    "type": "gpkg",
-    "version":1.4
-  },
-  {
-    "name": "geopackage",
-    "type": "gpkg",
-    "version":1.5
-  },
-  {
-    "name": "geopackage",
-    "type": "gpkg",
-    "version":1.6
-  },
-  {
-    "name": "geopackage",
-    "type": "gpkg",
-    "version":1.7
-  },
-  {
-    "name": "geopackage",
-    "type": "gpkg",
-    "version":1.8
-  },
-  {
-    "name": "geopackage",
-    "type": "gpkg",
-    "version":1.9
-  },
-  {
-    "name": "geopackage",
-    "type": "gpkg",
-    "version":2.0
   }
 ]
-
-var SelectList = React.createClass({
+var version = [//array...
+  {
+    "version": 1.0
+  },
+  {
+    "version": 1.1
+  },
+  {
+    "version": 1.2
+  },
+  {
+    "version": 1.3
+  },
+  {
+    "version": 1.4
+  },
+  {
+    "version": 1.5
+  },
+  {
+    "version": 1.6
+  },
+  {
+    "version": 1.7
+  },
+  {
+    "version": 1.8
+  },
+  {
+    "version": 1.9
+  },
+  {
+    "version": 2.0
+  }
+]
+//add a textbox component that will add new names to each 'store' output
+var SelectType = React.createClass({
   render:function(){
     return(
-      <option value={this.props.type}>{this.props.name} version {this.props.version}</option>
+      <option value={this.props.type}>{this.props.name}</option>
+    )
+  }
+})
+var SelectVersion = React.createClass({
+  render:function(){
+    return(
+      <option value={this.props.version}>version {this.props.version}</option>
     )
   }
 })
 //click a button to add a new element to the array
 var AddStore = React.createClass({
+  getInitialState: function(){
+    return {
+      //Is this declaring a variable?
+      type:type
+    }
+  },
   render:function(){
     return(
-      <button id="newStore" onClick={this.props.onClick}>new store</button>
+      <div>
+        <form>
+          <input type="text" />
+          <select>
+            {this.state.type.map(function(data,i){
+              return(
+                <SelectType key={i} name={data.name} type={data.type} version={data.version}></SelectType>
+              )
+            })}
+          </select>
+          {/*there is a problem here*/}
+          {/*<select>
+            {this.state.version.map(function(data,i){
+              return(
+                <SelectVersion key={i} version={data.version}></SelectVersion>
+              )
+            })}
+          </select>*/}
+        </form>
+        <button id="newStore" onClick={this.props.onClick}>new store</button>
+      </div>
     )
   }
 })
+var Store = React.createClass({
+  render:function(){
+    return(
+      <div>
+        <div>id={/*add uuid here*/}</div>
+        <div>name={this.props.name}</div>
+      </div>
+    )
+  }
+})
+//trying a new way to create classes
+// class AddStore extends React.Component{
+//   constructor(){
+//     super();
+//     this.state = {val: "new data"};
+//     this.update = this.update.bind.(this);
+//   }
+//   update(){
+//     this.setState({type=type+"new data"});
+//   }
+//   render(){
+//     console.log(type);
+//     return <button onClick={this.update.val}>add store</button>;
+//   }
+// }
 var App = React.createClass({
-  getInitialState: function(){
-    return {
-      type:type
-      //which one is going where?
-    }
-  },
-  //click a button to add a new element to the array
   addStore: function(data){
-    this.state.type.splice("newData");
-    //nothing in the console log
-    console.log(type);
+    var newStore = {};
+    this.setState({
+      stores:this.state.stores.concat(newStore)
+    })
+  },
+  getInitialState: function(){
+    return{
+      stores:[]
+    }
   },
   render: function(){
     return(
       <div>
-        {this.state.type.map(function(data){
-          return(
-            <SelectList name={data.name} type={data.type} version={data.version}></SelectList>
-          )
-        })}
+      {this.state.stores.map(function(store,i){
+        return(
+          <Store key={i}></Store>
+        )
+      })}
+        {/*add new components like this*/}
+        <AddStore onClick={this.addStore}></AddStore>
       </div>
     )
   }
 })
 
-ReactDOM.render(<App></App>, document.getElementById("version"));
-//if both of these are enabled, only the last render method shows
-//ReactDOM.render(<AddStore></AddStore>, document.getElementById("app"))
+ReactDOM.render(<App></App>, document.getElementById("app"));
+//export default AddStore;//new way
