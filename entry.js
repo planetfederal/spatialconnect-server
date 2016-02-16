@@ -21,7 +21,7 @@ for(j=1;j<3;j++){
     version.push(<option>version {j}.{i}</option>);
   };
 };
-//add a textbox component that will add new names to each 'store' output
+//add your type drop down
 var SelectType = React.createClass({
   render:function(){
     return(
@@ -29,22 +29,23 @@ var SelectType = React.createClass({
     )
   }
 })
-//click a button to add a new element to the array
 var AddStore = React.createClass({
   getInitialState: function(){
     return {
       //Is this declaring a variable?
       type:type,
+      //this is undefined?
       value:this.state
     };
   },
-  handleChange: function(event) {
-   this.setState({value: event.target.value});
-  },
+  //this updates the value
+   handleChange: function(event) {
+    this.setState({value: event.target.value});
+   },
   render:function(){
     return(
       <div>
-        <p>{this.state.value}</p>
+        <p>{/*this.state.value*/}</p>
         <form>
           <input type="text" value={this.state.value} onChange={this.handleChange} />
           <select>
@@ -55,6 +56,7 @@ var AddStore = React.createClass({
             })}
           </select>
           <select>
+            //this is extra...use map here instead
             return({version})
           </select>
         </form>
@@ -63,12 +65,14 @@ var AddStore = React.createClass({
     )
   }
 })
+//how to get your value passed all the way down here? I think you need to use props to do this
 var Store = React.createClass({
-  render:function(){
+  render:function(value){
     return(
       <div>
         <div>id={uuid.v4()}</div>
-        <div>name={/*this.state.input*/}</div>
+        {/*this is undefined*/}
+        <div>name={this.state.value}</div>
       </div>
     )
   }
@@ -80,9 +84,12 @@ var App = React.createClass({
       stores:this.state.stores.concat(newStore)
     })
   },
-  getInitialState: function(){
+  getInitialState: function(value){
     return{
-      stores:[]
+      stores:[],
+      //add something here that references value
+      value:value
+      //value is not defined
     }
   },
   render: function(){
