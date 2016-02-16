@@ -1,55 +1,26 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
+var Immutable = require('immutable');
 var uuid = require('uuid');
 var val;//do I need to declare this? I see 'val' used a lot
-var id;
 var type = [//array...
   {
     "name": "GeoJSON",
-    "type": "json",
-    "version":1.0
+    "type": "json"
   },
   {
     "name": "geopackage",
-    "type": "gppkg",
-    "version":1.0
+    "type": "gppkg"
   }
 ]
-var version = [//array...
-  {
-    "version": 1.0
-  },
-  {
-    "version": 1.1
-  },
-  {
-    "version": 1.2
-  },
-  {
-    "version": 1.3
-  },
-  {
-    "version": 1.4
-  },
-  {
-    "version": 1.5
-  },
-  {
-    "version": 1.6
-  },
-  {
-    "version": 1.7
-  },
-  {
-    "version": 1.8
-  },
-  {
-    "version": 1.9
-  },
-  {
-    "version": 2.0
-  }
-]
+var version=[];
+//this is waaaay easier
+//build your version array up.
+for(j=1;j<3;j++){
+  for(i=1;i<10;i++){
+    version.push(<option>version {j}.{i}</option>);
+  };
+};
 //add a textbox component that will add new names to each 'store' output
 var SelectType = React.createClass({
   render:function(){
@@ -58,26 +29,24 @@ var SelectType = React.createClass({
     )
   }
 })
-var SelectVersion = React.createClass({
-  render:function(){
-    return(
-      <option value={this.props.version}>version {this.props.version}</option>
-    )
-  }
-})
 //click a button to add a new element to the array
 var AddStore = React.createClass({
   getInitialState: function(){
     return {
       //Is this declaring a variable?
-      type:type
-    }
+      type:type,
+      value:this.state
+    };
+  },
+  handleChange: function(event) {
+   this.setState({value: event.target.value});
   },
   render:function(){
     return(
       <div>
+        <p>{this.state.value}</p>
         <form>
-          <input type="text" />
+          <input type="text" value={this.state.value} onChange={this.handleChange} />
           <select>
             {this.state.type.map(function(data,i){
               return(
@@ -85,14 +54,9 @@ var AddStore = React.createClass({
               )
             })}
           </select>
-          {/*there is a problem here*/}
-          {/*<select>
-            {this.state.version.map(function(data,i){
-              return(
-                <SelectVersion key={i} version={data.version}></SelectVersion>
-              )
-            })}
-          </select>*/}
+          <select>
+            return({version})
+          </select>
         </form>
         <button id="newStore" onClick={this.props.onClick}>new store</button>
       </div>
@@ -103,27 +67,12 @@ var Store = React.createClass({
   render:function(){
     return(
       <div>
-        <div>id={/*add uuid here*/}</div>
-        <div>name={this.props.name}</div>
+        <div>id={uuid.v4()}</div>
+        <div>name={/*this.state.input*/}</div>
       </div>
     )
   }
 })
-//trying a new way to create classes
-// class AddStore extends React.Component{
-//   constructor(){
-//     super();
-//     this.state = {val: "new data"};
-//     this.update = this.update.bind.(this);
-//   }
-//   update(){
-//     this.setState({type=type+"new data"});
-//   }
-//   render(){
-//     console.log(type);
-//     return <button onClick={this.update.val}>add store</button>;
-//   }
-// }
 var App = React.createClass({
   addStore: function(data){
     var newStore = {};
@@ -152,4 +101,3 @@ var App = React.createClass({
 })
 
 ReactDOM.render(<App></App>, document.getElementById("app"));
-//export default AddStore;//new way
