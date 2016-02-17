@@ -2,6 +2,7 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var Immutable = require('immutable');
 var uuid = require('uuid');
+var value;
 var val;//do I need to declare this? I see 'val' used a lot
 var type = [//array...
   {
@@ -41,6 +42,7 @@ var AddStore = React.createClass({
   },
   //this updates the value
    handleChange: function(event) {
+    value=event.target.value;
     this.setState({
       value: event.target.value
     });
@@ -72,15 +74,14 @@ var AddStore = React.createClass({
 var Store = React.createClass({
   getInitialState: function(){
     return {
-      value:value
+      value:value//"Hello There From getInitialState"
     };
   },
   render:function(){
     return(
       <div>
         <div>id={uuid.v4()}</div>
-        {/*this is undefined*/}
-        <div>name={value}</div>
+        <div>name={this.state.value}</div>
       </div>
     )
   }
