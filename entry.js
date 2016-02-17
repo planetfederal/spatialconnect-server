@@ -30,24 +30,27 @@ var SelectType = React.createClass({
   }
 })
 var AddStore = React.createClass({
+  //this is a constructor
   getInitialState: function(){
     return {
-      //Is this declaring a variable?
+      //this is declaring a property of getInitialState, the same as getInitialState.type=type
       type:type,
       //this is undefined?
-      value:this.props
+      value:this.state
     };
   },
   //this updates the value
    handleChange: function(event) {
-    this.setState({value: event.target.value});
+    this.setState({
+      value: event.target.value
+    });
    },
   render:function(){
     return(
       <div>
-        <p>{this.props.value}</p>
+        <p>{this.state.value}</p>
         <form>
-          <input type="text" value={this.props.value} onChange={this.handleChange} />
+          <input type="text" value={this.state.value} onChange={this.handleChange} />
           <select>
             {this.state.type.map(function(data,i){
               return(
@@ -67,12 +70,17 @@ var AddStore = React.createClass({
 })
 //how to get your value passed all the way down here? I think you need to use props to do this
 var Store = React.createClass({
-  render:function(/*value*/){
+  getInitialState: function(){
+    return {
+      value:value
+    };
+  },
+  render:function(){
     return(
       <div>
         <div>id={uuid.v4()}</div>
         {/*this is undefined*/}
-        <div>name={/*this.state.value*/}</div>
+        <div>name={value}</div>
       </div>
     )
   }
@@ -84,12 +92,9 @@ var App = React.createClass({
       stores:this.state.stores.concat(newStore)
     })
   },
-  getInitialState: function(/*value*/){
+  getInitialState: function(){
     return{
-      stores:[],
-      //add something here that references value
-      //value:value
-      //value is not defined
+      stores:[]
     }
   },
   render: function(){
