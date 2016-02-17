@@ -35,22 +35,16 @@ var AddStore = React.createClass({
   getInitialState: function(){
     return {
       //this is declaring a property of getInitialState, the same as getInitialState.type=type
-      type:type,
-      //this is undefined?
-      value:this.state
+      type:type
     };
   },
   //this updates the value
    handleChange: function(event) {
     value=event.target.value;
-    this.setState({
-      value: event.target.value
-    });
    },
   render:function(){
     return(
       <div>
-        <p>{this.state.value}</p>
         <form>
           <input type="text" value={this.state.value} onChange={this.handleChange} />
           <select>
@@ -74,7 +68,7 @@ var AddStore = React.createClass({
 var Store = React.createClass({
   getInitialState: function(){
     return {
-      value:value//"Hello There From getInitialState"
+      value:value
     };
   },
   render:function(){
