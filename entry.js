@@ -19,11 +19,11 @@ var type = [//array...
 var version=[<option>select version</option>];
 //this is waaaay easier
 //build your version array up.
-for(j=1;j<3;j++){
-  for(i=1;i<10;i++){
-    version.push(<option>version {j}.{i}</option>);
+  for(j=1;j<3;j++){
+    for(i=1;i<10;i++){
+      version.push(<option>version {j}.{i}</option>);
+    };
   };
-};
 //add your type drop down
 var SelectType = React.createClass({
   render:function(){
@@ -65,7 +65,10 @@ var AddStore = React.createClass({
             })}
           </select>
           <select id="version" value="1" onChange={this.handleVersionSelect}>
-            //this is extra...use map here instead
+          //this is extra...use map here instead
+          {version.map(function(version,i){
+            //version.push(<option>version {j}.{i}</option>);
+          })}
             return({version})
           </select>
         </form>
@@ -76,13 +79,16 @@ var AddStore = React.createClass({
 })
 //how to get your value passed all the way down here? I think you need to use props to do this
 var Store = React.createClass({
-  //put this somewhere meaningful
-   this.setState({
-     value:this.state.value,
-     select:this.state.typeSelection,
-     version:versionSelection
-   }),
-  getInitialState: function(){
+  //now that I've added this, I'm not sure where it should be referenced...
+  addContents:function(){
+    //webpack doesn't like multiple states being set here
+     this.setState(function(value/*, typeSelection, versionSelection*/){
+       value:this.state.value//,
+      //  select:this.state.typeSelection,
+      //  version:this.state.versionSelection
+     })
+  },
+  getInitialState:function(){
     return {
       //currently these properties are undefined
       value:value,
@@ -102,7 +108,7 @@ var Store = React.createClass({
   }
 })
 var App = React.createClass({
-  addStore: function(data){
+  addStore:function(data){
     var newStore = {};
     this.setState({
       stores:this.state.stores.concat(newStore)
