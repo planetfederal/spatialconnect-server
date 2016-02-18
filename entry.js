@@ -76,6 +76,12 @@ var AddStore = React.createClass({
 })
 //how to get your value passed all the way down here? I think you need to use props to do this
 var Store = React.createClass({
+  //put this somewhere meaningful
+   this.setState({
+     value:this.state.value,
+     select:this.state.typeSelection,
+     version:versionSelection
+   }),
   getInitialState: function(){
     return {
       //currently these properties are undefined
@@ -84,10 +90,6 @@ var Store = React.createClass({
       version:versionSelection
     };
   },
-  //put this somewhere meaningful
-  // this.setState({
-  //   value:this.state.value
-  // }),
   render:function(){
     return(
       <div>
