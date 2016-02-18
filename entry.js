@@ -3,6 +3,8 @@ var ReactDOM = require('react-dom');
 var Immutable = require('immutable');
 var uuid = require('uuid');
 var value;
+var typeSelection="please select a data type";
+var versionSelection="please select a version";
 var val;//do I need to declare this? I see 'val' used a lot
 var type = [//array...
   {
@@ -14,7 +16,7 @@ var type = [//array...
     "type": "gppkg"
   }
 ]
-var version=[];
+var version=[<option>select version</option>];
 //this is waaaay easier
 //build your version array up.
 for(j=1;j<3;j++){
@@ -34,27 +36,35 @@ var AddStore = React.createClass({
   //this is a constructor
   getInitialState: function(){
     return {
-      //this is declaring a property of getInitialState, the same as getInitialState.type=type
+      //getInitialState is a method that returns an object where the properties are being assigned here, the same as getInitialState.type=type
       type:type
+      //reset this property
     };
   },
   //this updates the value
-   handleChange: function(event) {
+   handleTextChange: function(event) {
     value=event.target.value;
+   },
+   handleSelectChange: function(event) {
+     typeSelection=document.getElementById("type").value;
+   },
+   handleVersionSelect: function(event) {
+     versionSelection=document.getElementById("version").value;
    },
   render:function(){
     return(
       <div>
         <form>
-          <input type="text" value={this.state.value} onChange={this.handleChange} />
-          <select>
+          <input type="text" value={this.state.value} onChange={this.handleTextChange} />
+          <select id="type" value="GeoJSON" onChange={this.handleSelectChange}>
+            <option>select data type</option>
             {this.state.type.map(function(data,i){
               return(
-                <SelectType key={i} name={data.name} type={data.type} version={data.version}></SelectType>
+                <SelectType key={i} name={data.name} type={data.type} value={data.version}></SelectType>
               )
             })}
           </select>
-          <select>
+          <select id="version" value="1" onChange={this.handleVersionSelect}>
             //this is extra...use map here instead
             return({version})
           </select>
@@ -68,14 +78,23 @@ var AddStore = React.createClass({
 var Store = React.createClass({
   getInitialState: function(){
     return {
-      value:value
+      //currently these properties are undefined
+      value:value,
+      select:typeSelection,
+      version:versionSelection
     };
   },
+  //put this somewhere meaningful
+  // this.setState({
+  //   value:this.state.value
+  // }),
   render:function(){
     return(
       <div>
         <div>id={uuid.v4()}</div>
         <div>name={this.state.value}</div>
+        <div>type={this.state.select}</div>
+        <div>version={this.state.version}</div>
       </div>
     )
   }
@@ -95,13 +114,14 @@ var App = React.createClass({
   render: function(){
     return(
       <div>
-      {this.state.stores.map(function(store,i){
-        return(
-          <Store key={i}></Store>
-        )
-      })}
         {/*add new components like this*/}
         <AddStore onClick={this.addStore}></AddStore>
+        {/*this.state.stores.length*/}
+        {this.state.stores.map(function(store,i){
+          return(
+            <Store key={i}></Store>
+          )
+        })}
       </div>
     )
   }
