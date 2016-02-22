@@ -5,11 +5,10 @@ var uuid = require('uuid');
 var value;
 var typeSelection="please select a data type";
 var versionSelection="please select a version";
-var val;//do I need to declare this? I see 'val' used a lot
 var type = [//array...
   {
     "name": "GeoJSON",
-    "type": "json"
+    "type": "geojson"
   },
   {
     "name": "geopackage",
@@ -28,7 +27,7 @@ var version=[<option>select version</option>];
 var SelectType = React.createClass({
   render:function(){
     return(
-      <option value={this.props.type}>{this.props.name}</option>
+        <option value={this.props.type}>{this.props.name}</option>
     )
   }
 })
@@ -49,29 +48,25 @@ var AddStore = React.createClass({
      typeSelection=document.getElementById("type").value;
    },
    handleVersionSelect: function(event) {
-     versionSelection=document.getElementById("version").value;
+     versionSelection=event.target.value;
    },
   render:function(){
     return(
       <div>
         <form>
           <input type="text" value={this.state.value} onChange={this.handleTextChange} />
-          <select id="type" value="GeoJSON" onChange={this.handleSelectChange}>
+          <select id="type" value={this.state.value} onChange={this.handleSelectChange}>
             <option>select data type</option>
             {this.state.type.map(function(data,i){
               return(
-                <SelectType key={i} name={data.name} type={data.type} value={data.version}></SelectType>
+                //these attributes are props!
+                <SelectType key={i} name={data.name} type={data.type} version={data.version}></SelectType>
               )
             })}
           </select>
-          <select id="version" value="1" onChange={this.handleVersionSelect}>
-          //this is extra...use map here instead
-          {version.map(function(version,i){
-            //version.push(<option>version {j}.{i}</option>);
-          })}
-            return({version})
-          </select>
+          <input type="text" value={this.state.versionSelection} onChange={this.handleVersionSelect} />
         </form>
+        <p>{this.props.propsValue1}</p>
         <button id="newStore" onClick={this.props.onClick}>new store</button>
       </div>
     )
@@ -82,6 +77,8 @@ var Store = React.createClass({
   //now that I've added this, I'm not sure where it should be referenced...
   addContents:function(){
     //webpack doesn't like multiple states being set here
+    //setState takes an object as an argument not a function
+    //sort this out Monday?
      this.setState(function(value/*, typeSelection, versionSelection*/){
        value:this.state.value//,
       //  select:this.state.typeSelection,
@@ -90,7 +87,7 @@ var Store = React.createClass({
   },
   getInitialState:function(){
     return {
-      //currently these properties are undefined
+      type:type,
       value:value,
       select:typeSelection,
       version:versionSelection
@@ -99,10 +96,23 @@ var Store = React.createClass({
   render:function(){
     return(
       <div>
+      {/*these should be printed to console instead*/}
         <div>id={uuid.v4()}</div>
         <div>name={this.state.value}</div>
         <div>type={this.state.select}</div>
         <div>version={this.state.version}</div>
+        <p>{this.props.propsValue}</p>
+        <div>
+          <input id="name" type="text" /><br />
+          <select>
+            {this.state.type.map(function(data,i){//Cannot read property 'map' of undefined
+              return(
+                <SelectType key={i} name={data.name} type={data.type} version={data.version}></SelectType>
+              )
+            })}
+          </select><br />
+          <input id="version" type="text" /><br />
+        </div>
       </div>
     )
   }
@@ -122,14 +132,14 @@ var App = React.createClass({
   render: function(){
     return(
       <div>
-        {/*add new components like this*/}
-        <AddStore onClick={this.addStore}></AddStore>
-        {/*this.state.stores.length*/}
         {this.state.stores.map(function(store,i){
           return(
-            <Store key={i}></Store>
+            <Store propsValue="propsValue" key={i}></Store>
           )
         })}
+        {/*add new components like this*/}
+        <AddStore propsValue1="propsValue1" onClick={this.addStore}></AddStore>
+        <button>save</button>
       </div>
     )
   }
