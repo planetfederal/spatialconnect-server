@@ -2,9 +2,10 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var Immutable = require('immutable');
 var uuid = require('uuid');
-var value;
-var typeSelection="please select a data type";
-var versionSelection="please select a version";
+var id;
+// var value;
+// var typeSelection="please select a data type";
+// var versionSelection="please select a version";
 var type = [//array...
   {
     "name": "GeoJSON",
@@ -16,13 +17,6 @@ var type = [//array...
   }
 ]
 var version=[<option>select version</option>];
-//this is waaaay easier
-//build your version array up.
-  for(j=1;j<3;j++){
-    for(i=1;i<10;i++){
-      version.push(<option>version {j}.{i}</option>);
-    };
-  };
 //add your type drop down
 var SelectType = React.createClass({
   render:function(){
@@ -49,6 +43,7 @@ var AddStore = React.createClass({
    },
    handleVersionSelect: function(event) {
      versionSelection=event.target.value;
+     //this should initialize setState down on line 83
    },
   render:function(){
     return(
@@ -85,36 +80,62 @@ var Store = React.createClass({
       //  version:this.state.versionSelection
      })
   },
+  saveStore:function(){
+    console.log('{\nstores : [\n{\n"id" : '+id+',\n"name" : '+this.state.value+',\n"type" : '+this.state.select+',\n"version" : '+this.state.version+'\n}\n]\n}')
+  },
+  //use props instead of getInitialState
   getInitialState:function(){
     return {
       type:type,
       value:value,
       select:typeSelection,
-      version:versionSelection
+      version:versionSelection,
+      consoleStores:[]
     };
+  },
+  handleConsoleName: function(event) {
+    value=event.target.value;
+  },
+  handleConsoleType: function(event) {
+    typeSelection=document.getElementById("type").value;
+  },
+  handleConsoleVersion: function(event) {
+    versionSelection=event.target.value;
   },
   render:function(){
     return(
       <div>
-      {/*these should be printed to console instead*/}
-        <div>id={uuid.v4()}</div>
+      {/*these should be printed to console when save button is clicked*/}
+        {id=uuid.v4()}
+        {typeSelect=this.state.select}
+        <div>id={id}</div>
         <div>name={this.state.value}</div>
         <div>type={this.state.select}</div>
         <div>version={this.state.version}</div>
         <p>{this.props.propsValue}</p>
         <div>
-          <input id="name" type="text" /><br />
-          <select>
-            {this.state.type.map(function(data,i){//Cannot read property 'map' of undefined
+        <form>
+          <input id="name" type="text" value={this.state.value} onChange={this.handleConsoleName} /><br />
+          <select onChange={this.handleConsoleType} value={this.props.type}>
+            {this.state.type.map(function(data,i){
               return(
+                //pass props to determine which one is selected.
                 <SelectType key={i} name={data.name} type={data.type} version={data.version}></SelectType>
               )
             })}
           </select><br />
-          <input id="version" type="text" /><br />
+          <input id="version" type="text" value={this.state.version} onChange={this.handleConsoleVersion} /><br />
+        </form>
         </div>
+        <button id="saveStore" onClick={this.saveStore()}>save store</button>
       </div>
     )
+    // if(typeSelect==data.type){
+    //   selected="selected";
+    // }
+    // else{
+    //   selected="";
+    // }
   }
 })
 var App = React.createClass({
@@ -134,12 +155,10 @@ var App = React.createClass({
       <div>
         {this.state.stores.map(function(store,i){
           return(
-            <Store propsValue="propsValue" key={i}></Store>
+            <Store /*pass store prop*/ propsValue="propValue" key={i}></Store>
           )
         })}
-        {/*add new components like this*/}
         <AddStore propsValue1="propsValue1" onClick={this.addStore}></AddStore>
-        <button>save</button>
       </div>
     )
   }
