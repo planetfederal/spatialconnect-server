@@ -3,9 +3,9 @@ var ReactDOM = require('react-dom');
 var Immutable = require('immutable');
 var uuid = require('uuid');
 var id;
-// var value;
-// var typeSelection="please select a data type";
-// var versionSelection="please select a version";
+//var value;
+//var typeSelection="please select a data type";
+//var versionSelection="please select a version";
 var type = [//array...
   {
     "name": "GeoJSON",
@@ -48,8 +48,16 @@ var AddStore = React.createClass({
   render:function(){
     return(
       <div>
+      {/*these should be printed to console when save button is clicked*/}
+        {id=uuid.v4()}
+        {typeSelect=this.state.select}
+        {/*<div>id={id}</div>
+        <div>name={this.state.value}</div>
+        <div>type={this.state.select}</div>
+        <div>version={this.state.version}</div>
+        <p>{this.props.propsValue}</p>*/}
         <form>
-          <input type="text" value={this.state.value} onChange={this.handleTextChange} />
+          <input type="text" value={this.state.value} onChange={this.handleTextChange} /><br />
           <select id="type" value={this.state.value} onChange={this.handleSelectChange}>
             <option>select data type</option>
             {this.state.type.map(function(data,i){
@@ -58,11 +66,10 @@ var AddStore = React.createClass({
                 <SelectType key={i} name={data.name} type={data.type} version={data.version}></SelectType>
               )
             })}
-          </select>
-          <input type="text" value={this.state.versionSelection} onChange={this.handleVersionSelect} />
+          </select><br />
+          <input type="text" value={this.state.versionSelection} onChange={this.handleVersionSelect} /><br />
         </form>
-        <p>{this.props.propsValue1}</p>
-        <button id="newStore" onClick={this.props.onClick}>new store</button>
+        <button id="newStore" onClick={this.props.onClick}>new store</button><br />
       </div>
     )
   }
@@ -89,8 +96,7 @@ var Store = React.createClass({
       type:type,
       value:value,
       select:typeSelection,
-      version:versionSelection,
-      consoleStores:[]
+      version:versionSelection
     };
   },
   handleConsoleName: function(event) {
@@ -105,18 +111,10 @@ var Store = React.createClass({
   render:function(){
     return(
       <div>
-      {/*these should be printed to console when save button is clicked*/}
-        {id=uuid.v4()}
-        {typeSelect=this.state.select}
-        <div>id={id}</div>
-        <div>name={this.state.value}</div>
-        <div>type={this.state.select}</div>
-        <div>version={this.state.version}</div>
-        <p>{this.props.propsValue}</p>
-        <div>
         <form>
-          <input id="name" type="text" value={this.state.value} onChange={this.handleConsoleName} /><br />
-          <select onChange={this.handleConsoleType} value={this.props.type}>
+          <p>ID: {id}</p>
+          Name: <input id="name" type="text" value={value} onChange={this.handleConsoleName} /><br />
+          Type: <select id="type" onChange={this.handleConsoleType}>
             {this.state.type.map(function(data,i){
               return(
                 //pass props to determine which one is selected.
@@ -124,18 +122,11 @@ var Store = React.createClass({
               )
             })}
           </select><br />
-          <input id="version" type="text" value={this.state.version} onChange={this.handleConsoleVersion} /><br />
+          Version: <input id="version" type="text" value={versionSelection} onChange={this.handleConsoleVersion} /><br />
         </form>
-        </div>
-        <button id="saveStore" onClick={this.saveStore()}>save store</button>
+        <button id="saveStore" onClick={this.saveStore}>save store</button>
       </div>
     )
-    // if(typeSelect==data.type){
-    //   selected="selected";
-    // }
-    // else{
-    //   selected="";
-    // }
   }
 })
 var App = React.createClass({
@@ -155,10 +146,10 @@ var App = React.createClass({
       <div>
         {this.state.stores.map(function(store,i){
           return(
-            <Store /*pass store prop*/ propsValue="propValue" key={i}></Store>
+            <Store /*pass store prop*/ key={i}></Store>
           )
         })}
-        <AddStore propsValue1="propsValue1" onClick={this.addStore}></AddStore>
+        <AddStore onClick={this.addStore}></AddStore>
       </div>
     )
   }
