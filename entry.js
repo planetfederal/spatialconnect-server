@@ -2,10 +2,6 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var Immutable = require('immutable');
 var uuid = require('uuid');
-var id;
-//var value;
-//var typeSelection="please select a data type";
-//var versionSelection="please select a version";
 var type = [//array...
   {
     "name": "GeoJSON",
@@ -49,13 +45,7 @@ var AddStore = React.createClass({
     return(
       <div>
       {/*these should be printed to console when save button is clicked*/}
-        {id=uuid.v4()}
         {typeSelect=this.state.select}
-        {/*<div>id={id}</div>
-        <div>name={this.state.value}</div>
-        <div>type={this.state.select}</div>
-        <div>version={this.state.version}</div>
-        <p>{this.props.propsValue}</p>*/}
         <form>
           <input type="text" value={this.state.value} onChange={this.handleTextChange} /><br />
           <select id="type" value={this.state.value} onChange={this.handleSelectChange}>
@@ -74,25 +64,14 @@ var AddStore = React.createClass({
     )
   }
 })
-//how to get your value passed all the way down here? I think you need to use props to do this
 var Store = React.createClass({
-  //now that I've added this, I'm not sure where it should be referenced...
-  addContents:function(){
-    //webpack doesn't like multiple states being set here
-    //setState takes an object as an argument not a function
-    //sort this out Monday?
-     this.setState(function(value/*, typeSelection, versionSelection*/){
-       value:this.state.value//,
-      //  select:this.state.typeSelection,
-      //  version:this.state.versionSelection
-     })
-  },
   saveStore:function(){
-    console.log('{\nstores : [\n{\n"id" : '+id+',\n"name" : '+this.state.value+',\n"type" : '+this.state.select+',\n"version" : '+this.state.version+'\n}\n]\n}')
+    console.log('{\nstores : [\n{\n"id" : '+this.state.id+',\n"name" : '+this.state.value+',\n"type" : '+this.state.select+',\n"version" : '+this.state.version+'\n}\n]\n}')
   },
   //use props instead of getInitialState
   getInitialState:function(){
     return {
+      id:uuid.v4(),
       type:type,
       value:value,
       select:typeSelection,
@@ -112,7 +91,7 @@ var Store = React.createClass({
     return(
       <div>
         <form>
-          <p>ID: {id}</p>
+          <p>ID: {this.state.id}</p>
           Name: <input id="name" type="text" value={value} onChange={this.handleConsoleName} /><br />
           Type: <select id="type" onChange={this.handleConsoleType}>
             {this.state.type.map(function(data,i){
