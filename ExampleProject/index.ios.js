@@ -8,7 +8,7 @@ import React, {
   View
 } from 'react-native';
 
-var REQUEST_URL = 'https://raw.githubusercontent.com/boundlessgeo/spatialconnect-android-sdk/master/spatialconnect/src/androidTest/res/raw/scconfig.json';
+var REQUEST_URL = 'http://10.0.1.9:3000/api/configs';
 
 class ExampleProject extends Component {
   constructor(props) {
@@ -30,7 +30,7 @@ class ExampleProject extends Component {
       .then((response) => response.json())
       .then((responseData) => {
         this.setState({
-          dataSource: this.state.dataSource.cloneWithRows(responseData.stores),
+          dataSource: this.state.dataSource.cloneWithRows(responseData),
           loaded: true
         });
       })
