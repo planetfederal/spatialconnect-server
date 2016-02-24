@@ -4,7 +4,32 @@ This server is the interface used to communicate with mobile clients
 using the SpatialConnect libraries.  It's also the API that powers the
 dashboard web application.
 
-## Running
+
+## Running with Docker
+
+First you have to install [Docker](https://docs.docker.com/engine/installation/) for your local workstation.  
+If you are developing on OS X, make sure that your Docker host vm is started and that your shell is configured to use it. 
+
+You can build a Docker image named `spatialconnect` to deploy to your container by running
+
+```
+docker build -t spatialconnect .
+```
+
+To start the service in the container, run
+
+```
+docker run -p 3000:3000 -d spatialconnect
+```
+
+Then you can access the service through the Docker host with
+
+```
+curl -v $(docker-machine ip default):3000/api/configs
+```
+
+
+## Running node service for development
 
 To start the node service, run
 
