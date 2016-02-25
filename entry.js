@@ -22,7 +22,6 @@ var SelectType = React.createClass({
   }
 })
 var AddStore = React.createClass({
-  //this is a constructor
   getInitialState: function(){
     return {
       //getInitialState is a method that returns an object where the properties are being assigned here, the same as getInitialState.type=type
@@ -48,7 +47,7 @@ var AddStore = React.createClass({
         {typeSelect=this.state.select}
         <form>
           <input type="text" value={this.state.value} onChange={this.handleTextChange} /><br />
-          <select id="type" value={this.state.value} onChange={this.handleSelectChange}>
+          <select id="type" value={typeSelect} onChange={this.handleSelectChange}>
             <option>select data type</option>
             {this.state.type.map(function(data,i){
               return(
@@ -66,7 +65,7 @@ var AddStore = React.createClass({
 })
 var Store = React.createClass({
   saveStore:function(){
-    console.log('{\nstores : [\n{\n"id" : '+this.state.id+',\n"name" : '+this.state.value+',\n"type" : '+this.state.select+',\n"version" : '+this.state.version+'\n}\n]\n}')
+    console.log(this.state)
   },
   //use props instead of getInitialState
   getInitialState:function(){
@@ -78,6 +77,7 @@ var Store = React.createClass({
       version:versionSelection
     };
   },
+  //how to make these more 'secret' to the render function below?
   handleConsoleName: function(event) {
     value=event.target.value;
   },
