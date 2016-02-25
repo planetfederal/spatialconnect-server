@@ -1,4 +1,4 @@
-FROM        ubuntu
+FROM        debian:jessie
 MAINTAINER  mcenac@boundlessgeo.com
 
 # change the interpreter to bash so we can source files
@@ -25,14 +25,16 @@ RUN curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.31.0/install.sh
 ENV NODE_PATH $NVM_DIR/versions/node/v$NODE_VERSION/lib/node_modules
 ENV PATH      $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
-# Bundle app source
-COPY . ./
+# Copy app source to workdir
+COPY client ./client
+COPY common ./common
+COPY package.json .
+COPY server ./server
+COPY testdb.json .
 
 # Install app dependencies
-COPY package.json ./
-RUN which node; which npm 
 RUN npm install
 
+# Start the service
 EXPOSE 3000
-
 CMD ["npm", "start"]

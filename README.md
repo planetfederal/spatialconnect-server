@@ -8,7 +8,7 @@ dashboard web application.
 ## Running with Docker
 
 First you have to install [Docker](https://docs.docker.com/engine/installation/) for your local workstation.  
-If you are developing on OS X, make sure that your Docker host vm is started and that your shell is configured to use it. 
+If you are developing on OS X, make sure that your Docker host vm is started and that your shell is configured to use it.
 
 ### Running the spatialconnect image
 
@@ -16,6 +16,8 @@ You can build a Docker image named `spatialconnect` to deploy to your container 
 
 ```
 docker build -t spatialconnect .
+# or
+docker-compose build spatialconnect
 ```
 
 To start the service in the container, run
@@ -29,6 +31,8 @@ Then you can access the service through the Docker host with
 ```
 curl -v $(docker-machine ip default):3000/api/configs
 ```
+
+Also, checkout the Swagger explorer to play with the API.  http://<ip.of.docker.host>:3000/explorer
 
 ### Running all the images
 
@@ -64,10 +68,16 @@ and then take a look at the logs to see what its doing
 docker-compose logs bottledwater
 ```
 
-To see all the running containers, run
+To start the spatialconnect container, run
 
 ```
-docker ps
+docker-compose up -d spatialconnect
+```
+
+To see all the changes to the configs, run the kafka console consumer for the `config` topic
+
+```
+docker-compose run --rm consumer --from-beginning --topic config
 ```
 
 When you're done, don't forget to shut it down with
