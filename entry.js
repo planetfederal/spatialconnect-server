@@ -30,6 +30,7 @@ var AddStore = React.createClass({
     };
   },
   //this updates the value
+  handleConsole:{
    handleTextChange: function(event) {
     value=event.target.value;
    },
@@ -40,14 +41,15 @@ var AddStore = React.createClass({
      versionSelection=event.target.value;
      //this should initialize setState down on line 83
    },
-  render:function(){
+  },
+  render:function(handleConsole){
     return(
       <div>
       {/*these should be printed to console when save button is clicked*/}
         {typeSelect=this.state.select}
         <form>
-          <input type="text" value={this.state.value} onChange={this.handleTextChange} /><br />
-          <select id="type" value={typeSelect} onChange={this.handleSelectChange}>
+          <input type="text" value={this.state.value} onChange={this.handleConsole.handleTextChange} /><br />
+          <select id="type" value={typeSelect} onChange={this.handleConsole.handleSelectChange}>
             <option>select data type</option>
             {this.state.type.map(function(data,i){
               return(
@@ -56,7 +58,7 @@ var AddStore = React.createClass({
               )
             })}
           </select><br />
-          <input type="text" value={this.state.versionSelection} onChange={this.handleVersionSelect} /><br />
+          <input type="text" value={this.state.versionSelection} onChange={this.handleConsole.handleVersionSelect} /><br />
         </form>
         <button id="newStore" onClick={this.props.onClick}>new store</button><br />
       </div>
@@ -77,23 +79,25 @@ var Store = React.createClass({
       version:versionSelection
     };
   },
-  //how to make these more 'secret' to the render function below?
-  handleConsoleName: function(event) {
-    value=event.target.value;
+  //how to make these more 'secret' to the render function below? use a module?
+  handleConsole:{
+    handleConsoleName: function(event) {
+      value=event.target.value;
+    },
+    handleConsoleType: function(event) {
+      typeSelection=document.getElementById("type").value;
+    },
+    handleConsoleVersion: function(event) {
+      versionSelection=event.target.value;
+    },
   },
-  handleConsoleType: function(event) {
-    typeSelection=document.getElementById("type").value;
-  },
-  handleConsoleVersion: function(event) {
-    versionSelection=event.target.value;
-  },
-  render:function(){
+  render:function(handleConsole){
     return(
       <div>
         <form>
           <p>ID: {this.state.id}</p>
-          Name: <input id="name" type="text" value={value} onChange={this.handleConsoleName} /><br />
-          Type: <select id="type" onChange={this.handleConsoleType}>
+          Name: <input id="name" type="text" value={value} onChange={this.handleConsole.handleConsoleName} /><br />
+          Type: <select id="type" onChange={this.handleConsole.handleConsoleType}>
             {this.state.type.map(function(data,i){
               return(
                 //pass props to determine which one is selected.
@@ -101,7 +105,7 @@ var Store = React.createClass({
               )
             })}
           </select><br />
-          Version: <input id="version" type="text" value={versionSelection} onChange={this.handleConsoleVersion} /><br />
+          Version: <input id="version" type="text" value={versionSelection} onChange={this.handleConsole.handleConsoleVersion} /><br />
         </form>
         <button id="saveStore" onClick={this.saveStore}>save store</button>
       </div>
