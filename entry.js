@@ -22,16 +22,22 @@ var SelectType = React.createClass({
   }
 })
 var AddStore = React.createClass({
+  saveStore:function(){
+    console.log(this.state)
+  },
   getInitialState: function(){
     return {
       //getInitialState is a method that returns an object where the properties are being assigned here, the same as getInitialState.type=type
-      type:type
+      type:type,
+      name:"enter a name for this store"
       //reset this property
     };
   },
-  //this updates the value
+  //this updates the state object in React
    handleTextChange: function(event) {
-    value=event.target.value;
+    this.setState({
+      name:event.target.value
+    });//update the state of component
    },
    handleSelectChange: function(event) {
      typeSelection=document.getElementById("type").value;
@@ -46,7 +52,7 @@ var AddStore = React.createClass({
       {/*these should be printed to console when save button is clicked*/}
         {typeSelect=this.state.select}
         <form>
-          <input type="text" value={this.state.value} onChange={this.handleTextChange} /><br />
+          <input type="text" value={this.state.name} onChange={this.handleTextChange} /><br />
           <select id="type" value={typeSelect} onChange={this.handleSelectChange}>
             <option>select data type</option>
             {this.state.type.map(function(data,i){
@@ -59,29 +65,30 @@ var AddStore = React.createClass({
           <input type="text" value={this.state.versionSelection} onChange={this.handleVersionSelect} /><br />
         </form>
         <button id="newStore" onClick={this.props.onClick}>new store</button><br />
+        <p>{this.props.onClick}</p>
+        {/*<button id="saveStore" onClick={this.saveStore}>save store</button>*/}
+        <p>{this.props.name}</p>
       </div>
     )
   }
 })
 var Store = React.createClass({
-  saveStore:function(){
-    console.log(this.state)
-  },
+  // saveStore:function(){
+  //   console.log(this.state)
+  // },
   //use props instead of getInitialState
   getInitialState:function(){
     return {
       id:uuid.v4(),
       type:type,
-      value:value,
-      select:typeSelection,
-      version:versionSelection
+      name:"empty name",
+      select:"empty type",
+      version:"empty version"
     };
   },
   //how to make these more 'secret' to the render function below? use a module?
   handleConsoleName: function(event) {
-    return{
-      value:event.target.value
-    };
+    value=event.target.value;
   },
   handleConsoleType: function(event) {
     typeSelection=document.getElementById("type").value;
@@ -94,7 +101,7 @@ var Store = React.createClass({
       <div>
         <form>
           <p>ID: {this.state.id}</p>
-          Name: <input id="name" type="text" value={value} onChange={this.handleConsoleName.value} /><br />
+          Name: <input id="name" type="text" value={this.state.name} onChange={this.handleConsoleName} /><br />
           Type: <select id="type" onChange={this.handleConsoleType}>
             {this.state.type.map(function(data,i){
               return(
@@ -103,14 +110,16 @@ var Store = React.createClass({
               )
             })}
           </select><br />
-          Version: <input id="version" type="text" value={versionSelection} onChange={this.handleConsoleVersion} /><br />
+          Version: <input id="version" type="text" value="{versionSelection}" onChange={this.handleConsoleVersion} /><br />
         </form>
-        <button id="saveStore" onClick={this.saveStore}>save store</button>
       </div>
     )
   }
 })
 var App = React.createClass({
+  saveStore:function(){
+    console.log(this.state.stores)
+  },
   addStore:function(data){
     var newStore = {};
     this.setState({
@@ -127,10 +136,12 @@ var App = React.createClass({
       <div>
         {this.state.stores.map(function(store,i){
           return(
-            <Store /*pass store prop*/ key={i}></Store>
+            <AddStore /*pass store prop*/ key={i}></AddStore>
           )
         })}
-        <AddStore onClick={this.addStore}></AddStore>
+        <AddStore name={"this.state.name"} onClick={this.addStore}></AddStore>
+        <button id="newStore" onClick={this.addStore}>new store</button><br />
+        <button id="saveStore" onClick={this.saveStore}>save store</button>
       </div>
     )
   }
