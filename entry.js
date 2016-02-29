@@ -28,8 +28,10 @@ var AddStore = React.createClass({
   getInitialState: function(){
     return {
       //getInitialState is a method that returns an object where the properties are being assigned here, the same as getInitialState.type=type
+      id:uuid.v4(),
       type:type,
-      name:"enter a name for this store"
+      name:"enter a name for this store",
+      version:"versionSelection"
       //reset this property
     };
   },
@@ -52,17 +54,18 @@ var AddStore = React.createClass({
       {/*these should be printed to console when save button is clicked*/}
         {typeSelect=this.state.select}
         <form>
-          <input type="text" value={this.state.name} onChange={this.handleTextChange} /><br />
-          <select id="type" value={typeSelect} onChange={this.handleSelectChange}>
-            <option>select data type</option>
-            {this.state.type.map(function(data,i){
-              return(
-                //these attributes are props!
-                <SelectType key={i} name={data.name} type={data.type} version={data.version}></SelectType>
-              )
-            })}
-          </select><br />
-          <input type="text" value={this.state.versionSelection} onChange={this.handleVersionSelect} /><br />
+          <p>ID:{this.state.id}</p>
+          Name:<input type="text" value={this.state.name} onChange={this.handleTextChange} /><br />
+          Type:<select id="type" value={typeSelect} onChange={this.handleSelectChange}>
+               <option>select data type</option>
+                {this.state.type.map(function(data,i){
+                  return(
+                    //these attributes are props!
+                    <SelectType key={i} name={data.name} type={data.type} version={data.version}></SelectType>
+                  )
+                })}
+                </select><br />
+          Version:<input type="text" value={this.state.versionSelection} onChange={this.handleVersionSelect} /><br />
         </form>
       </div>
     )
@@ -70,10 +73,18 @@ var AddStore = React.createClass({
 })
 var App = React.createClass({
   saveStore:function(){
+    //this state is showing up as empty objects
     console.log(this.state.stores)
   },
   addStore:function(data){
-    var newStore = {};
+    //add your new object to the store array
+    var newStore = {
+      "id":this.state.id,
+      "name":this.state.name,
+      "type":this.state.type,
+      //the top three are undefined, this one is not but its a global
+      "version":versionSelection
+    };
     this.setState({
       stores:this.state.stores.concat(newStore)
     })
@@ -91,7 +102,7 @@ var App = React.createClass({
             <AddStore /*pass store prop*/ key={i}></AddStore>
           )
         })}
-        <AddStore name={"this.state.name"} onClick={this.addStore}></AddStore>
+        <AddStore onClick={this.addStore}></AddStore>
         <button id="newStore" onClick={this.addStore}>new store</button><br />
         <button id="saveStore" onClick={this.saveStore}>save store</button>
       </div>
