@@ -2,7 +2,8 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var Immutable = require('immutable');
 var uuid = require('uuid');
-var type = [//array...
+var data = [];//named this array for the map on line 66, otherwise error says it's undefined
+var versionType = [//array...
   {
     "name": "GeoJSON",
     "type": "geojson"
@@ -29,9 +30,9 @@ var AddStore = React.createClass({
     return {
       //getInitialState is a method that returns an object where the properties are being assigned here, the same as getInitialState.type=type
       id:uuid.v4(),
-      type:type,
+      type:versionType,//global array
       name:"enter a name for this store",
-      version:"versionSelection"
+      version:undefined
       //reset this property
     };
   },
@@ -42,10 +43,14 @@ var AddStore = React.createClass({
     });//update the state of component
    },
    handleSelectChange: function(event) {
-     typeSelection=document.getElementById("type").value;
+     this.setState({
+       type:document.getElementById("type").value
+     });
    },
    handleVersionSelect: function(event) {
-     versionSelection=event.target.value;
+     this.setState({
+       version:event.target.value
+     });
      //this should initialize setState down on line 83
    },
   render:function(){
@@ -58,6 +63,7 @@ var AddStore = React.createClass({
           Name:<input type="text" value={this.state.name} onChange={this.handleTextChange} /><br />
           Type:<select id="type" value={typeSelect} onChange={this.handleSelectChange}>
                <option>select data type</option>
+               {/*ERROR: this.state.type.map is not a function*/}
                 {this.state.type.map(function(data,i){
                   return(
                     //these attributes are props!
@@ -82,8 +88,7 @@ var App = React.createClass({
       "id":this.state.id,
       "name":this.state.name,
       "type":this.state.type,
-      //the top three are undefined, this one is not but its a global
-      "version":versionSelection
+      "version":this.state.version
     };
     this.setState({
       stores:this.state.stores.concat(newStore)
