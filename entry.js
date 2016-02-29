@@ -64,54 +64,6 @@ var AddStore = React.createClass({
           </select><br />
           <input type="text" value={this.state.versionSelection} onChange={this.handleVersionSelect} /><br />
         </form>
-        <button id="newStore" onClick={this.props.onClick}>new store</button><br />
-        <p>{this.props.onClick}</p>
-        {/*<button id="saveStore" onClick={this.saveStore}>save store</button>*/}
-        <p>{this.props.name}</p>
-      </div>
-    )
-  }
-})
-var Store = React.createClass({
-  // saveStore:function(){
-  //   console.log(this.state)
-  // },
-  //use props instead of getInitialState
-  getInitialState:function(){
-    return {
-      id:uuid.v4(),
-      type:type,
-      name:"empty name",
-      select:"empty type",
-      version:"empty version"
-    };
-  },
-  //how to make these more 'secret' to the render function below? use a module?
-  handleConsoleName: function(event) {
-    value=event.target.value;
-  },
-  handleConsoleType: function(event) {
-    typeSelection=document.getElementById("type").value;
-  },
-  handleConsoleVersion: function(event) {
-    versionSelection=event.target.value;
-  },
-  render:function(){
-    return(
-      <div>
-        <form>
-          <p>ID: {this.state.id}</p>
-          Name: <input id="name" type="text" value={this.state.name} onChange={this.handleConsoleName} /><br />
-          Type: <select id="type" onChange={this.handleConsoleType}>
-            {this.state.type.map(function(data,i){
-              return(
-                //pass props to determine which one is selected.
-                <SelectType key={i} name={data.name} type={data.type} version={data.version}></SelectType>
-              )
-            })}
-          </select><br />
-          Version: <input id="version" type="text" value="{versionSelection}" onChange={this.handleConsoleVersion} /><br />
-        </form>
       </div>
     )
   }
