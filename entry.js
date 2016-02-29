@@ -30,7 +30,8 @@ var AddStore = React.createClass({
     return {
       //getInitialState is a method that returns an object where the properties are being assigned here, the same as getInitialState.type=type
       id:uuid.v4(),
-      type:versionType,//global array
+      //you are changing the value of type
+      typeState:versionType,//global array
       name:"enter a name for this store",
       version:undefined
       //reset this property
@@ -54,17 +55,23 @@ var AddStore = React.createClass({
      //this should initialize setState down on line 83
    },
   render:function(){
+    var newStore = {
+      "id":this.state.id,
+      "name":this.state.name,
+      "type":this.state.type,
+      "version":this.state.version
+    };
+    this.App = this.App.bind(newStore);
     return(
       <div>
       {/*these should be printed to console when save button is clicked*/}
         {typeSelect=this.state.select}
         <form>
           <p>ID:{this.state.id}</p>
-          Name:<input type="text" value={this.state.name} onChange={this.handleTextChange} /><br />
+          Name:<input type="text" placeholder={this.state.name} onChange={this.handleTextChange} /><br />
           Type:<select id="type" value={typeSelect} onChange={this.handleSelectChange}>
                <option>select data type</option>
-               {/*ERROR: this.state.type.map is not a function*/}
-                {this.state.type.map(function(data,i){
+                {this.state.typeState.map(function(data,i){
                   return(
                     //these attributes are props!
                     <SelectType key={i} name={data.name} type={data.type} version={data.version}></SelectType>
@@ -84,12 +91,13 @@ var App = React.createClass({
   },
   addStore:function(data){
     //add your new object to the store array
-    var newStore = {
-      "id":this.state.id,
-      "name":this.state.name,
-      "type":this.state.type,
-      "version":this.state.version
-    };
+    //these are currently undefined...start adding some values!
+    // var newStore = {
+    //   // "id":this.state.id,
+    //   // "name":this.state.name,
+    //   // "type":this.state.type,
+    //   // "version":this.state.version
+    // };
     this.setState({
       stores:this.state.stores.concat(newStore)
     })
@@ -108,7 +116,7 @@ var App = React.createClass({
           )
         })}
         <AddStore onClick={this.addStore}></AddStore>
-        <button id="newStore" onClick={this.addStore}>new store</button><br />
+        <button id="newstore" onClick={this.addStore}>new store</button><br />
         <button id="saveStore" onClick={this.saveStore}>save store</button>
       </div>
     )
