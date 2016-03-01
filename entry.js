@@ -2,7 +2,7 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var Immutable = require('immutable');
 var uuid = require('uuid');
-var data = [];//named this array for the map on line 66, otherwise error says it's undefined
+//var newStore = {};
 var versionType = [//array...
   {
     "name": "GeoJSON",
@@ -31,7 +31,7 @@ var AddStore = React.createClass({
       //getInitialState is a method that returns an object where the properties are being assigned here, the same as getInitialState.type=type
       id:uuid.v4(),
       //you are changing the value of type
-      typeState:versionType,//global array
+      selectType:versionType,//global array
       name:"enter a name for this store",
       version:undefined
       //reset this property
@@ -55,13 +55,11 @@ var AddStore = React.createClass({
      //this should initialize setState down on line 83
    },
   render:function(){
-    var newStore = {
-      "id":this.state.id,
-      "name":this.state.name,
-      "type":this.state.type,
-      "version":this.state.version
-    };
-    this.App = this.App.bind(newStore);
+    this.props.newStore.id=this.state.id;
+    this.props.newStore.name=this.state.name;
+    this.props.newStore.type=this.state.type;
+    this.props.newStore.version=this.state.version;
+    //console.log(this.props.newstore);//it's getting it...
     return(
       <div>
       {/*these should be printed to console when save button is clicked*/}
@@ -71,7 +69,7 @@ var AddStore = React.createClass({
           Name:<input type="text" placeholder={this.state.name} onChange={this.handleTextChange} /><br />
           Type:<select id="type" value={typeSelect} onChange={this.handleSelectChange}>
                <option>select data type</option>
-                {this.state.typeState.map(function(data,i){
+                {this.state.selectType.map(function(data,i){
                   return(
                     //these attributes are props!
                     <SelectType key={i} name={data.name} type={data.type} version={data.version}></SelectType>
@@ -87,40 +85,40 @@ var AddStore = React.createClass({
 var App = React.createClass({
   saveStore:function(){
     //this state is showing up as empty objects
-    console.log(this.state.stores)
+    console.log(this.state.stores);
   },
   addStore:function(data){
-    //add your new object to the store array
-    //these are currently undefined...start adding some values!
-    // var newStore = {
-    //   // "id":this.state.id,
-    //   // "name":this.state.name,
-    //   // "type":this.state.type,
-    //   // "version":this.state.version
-    // };
+    //var newStore = {
+    //   // id:"placeholder",
+    //   // name:"placeholder",
+    //   // type:"placeholder",
+    //   // version:"placeholder"
+    //};
     this.setState({
-      stores:this.state.stores.concat(newStore)
-    })
+      newstore:{},
+      stores:this.state.stores.concat(this.state.newstore)
+    });
   },
-  getInitialState: function(){
+  getInitialState:function(){
     return{
+      newstore:{},//undefined
       stores:[]
-    }
+    };
   },
   render: function(){
+    var newStore = {};
     return(
       <div>
+        <AddStore newStore={this.state.newstore} onClick={this.addStore}></AddStore>
         {this.state.stores.map(function(store,i){
           return(
-            <AddStore /*pass store prop*/ key={i}></AddStore>
+            <AddStore key={i}></AddStore>
           )
         })}
-        <AddStore onClick={this.addStore}></AddStore>
-        <button id="newstore" onClick={this.addStore}>new store</button><br />
+        <button id="newstorebutton" onClick={this.addStore}>new store</button><br />
         <button id="saveStore" onClick={this.saveStore}>save store</button>
       </div>
     )
   }
 })
-
 ReactDOM.render(<App></App>, document.getElementById("app"));
