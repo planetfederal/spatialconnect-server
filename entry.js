@@ -87,7 +87,7 @@ var App = React.createClass({
     //this state is showing up as empty objects
     console.log(this.state.stores);
   },
-  addStore:function(data){
+  addStore:function(){
     //var newStore = {
     //   // id:"placeholder",
     //   // name:"placeholder",
@@ -95,7 +95,7 @@ var App = React.createClass({
     //   // version:"placeholder"
     //};
     this.setState({
-      newstore:{},
+      //newstore:{},
       stores:this.state.stores.concat(this.state.newstore)
     });
   },
@@ -106,7 +106,6 @@ var App = React.createClass({
     };
   },
   render: function(){
-    var newStore = {};
     return(
       <div>
         <AddStore newStore={this.state.newstore} onClick={this.addStore}></AddStore>
