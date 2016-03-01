@@ -95,13 +95,15 @@ var App = React.createClass({
     //   // version:"placeholder"
     //};
     this.setState({
-      //newstore:{},
+      newstore:{},
       stores:this.state.stores.concat(this.state.newstore)
     });
   },
   getInitialState:function(){
     return{
-      newstore:{},//undefined
+      newstore:{
+        id:uuid.v4()
+      },//undefined
       stores:[]
     };
   },
@@ -111,8 +113,7 @@ var App = React.createClass({
         <AddStore newStore={this.state.newstore} onClick={this.addStore}></AddStore>
         {this.state.stores.map(function(store,i){
           return(
-            //cannot read property newstore of undefined...state is undefined?
-            <AddStore newStore={this.state.newstore} key={i}></AddStore>
+            <AddStore newStore={store} key={i}></AddStore>
           )
         })}
         <button id="newstorebutton" onClick={this.addStore}>new store</button><br />
