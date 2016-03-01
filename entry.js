@@ -112,7 +112,8 @@ var App = React.createClass({
         <AddStore newStore={this.state.newstore} onClick={this.addStore}></AddStore>
         {this.state.stores.map(function(store,i){
           return(
-            <AddStore key={i}></AddStore>
+            //cannot read property newstore of undefined...state is undefined?
+            <AddStore newStore={this.state.newstore} key={i}></AddStore>
           )
         })}
         <button id="newstorebutton" onClick={this.addStore}>new store</button><br />
