@@ -86,16 +86,16 @@ var App = React.createClass({
     return{
       newstore:{
         id:uuid.v4()
-      },//undefined
-      stores:[/*this.state.newstore*/]//Cannot read property 'newstore' of null
+      },
+      stores:[{
+        id:uuid.v4()
+      }]
     };
   },
   render: function(){
     return(
       <div>
-        <AddStore newStore={this.state.newstore} onClick={this.addStore}></AddStore>
         {this.state.stores.map(function(store, i){
-          //I think this is where the first store gets left off
           return(
             <AddStore newStore={store} key={i}></AddStore>
           );
