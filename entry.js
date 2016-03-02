@@ -2,19 +2,6 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var Immutable = require('immutable');
 var uuid = require('uuid');
-//var newStore = {};
-var versionType = [//array...
-  {
-    "name": "GeoJSON",
-    "type": "geojson"
-  },
-  {
-    "name": "geopackage",
-    "type": "gppkg"
-  }
-]
-var version=[<option>select version</option>];
-//add your type drop down
 var SelectType = React.createClass({
   render:function(){
     return(
@@ -28,24 +15,28 @@ var AddStore = React.createClass({
   },
   getInitialState: function(){
     return {
-      //getInitialState is a method that returns an object where the properties are being assigned here, the same as getInitialState.type=type
-      id:uuid.v4(),
-      //you are changing the value of type
-      selectType:versionType,//global array
-      name:"enter a name for this store",
-      version:undefined
-      //reset this property
+      //id:uuid.v4(),//id should be passed in as a prop
+      selectType:[
+        {
+          "name": "GeoJSON",
+          "type": "geojson"
+        },
+        {
+          "name": "geopackage",
+          "type": "gppkg"
+        }
+      ]
     };
   },
-  //this updates the state object in React
    handleTextChange: function(event) {
     this.setState({
       name:event.target.value
-    });//update the state of component
+    });
    },
    handleSelectChange: function(event) {
      this.setState({
        type:document.getElementById("type").value
+       //change this to be event driven
      });
    },
    handleVersionSelect: function(event) {
@@ -55,7 +46,7 @@ var AddStore = React.createClass({
      //this should initialize setState down on line 83
    },
   render:function(){
-    this.props.newStore.id=this.state.id;
+    //this.props.newStore.id=this.state.id;//id should be passed as a prop
     this.props.newStore.name=this.state.name;
     this.props.newStore.type=this.state.type;
     this.props.newStore.version=this.state.version;
@@ -65,8 +56,8 @@ var AddStore = React.createClass({
       {/*these should be printed to console when save button is clicked*/}
         {typeSelect=this.state.select}
         <form>
-          <p>ID:{this.state.id}</p>
-          Name:<input type="text" placeholder={this.state.name} onChange={this.handleTextChange} /><br />
+          <p>ID:{this.props.uuid}</p>
+          Name:<input type="text" placeholder="enter a name for this store" onChange={this.handleTextChange} /><br />
           Type:<select id="type" value={typeSelect} onChange={this.handleSelectChange}>
                <option>select data type</option>
                 {this.state.selectType.map(function(data,i){
@@ -84,18 +75,13 @@ var AddStore = React.createClass({
 })
 var App = React.createClass({
   saveStore:function(){
-    //this state is showing up as empty objects
     console.log(this.state.stores);
   },
   addStore:function(){
-    //var newStore = {
-    //   // id:"placeholder",
-    //   // name:"placeholder",
-    //   // type:"placeholder",
-    //   // version:"placeholder"
-    //};
     this.setState({
-      newstore:{},
+      newstore:{
+        id:uuid.v4()
+      },//Wes thinks you should delete this but newstore{} doesn't make it to the state without it
       stores:this.state.stores.concat(this.state.newstore)
     });
   },
@@ -104,22 +90,24 @@ var App = React.createClass({
       newstore:{
         id:uuid.v4()
       },//undefined
-      stores:[]
+      stores:[/*this.state.newstore*/]//Cannot read property 'newstore' of null
     };
   },
   render: function(){
+    var mapid=this.state.newstore.id;
     return(
       <div>
-        <AddStore newStore={this.state.newstore} onClick={this.addStore}></AddStore>
-        {this.state.stores.map(function(store,i){
+        <AddStore uuid={this.state.newstore.id} newStore={this.state.newstore} onClick={this.addStore}></AddStore>
+        {this.state.stores.map(function(store, i){
+          //I think this is where the first store gets left off
           return(
-            <AddStore newStore={store} key={i}></AddStore>
-          )
+            <AddStore uuid={mapid} newStore={store} key={i}></AddStore>
+          );
         })}
         <button id="newstorebutton" onClick={this.addStore}>new store</button><br />
         <button id="saveStore" onClick={this.saveStore}>save store</button>
       </div>
-    )
+    );
   }
 })
 ReactDOM.render(<App></App>, document.getElementById("app"));
