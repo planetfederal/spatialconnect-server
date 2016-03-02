@@ -15,7 +15,6 @@ var AddStore = React.createClass({
   },
   getInitialState: function(){
     return {
-      //id:uuid.v4(),//id should be passed in as a prop
       selectType:[
         {
           "name": "GeoJSON",
@@ -46,23 +45,20 @@ var AddStore = React.createClass({
      //this should initialize setState down on line 83
    },
   render:function(){
-    //this.props.newStore.id=this.state.id;//id should be passed as a prop
     this.props.newStore.name=this.state.name;
     this.props.newStore.type=this.state.type;
     this.props.newStore.version=this.state.version;
-    //console.log(this.props.newstore);//it's getting it...
     return(
       <div>
       {/*these should be printed to console when save button is clicked*/}
         {typeSelect=this.state.select}
         <form>
-          <p>ID:{this.props.uuid}</p>
+          <p>ID:{this.props.newStore.id}</p>
           Name:<input type="text" placeholder="enter a name for this store" onChange={this.handleTextChange} /><br />
           Type:<select id="type" value={typeSelect} onChange={this.handleSelectChange}>
                <option>select data type</option>
                 {this.state.selectType.map(function(data,i){
                   return(
-                    //these attributes are props!
                     <SelectType key={i} name={data.name} type={data.type} version={data.version}></SelectType>
                   )
                 })}
@@ -82,6 +78,7 @@ var App = React.createClass({
       newstore:{
         id:uuid.v4()
       },//Wes thinks you should delete this but newstore{} doesn't make it to the state without it
+      //whats here is not including the newstore.id, you are concatting the old newstore not the newest
       stores:this.state.stores.concat(this.state.newstore)
     });
   },
@@ -94,14 +91,13 @@ var App = React.createClass({
     };
   },
   render: function(){
-    var mapid=this.state.newstore.id;
     return(
       <div>
-        <AddStore uuid={this.state.newstore.id} newStore={this.state.newstore} onClick={this.addStore}></AddStore>
+        <AddStore newStore={this.state.newstore} onClick={this.addStore}></AddStore>
         {this.state.stores.map(function(store, i){
           //I think this is where the first store gets left off
           return(
-            <AddStore uuid={mapid} newStore={store} key={i}></AddStore>
+            <AddStore newStore={store} key={i}></AddStore>
           );
         })}
         <button id="newstorebutton" onClick={this.addStore}>new store</button><br />
