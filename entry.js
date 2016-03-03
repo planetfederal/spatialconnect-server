@@ -26,10 +26,8 @@ var AddStore = React.createClass({
     };
   },
   render:function(){
-    //this.props.newStore.id=this.props.uuid;
     return(
       <div>
-      {/*these should be printed to console when save button is clicked*/}
         {typeSelect=this.state.select}
         <form>
           <p>ID:{this.props.newStore.id}</p>
@@ -50,7 +48,8 @@ var AddStore = React.createClass({
 });
 var App = React.createClass({
   saveStore:function(){
-    console.log(this.state.stores);
+    var printStore=this.state.stores;
+    console.log(printStore);
   },
   addStore:function(){
     newstore={
