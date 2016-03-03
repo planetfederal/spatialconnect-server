@@ -55,18 +55,15 @@ var App = React.createClass({
   addStore:function(){
     newstore={
       id:uuid.v4(),
-      name:nameText,
-      type:typeText,
-      version:versionText
+      name:this.state.stores.name,
+      type:this.state.stores.type,
+      version:this.state.stores.version
     };
     this.setState({
       stores:this.state.stores.concat(newstore)
     });
   },
   getInitialState:function(){
-    var nameText;
-    var typeText;
-    var versionText;
     var newstore={
       id:uuid.v4()
     };
@@ -80,13 +77,13 @@ var App = React.createClass({
         {this.state.stores.map(function(store, i){
           handleChange={
             handleTextChange:function(event) {
-              nameText=event.target.value;
+              store.name=event.target.value;
             },
             handleSelectChange:function(event) {
-              typeText=event.target.value;
+              store.type=event.target.value;
             },
             handleVersionSelect:function(event) {
-              versionText=event.target.value;
+              store.version=event.target.value;
             }
           };
           return(
