@@ -47,14 +47,13 @@ var AddStore = React.createClass({
     )
   }
 });
-var count=0;
 var App = React.createClass({
   saveStore:function(){
     console.log(this.state.stores);
   },
   addStore:function(){
-    var newstore={
-      id:count++,
+    newstore={
+      id:uuid.v4(),
       name:nameText,
       type:typeText,
       version:versionText
@@ -63,12 +62,21 @@ var App = React.createClass({
       stores:this.state.stores.concat(newstore)
     });
   },
+  addStoreState:function(){
+    console.log("I'm running");
+    this.setState({
+       id:uuid.v4(),
+       name:nameText,
+       type:typeText,
+       version:versionText
+    });
+  },
   getInitialState:function(){
     var nameText;
     var typeText;
     var versionText;
     var newstore={
-      id:count++
+      id:uuid.v4()
     };
     return{
       stores:[newstore]
@@ -83,7 +91,7 @@ var App = React.createClass({
               nameText=event.target.value;
             },
             handleSelectChange:function(event) {
-              typeText=document.getElementById("type").value;
+              typeText=event.target.value;
             },
             handleVersionSelect:function(event) {
               versionText=event.target.value;
@@ -97,6 +105,7 @@ var App = React.createClass({
         <button id="saveStore" onClick={this.saveStore}>save</button>
       </div>
     );
+    this.addStoreState;//never runs, if you can get this to run, it could be a good way to pass non-global values
   }
 });
 ReactDOM.render(<App></App>, document.getElementById("app"));
