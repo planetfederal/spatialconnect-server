@@ -26,6 +26,7 @@ var AddStore = React.createClass({
     };
   },
   render:function(){
+    //this.props.newStore.id=this.props.uuid;
     return(
       <div>
       {/*these should be printed to console when save button is clicked*/}
@@ -62,15 +63,6 @@ var App = React.createClass({
       stores:this.state.stores.concat(newstore)
     });
   },
-  addStoreState:function(){
-    console.log("I'm running");
-    this.setState({
-       id:uuid.v4(),
-       name:nameText,
-       type:typeText,
-       version:versionText
-    });
-  },
   getInitialState:function(){
     var nameText;
     var typeText;
@@ -105,7 +97,6 @@ var App = React.createClass({
         <button id="saveStore" onClick={this.saveStore}>save</button>
       </div>
     );
-    this.addStoreState;//never runs, if you can get this to run, it could be a good way to pass non-global values
   }
 });
 ReactDOM.render(<App></App>, document.getElementById("app"));
