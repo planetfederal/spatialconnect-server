@@ -45,9 +45,9 @@ var AddStore = React.createClass({
      //this should initialize setState down on line 83
    },
   render:function(){
-    this.props.newStore.name=this.state.name;
-    this.props.newStore.type=this.state.type;
-    this.props.newStore.version=this.state.version;
+    //this.props.newStore.name=this.state.name;
+    //this.props.newStore.type=this.state.type;
+    //this.props.newStore.version=this.state.version;
     return(
       <div>
       {/*these should be printed to console when save button is clicked*/}
@@ -76,9 +76,9 @@ var App = React.createClass({
   addStore:function(){
     this.setState({
       newstore:{
-        id:uuid.v4()
-      },//Wes thinks you should delete this but newstore{} doesn't make it to the state without it
-      //whats here is not including the newstore.id, you are concatting the old newstore not the newest
+        id:uuid.v4(),//keeps updating the first one
+        name:this.props.newStore.name
+      },
       stores:this.state.stores.concat(this.state.newstore)
     });
   },
@@ -86,22 +86,24 @@ var App = React.createClass({
     return{
       newstore:{
         id:uuid.v4()
-      },
-      stores:[{
-        id:uuid.v4()
-      }]
+      },//Wes thinks you should delete this but newstore{} doesn't make it to the state without it
+      //whats here is not including the newstore.id, you are concatting the old newstore not the newest
+      stores:[//{
+        //id:uuid.v4()
+      /*}*/]
     };
   },
   render: function(){
     return(
       <div>
+      <AddStore newStore={this.state.newstore} onClick={this.addStore}></AddStore>
         {this.state.stores.map(function(store, i){
           return(
             <AddStore newStore={store} key={i}></AddStore>
           );
         })}
-        <button id="newstorebutton" onClick={this.addStore}>new store</button><br />
-        <button id="saveStore" onClick={this.saveStore}>save store</button>
+        <button id="newstorebutton" onClick={this.addStore}>add store</button><br />
+        <button id="saveStore" onClick={this.saveStore}>save</button>
       </div>
     );
   }
