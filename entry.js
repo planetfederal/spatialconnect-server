@@ -48,7 +48,7 @@ var AddStore = React.createClass({
 });
 var App = React.createClass({
   saveStore:function(){
-    var printStore=this.state.stores;
+    var printStore = {stores:this.state.stores};
     console.log(printStore);
   },
   addStore:function(){
