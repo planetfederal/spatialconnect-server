@@ -33,7 +33,15 @@
     "public": false
   },
   "Config": {
-    "dataSource": "db",
-    "public": true
+    "dataSource": "postgres",
+    "public": true,
+    "$promise": {},
+    "$resolved": true
+  },
+  "Event": {
+    "dataSource": "postgres",
+    "public": true,
+    "$promise": {},
+    "$resolved": true
   }
 }

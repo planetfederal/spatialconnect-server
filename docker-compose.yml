@@ -1,0 +1,73 @@
+zookeeper:
+  image: confluent/zookeeper
+  hostname: zookeeper
+  ports:
+    - 2181
+
+kafka:
+  image: confluent/kafka
+  hostname: kafka
+  ports:
+    - 9092
+  links:
+    - zookeeper
+  environment:
+    - KAFKA_LOG_CLEANUP_POLICY=compact
+
+schema-registry:
+  image: confluent/schema-registry
+  hostname: schema-registry
+  ports:
+    - 8081
+  links:
+    - zookeeper
+    - kafka
+  environment:
+    - SCHEMA_REGISTRY_AVRO_COMPATIBILITY_LEVEL=none
+
+postgres:
+  image: confluent/postgres-bw:0.1
+  hostname: postgres
+  ports:
+    - 5432
+
+bottledwater:
+    image: confluent/bottledwater:0.1
+    links:
+        - kafka
+        - postgres
+        - schema-registry
+
+consumer:
+    image: confluent/tools
+    entrypoint: ['/confluent-tools.sh', 'kafka-avro-console-consumer']
+    links:
+        - zookeeper
+        - kafka
+        - schema-registry
+
+nginx:
+  image: jwilder/nginx-proxy
+  ports:
+    - 80:80
+  volumes:
+    - /var/run/docker.sock:/tmp/docker.sock:ro
+
+spatialconnect:
+  build: .
+  command: npm start
+  ports:
+    - "3000:3000"
+  volumes:
+    - .:/usr/src/app
+  links:
+    - zookeeper
+    - kafka
+    - schema-registry
+    - postgres
+    - nginx
+  environment:
+    - PGHOST=postgres
+    - PGUSER=postgres
+    - PGDATABASE=postgres
+    - VIRTUAL_HOST=default

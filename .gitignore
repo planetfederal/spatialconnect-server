@@ -69,6 +69,10 @@ Podfile.lock
 *.framework/
 Carthage/
 *bundle.js
+*bundle.js.map
+dist
+testdb.json
 
 # never check in the keystore!
 spatialconnect.keystore
+
