@@ -4,6 +4,9 @@ This server is the interface used to communicate with mobile clients
 using the SpatialConnect libraries.  It's also the API that powers the
 dashboard web application.
 
+The development server used webpack & npm to install React, Immutable, & Redux.
+using the SpatialConnect libraries.  It's also the API that powers the
+dashboard web application.
 
 ## Running with Docker
 

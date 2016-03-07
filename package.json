@@ -7,6 +7,7 @@
     "pretest": "jshint .",
     "posttest": "nsp check"
   },
+  "description": "This server is the interface used to communicate with mobile clients using the SpatialConnect libraries.",
   "dependencies": {
     "compression": "^1.0.3",
     "cors": "^2.5.2",
@@ -41,5 +42,32 @@
     "type": "",
     "url": ""
   },
+  "homepage": "https://github.com/daniellabirch/spatialconnect-server#readme",
+  "dependencies": {
+    "compression": "^1.0.3",
+    "cors": "^2.5.2",
+    "express": "^4.13.4",
+    "helmet": "^0.14.0",
+    "loopback": "^2.22.0",
+    "loopback-boot": "^2.6.5",
+    "loopback-component-explorer": "^2.1.0",
+    "loopback-connector-postgresql": "^2.4.1",
+    "loopback-datasource-juggler": "^2.39.0",
+    "nodemon": "^1.9.1",
+    "serve-favicon": "^2.0.1",
+    "webpack": "^1.12.14",
+    "webpack-dev-middleware": "^1.5.1",
+    "webpack-hot-middleware": "^2.7.1"
+  },
+  "devDependencies": {
+    "jshint": "^2.5.6",
+    "nsp": "^2.1.0"
+  },
+  "repository": {
+    "type": "",
+    "url": ""
+  },
   "description": "spatialconnect-server"
+>>>>>>> boundlessgeo/develop
+>>>>>>> mocha test
 }

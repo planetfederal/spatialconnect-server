@@ -1,5 +1,3 @@
-node_modules
-
 .gradle
 /local.properties
 
@@ -19,6 +17,16 @@ node_modules
 
 # Java class files
 *.class
+
+# Build and Release Folders
+bin/
+bin-debug/
+bin-release/
+node_modules/
+bundle.js*
+
+.gradle
+/local.properties
 
 # Generated files
 bin/
