@@ -20,6 +20,7 @@ describe('Array', function() {
 });
 
 //Testing asynchronous code with Mocha could not be simpler! Simply invoke the callback when your test is complete. By adding a callback (usually named done) to it() Mocha will know that it should wait for completion.
+//define User
 describe('User', function() {
   describe('#save()', function() {
     it('should save without error', function(done) {
@@ -33,6 +34,7 @@ describe('User', function() {
 });
 
 //To make things even easier, the done() callback accepts an error, so we may use this directly:
+//define User
 describe('User', function() {
   describe('#save()', function() {
     it('should save without error', function(done) {
@@ -43,16 +45,16 @@ describe('User', function() {
 });
 
 //egghead tutorial
-let helloWorld = {
+var helloWorld = {
   init() {
     return 'hello world';
   }
 };
 export default helloWorld;
 
-describe('helloWorld', () => {
-  describe('#init()', () => {
-    it('should return hello world', () => {
+describe('helloWorld', function() {
+  describe('#init()', function() {
+    it('should return hello world', function() {
       assert.equal(helloWorld.init(), 'hello world');
     });
   });
