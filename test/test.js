@@ -11,7 +11,7 @@ describe('Array', function() {
 
 //When testing synchronous code, omit the callback and Mocha will automatically continue on to the next test.
 describe('Array', function() {
-  describe('#indexOf()', function() {
+  describe('#2ndindexOf()', function() {
     it('should return -1 when the value is not present', function() {
       [1,2,3].indexOf(5).should.equal(-1);
       [1,2,3].indexOf(0).should.equal(-1);
@@ -38,6 +38,22 @@ describe('User', function() {
     it('should save without error', function(done) {
       var user = new User('Luna');
       user.save(done);
+    });
+  });
+});
+
+//egghead tutorial
+let helloWorld = {
+  init() {
+    return 'hello world';
+  }
+};
+export default helloWorld;
+
+describe('helloWorld', () => {
+  describe('#init()', () => {
+    it('should return hello world', () => {
+      assert.equal(helloWorld.init(), 'hello world');
     });
   });
 });
