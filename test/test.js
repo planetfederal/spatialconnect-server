@@ -1,5 +1,7 @@
 //mocha test code
 var assert = require('assert');
+import helloWorld from './web/index.js/history';
+
 describe('Array', function() {
   describe('#indexOf()', function () {
     it('should return -1 when the value is not present', function () {
@@ -11,8 +13,8 @@ describe('Array', function() {
 
 var five=5;
 describe('Array', function() {
-  describe('#indexOf()', function () {
-    it('should return -1 when the value is not present', function () {
+  describe('#five()', function () {
+    it.only('should return true', function () {
       assert.equal(five, 5);
     });
   });
@@ -63,7 +65,7 @@ describe('User', function() {
 
 describe('helloWorld', function() {
   describe('#init()', function() {
-    it('should return hello world', function() {
+    it.skip('should return hello world', function() {
       assert.equal(helloWorld.init(), 'hello world');
     });
   });
