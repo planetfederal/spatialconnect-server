@@ -9,6 +9,15 @@ describe('Array', function() {
   });
 });
 
+var five=5;
+describe('Array', function() {
+  describe('#indexOf()', function () {
+    it('should return -1 when the value is not present', function () {
+      assert.equal(five, 5);
+    });
+  });
+});
+
 //When testing synchronous code, omit the callback and Mocha will automatically continue on to the next test.
 describe('Array', function() {
   describe('#2ndindexOf()', function() {
@@ -45,12 +54,12 @@ describe('User', function() {
 });
 
 //egghead tutorial
-var helloWorld = {
-  init() {
-    return 'hello world';
-  }
-};
-export default helloWorld;
+// var helloWorld = {
+//   init() {
+//     return 'hello world';
+//   }
+// };
+// export default helloWorld;
 
 describe('helloWorld', function() {
   describe('#init()', function() {
