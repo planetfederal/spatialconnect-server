@@ -1,6 +1,6 @@
 //mocha test code
 var assert = require('assert');
-import helloWorld from './web/index.js/history';
+import history from './web/index.js/history';
 
 describe('Array', function() {
   describe('#indexOf()', function () {
@@ -12,10 +12,17 @@ describe('Array', function() {
 });
 
 var five=5;
-describe('Array', function() {
-  describe('#five()', function () {
-    it.only('should return true', function () {
-      assert.equal(five, 5);
+describe('#five()', function () {
+  it.only('should return true', function () {
+    assert.equal(five, 5);
+  });
+});
+
+//access the history function from index.js and check its arguments
+describe('history', function() {
+  describe('#history()', function() {
+    it('should contain a store argument', function() {
+
     });
   });
 });
