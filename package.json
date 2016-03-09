@@ -5,24 +5,12 @@
   "scripts": {
     "start": "nodemon .",
     "pretest": "jshint .",
-    "posttest": "nsp check"
+    "posttest": "nsp check",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "description": "This server is the interface used to communicate with mobile clients using the SpatialConnect libraries.",
+  "main": "bundle.js",
   "dependencies": {
-    "compression": "^1.0.3",
-    "cors": "^2.5.2",
-    "express": "^4.13.4",
-    "helmet": "^0.14.0",
-    "loopback": "^2.22.0",
-    "loopback-boot": "^2.6.5",
-    "loopback-component-explorer": "^2.1.0",
-    "loopback-connector-postgresql": "^2.4.1",
-    "loopback-datasource-juggler": "^2.39.0",
-    "nodemon": "^1.9.1",
-    "serve-favicon": "^2.0.1",
-    "webpack": "^1.12.14",
-    "webpack-dev-middleware": "^1.5.1",
-    "webpack-hot-middleware": "^2.7.1",
     "babel-loader": "^6.2.2",
     "jsx": "^0.9.89",
     "babel-core": "^6.4.5",
@@ -31,19 +19,7 @@
     "uuid": "^2.0.1",
     "webpack": "^1.12.13",
     "react-dom": "^0.14.7",
-    "css-loader": "^0.23.1"
-  },
-  "devDependencies": {
-    "jshint": "^2.5.6",
-    "nsp": "^2.1.0",
-    "should": "^8.2.2"
-  },
-  "repository": {
-    "type": "",
-    "url": ""
-  },
-  "homepage": "https://github.com/daniellabirch/spatialconnect-server#readme",
-  "dependencies": {
+    "css-loader": "^0.23.1",
     "compression": "^1.0.3",
     "cors": "^2.5.2",
     "express": "^4.13.4",
@@ -61,13 +37,22 @@
   },
   "devDependencies": {
     "jshint": "^2.5.6",
-    "nsp": "^2.1.0"
+    "nsp": "^2.1.0",
+    "should": "^8.2.2"
   },
   "repository": {
     "type": "",
     "url": ""
   },
-  "description": "spatialconnect-server"
->>>>>>> boundlessgeo/develop
->>>>>>> mocha test
-}
+  "homepage": "https://github.com/daniellabirch/spatialconnect-server#readme",
+    "should": "^8.2.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/daniellabirch/spatialconnect-server.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/daniellabirch/spatialconnect-server/issues"
+  }
