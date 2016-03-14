@@ -12,7 +12,7 @@ const EventItem = ({ event }) => (
 
 EventItem.propTypes = {
   event: PropTypes.object.isRequired
-}
+};
 
 const EventsList = ({ eventsList }) => (
   <ul className="list">
@@ -22,6 +22,6 @@ const EventsList = ({ eventsList }) => (
 
 EventsList.propTypes = {
   eventsList: PropTypes.array.isRequired
-}
+};
 
 export default EventsList;

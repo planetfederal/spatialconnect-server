@@ -32,7 +32,7 @@
     "dataSource": "db",
     "public": false
   },
-  "Config": {
+  "DataStore": {
     "dataSource": "postgres",
     "public": true,
     "$promise": {},
