@@ -7,6 +7,7 @@ const EventDetails = (props) => {
   return (
     <div>
       <h4>EventId: {params.id}</h4>
+      {props.children}
     </div>
   );
 };

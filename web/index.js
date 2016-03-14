@@ -9,9 +9,10 @@ import App from './components/App';
 import thunk from 'redux-thunk';
 import createLogger from 'redux-logger';
 import { reducer as formReducer } from 'redux-form';
-import { Router, Route, browserHistory } from 'react-router';
+import { Router, Route, IndexRoute, browserHistory } from 'react-router';
 import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
 import EventsContainer from './containers/EventsContainer';
+import DataStoresContainer from './containers/DataStoresContainer';
 import EventDetails from './components/EventDetails';
 
 // combine all the reducers into a single reducing function
@@ -40,7 +41,9 @@ render(
     <Router history={history}>
       <Route path="/" component={App}>
         <Route path="/events" component={EventsContainer}>
-          <Route path="/events/:id" component={EventDetails} />
+          <Route path="/events/:id" component={EventDetails} >
+            <IndexRoute component={DataStoresContainer} />
+          </Route>
         </Route>
       </Route>
     </Router>
