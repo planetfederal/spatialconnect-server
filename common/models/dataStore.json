@@ -1,6 +1,6 @@
 {
-  "name": "Config",
-  "plural": "configs",
+  "name": "DataStore",
+  "plural": "stores",
   "base": "PersistedModel",
   "idInjection": true,
   "options": {
@@ -24,8 +24,7 @@
       "required": true
     },
     "uri": {
-      "type": "string",
-      "required": true
+      "type": "string"
     }
   },
   "validations": [],

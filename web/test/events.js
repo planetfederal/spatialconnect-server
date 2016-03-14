@@ -42,7 +42,7 @@ describe('events async action creators', () => {
       'name': 'some name',
       'description': 'some description'
     }];
-    nock('http://localhost:3000/api/')
+    nock('http://default:3000/api/')
       .get('/events')
       .reply(200, eventsResponse);
     const expectedActions = [
@@ -59,10 +59,10 @@ describe('events async action creators', () => {
       'description': 'some description'
     };
     const eventsResponse = [ mockEvent ];
-    nock('http://localhost:3000/api/')
+    nock('http://default:3000/api/')
       .get('/events')
       .reply(200, eventsResponse);
-    nock('http://localhost:3000/api/')
+    nock('http://default:3000/api/')
       .post('/events')
       .reply(200);
     const expectedActions = [
