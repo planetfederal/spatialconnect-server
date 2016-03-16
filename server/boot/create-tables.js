@@ -8,8 +8,8 @@ module.exports = function(app) {
   });
 
   var pg = app.dataSources.postgres;
-  var scTables = ['Config', 'Event'];
-  pg.automigrate(scTables, function(er) {
+  var scTables = ['DataStore', 'Event'];
+  pg.autoupdate(scTables, function(er) {
     if (er) throw er;
     console.log('SpatialConnect tables [' + scTables + '] created in ', pg.adapter.name);
   });
