@@ -1,12 +1,12 @@
 //mocha test code
-require("babel/register");
+//require("babel/register");
 var assert = require('assert');
-import history from '../index';
-import store from '../index';
-import AddEvent from '../components/AddEvent';
-import actions from '../containers/EventsContainer';
-import events from '../ducks/events';
-import NewEventForm from '../components/NewEventForm';
+import history from '../index';//syntax error here?
+//.DocumentRevisions-V100/import store from '../index';
+// import AddEvent from '../components/AddEvent';
+// import actions from '../containers/EventsContainer';
+// import events from '../ducks/events';
+// import NewEventForm from '../components/NewEventForm';
 
 //test that the output is an unordered list and that the list items are links
 var ol='<ol>';
