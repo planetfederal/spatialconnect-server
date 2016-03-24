@@ -1,12 +1,12 @@
 //mocha test code
 //require("babel/register");
 var assert = require('assert');
-import history from '../index';//syntax error here?
+//import history from '../index';//syntax error here? added export to index.js
 //.DocumentRevisions-V100/import store from '../index';
-// import AddEvent from '../components/AddEvent';
-// import actions from '../containers/EventsContainer';
-// import events from '../ducks/events';
-// import NewEventForm from '../components/NewEventForm';
+ import AddEvent from '../components/AddEvent';
+ import actions from '../containers/EventsContainer';
+ import events from '../ducks/events';
+ import NewEventForm from '../components/NewEventForm';
 
 //test that the output is an unordered list and that the list items are links
 var ol='<ol>';
@@ -19,7 +19,7 @@ describe('#oloutput()', function () {
 });
 
 describe('#links()', function () {
-  it.only('should return false', function () {
+  it('should return false', function () {
     oloutput.indexOf(a).should.equal(-1);
   });
 });
