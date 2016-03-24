@@ -1,7 +1,7 @@
 //mocha test code
 //require("babel/register");
 var assert = require('assert');
-//import history from '../index';//syntax error here? added export to index.js
+var expect = require('expect');
 //.DocumentRevisions-V100/import store from '../index';
  import AddEvent from '../components/AddEvent';
  import actions from '../containers/EventsContainer';
@@ -12,9 +12,16 @@ var assert = require('assert');
 var ol='<ol>';
 var a='<a href=';
 var oloutput='<ol><li><a href="">one</a></li><li><a href="">two</a></li><li><a href="">three</a></li></ol>';
+var typeofol=typeof(ol);
 describe('#oloutput()', function () {
   it('should return false', function () {
     oloutput.indexOf(ol).should.equal(-1);
+  });
+});
+
+describe('#oltype()', function () {
+  it('should return true', function () {
+    assert.equal(typeofol, 'string');
   });
 });
 
@@ -24,10 +31,22 @@ describe('#links()', function () {
   });
 });
 
+//check that AddEvent is a string
+var typeofAddEvent=typeof(AddEvent);
+describe('AddEventType', function() {
+  describe('#AddEventType()', function () {
+    it('should return true', function () {
+      assert.equal(typeofAddEvent, 'function');//returns true, you need a string to evaluate the next one
+    });
+  });
+});
+
 //check that there is an onClick handler in the button
-describe('#AddEvent()', function () {
-  it('should return false', function () {
-    AddEvent.indexOf('onClick').should.equal(-1);
+describe('AddEvent', function() {
+  describe('#AddEvent()', function () {
+    it('should return false', function () {
+      AddEvent.indexOf('onClick').should.equal(-1);
+    });
   });
 });
 
@@ -46,14 +65,6 @@ describe('#actions()', function() {
     });
 });
 
-//access the history function from index.js and check its arguments
-describe('#history()', function() {
-    it('should contain a store argument', function() {
-      //use map to run through arguments?
-      assert.equal(history.arguments[i], store);
-    });
-});
-
 //Fix double callback error
 describe('#doublecallback()', function() {
     it('should return a callback', function() {
@@ -61,7 +72,7 @@ describe('#doublecallback()', function() {
     });
 });
 
-describe('Array', function() {
+describe('Array', function() {//passes
   describe('#indexOf()', function () {
     it('should return -1 when the value is not present', function () {
       assert.equal(-1, [1,2,3].indexOf(5));
@@ -71,7 +82,7 @@ describe('Array', function() {
 });
 
 var five=5;
-describe('#five()', function () {
+describe('#five()', function () {//passes
   it('should return true', function () {
     assert.equal(five, 5);
   });

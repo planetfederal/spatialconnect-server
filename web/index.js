@@ -30,7 +30,7 @@ let store = createStore(
 );
 
 // create an enhanced history that syncs navigation events with the store
-export const history = syncHistoryWithStore(browserHistory, store);
+const history = syncHistoryWithStore(browserHistory, store);
 
 // wrap the App component with the react-redux Provider component to make the
 // store available to all container components without passing it down
