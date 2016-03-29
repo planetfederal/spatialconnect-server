@@ -50,10 +50,23 @@ describe('AddEvent', function() {
   });
 });
 
+var typeofNewEventForm=typeof(NewEventForm);
 //New Event Form Component
-describe('#NewEventForm()', function () {
-  it('should return false', function () {
-    NewEventForm.indexOf('input').should.equal(-1);
+describe('#NewEventForm', function () {
+  //return(NewEventForm());//cannot call a class as a function
+  it('should return true', function () {
+    assert.equal(typeofNewEventForm, 'function');//true
+  });
+});
+
+//Pass in array of events should have an unordered list
+describe('#PassNewEventForm', function () {
+  //console.log(NewEventForm);
+  it('should return true', function () {
+    var eventsArray=['event1','event2'];
+    var typeofNewEventForm=typeof(NewEventForm.fields);
+    assert.equal(typeofNewEventForm, 'undefined');
+    //NewEventForm.indexOf('input').should.equal(-1);
   });
 });
 
