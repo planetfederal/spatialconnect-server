@@ -10,6 +10,7 @@ import actions from '../containers/EventsContainer';
 import events from '../ducks/events';
 import NewEventForm from '../components/NewEventForm';
 
+//redux testing recipe
 function setup() {
   let props = {
     NewEventForm: expect.createSpy()
@@ -25,6 +26,35 @@ function setup() {
     renderer
   }
 }
+
+describe('components', () => {
+  describe('Header', () => {
+    it('should render correctly', () => {
+      const { output } = setup()
+
+      expect(output.type).toBe('header')
+      expect(output.props.className).toBe('header')
+
+      let [ h1, input ] = output.props.children
+
+      expect(h1.type).toBe('h1')
+      //expect(h1.props.children).toBe('NewEventForms')
+
+      //expect(input.type).toBe(NewEventForm)
+      //expect(input.props.NewEventForm).toBe(true)
+      expect(input.props.placeholder).toBe('What needs to be done?')
+    })
+
+    it('should call NewEventForm', () => {
+      const { output, props } = setup()
+      let input = output.props.children[1]
+      input.props.onSave('')
+      //expect(props.NewEventForm.calls.length).toBe(0)
+      input.props.onSave('Use Redux')
+      //expect(props.NewEventForm.calls.length).toBe(1)
+    })
+  })
+})
 
 //check that AddEvent is a string
 var typeofAddEvent=typeof(AddEvent);
