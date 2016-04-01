@@ -3,12 +3,18 @@
 var assert = require('assert');
 var expect = require('expect');
 import React from '../../node_modules/react';
+import ReactAddons from '../../node_modules/react-addons-test-utils';
 import TestUtils from '../../node_modules/react-addons-test-utils';
 //.DocumentRevisions-V100/import store from '../index';
 import AddEvent from '../components/AddEvent';
 import actions from '../containers/EventsContainer';
 import events from '../ducks/events';
 import NewEventForm from '../components/NewEventForm';
+
+//react Jest test example
+// <button ref="button">...</button>
+var node = NewEventForm.button.type.submit;
+ReactTestUtils.Simulate.click(node);
 
 //redux testing recipe
 function setup() {
@@ -17,7 +23,7 @@ function setup() {
   }
 
   let renderer = TestUtils.createRenderer()
-  renderer.render(<Header {...props} />)
+  renderer.render(<NewEventForm {...props} />)
   let output = renderer.getRenderOutput()
 
   return {
@@ -25,19 +31,19 @@ function setup() {
     output,
     renderer
   }
-}
+};
 
 describe('components', () => {
-  describe('Header', () => {
+  describe('NewEventForm', () => {
     it('should render correctly', () => {
       const { output } = setup()
 
-      expect(output.type).toBe('header')
-      expect(output.props.className).toBe('header')
+      expect(output.type).toBe('string')
+      expect(output.props.className).toBe('object')
 
-      let [ h1, input ] = output.props.children
+      //let [ h1, input ] = output.props.children
 
-      expect(h1.type).toBe('h1')
+      //expect(h1.type).toBe('h1')
       //expect(h1.props.children).toBe('NewEventForms')
 
       //expect(input.type).toBe(NewEventForm)
@@ -54,7 +60,7 @@ describe('components', () => {
       //expect(props.NewEventForm.calls.length).toBe(1)
     })
   })
-})
+});
 
 //check that AddEvent is a string
 var typeofAddEvent=typeof(AddEvent);
