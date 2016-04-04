@@ -23,6 +23,8 @@ docker-osx-dev install
 
 After installing, you need to run `docker-osx-dev` in one terminal and do your work in another.
 
+Also, since you're syncing the files from your local workstation, you should run `npm install` from the root directory of this project and in the web directory to install the dependencies locally.
+
 
 ### Running all the images
 
