@@ -1,6 +1,7 @@
 'use strict';
 import { reset } from 'redux-form';
-import * as request from 'superagent';
+import * as request from 'superagent-bluebird-promise';
+import Promise from 'bluebird';
 import { API_URL } from 'config';
 import uuid from 'node-uuid';
 
@@ -77,13 +78,12 @@ export function loadDataStores() {
     dispatch({ type: LOAD });
 
     // async get the stores and dispatch action when they are received
-    request
+    return request
       .get(API_URL + 'stores')
-      .end(function(err, res) {
-        if (err) {
-          throw new Error(res);
-        }
-        dispatch(receiveStores(res.body));
+      .then(function(res) {
+        return dispatch(receiveStores(res.body));
+      }, function(error) {
+        throw new Error(res);
       });
   }
 }
@@ -98,31 +98,46 @@ export function addNewDataStoreClicked() {
 
 export function submitNewDataStore(data) {
   return dispatch => {
-    request
+    return request
       .post(API_URL + 'stores')
       .send(data)
-      .end(function(err, res) {
-        if (err) {
-          throw new Error(res);
-        }
-        dispatch(loadDataStores());
+      .then(function(res) {
+        return dispatch(loadDataStores());
+      }, function(error) {
+        throw new Error(res);
       });
   };
 }
 
 export function updateDataStore(id, data) {
   return dispatch => {
-    request
+    return request
       .put(API_URL + 'stores/' + id)
       .send(data)
-      .end(function(err, res) {
-        if (err) {
-          throw new Error(res);
-        }
-        dispatch(loadDataStores());
+      .then(function(res) {
+        return dispatch(loadDataStores());
+      }, function(error) {
+        throw new Error(res);
       });
 
     // clear the form values
+    dispatch(reset('dataStore'));
+  };
+}
+
+export function updateDataStores(values) {
+  return dispatch => {
+    return Promise.map(values, (value) => {
+      return request
+        .put(API_URL + 'stores/' + value.id)
+        .send(value)
+        .promise()
+    }).then(() => {
+      return dispatch(loadDataStores());
+    }).catch((e) => {
+      throw new Error(e);
+    })
+    
     dispatch(reset('dataStore'));
   };
 }

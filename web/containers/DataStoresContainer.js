@@ -8,7 +8,7 @@ import AddDataStore from '../components/AddDataStore';
 import DataStoreForm from '../components/DataStoreForm';
 import { getValues } from 'redux-form';
 
-class DataStoresContainer extends Component {
+export class DataStoresContainer extends Component {
 
   loadDataStores = () => {
     this.props.actions.loadDataStores();
@@ -36,10 +36,10 @@ class DataStoresContainer extends Component {
     else {
       // for now, just sync the current state b/c put operations are idempotent
       const storeIds = Object.keys(this.props.forms);
-      storeIds.map((storeId) => {
-        let values = getValues(this.props.forms[storeId]);
-        this.props.actions.updateDataStore(values.id, values);
+      let formValues = storeIds.map((storeId) => {
+        return getValues(this.props.forms[storeId]);
       });
+      this.props.actions.updateDataStores(formValues);
     }
   }
 
@@ -50,7 +50,7 @@ class DataStoresContainer extends Component {
     return (
       <div className="container">
         <section className="main">
-          {loading ? 'Fetching Data Stores...': ''}
+          <p>{loading ? 'Fetching Data Stores...': ''}</p>
           {addingNewDataStore
             ? <DataStoreForm
                 ref="newDataStoreForm"

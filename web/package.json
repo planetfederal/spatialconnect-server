@@ -3,11 +3,12 @@
   "version": "0.0.1",
   "description": "Dashboard for SpatialConnect",
   "scripts": {
-    "test": "cross-env NODE_ENV=test mocha --recursive --compilers js:babel-register --require ./test/setup.js",
-    "test:watch": "npm test -- --watch"
+    "test": "./node_modules/.bin/karma start",
+    "test:watch": "./node_modules/.bin/karma start --no-single-run"
   },
   "dependencies": {
     "babel-polyfill": "^6.5.0",
+    "bluebird": "^3.3.4",
     "node-uuid": "^1.4.7",
     "react": "^0.14.7",
     "react-dom": "^0.14.7",
@@ -18,7 +19,8 @@
     "redux-form": "^4.2.0",
     "redux-logger": "^2.6.0",
     "redux-thunk": "^1.0.3",
-    "superagent": "^1.8.0-beta.2"
+    "superagent": "^1.8.0-beta.2",
+    "superagent-bluebird-promise": "^3.0.0"
   },
   "devDependencies": {
     "babel-loader": "^6.2.0",
@@ -29,14 +31,25 @@
     "babel-preset-react": "^6.5.0",
     "babel-preset-react-hmre": "^1.0.1",
     "cross-env": "^1.0.7",
+    "deep-freeze": "0.0.1",
+    "enzyme": "^2.2.0",
     "expect": "^1.8.0",
     "jsdom": "^5.6.1",
+    "json-server": "^0.8.9",
+    "karma": "^0.13.22",
+    "karma-chrome-launcher": "^0.2.3",
+    "karma-cli": "^0.1.2",
+    "karma-mocha": "^0.2.2",
+    "karma-mocha-reporter": "^2.0.0",
+    "karma-phantomjs-launcher": "^1.0.0",
+    "karma-sinon": "^1.0.4",
+    "karma-webpack": "^1.7.0",
     "mocha": "^2.4.5",
     "mock-require": "^1.2.1",
-    "nock": "^7.2.2",
-    "node-libs-browser": "^0.5.2",
+    "phantomjs-prebuilt": "^2.1.7",
     "react-addons-test-utils": "^0.14.7",
-    "redux-mock-store": "0.0.6",
+    "redux-mock-store": "^1.0.0",
+    "sinon": "^1.17.3",
     "webpack": "^1.9.11"
   }
 }

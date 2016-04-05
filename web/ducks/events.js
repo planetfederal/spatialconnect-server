@@ -1,6 +1,6 @@
 'use strict';
 import { reset } from 'redux-form';
-import * as request from 'superagent';
+import * as request from 'superagent-bluebird-promise';
 import { API_URL } from 'config';
 
 // define action types
@@ -74,13 +74,12 @@ export function loadEvents() {
     dispatch({ type: LOAD });
 
     // async get the events and dispatch action when they are received
-    request
+    return request
       .get(API_URL + 'events')
-      .end(function(err, res) {
-        if (err) {
-          throw new Error(res);
-        }
-        dispatch(receiveEvents(res.body));
+      .then(function(res) {
+        return dispatch(receiveEvents(res.body));
+      }, function(error) {
+        throw new Error(res);
       });
   }
 }
@@ -93,14 +92,13 @@ export function addNewEventClicked() {
 
 export function submitNewEvent(data) {
   return dispatch => {
-    request
+    return request
       .post(API_URL + 'events')
       .send(data)
-      .end(function(err, res) {
-        if (err) {
-          throw new Error(res);
-        }
-        dispatch(loadEvents());
+      .then(function(res) {
+        return dispatch(loadEvents());
+      }, function(error) {
+        throw new Error(res);
       });
 
     // clear the form values

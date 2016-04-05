@@ -2,23 +2,21 @@
 import expect from 'expect';
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
-import nock from 'nock';
+import deepFreeze from 'deep-freeze';
+import sinon from 'sinon';
 import * as events from '../ducks/events';
 import reducer from '../ducks/events';
+import mockEvents from './data/mockEvents';
 import { API_URL } from 'config';
 
 // test the action creators that return an object
 describe('events action creators', () => {
   it('should create an action that receives events', () => {
-    const eventsResponse = [{
-      'name': 'some name',
-      'description': 'some description'
-    }];
     const expectedAction = {
       type: events.LOAD_SUCCESS,
-      events: eventsResponse
+      events: mockEvents
     };
-    expect(events.receiveEvents(eventsResponse)).toEqual(expectedAction);
+    expect(events.receiveEvents(mockEvents)).toEqual(expectedAction);
   });
   it('should create an action for when the "add new event button" is clicked',
     () => {
@@ -34,44 +32,45 @@ const middlewares = [ thunk ];
 const mockStore = configureMockStore(middlewares);
 
 describe('events async action creators', () => {
-  afterEach(() => {
-    nock.cleanAll();
+
+  before(function() {
+    this.server = sinon.fakeServer.create();
+    this.server.autoRespond = true
+    this.server.respondWith('GET', API_URL + 'events',
+      [200, { 'Content-Type': 'application/json' }, JSON.stringify(mockEvents)]
+    );
+    this.server.respondWith('POST', API_URL + 'events',
+      [200, { 'Content-Type': 'application/json' }, JSON.stringify(mockEvents)]
+    );
   });
 
-  it('should emit a LOAD_SUCCESS after events are fetch successfully', (done) => {
-    const eventsResponse = [{
-      'name': 'some name',
-      'description': 'some description'
-    }];
-    nock(API_URL)
-      .get('/events')
-      .reply(200, eventsResponse);
+  after(function() {
+    this.server.restore();
+  });
+
+  it('should emit a LOAD_SUCCESS after events are fetch successfully', function(done) {
     const expectedActions = [
       { type: events.LOAD },
-      { type: events.LOAD_SUCCESS, events: eventsResponse  }
+      { type: events.LOAD_SUCCESS, events: mockEvents  }
     ];
-    const store = mockStore({ events: [] }, expectedActions, done);
-    store.dispatch(events.loadEvents());
+    const store = mockStore({ events: [] });
+    store.dispatch(events.loadEvents())
+      .then(() => {
+        expect(store.getActions()).toEqual(expectedActions);
+      }).then(done).catch(done);
+
   });
 
   it('should emit a LOAD_SUCCESS after a new event was created', (done) => {
-    const mockEvent = {
-      'name': 'some name',
-      'description': 'some description'
-    };
-    const eventsResponse = [ mockEvent ];
-    nock(API_URL)
-      .get('/events')
-      .reply(200, eventsResponse);
-    nock(API_URL)
-      .post('/events')
-      .reply(200);
     const expectedActions = [
       { type: events.LOAD },
-      { type: events.LOAD_SUCCESS, events: eventsResponse  }
+      { type: events.LOAD_SUCCESS, events: mockEvents  }
     ];
-    const store = mockStore({ events: [] }, expectedActions, done);
-    store.dispatch(events.loadEvents());
+    const store = mockStore({ events: [] });
+    store.dispatch(events.submitNewEvent(mockEvents[0]))
+      .then(() => {
+        expect(store.getActions()).toEqual(expectedActions);
+      }).then(done).catch(done);
   });
 });
 
@@ -83,6 +82,9 @@ describe('events reducer', () => {
       events: [],
       addingNewEvent: false
   };
+
+  //ensure reducer does not mutate initialState
+  deepFreeze(initialState);
 
   it('should return the initial state', () => {
     expect(
@@ -104,20 +106,17 @@ describe('events reducer', () => {
   });
 
   it('should handle LOAD_SUCCESS', () => {
-    const eventsResponse = [{
-      'name': 'some name',
-      'description': 'some description'
-    }];
     expect(
       reducer(initialState, {
         type: events.LOAD_SUCCESS,
-        events: eventsResponse
+        events: mockEvents
       })
     ).toEqual({
         loading: false,
         loaded: true,
-        events: eventsResponse,
+        events: mockEvents,
         addingNewEvent: false
       });
   })
+
 });
