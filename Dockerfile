@@ -26,13 +26,14 @@ RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
 # Copy app source to workdir
-COPY client ./client
+COPY web ./web
 COPY common ./common
 COPY package.json .
 COPY server ./server
 
 # Install app dependencies
 RUN npm install
+RUN cd /usr/src/app/web; npm install
 
 # Start the service
 EXPOSE 3000
