@@ -27,5 +27,10 @@ module.exports = {
         include: __dirname
       }
     ]
+  },
+  resolve: {
+    alias: {
+      config: path.join(__dirname, 'config', process.env.NODE_ENV || 'development')
+    }
   }
 };

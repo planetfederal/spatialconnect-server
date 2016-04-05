@@ -4,7 +4,8 @@ import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import nock from 'nock';
 import * as events from '../ducks/events';
-import reducer from '../ducks/events'
+import reducer from '../ducks/events';
+import { API_URL } from 'config';
 
 // test the action creators that return an object
 describe('events action creators', () => {
@@ -42,7 +43,7 @@ describe('events async action creators', () => {
       'name': 'some name',
       'description': 'some description'
     }];
-    nock('http://default:3000/api/')
+    nock(API_URL)
       .get('/events')
       .reply(200, eventsResponse);
     const expectedActions = [
@@ -59,10 +60,10 @@ describe('events async action creators', () => {
       'description': 'some description'
     };
     const eventsResponse = [ mockEvent ];
-    nock('http://default:3000/api/')
+    nock(API_URL)
       .get('/events')
       .reply(200, eventsResponse);
-    nock('http://default:3000/api/')
+    nock(API_URL)
       .post('/events')
       .reply(200);
     const expectedActions = [
