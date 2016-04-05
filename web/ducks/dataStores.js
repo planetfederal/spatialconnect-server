@@ -1,8 +1,8 @@
 'use strict';
 import { reset } from 'redux-form';
 import * as request from 'superagent';
-const API_URL = 'http://default:3000/api/'; // TODO: make this an env var
- import uuid from 'node-uuid';
+import { API_URL } from 'config';
+import uuid from 'node-uuid';
 
 // define action types
 export const LOAD = 'sc/dataStores/LOAD';
