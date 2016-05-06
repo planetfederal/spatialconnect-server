@@ -22,16 +22,13 @@ module.exports = {
     loaders: [
       {
         test: /\.js$/,
+        loaders: [ 'babel' ],
         exclude: /node_modules/,
-        include: __dirname,
-        loader: 'babel',
-        query: {
-          "env": {
-            "development": {
-              "presets": ["react-hmre"]
-            }
-          }
-        }
+        include: __dirname
+      },
+      {
+        test: /\.less$/,
+        loader: "style-loader!css-loader!less-loader"
       }
     ]
   },
