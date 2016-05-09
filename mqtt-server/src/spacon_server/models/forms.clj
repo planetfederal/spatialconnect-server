@@ -64,11 +64,20 @@
 (defn delete-form [id]
   (delete-form-query! {:id id}))
 
-(defn add-item [type label required form_id]
-  (add-item<! {:type type
-               :label label
-               :required required
-               :form_id form_id}))
+(defn add-item [fid item]
+  (add-item<! {:type (get item :type)
+               :label (get item :label)
+               :required (get item :required)
+               :form_id fid}))
+
+(defn update-item [fid item]
+  (update-item<! {:type (get item :type)
+                  :label (get item :label)
+                  :required (get item :required)
+                  :form_id fid}))
 
 (defn find-item [id]
   (find-item-query {:id id}))
+
+(defn delete-item [itemid]
+  (delete-item! {:id itemid}))

@@ -26,6 +26,5 @@
 (defn update-config [id,name]
   (update-config-query<! {:group_name name :id id}))
 
-
 (defn delete-config [id]
   (delete-config-query! {:id id}))

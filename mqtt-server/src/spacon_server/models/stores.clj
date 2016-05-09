@@ -8,7 +8,7 @@
             {:connection db-spec})
 
 (defn countstores []
-  (-> (stores-count)
+  (some-> (stores-count)
       (first)
       (get :cnt)))
 
@@ -23,10 +23,12 @@
   (stores-by-config-id {:config_id config_id}))
 
 (defn store-by-id [id]
-  (last (store-by-id-query {:id id})))
+  (some-> (store-by-id-query {:id id})
+          (last)))
 
 (defn store-by-name [name]
-  (last (store-by-name-query {:name name})))
+  (some-> (store-by-name-query {:name name})
+          (last)))
 
 (defn update-store [s]
   (update-store<! {:id (uuid (get s :id))

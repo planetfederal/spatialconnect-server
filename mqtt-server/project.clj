@@ -16,7 +16,9 @@
                  [ragtime "0.5.3"],
                  [yesql "0.5.2"],
                  [listora/uuid "0.1.2"],
-                 [clojurewerkz/machine_head "1.0.0-beta9"]]
+                 [clojurewerkz/machine_head "1.0.0-beta9"]
+                 [buddy "0.13.0"]
+                 [crypto-password "0.2.0"]]
   :dev-dependencies [
                      [lein-reload "1.0.0"]
                      ]

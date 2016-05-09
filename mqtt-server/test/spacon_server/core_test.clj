@@ -6,6 +6,8 @@
             [mqtt-server.models.stores :as store]
             [mqtt-server.models.devices :as device]
             [mqtt-server.models.forms :as form]
+            [mqtt-server.models.users :as user]
+            [mqtt-server.auth :as auth]
             [ring.mock.request :as mock]))
 
 (deftest config-test
@@ -54,16 +56,16 @@
                                               (form/form-by-id)
                                               (get :name))))))
   (testing "add number" (let [f (form/form-by-name "test2")
-                              item (form/add-item "number" "numberfield" (boolean true) (get f :id))]
+                              item (form/add-item (get f :id) {:type "number" :label "numberfield" :required (boolean true)})]
                           (is (not (nil? (form/find-item (get item :id)))))))
   (testing "add string" (let [f (form/form-by-name "test2")
-                              item (form/add-item "string" "stringfield" (boolean true) (get f :id))]
+                              item (form/add-item (get f :id) {:type "string" :label "stringfield" :required (boolean true)})]
                           (is (not (nil? (form/find-item (get item :id)))))))
   (testing "add boolean" (let [f (form/form-by-name "test2")
-                              item (form/add-item "boolean" "booleanfield" (boolean true) (get f :id))]
+                              item (form/add-item (get f :id) {:type "boolean" :label "booleanfield" :required (boolean true)})]
                           (is (not (nil? (form/find-item (get item :id)))))))
   (testing "add date" (let [f (form/form-by-name "test2")
-                              item (form/add-item "date" "datefield" (boolean true) (get f :id))]
+                              item (form/add-item (get f :id) {:type "date" :label "datefield" :required (boolean true)})]
                           (is (not (nil? (form/find-item (get item :id)))))))
   (testing "get field" (let [f (form/form-by-name "test2")
                              i (form/formitem-by-label "datefield" (get f :id))]
@@ -130,3 +132,21 @@
     (let [response (handler/app (request :get "/config/1/device"))]
       (is (= (:status response) 200))
       (is (= (get-in response [:headers "Content-Type"]) "application/json; charset=utf-8")))))
+
+(deftest authorize-users
+  (let [user (user/create-user {:name "Michael Jackson" :email "abc@moonwalk.com" :password "ban8na5"})
+        user-id (:id user)]
+    (testing "Accepts the correct password"
+      (is (user/check-password? user-id "s3cr3t")))
+
+    (testing "Rejects incorrect passwords"
+      (is (not (user/check-password? user-id "wrong pass"))))
+    (user/delete-user user-id)))
+
+(deftest authenticating-users
+  (let [user (user/create-user {:name "White Fedora" :email "smooth@criminal.com" :password "ban8na"})]
+    (testing "Test a valid token"
+      (let [token (auth/make-token! (:id user))]
+        (is (= user (auth/authenticate-token {} token)))))
+    (testing "Testing an invalid token"
+      (is (nil? (auth/authenticate-token {} "pandas"))))))

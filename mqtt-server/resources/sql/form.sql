@@ -77,11 +77,20 @@ DELETE FROM forms WHERE id = :id
 -- name: add-item<!
 -- adds item to form
 INSERT INTO form_def (type,label,required,form_id)
-VALUES (:type,:label,:required,:form_id)
+VALUES (:type,:label,:required,:form_id);
+
+-- name: update-item<!
+-- updates the item in a form
+UPDATE form_def SET type = :type, label = :label, required = :required
+WHERE form_id = :form_id;
+
+-- name: delete-item!
+-- deletes item from a form
+DELETE FROM form_def WHERE id = :id;
 
 -- name: find-item-query
 -- finds the item
-SELECT * FROM form_def WHERE id = :id
+SELECT * FROM form_def WHERE id = :id;
 
 -- name: formdata-submit-stmt!
 -- persists the form data submission
