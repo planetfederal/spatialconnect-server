@@ -13,11 +13,11 @@ WHERE config_id = :config_id
 
 -- name: create-device<!
 -- registers a new device
-INSERT INTO devices (name,config_id)
-SELECT :name, :config_id
+INSERT INTO devices (name,identifier)
+SELECT :name, :identifier
 WHERE NOT EXISTS
 (SELECT 1 FROM devices
-    WHERE name = :name AND config_id = :config_id)
+    WHERE name = :name AND identifier = :identifier)
 
 -- name: find-by-id-query
 -- gets device by id

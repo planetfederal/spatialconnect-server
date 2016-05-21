@@ -1,6 +1,7 @@
 (ns mqtt-server.models.forms
   (:require
     [yesql.core :refer [defqueries]]
+    [cheshire.core :refer :all]
     [mqtt-server.db :as db :refer [db-spec]]))
 
 (defqueries "sql/form.sql"
@@ -16,14 +17,14 @@
       (first)
       (get :cnt)))
 
-(defn form-list [cid]
-  (forms-by-config-id-query {:config_id cid}))
+(defn form-list []
+  (forms-query))
 
 (defn required [fid]
   (required-by-form-id-query {:form_id fid}))
 
-(defn create-form [name config_id]
-  (create-form<! {:name name :config_id config_id}))
+(defn create-form [name]
+  (create-form<! {:name name}))
 
 (defn form-by-id [id]
   (last (form-by-id-query {:id id})))
@@ -51,8 +52,16 @@
                              :val (str (val entry))})))
 
 
-(defn formdata-submit [form-id device-id data]
-  (map (partial formdata-submit-row form-id device-id) data))
+(defn formdata-submit [form-id data]
+  (let [ident ((data :metadata) "client")
+        str (generate-string data)]
+    (try
+       (formdata-submit-stmt! {:formsid form-id
+                               :identifier ident
+                               :val str})
+       (catch Exception e
+         (.getNextException e)
+         ))))
 
 (defn formdata-for-form-id [formsid]
   (formdata-for-form-id-query {:formsid formsid}))

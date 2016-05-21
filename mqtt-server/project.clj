@@ -1,7 +1,7 @@
 (defproject mqtt-server "0.1.0-SNAPSHOT"
   :description ""
-  :url "http://example.com/FIXME"
-  :license {:name "Eclipse Public License"
+  :url "https://example.com/FIXME"
+  :license {:name "Apache 2.0"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [
                  [org.clojure/clojure "1.7.0"],
@@ -18,7 +18,8 @@
                  [listora/uuid "0.1.2"],
                  [clojurewerkz/machine_head "1.0.0-beta9"]
                  [buddy "0.13.0"]
-                 [crypto-password "0.2.0"]]
+                 [crypto-password "0.2.0"]
+                 [org.clojure/data.codec "0.1.0"]]
   :dev-dependencies [
                      [lein-reload "1.0.0"]
                      ]

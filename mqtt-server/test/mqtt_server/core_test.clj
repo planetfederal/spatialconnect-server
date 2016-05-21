@@ -10,26 +10,6 @@
             [mqtt-server.auth :as auth]
             [ring.mock.request :as mock]))
 
-(deftest config-test
-  (testing "Create Config" (let [count-orig (config/count-configs)]
-                             (config/create-config "foocfg")
-                             (is (not (nil? (config/find-by-name "foocfg"))))))
-  (testing "Find Config By Name" (let [newname "foobarcfg"
-                                       orig-cfg (config/create-config newname)
-                                       query-cfg (config/find-by-name newname)]
-                           (is (= (get query-cfg :group_name) newname))))
-
-  (testing "update config" (let [query-cfg (first (config/create-config "Bar"))
-                                 cfg-id (get query-cfg :id)]
-                             (config/update-config cfg-id "BANANA")
-                             (is (= cfg-id (get (config/find-by-name "BANANA") :id)))))
-
-  (testing "delete config" (let [query-cfg (first (config/create-config "DELETE ME"))
-                                 cfg-id (get (config/find-by-name "DELETE ME") :id)]
-                             (config/delete-config cfg-id)
-                             (is (nil? (config/find-by-id cfg-id)))))
-  )
-
 (deftest device-test
   (testing "create device"
     (let [cfg (first (config/config-list))
@@ -46,8 +26,7 @@
                              (is (nil? (device/find-by-id (get d :id)))))))
 
 (deftest form-test
-  (testing "create form" (let [cfg (first (config/config-list))
-                               ff (form/create-form "test" (get cfg :id))
+  (testing "create form" (let [ff (form/create-form "test")
                                f (form/form-by-name "test")]
                            (is (not (nil? (form/form-by-id (get f :id)))))))
   (testing "update form" (let [f (form/form-by-name "test")]
@@ -80,7 +59,7 @@
                                      :stringfield "six"
                                      :booleanfield (boolean true)
                                      :datefield "2016-12-03"}
-                               v (form/formdata-submit form-id device-id data)]
+                               v (form/formdata-submit form-id data)]
                            (print v)
                            (is (= (+ 4 count-orig) (form/count-form-subs (get f :id))))))
 
@@ -137,7 +116,7 @@
   (let [user (user/create-user {:name "Michael Jackson" :email "abc@moonwalk.com" :password "ban8na5"})
         user-id (:id user)]
     (testing "Accepts the correct password"
-      (is (user/check-password? user-id "s3cr3t")))
+      (is (user/check-password? user-id "ban8na5")))
 
     (testing "Rejects incorrect passwords"
       (is (not (user/check-password? user-id "wrong pass"))))

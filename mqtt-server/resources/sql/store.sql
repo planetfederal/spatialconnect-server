@@ -5,11 +5,10 @@
 SELECT count(*) AS cnt
 FROM stores
 
--- name: stores-by-config-id
+-- name: stores-query
 -- counts all stores
 SELECT *
 FROM stores
-WHERE config_id = :config_id
 
 -- name: store-by-id-query
 -- gets store by id
@@ -25,15 +24,16 @@ WHERE name = :name LIMIT 1
 
 -- name: create-store<!
 -- creates a new store
-INSERT INTO stores (store_type,version,uri,name,config_id)
-SELECT :store_type,:version,:uri,:name,:config_id
+INSERT INTO stores (store_type,version,uri,name)
+SELECT :store_type,:version,:uri,:name
 WHERE NOT EXISTS
  (SELECT 1 FROM stores
-    WHERE name = :name AND config_id = :config_id)
+    WHERE name = :name)
 
 -- name: update-store<!
 -- updates the store props
-UPDATE stores SET store_type = :store_type, version = :version, uri = :uri, name = :name, config_id = :config_id WHERE id = :id
+UPDATE stores SET store_type = :store_type, version = :version, uri = :uri, name = :name
+WHERE id = :id
 
 -- name: delete-store!
 -- delets store

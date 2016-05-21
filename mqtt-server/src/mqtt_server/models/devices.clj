@@ -11,14 +11,14 @@
       (first)
       (get :cnt)))
 
-(defn device-list [cid]
-  (device-list-query {:config_id cid}))
+(defn device-list []
+  (device-list-query))
 
 (defn create-device [dev]
   (let [name (get dev :name)
-        config_id (get dev :config_id)]
+        ident (get dev :identifier)]
     (create-device<! {:name name
-                      :config_id config_id})))
+                      :identifier ident})))
 
 (defn find-by-id [id]
   (last (find-by-id-query {:id id})))

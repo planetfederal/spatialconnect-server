@@ -19,8 +19,8 @@
                      :name (get data :name)
                      :config_id (get data :config_id)}))
 
-(defn store-list [config_id]
-  (stores-by-config-id {:config_id config_id}))
+(defn store-list []
+  (stores-query))
 
 (defn store-by-id [id]
   (some-> (store-by-id-query {:id id})

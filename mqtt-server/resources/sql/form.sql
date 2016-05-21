@@ -5,10 +5,10 @@
 SELECT count(*) AS cnt
 FROM forms
 
--- name: forms-by-config-id-query
+-- name: forms-query
 -- counts all the forms
 SELECT *
-FROM forms WHERE config_id = :config_id
+FROM forms
 
 -- name: required-by-form-id-query
 -- gets a list of the required fields for a config
@@ -23,8 +23,7 @@ WHERE id = :id
 
 -- name: formdef-by-id-query
 -- gets the form definition
-SELECT  f.config_id AS fconfigid,
-        f.name AS fname,
+SELECT  f.name AS fname,
         fd.id AS fdid,
         fd.type AS fdtype,
         fd.label AS fdlabel,
@@ -40,8 +39,7 @@ WHERE name = :name
 
 -- name: formdef-by-name-query
 -- gets the form definition
-SELECT  f.config_id AS fconfigid,
-        f.name AS fname,
+SELECT  f.name AS fname,
         fd.id AS fdid,
         fd.type AS fdtype,
         fd.label AS fdlabel,
@@ -61,10 +59,10 @@ WHERE id = :id;
 
 -- name: create-form<!
 -- creates a new form
-INSERT INTO forms (name,config_id)
-SELECT :name, :config_id
+INSERT INTO forms (name)
+SELECT :name
 WHERE NOT EXISTS
- (SELECT 1 FROM forms WHERE name = :name AND config_id = :config_id)
+ (SELECT 1 FROM forms WHERE name = :name)
 
 -- name: update-form-query<!
 -- updates the form
@@ -94,14 +92,15 @@ SELECT * FROM form_def WHERE id = :id;
 
 -- name: formdata-submit-stmt!
 -- persists the form data submission
-INSERT INTO form_data (forms_id,form_def_id,device_id,val)
-VALUES (:formsid,:formdefid,:deviceid,:val)
+INSERT INTO form_data (forms_id,device_id,val)
+VALUES (:formsid,(SELECT id FROM devices WHERE identifier = :identifier),:val::json)
 
 -- name: formdata-for-form-id-query
 -- gets the data for a form
-SELECT da.forms_id forms_id, da.device_id device_id, de.label AS label, da.val AS val FROM form_data da JOIN form_def de ON da.form_def_id = de.id WHERE da.forms_id = :formsid
+SELECT da.forms_id forms_id, da.device_id device_id, de.label AS label, da.val AS val
+FROM form_data da JOIN form_def de ON da.form_def_id = de.id WHERE da.forms_id = :formsid;
 
 -- name: count-form-subs-query
 -- counts the number of submissions for a form
 SELECT count(*) AS cnt
-FROM form_data WHERE forms_id = :formsid
+FROM form_data WHERE forms_id = :formsid;

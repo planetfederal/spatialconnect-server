@@ -1,1 +1,2 @@
-DELETE FROM config;
+DELETE FROM stores;
+DELETE FROM forms;
