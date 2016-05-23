@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Modal from 'react-modal';
-import scformschema from '../utils/scformschema';
+import scformschema from 'spatialconnect-form-schema';
 import * as formActions from '../ducks/forms';
 import FormInfoBar from '../components/FormInfoBar';
 import FormControls from '../components/FormControls';

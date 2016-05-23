@@ -1,18 +1,13 @@
 import React, { Component, PropTypes } from 'react';
 import t from 'tcomb-form';
 import transform from 'tcomb-json-schema';
-import scformschema from '../utils/scformschema';
+import scformschema from 'spatialconnect-form-schema';
 import { DragSource } from 'react-dnd';
 import Field from './Field';
 import { DragDropContext } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 import _ from 'lodash';
 import '../style/FormDetails.less';
-
-t.form.Form.i18n = {
-  optional: '',
-  required: ' *'
-};
 
 transform.registerType('date', t.Date);
 transform.registerType('time', t.Date);
@@ -59,6 +54,7 @@ class FormPreview extends Component {
     if (form.get('fields').size == 0) {
       formEl = <div><p className="warning-message">Add fields.</p></div>;
     } else {
+      //console.log(JSON.stringify(form.toJS()));
       let { schema, options } = scformschema.translate(form.toJS());
       options.template = locals => this.template(locals);
       formEl = (

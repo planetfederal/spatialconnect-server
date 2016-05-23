@@ -54,6 +54,7 @@
     "nock": "^7.7.3",
     "node-libs-browser": "^0.5.2",
     "react-addons-test-utils": "^0.14.7",
-    "redux-mock-store": "^1.0.2"
+    "redux-mock-store": "^1.0.2",
+    "spatialconnect-form-schema": "^1.0.1"
   }
 }
