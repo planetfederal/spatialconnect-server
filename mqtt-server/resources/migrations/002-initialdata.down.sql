@@ -1,0 +1,2 @@
+DELETE FROM stores;
+DELETE FROM forms;
