@@ -1,0 +1,3 @@
+dropdb spacon
+dropuser spacon
+
