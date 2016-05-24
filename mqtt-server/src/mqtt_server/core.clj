@@ -1,4 +1,5 @@
 (ns mqtt-server.core
+  (:gen-class)
   (:require [clojurewerkz.machine-head.client :as mh]
             [org.httpkit.server :refer [run-server]]
             [mqtt-server.http.handler :as handler :refer :all]))
