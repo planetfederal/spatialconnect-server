@@ -45,10 +45,6 @@
      :data dataVal
      :id (get fc :id)}))
 
-(defn- formDataOutput []
-  (let [formlist (form/form-list)]
-    (map formData->configOutput formlist)))
-
 (defn buildconfig []
   {:stores (map (fn [m] (dissoc m)) (store/store-list))
    :forms (formlist->tcombschema)})
@@ -106,8 +102,7 @@
                 :message "invalid username or password"}})))
   (context "/form" []
     (POST "/:fid/submit" [fid]
-      (fn [{data :body}] (response (form/formdata-submit (read-string fid) data)))))
-  )
+      (fn [{data :body}] (form/formdata-submit (read-string fid) data)))))
 
 
 (defn wrap-user [handler]
