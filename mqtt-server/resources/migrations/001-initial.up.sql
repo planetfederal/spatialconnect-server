@@ -27,12 +27,24 @@ CREATE TABLE IF NOT EXISTS device_location (
 );
 
 CREATE TABLE IF NOT EXISTS form_def (
-    id SERIAL PRIMARY KEY,
-    type VARCHAR(15),
-    label VARCHAR(60) NOT NULL,
-    required boolean,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    type text NOT NULL,
+    name text NOT NULL,
+    key text NOT NULL,
+    is_required boolean DEFAULT false,
+    position INTEGER NOT NULL,
+    initial_value text,
+    minimum text,
+    maximum text,
+    exclusive_minimum text,
+    exclusive_maximum text,
+    is_integer boolean,
+    minimum_length INTEGER,
+    maximum_length INTEGER,
+    pattern text,
+    options text[],
     form_id INTEGER REFERENCES forms(id) ON DELETE CASCADE,
-    CONSTRAINT unique_label_formid UNIQUE (label,form_id)
+    CONSTRAINT unique_label_formid UNIQUE (key,form_id)
 );
 
 CREATE TABLE IF NOT EXISTS form_data (

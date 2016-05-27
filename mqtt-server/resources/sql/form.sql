@@ -21,15 +21,11 @@ SELECT *
 FROM forms
 WHERE id = :id
 
--- name: formdef-by-id-query
+-- name: formdef-by-formid-query
 -- gets the form definition
-SELECT  f.name AS fname,
-        fd.id AS fdid,
-        fd.type AS fdtype,
-        fd.label AS fdlabel,
-        fd.required AS fdrequired
-FROM forms AS f JOIN form_def AS fd ON f.id = fd.form_id
-WHERE f.id = :id;
+SELECT  *
+FROM form_def
+WHERE form_id = :id;
 
 -- name: form-by-name-query
 -- gets form by form name
