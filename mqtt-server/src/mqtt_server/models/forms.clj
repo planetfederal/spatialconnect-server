@@ -29,8 +29,8 @@
 (defn form-by-id [id]
   (last (form-by-id-query {:id id})))
 
-(defn formdef-by-id [id]
-  (formdef-by-id-query {:id id}))
+(defn formdef-by-formid [id]
+  (formdef-by-formid-query {:id id}))
 
 (defn formdef-by-name [name]
   (formdef-by-name-query {:name name}))
