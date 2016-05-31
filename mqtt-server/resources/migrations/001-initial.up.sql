@@ -26,10 +26,10 @@ CREATE TABLE IF NOT EXISTS device_location (
     z FLOAT
 );
 
-CREATE TABLE IF NOT EXISTS form_def (
+CREATE TABLE IF NOT EXISTS form_field (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     type text NOT NULL,
-    name text NOT NULL,
+    label text NOT NULL,
     key text NOT NULL,
     is_required boolean DEFAULT false,
     position INTEGER NOT NULL,
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS form_def (
     pattern text,
     options text[],
     form_id INTEGER REFERENCES forms(id) ON DELETE CASCADE,
-    CONSTRAINT unique_label_formid UNIQUE (key,form_id)
+    CONSTRAINT unique_label_formid UNIQUE (key, form_id)
 );
 
 CREATE TABLE IF NOT EXISTS form_data (

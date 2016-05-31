@@ -23,16 +23,16 @@
     (handler req)))
 
 (defn- form->tcombschema [f]
-  (let [formdefs (form/formdef-by-formid (get f :id))]
-    (println formdefs)
+  (let [formfields (form/formfield-by-formid (get f :id))]
+    (println formfields)
     {:id (f :id)
      :name (f :name)
-     :fields (map (fn [formdef]
+     :fields (map (fn [formfield]
                     (into {} (map (fn [k]
-                                 (if-not (nil? (get formdef k))
-                                   {k (get formdef k)}))
-                               (keys formdef))))
-                  formdefs)}))
+                                 (if-not (nil? (get formfield k))
+                                   {k (get formfield k)}))
+                               (keys formfield))))
+                  formfields)}))
 
 (defn- formlist->tcombschema []
   (let [fs (form/form-list)]

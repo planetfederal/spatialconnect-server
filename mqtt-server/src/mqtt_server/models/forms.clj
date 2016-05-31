@@ -29,11 +29,11 @@
 (defn form-by-id [id]
   (last (form-by-id-query {:id id})))
 
-(defn formdef-by-formid [id]
-  (formdef-by-formid-query {:id id}))
+(defn formfield-by-formid [id]
+  (formfield-by-formid-query {:id id}))
 
-(defn formdef-by-name [name]
-  (formdef-by-name-query {:name name}))
+(defn formfield-by-name [name]
+  (formfield-by-name {:name name}))
 
 (defn formitem-by-label [label form-id]
   (last (formitem-by-label-query {:label label :form_id form-id})))
@@ -45,9 +45,9 @@
   (last (form-by-name-query {:name name})))
 
 (defn- formdata-submit-row [form-id device-id entry]
-  (let [form-def-id (get (formitem-by-label (name (key entry)) form-id) :id)]
+  (let [form-field-id (get (formitem-by-label (name (key entry)) form-id) :id)]
     (formdata-submit-stmt! {:formsid form-id
-                             :formdefid form-def-id
+                             :formfieldid form-field-id
                              :deviceid device-id
                              :val (str (val entry))})))
 
