@@ -26,4 +26,6 @@
   :aliases {"migrate"  ["run" "-m" "mqtt-server.db/migrate"]
             "rollback" ["run" "-m" "mqtt-server.db/rollback"]}
   :plugins [
-            [ragtime/ragtime.lein "0.3.6"]])
+            [ragtime/ragtime.lein "0.3.6"]]
+  :main mqtt-server.core
+  :ato [mqtt-server.core])

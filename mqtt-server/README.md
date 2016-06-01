@@ -7,6 +7,11 @@ sh setup/up.sh
 lein migrate
 lein run -m mqtt-server.core
 ```
+or you can run with java
+```
+lein uberjar
+java -jar target/mqtt-server-0.1.0-SNAPSHOT-standalone.jar
+```
 
 ## License
 
