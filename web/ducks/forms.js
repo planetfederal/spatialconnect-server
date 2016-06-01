@@ -78,11 +78,11 @@ export default function reducer(state = initialState, action = {}) {
       var fieldsPath = ['forms', action.formId.toString(), 'fields'];
       return state
         .setIn(fieldsPath, state.getIn(fieldsPath)
-          .update(state.getIn(fieldsPath).findIndex(f => f.get('order') === action.indexOne), f => {
-            return f.set('order', action.indexTwo);
+          .update(state.getIn(fieldsPath).findIndex(f => f.get('position') === action.indexOne), f => {
+            return f.set('position', action.indexTwo);
           })
-          .update(state.getIn(fieldsPath).findIndex(f => f.get('order') === action.indexTwo), f => {
-            return f.set('order', action.indexOne);
+          .update(state.getIn(fieldsPath).findIndex(f => f.get('position') === action.indexTwo), f => {
+            return f.set('position', action.indexOne);
           })
         );
     case REMOVE_FIELD:
@@ -94,8 +94,8 @@ export default function reducer(state = initialState, action = {}) {
           //filter fields to remove fieldId
           return fields.filter(f => f.get('id') !== action.fieldId).map(f => {
             //update field orders to reflect removal
-            if (f.get('order') > field.get('order')) {
-              return f.set('order', f.get('order') - 1);
+            if (f.get('position') > field.get('position')) {
+              return f.set('position', f.get('position') - 1);
             }
             return f;
           });
@@ -128,7 +128,7 @@ export function addField(payload) {
     let order = sc.forms.getIn(['forms', payload.formId.toString(), 'fields']).size;
     let field = _.merge({
       id: uuid.v1(),
-      order: order,
+      position: order,
       key: payload.key,
       name: payload.name
     }, payload.options);

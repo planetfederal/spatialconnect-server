@@ -15,7 +15,7 @@ transform.registerType('time', t.Date);
 class FormPreview extends Component {
 
   template(locals) {
-    let inputs = _.sortBy(this.props.form.get('fields').toJS(), 'order').map((field, idx) => {
+    let inputs = _.sortBy(this.props.form.get('fields').toJS(), 'position').map((field, idx) => {
       return (
         <Field
           updateActiveField={this.props.updateActiveField}
@@ -23,7 +23,7 @@ class FormPreview extends Component {
           input={locals.inputs[field.id]}
           key={field.id}
           moveField={this.moveField.bind(this)}
-          order={field.order}
+          position={field.position}
           id={field.id}
           index={idx}
           />
