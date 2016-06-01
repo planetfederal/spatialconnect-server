@@ -55,6 +55,11 @@
           new-req (assoc req :body data-payload)]
       (handler new-req))))
 
+(defn- check-response [val]
+  (if (= val 1)
+    {:success true}
+    {:success false}))
+
 (defroutes app-routes
   (GET "/config" [] (response (buildconfig)))
   (context "/:cid/store" []
@@ -102,7 +107,7 @@
                 :message "invalid username or password"}})))
   (context "/form" []
     (POST "/:fid/submit" [fid]
-      (fn [{data :body}] (form/formdata-submit (read-string fid) data)))))
+      (fn [{data :body}] (check-response (form/formdata-submit (read-string fid) data))))))
 
 
 (defn wrap-user [handler]
