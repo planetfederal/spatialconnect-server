@@ -45,10 +45,6 @@
      :data dataVal
      :id (get fc :id)}))
 
-(defn- formDataOutput []
-  (let [formlist (form/form-list)]
-    (map formData->configOutput formlist)))
-
 (defn buildconfig []
   {:stores (map (fn [m] (dissoc m)) (store/store-list))
    :forms (formlist->tcombschema)})
@@ -58,6 +54,11 @@
     (let [data-payload (into {} (map (fn [v] {(keyword (first v)) (second v)}) (get req :body)))
           new-req (assoc req :body data-payload)]
       (handler new-req))))
+
+(defn- check-response [val]
+  (if (= val 1)
+    {:success true}
+    {:success false}))
 
 (defroutes app-routes
   (GET "/config" [] (response (buildconfig)))
@@ -106,8 +107,7 @@
                 :message "invalid username or password"}})))
   (context "/form" []
     (POST "/:fid/submit" [fid]
-      (fn [{data :body}] (response (form/formdata-submit (read-string fid) data)))))
-  )
+      (fn [{data :body}] (check-response (form/formdata-submit (read-string fid) data))))))
 
 
 (defn wrap-user [handler]

@@ -60,8 +60,7 @@
                                :identifier ident
                                :val str})
        (catch Exception e
-         (.getNextException e)
-         ))))
+         (.getNextException e)))))
 
 (defn formdata-for-form-id [formsid]
   (formdata-for-form-id-query {:formsid formsid}))

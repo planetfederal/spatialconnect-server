@@ -16,8 +16,6 @@
 
 (defn start-services []
   (run-server handler/app {:port 8085})
-  (println "SPACON WebServer Started")
-  (connectmqtt)
-  (println "SPACON SocketServer Started"))
+  (println "SPACON WebServer Started"))
 
 (defn -main [& args] (start-services))
