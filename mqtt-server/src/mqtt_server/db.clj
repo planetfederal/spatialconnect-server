@@ -1,17 +1,22 @@
 (ns mqtt-server.db
   (:require [yesql.core :refer [defqueries]]
             [ragtime.jdbc :as jdbc]
-            [ragtime.repl :as repl]))
+            [ragtime.repl :as repl]
+            [environ.core :refer [env]]))
+
+(def database-url (str (env :database-host) ":" (env :database-port) "/" (env :database-name)))
 
 (def db-spec {:classname "org.postgresql.Driver"
               :subprotocol "postgresql"
-              :subname "//localhost:5432/spacon"
-              :user "spacon"
-              :password "spacon"})
+              :subname (str "//" database-url)
+              :user (env :database-username)
+              :password (env :database-password)})
 
 (defn loadconfig []
   {:datastore (jdbc/sql-database
-                {:connection-uri "jdbc:postgresql://localhost:5432/spacon?user=spacon&password=spacon"})
+                {:connection-uri (str "jdbc:postgresql://" database-url
+                                      "?user=" (env :database-username)
+                                      "&password=" (env :database-password))})
    :migrations (jdbc/load-resources "migrations")})
 
 (defn migrate [] (repl/migrate (loadconfig)))

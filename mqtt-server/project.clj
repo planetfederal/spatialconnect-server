@@ -2,7 +2,7 @@
   :description ""
   :url "https://example.com/FIXME"
   :license {:name "Apache 2.0"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
+            :url  "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [
                  [org.clojure/clojure "1.7.0"],
                  [compojure "1.5.0"],
@@ -19,11 +19,15 @@
                  [clojurewerkz/machine_head "1.0.0-beta9"]
                  [buddy "0.13.0"]
                  [crypto-password "0.2.0"]
-                 [org.clojure/data.codec "0.1.0"]]
+                 [environ "0.5.0"]
+                 [org.clojure/data.codec "0.1.0"]
+                 [org.clojure/tools.logging "0.3.1"]]
   :dev-dependencies [
                      [lein-reload "1.0.0"]
                      ]
   :aliases {"migrate"  ["run" "-m" "mqtt-server.db/migrate"]
             "rollback" ["run" "-m" "mqtt-server.db/rollback"]}
-  :plugins [
-            [ragtime/ragtime.lein "0.3.6"]])
+  :plugins [[lein-environ "1.0.3"]
+            [ragtime/ragtime.lein "0.3.6"]]
+  :main mqtt-server.core
+  :ato [mqtt-server.core])

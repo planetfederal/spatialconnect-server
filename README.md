@@ -13,18 +13,6 @@ First you have to install [Docker](https://docs.docker.com/engine/installation/)
 
 If you are developing on OS X, make sure that your Docker host vm is started `docker-machine ls` and that your shell is configured to use it `eval $(docker-machine env default)`.
 
-Additionally, to enable a more pleasant experience, you'll need to install [docker-osx-dev](https://github.com/brikis98/docker-osx-dev) so you don't have to rebuild the container every time you change a file.
-
-```
-curl -o /usr/local/bin/docker-osx-dev https://raw.githubusercontent.com/brikis98/docker-osx-dev/master/src/docker-osx-dev
-chmod +x /usr/local/bin/docker-osx-dev
-docker-osx-dev install
-```
-
-After installing, you need to run `docker-osx-dev` in one terminal and do your work in another.
-
-Also, since you're syncing the files from your local workstation, you should run `npm install` from the root directory of this project and in the web directory to install the dependencies locally.
-
 
 ### Running all the images
 
@@ -61,22 +49,14 @@ To start the spatialconnect container, run
 docker-compose up -d spatialconnect
 ```
 
-To see all the changes to the event table, run the kafka console consumer for the `event` topic
+> If this is the initial setup, you'll also need to run the migration with `docker-compose run spatialconnect lein migrate`
+
+
+To see all the changes to the `stores` table, run the kafka console consumer for the `stores` topic
 
 ```
-docker-compose run --rm consumer --from-beginning --topic event
+docker-compose run --rm consumer --from-beginning --topic stores
 ```
-
-### Testing the API and dashboard
-
-You can explore the API by using the explorer at http://default/explorer/
-
-The web app dashboard is at the root http://default
-
-> The hostname "default" should be setup in your /etc/hosts from docker-osx-dev,
-> but if not you can find the IP address with `docker-machine ip default` and
-> add the entry yourself
-
 
 When you're done, don't forget to shut it down with
 
