@@ -62,6 +62,14 @@
        (catch Exception e
          (.getNextException e)))))
 
+(defn formdata-results [form-id]
+  (let [results (formdata-results-query {:formsid form-id})]
+    (map (fn [r]
+           (let [json-obj (:val r)
+                 json-str (.getValue json-obj)]
+             (parse-string json-str true)))
+         results)))
+
 (defn formdata-for-form-id [formsid]
   (formdata-for-form-id-query {:formsid formsid}))
 

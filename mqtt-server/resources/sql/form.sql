@@ -100,3 +100,7 @@ FROM form_data da JOIN form_field de ON da.form_field_id = de.id WHERE da.forms_
 -- counts the number of submissions for a form
 SELECT count(*) AS cnt
 FROM form_data WHERE forms_id = :formsid;
+
+-- name: formdata-results-query
+-- gets the form submission results
+SELECT * FROM form_data WHERE forms_id = :formsid;
