@@ -107,7 +107,9 @@
                 :message "invalid username or password"}})))
   (context "/form" []
     (POST "/:fid/submit" [fid]
-      (fn [{data :body}] (check-response (form/formdata-submit (read-string fid) data))))))
+      (fn [{data :body}] (check-response (form/formdata-submit (read-string fid) data))))
+    (GET "/:fid/results" [fid]
+      (response (form/formdata-results (read-string fid))))))
 
 
 (defn wrap-user [handler]
