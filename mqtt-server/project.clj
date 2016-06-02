@@ -19,7 +19,9 @@
                  [clojurewerkz/machine_head "1.0.0-beta9"]
                  [buddy "0.13.0"]
                  [crypto-password "0.2.0"]
-                 [org.clojure/data.codec "0.1.0"]]
+                 [org.clojure/data.codec "0.1.0"]
+                 [ring-cors "0.1.5"]
+                 ]
   :dev-dependencies [
                      [lein-reload "1.0.0"]
                      ]

@@ -15,6 +15,7 @@
     [mqtt-server.auth :refer [unauthorized-handler make-token! auth-backend authenticated-user]]
     [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]]
     [buddy.auth.accessrules :refer [restrict]]
+    [ring.middleware.cors :refer [wrap-cors]]
     [ring.adapter.jetty :refer [run-jetty]]))
 
 (defn wrap-log-request [handler]
@@ -118,6 +119,8 @@
 
 (def app
   (-> app-routes
+      (wrap-cors :access-control-allow-origin [#"http://localhost:8082"]
+                 :access-control-allow-methods [:get :put :post :delete])
       (wrap-user)
       (wrap-authentication auth-backend)
       (wrap-session)
