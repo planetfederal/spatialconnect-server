@@ -2,13 +2,13 @@ zookeeper:
   image: confluent/zookeeper
   hostname: zookeeper
   ports:
-    - 2181
+    - '2181:2181'
 
 kafka:
-  image: confluent/kafka
+  image: confluent/kafka:0.9.0.0-cp1
   hostname: kafka
   ports:
-    - 9092
+    - '9092:9092'
   links:
     - zookeeper
   environment:
@@ -18,7 +18,7 @@ schema-registry:
   image: confluent/schema-registry
   hostname: schema-registry
   ports:
-    - 8081
+    - '48081:8081'
   links:
     - zookeeper
     - kafka
@@ -30,6 +30,14 @@ postgres:
   hostname: postgres
   ports:
     - 5432
+
+bottledwater-json:
+  image: confluent/bottledwater:0.1
+  hostname: bottledwater-json
+  links:
+    - postgres
+    - kafka
+    - schema-registry
 
 bottledwater:
     image: confluent/bottledwater:0.1
@@ -49,25 +57,39 @@ consumer:
 nginx:
   image: jwilder/nginx-proxy
   ports:
-    - 80:80
+    - '80:80'
   volumes:
     - /var/run/docker.sock:/tmp/docker.sock:ro
 
-spatialconnect:
-  build: .
-  command: npm start
+mosquitto:
+  image: jllopis/mosquitto:v1.4.8
+  hostname: mosquitto
   ports:
-    - "3000:3000"
-  volumes:
-    - .:/usr/src/app
+    - '1883:1883'
+    - '9883:9883'
+
+spatialconnect:
+  build: ./mqtt-server
+  command: java -jar app-standalone.jar
+  ports:
+    - '8085:8085'
   links:
     - zookeeper
     - kafka
     - schema-registry
     - postgres
     - nginx
+    - mosquitto
   environment:
     - PGHOST=postgres
     - PGUSER=postgres
     - PGDATABASE=postgres
     - VIRTUAL_HOST=default
+    - MQTT_BROKER_HOSTNAME=mosquitto
+    - MQTT_BROKER_PORT=1883
+    - SC_PORT=8085
+    - DATABASE_HOST=postgres
+    - DATABASE_PORT=5432
+    - DATABASE_NAME=postgres
+    - DATABASE_USERNAME=postgres
+    - DATABASE_PASSWORD=postgres
