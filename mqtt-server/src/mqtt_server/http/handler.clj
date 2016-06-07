@@ -62,6 +62,7 @@
     {:success false}))
 
 (defroutes app-routes
+  (GET "/ping" [] "pong")         
   (GET "/config" [] (response (buildconfig)))
   (context "/:cid/store" []
     (routes
