@@ -33,13 +33,19 @@
     "public": false
   },
   "DataStore": {
-    "dataSource": "postgres",
+    "dataSource": "db",
     "public": true,
     "$promise": {},
     "$resolved": true
   },
   "Event": {
-    "dataSource": "postgres",
+    "dataSource": "db",
+    "public": true,
+    "$promise": {},
+    "$resolved": true
+  },
+  "Form": {
+    "dataSource": "db",
     "public": true,
     "$promise": {},
     "$resolved": true

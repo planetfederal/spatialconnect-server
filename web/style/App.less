@@ -1,0 +1,77 @@
+@import './palette';
+
+html, body {
+  height: 100%;
+  width: 100%;
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+}
+
+#app {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-container {
+  display: flex;
+  flex: 1;
+  position: relative;
+}
+
+.wrapper {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+}
+
+header {
+  background-color: @lightblue;
+  display: flex;
+  height: 40px;
+  a {
+    color: white;
+    font-size: 19px;
+    line-height: 40px;
+    padding: 0 10px;
+    &:hover {
+      color: white;
+    }
+    &:focus {
+      color: white;
+    }
+  }
+}
+
+nav {
+  flex-grow: 1;
+  a {
+    display: inline-block;
+    color: white;
+    margin-left: 10px;
+    font-size: 14px;
+    line-height: 40px;
+    &:hover {
+      color: white;
+    }
+    &:focus {
+      color: white;
+    }
+    &.active {
+      background: lighten(@lightblue, 10%);
+    }
+  }
+}
+
+footer {
+  height: 40px;
+  background: @lightblue;
+}
+
+section.main {
+  padding: 10px;
+}
