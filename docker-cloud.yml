@@ -61,34 +61,22 @@ schema-registry:
     - kafka
     - zookeeper
   ports:
-    - '48081:8081'
-spatialconnect:
+    - '8081:8081'
+spatialconnect-node:
+  autoredeploy: true
+  command: npm start
   environment:
-    - DATABASE_HOST=postgres
-    - DATABASE_NAME=postgres
-    - DATABASE_PASSWORD=postgres
-    - DATABASE_PORT=5432
-    - DATABASE_USERNAME=postgres
-    - MQTT_BROKER_HOSTNAME=mosquitto
-    - MQTT_BROKER_PORT=1883
     - PGDATABASE=postgres
     - PGHOST=postgres
     - PGUSER=postgres
-    - SC_PORT=8085
-    - VIRTUAL_HOST=default
-  image: 'marcusthebrown/spatialconnect-server:latest'
+    - VIRTUAL_HOST=efc.boundlessgeo.com
+  image: 'marcusthebrown/spatialconnect-server-node:latest'
   links:
     - kafka
-    - mosquitto
     - nginx
     - postgres
     - schema-registry
     - zookeeper
   ports:
-    - '8085:8085'
-zookeeper:
-  hostname: zookeeper
-  image: 'confluent/zookeeper:latest'
-  ports:
-    - '2181:2181'
+    - '3000:3000'
 
