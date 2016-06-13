@@ -68,28 +68,19 @@ mosquitto:
     - '1883:1883'
     - '9883:9883'
 
-spatialconnect:
-  build: ./mqtt-server
-  command: java -jar app-standalone.jar
+spatialconnect-node:
+  build: .
+  command: npm start
   ports:
-    - '8085:8085'
+    - '3000:3000'
   links:
     - zookeeper
     - kafka
     - schema-registry
     - postgres
     - nginx
-    - mosquitto
   environment:
     - PGHOST=postgres
     - PGUSER=postgres
     - PGDATABASE=postgres
-    - VIRTUAL_HOST=default
-    - MQTT_BROKER_HOSTNAME=mosquitto
-    - MQTT_BROKER_PORT=1883
-    - SC_PORT=8085
-    - DATABASE_HOST=postgres
-    - DATABASE_PORT=5432
-    - DATABASE_NAME=postgres
-    - DATABASE_USERNAME=postgres
-    - DATABASE_PASSWORD=postgres
+    - VIRTUAL_HOST=efc.boundlessgeo.com
