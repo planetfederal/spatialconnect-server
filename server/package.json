@@ -1,0 +1,38 @@
+{
+  "name": "spacon-server",
+  "version": "0.3.0",
+  "description": "SpatialConnect backend server for mobile lib and form builder",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon ./bin/www"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/boundlessgeo/spatialconnect-server.git"
+  },
+  "author": "Wes Richardet <wes@tetriscodes.com> (http://tetriscodes.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/boundlessgeo/spatialconnect-server/issues"
+  },
+  "homepage": "https://github.com/boundlessgeo/spatialconnect-server#readme",
+  "devDependencies": {
+    "babel-core": "6.9.1",
+    "babel-loader": "6.2.4",
+    "babel-preset-es2015": "6.9.0"
+  },
+  "dependencies": {
+    "body-parser": "1.15.1",
+    "cookie-parser": "1.4.3",
+    "cors": "2.7.1",
+    "express": "4.13.4",
+    "morgan": "1.7.0",
+    "path": "0.12.7",
+    "pg": "5.1.0",
+    "rx": "4.1.0",
+    "sequelize": "3.23.3",
+    "sqlite3": "3.1.4",
+    "webpack": "1.13.1"
+  }
+}
