@@ -62,7 +62,7 @@ schema-registry:
     - zookeeper
   ports:
     - '8081:8081'
-spatialconnect-node:
+spatialconnect-server:
   autoredeploy: true
   command: npm start
   environment:
@@ -70,7 +70,8 @@ spatialconnect-node:
     - PGHOST=postgres
     - PGUSER=postgres
     - VIRTUAL_HOST=efc.boundlessgeo.com
-  image: 'marcusthebrown/spatialconnect-server-node:latest'
+    - NODE_ENV=production
+  image: 'marcusthebrown/spatialconnect-server:latest'
   links:
     - kafka
     - nginx
@@ -78,5 +79,5 @@ spatialconnect-node:
     - schema-registry
     - zookeeper
   ports:
-    - '3000:3000'
+    - '8085:8085'
 

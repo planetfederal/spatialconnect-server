@@ -7,12 +7,17 @@ WORKDIR /usr/src/app
 
 # Copy app source to workdir
 COPY package.json .
-COPY pong.js .
+COPY server.js .
+COPY database.json .
+COPY config /usr/src/app/config
+COPY migrations /usr/src/app/migrations
+COPY models /usr/src/app/models
+COPY public /usr/src/app/public
+COPY routes /usr/src/app/routes
 
 # Install app dependencies
 RUN npm install
 
 # Start the service
-EXPOSE 3000
+EXPOSE 8085
 CMD ["npm", "start"]
-
