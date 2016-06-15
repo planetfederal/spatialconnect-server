@@ -1,8 +1,16 @@
 {
-  "dev": {
+  "development": {
     "host": "localhost",
-    "user": { "ENV" : "spacon" },
-    "password" : { "ENV" : "spacon" },
+    "user": "spacon",
+    "password" : "spacon",
+    "database": "spacon",
+    "driver": "postgres",
+    "multipleStatements": true
+  },
+  "production": {
+    "host": "postgres",
+    "user": "postgres",
+    "password" : "postgres",
     "database": "spacon",
     "driver": "postgres",
     "multipleStatements": true

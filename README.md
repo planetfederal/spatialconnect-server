@@ -30,11 +30,10 @@ open a `psql` terminal on the postgres image
 docker-compose run -e PGHOST=postgres -e PGUSER=postgres --rm postgres psql
 ```
 
-then add the extensions
+then add the extension
 
 ```
 CREATE EXTENSION bottledwater;
-CREATE EXTENSION hstore;
 ```
 
 Now in another terminal, start the bottledwater client by running
@@ -43,14 +42,20 @@ Now in another terminal, start the bottledwater client by running
 docker-compose up -d bottledwater
 ```
 
-
-To start the spatialconnect container, run
+Then create the database and database user:
 
 ```
-docker-compose up -d spatialconnect
+docker-compose run -e PGHOST=postgres -e PGUSER=postgres --rm postgres createuser spacon
+docker-compose run -e PGHOST=postgres -e PGUSER=postgres --rm postgres createdb spacon -O spacon
 ```
 
-> If this is the initial setup, you'll also need to run the migration with `docker-compose run spatialconnect lein migrate`
+Start the spatialconnect-server container
+
+```
+docker-compose up -d spatialconnect-server
+```
+
+> If this is the initial setup, you'll also need to run the migration with `docker-compose run --rm spatialconnect-server node_modules/db-migrate/bin/db-migrate up --env=production`
 
 
 To see all the changes to the `stores` table, run the kafka console consumer for the `stores` topic

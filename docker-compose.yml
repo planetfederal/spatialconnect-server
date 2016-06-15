@@ -18,7 +18,7 @@ schema-registry:
   image: confluent/schema-registry
   hostname: schema-registry
   ports:
-    - '48081:8081'
+    - '8081:8081'
   links:
     - zookeeper
     - kafka
@@ -29,7 +29,7 @@ postgres:
   image: confluent/postgres-bw:0.1
   hostname: postgres
   ports:
-    - 5432
+    - '5432:5432'
 
 bottledwater-json:
   image: confluent/bottledwater:0.1
@@ -68,11 +68,11 @@ mosquitto:
     - '1883:1883'
     - '9883:9883'
 
-spatialconnect-node:
-  build: .
+spatialconnect-server:
+  build: ./server
   command: npm start
   ports:
-    - '3000:3000'
+    - '8085:8085'
   links:
     - zookeeper
     - kafka
@@ -84,3 +84,4 @@ spatialconnect-node:
     - PGUSER=postgres
     - PGDATABASE=postgres
     - VIRTUAL_HOST=efc.boundlessgeo.com
+    - NODE_ENV=production

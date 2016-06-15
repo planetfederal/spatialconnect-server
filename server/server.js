@@ -22,6 +22,7 @@ app.use(express.static(path.join(__dirname,'public')));
 app.use('/ping',ping);
 app.use('/config',config);
 
-app.listen(8085);
+app.listen(8085, function () {
+    console.log('Example app listening on port 8085!');
+});
 
-module.exports = app;
