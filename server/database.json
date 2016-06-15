@@ -1,0 +1,11 @@
+{
+  "dev": {
+    "host": "localhost",
+    "user": { "ENV" : "spacon" },
+    "password" : { "ENV" : "spacon" },
+    "database": "spacon",
+    "driver": "postgres",
+    "multipleStatements": true
+  },
+  "sql-file":true
+}
