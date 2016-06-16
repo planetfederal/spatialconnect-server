@@ -1,12 +1,14 @@
 'use strict';
 
 var express = require('express');
+var router = express.Router();
 var path = require('path');
 var logger = require('morgan');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var ping = require('./routes/ping');
 var config = require('./routes/config');
+var forms = require('./routes/forms');
 
 var cors = require('cors');
 var app = express();
@@ -19,10 +21,12 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname,'public')));
 
-app.use('/ping',ping);
-app.use('/config',config);
+app.use('/v1', router);
+router.use('/ping', ping);
+router.use('/config', config);
+router.use('/forms', forms);
+
 
 app.listen(8085, function () {
     console.log('Example app listening on port 8085!');
 });
-
