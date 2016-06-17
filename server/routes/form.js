@@ -74,7 +74,7 @@ router.get('/:formId/results', (req, res) => {
     .subscribe(formData => res.json(formData), err => console.log(err));
 });
 
-router.post('/:formId', (req, res) => {
+router.post('/:formId/submit', (req, res) => {
   let formData = {
     val: req.body,
     form_id: req.params.formId
