@@ -8,7 +8,7 @@ var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var ping = require('./routes/ping');
 var config = require('./routes/config');
-var forms = require('./routes/forms');
+var form = require('./routes/form');
 
 var cors = require('cors');
 var app = express();
@@ -24,7 +24,7 @@ app.use(express.static(path.join(__dirname,'public')));
 app.use('/api', router);
 router.use('/ping', ping);
 router.use('/config', config);
-router.use('/form', forms);
+router.use('/form', form);
 
 
 app.listen(8085, function () {
