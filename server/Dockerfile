@@ -16,7 +16,7 @@ COPY public /usr/src/app/public
 COPY routes /usr/src/app/routes
 
 # Install app dependencies
-RUN npm install
+RUN npm install --silent
 
 # Start the service
 EXPOSE 8085

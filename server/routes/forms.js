@@ -2,7 +2,7 @@
 
 var express = require('express');
 let router = express.Router();
-var models = require('./../models/');
+var models = require('../models/');
 var Rx = require('rx');
 var _ = require('lodash');
 
