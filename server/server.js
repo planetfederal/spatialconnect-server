@@ -24,7 +24,7 @@ app.use(express.static(path.join(__dirname,'public')));
 app.use('/api', router);
 router.use('/ping', ping);
 router.use('/config', config);
-router.use('/forms', forms);
+router.use('/form', forms);
 
 
 app.listen(8085, function () {
