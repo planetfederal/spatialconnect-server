@@ -3,7 +3,10 @@
 module.exports = (sequelize,DataTypes) => {
   var Devices = sequelize.define('Devices',{
     name : DataTypes.STRING,
-    identifier : DataTypes.STRING
+    identifier : {
+      type : DataTypes.STRING,
+      unique : true
+    }
   },{
     timestamps : true,
     paranoid : true,
