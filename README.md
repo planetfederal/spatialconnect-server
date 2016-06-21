@@ -4,6 +4,8 @@ This server is the interface used to communicate with mobile clients
 using the SpatialConnect libraries.  It's also the API that powers the
 dashboard web application.
 
+## Version
+0.3
 
 ## Running with Docker
 
