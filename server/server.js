@@ -29,5 +29,5 @@ router.use('/forms', forms);
 router.use('/devices',devices);
 
 app.listen(8085, function () {
-    console.log('Example app listening on port 8085!');
+  console.log('SpatialConnect-Server listening on port 8085!');
 });

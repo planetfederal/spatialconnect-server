@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = (sequelize,DataTypes) => {
   var FormFields = sequelize.define('FormData',{
     val : DataTypes.JSON
@@ -5,12 +7,7 @@ module.exports = (sequelize,DataTypes) => {
     timestamps : true,
     paranoid : true,
     underscored : true,
-    tableName : 'form_data',
-    classMethods : {
-      associate : (models) => {
-        
-      }
-    }
+    tableName : 'form_data'
   });
   return FormFields;
 };
