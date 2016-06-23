@@ -5,7 +5,7 @@
     "database": "spacon",
     "host": "localhost",
     "dialect": "postgres",
-    "logging" : true
+    "logging" : false
   },
   "production": {
     "username": "spacon",

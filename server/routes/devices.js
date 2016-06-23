@@ -15,4 +15,23 @@ router.post('/register', (req, res) => {
   );
 });
 
+router.get('/',(req,res) => {
+  Rx.Observable.fromPromise(models.Devices.findAll())
+    .subscribe(
+      (s) => res.json(s),
+      (err) => res.json({error:err})
+    );
+});
+
+router.get('/:identifier', (req,res) => {
+  Rx.Observable.fromPromise(models.Devices.findOne({
+    where : {
+      identifier : req.params.identifier
+    }
+  })).subscribe(
+    (s) => res.json(s),
+    (err) => res.error({error:err})
+  );
+});
+
 module.exports = router;
