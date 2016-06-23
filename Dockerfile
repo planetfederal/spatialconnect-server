@@ -6,8 +6,10 @@ RUN mkdir -p /usr/src/web/dist/
 WORKDIR /usr/src/web
 COPY web /usr/src/web
 RUN npm install --silent
-RUN NODE_ENV=production webpack
+RUN npm install webpack -g --silent
+RUN webpack
 COPY web/dist/bundle.js /usr/src/web/dist/bundle.js
+
 
 # Copy server source to server dir
 RUN mkdir -p /usr/src/server

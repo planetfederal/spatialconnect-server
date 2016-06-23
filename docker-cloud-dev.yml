@@ -8,7 +8,6 @@ authorizedkeys:
     - '/root:/user'
 bottledwater:
   autoredeploy: true
-  command: '--output-format=json --allow-unkeyed'
   environment:
     - DB_NAME=spacon
   hostname: bottledwater
@@ -48,11 +47,11 @@ spatialconnect-server:
   autoredeploy: true
   command: npm start
   environment:
-    - NODE_ENV=production
+    - NODE_ENV=development
     - PGDATABASE=postgres
     - PGHOST=postgres
     - PGUSER=postgres
-    - VIRTUAL_HOST=efc.boundlessgeo.com
+    - VIRTUAL_HOST=efc-dev.boundlessgeo.com
   image: 'marcusthebrown/spatialconnect-server:latest'
   links:
     - kafka

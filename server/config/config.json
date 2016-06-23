@@ -1,11 +1,19 @@
 {
+  "local": {
+    "username": "spacon",
+    "password": "spacon",
+    "database": "localhost",
+    "host": "localhost",
+    "dialect": "postgres",
+    "logging": false
+  },
   "development": {
     "username": "spacon",
     "password": "spacon",
     "database": "spacon",
-    "host": "localhost",
+    "host": "postgres",
     "dialect": "postgres",
-    "logging" : false
+    "logging": false
   },
   "production": {
     "username": "spacon",
@@ -13,6 +21,6 @@
     "database": "spacon",
     "host": "postgres",
     "dialect": "postgres",
-    "logging" : false
+    "logging": false
   }
 }
