@@ -2,9 +2,9 @@
 
 module.exports = (sequelize,DataTypes) => {
   var DeviceLocations = sequelize.define('DeviceLocations',{
-      x : DataTypes.FLOAT,
-      y : DataTypes.FLOAT,
-      z : DataTypes.FLOAT
+    x : DataTypes.FLOAT,
+    y : DataTypes.FLOAT,
+    z : DataTypes.FLOAT
   },{
     timestamps : true,
     paranoid : true,

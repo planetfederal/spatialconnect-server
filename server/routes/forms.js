@@ -64,10 +64,10 @@ router.get('/:formId', (req, res) => {
 
 router.get('/:formId/results', (req, res) => {
   return Rx.Observable.fromPromise(models.FormData.findAll({
-      where: {
-        form_id: req.params.formId
-      }
-    }))
+    where: {
+      form_id: req.params.formId
+    }
+  }))
     .flatMap(Rx.Observable.fromArray)
     .map(filterStampsAndNulls)
     .toArray()

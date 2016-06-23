@@ -9,6 +9,7 @@ var cookieParser = require('cookie-parser');
 var ping = require('./routes/ping');
 var config = require('./routes/config');
 var forms = require('./routes/forms');
+var devices = require('./routes/devices');
 
 var cors = require('cors');
 var app = express();
@@ -25,8 +26,10 @@ app.use('/api', router);
 router.use('/ping', ping);
 router.use('/config', config);
 router.use('/forms', forms);
+router.use('/devices',devices);
 
-
-app.listen(8085, function () {
-    console.log('Example app listening on port 8085!');
+var server = app.listen(8085, function () {
+  console.log('SpatialConnect-Server listening on port 8085!');
 });
+
+module.exports = server;
