@@ -1,1 +1,2 @@
-/* Replace with your SQL commands */
+DELETE FROM stores;
+DELETE FROM forms;
