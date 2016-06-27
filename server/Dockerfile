@@ -9,6 +9,7 @@ WORKDIR /usr/src/app
 COPY package.json .
 COPY server.js .
 COPY database.json .
+COPY util.js .
 COPY config /usr/src/app/config
 COPY migrations /usr/src/app/migrations
 COPY models /usr/src/app/models
