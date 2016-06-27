@@ -6,7 +6,7 @@ CREATE OR REPLACE FUNCTION update_updated_at_column()
     END;
 ' LANGUAGE 'plpgsql';
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id          serial PRIMARY KEY,
     name        TEXT NOT NULL CHECK (name <> ''),
     email       TEXT NOT NULL UNIQUE,
@@ -20,3 +20,5 @@ CREATE TABLE users (
 CREATE TRIGGER update_updated_at_users
     BEFORE UPDATE ON users FOR EACH ROW EXECUTE
     PROCEDURE update_updated_at_column();
+
+ALTER TABLE public.users OWNER TO spacon;
