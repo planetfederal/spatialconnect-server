@@ -28,7 +28,7 @@ class EventsContainer extends Component {
   render() {
     const {loading, eventsList, addingNewEvent} = this.props;
     return (
-      <div className="container">
+      <div className="wrapper">
         <section className="main">
           {loading ? 'Fetching Events...': ''}
           {addingNewEvent

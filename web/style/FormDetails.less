@@ -1,0 +1,131 @@
+@import './palette';
+
+.form-details {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  .form-info {
+    width: 100%;
+    height: 50px;
+    display: flex;
+    background: @bgblue;
+    border-bottom: 1px solid #ccc;
+    .form-title {
+      width: 200px;
+      padding-left: 10px;
+      padding-right: 20px;
+    }
+    .form-tools {
+      flex: 1;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      button {
+        margin-right: 10px;
+        height: 34px;
+      }
+    }
+    .form-info-block {
+      margin-left: 20px;
+      padding: 5px 0;
+    }
+    h4 {
+      line-height: 50px;
+      margin: 0;
+    }
+    p {
+      margin: 0;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+      font-size: 12px;
+      color: #666;
+      li {
+        line-height: 20px;
+      }
+      label {
+        font-weight: bold;
+        margin: 0;
+      }
+    }
+  }
+  .form-builder {
+    display: flex;
+    width: 100%;
+    flex-grow: 1;
+    overflow-x: hidden;
+    overflow-y: auto;
+    .form-pane {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .form-pane-title {
+      height: 30px;
+      width: 100%;
+      text-align: center;
+      border-bottom: 1px solid #ccc;
+      h5 {
+        line-height: 30px;
+        margin: 0;
+      }
+    }
+    .form-pane-wrapper {
+      height: 0px;
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    .form-pane-highlight {
+      background: @bgblue;
+    }
+    .form-controls {
+      width: 200px;
+      border-right: 1px solid #ccc;
+      button {
+        width: 100%;
+        margin-bottom: 10px;
+      }
+    }
+    .form-preview {
+      flex: 1;
+      .form-pane-wrapper {
+        background: @bgblue;
+      }
+      form {
+        margin: 0 auto;
+        background: #f0f0f0;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        .field-wrap {
+          &:hover {
+            background: @paleblue;
+            cursor: pointer;
+          }
+        }
+        .form-group {
+          padding: 10px;
+          margin: 0;
+        }
+        .form-counter {
+          display: flex;
+          flex-direction: row;
+          .form-control-counter {
+            width: auto;
+          }
+          .btn-form-counter {
+            background: @darkblue;
+            color: white;
+            flex: 1;
+          }
+        }
+      }
+    }
+    .form-options {
+      width: 300px;
+      border-left: 1px solid #ccc;
+    }
+  }
+}

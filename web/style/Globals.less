@@ -1,0 +1,50 @@
+@import './palette';
+
+a {
+  color: @lightblue;
+}
+
+.btn-sc {
+  color: #fff;;
+  background-color: @lightblue;
+  border-color: @darkblue, 1%;
+  &:hover {
+    background-color: @darkblue;
+    color: #fff;
+  }
+}
+
+p.warning-message {
+  color: #ccc;
+  text-align: center;
+}
+
+.sc-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+}
+
+.sc-modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  border: 1px solid #ccc;
+  background: #fff;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 4px;
+  outline: none;
+  padding: 20px;
+  margin-right: -50%;
+  transform: translate(-50%, -50%);
+  h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+  }
+}
