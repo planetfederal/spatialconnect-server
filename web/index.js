@@ -10,10 +10,15 @@ import thunk from 'redux-thunk';
 import createLogger from 'redux-logger';
 import { reducer as formReducer } from 'redux-form';
 import { Router, Route, IndexRoute, browserHistory } from 'react-router';
-import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
+import { syncHistoryWithStore, routerReducer, routerMiddleware } from 'react-router-redux';
+import Home from './components/Home';
 import EventsContainer from './containers/EventsContainer';
 import DataStoresContainer from './containers/DataStoresContainer';
+import FormsContainer from './containers/FormsContainer';
+import FormDetailsContainer from './containers/FormDetailsContainer';
 import EventDetails from './components/EventDetails';
+
+import './style/Globals.less';
 
 // combine all the reducers into a single reducing function
 const rootReducer = combineReducers({
@@ -24,9 +29,10 @@ const rootReducer = combineReducers({
 
 // create the redux store that holds the state for this app
 // http://redux.js.org/docs/api/createStore.html
+const middleware = routerMiddleware(browserHistory);
 let store = createStore(
   rootReducer,
-  applyMiddleware(thunk, createLogger()) // logger must be the last in the chain
+  applyMiddleware(middleware, thunk, createLogger()) // logger must be the last in the chain
 );
 
 // create an enhanced history that syncs navigation events with the store
@@ -40,13 +46,15 @@ render(
     { /* Tell the Router to use our enhanced history */ }
     <Router history={history}>
       <Route path="/" component={App}>
-        <Route path="/events" component={EventsContainer}>
-          <Route path="/events/:id" component={EventDetails} >
-            <IndexRoute component={DataStoresContainer} />
-          </Route>
+        <IndexRoute component={Home} />
+        <Route path="/stores" component={DataStoresContainer}>
+        </Route>
+        <Route path="/forms" component={FormsContainer}>
+        </Route>
+        <Route path="/forms/:id" component={FormDetailsContainer} >
         </Route>
       </Route>
     </Router>
   </Provider>,
-  document.getElementById("app")
+  document.getElementById("root")
 );

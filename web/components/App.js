@@ -1,23 +1,28 @@
 'use strict';
-import React from 'react';
+import React, { Component } from 'react';
 import { Link } from 'react-router';
+import '../style/App.less';
 
-// create a stateless functional react component for our App
-// https://facebook.github.io/react/blog/2015/10/07/react-v0.14.html#stateless-functional-components
-// also using implicit return syntax
-// https://egghead.io/lessons/react-building-stateless-function-components-new-in-react-0-14
-const App = (props) => (
-  <div>
-    <h1>SpatialConnect Dashboard!</h1>
-    <nav>
-      <ul>
-        <li>
-          <Link to="/events">Events</Link>
-        </li>
-      </ul>
-    </nav>
-    {props.children}
-  </div>
-);
+class App extends Component {
+  render() {
+    return (
+      <div id="app">
+        <header>
+          <Link to="/">SpatialConnect Dashboard</Link>
+          <nav>
+            <Link to="/stores" activeClassName="active">Stores</Link>
+            <Link to="/forms" activeClassName="active">Forms</Link>
+          </nav>
+        </header>
+        <div className="main-container">
+          {this.props.children}
+        </div>
+        <footer>
+
+        </footer>
+      </div>
+    );
+  }
+}
 
 export default App;

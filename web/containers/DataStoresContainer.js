@@ -48,7 +48,7 @@ export class DataStoresContainer extends Component {
     let initialValues = {storeId: newDataStoreId};
 
     return (
-      <div className="container">
+      <div className="wrapper">
         <section className="main">
           <p>{loading ? 'Fetching Data Stores...': ''}</p>
           {addingNewDataStore

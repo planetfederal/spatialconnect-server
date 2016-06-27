@@ -12,7 +12,6 @@ COPY database.json .
 COPY config /usr/src/app/config
 COPY migrations /usr/src/app/migrations
 COPY models /usr/src/app/models
-COPY public /usr/src/app/public
 COPY routes /usr/src/app/routes
 
 # Install app dependencies

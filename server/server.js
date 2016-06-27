@@ -10,20 +10,19 @@ var ping = require('./routes/ping');
 var config = require('./routes/config');
 var forms = require('./routes/forms');
 var devices = require('./routes/devices');
+var stores = require('./routes/stores');
 var authenticate = require('./routes/authenticate');
 var users = require('./routes/users');
 var jwt = require('jsonwebtoken');
-
 var cors = require('cors');
 var app = express();
 
 app.use(cors());
-app.use(express.static(__dirname+'/public'));
 app.use(logger('dev'));
 app.use(bodyParser.urlencoded({extended : false}));
 app.use(bodyParser.json());
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname,'public')));
+app.use(express.static(path.join(__dirname,'../web')));
 
 app.use('/api', router);
 
@@ -53,6 +52,7 @@ app.use((req,res,next) => {
 router.use('/ping', ping);
 router.use('/config', config);
 router.use('/forms', forms);
+router.use('/stores', stores);
 router.use('/devices',devices);
 router.use('/users',users);
 router.use('/authenticate',authenticate);
