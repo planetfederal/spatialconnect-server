@@ -26,6 +26,11 @@ app.use(express.static(path.join(__dirname,'../web')));
 
 app.use('/api', router);
 
+// return the index for any non-api call
+app.get(/^\/((?!api).)/, function(req, res) {
+  res.sendFile(path.join(__dirname, '../web/index.html'));
+});
+
 app.use((req,res,next) => {
   var token = req.body.token || req.query.token || req.headers['x-access-token'];
   if (token) {
