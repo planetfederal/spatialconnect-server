@@ -8,9 +8,10 @@ const AddFieldControl = ({ text, onClick, options }) => (
 class FormControls extends Component {
 
   addField(options) {
+    let size = this.props.form.get('fields').size;
     this.props.addField({
       formId: this.props.form.get('id'),
-      key: '',
+      key: 'data_name_' + (size + 1),
       name: '',
       options: options
     });

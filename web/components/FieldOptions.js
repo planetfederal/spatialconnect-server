@@ -3,18 +3,18 @@ import _ from 'lodash';
 import '../style/FormDetails.less';
 
 let fieldOptions = {
-  string: ['key', 'name', 'is_required', 'initial_value', 'minimum_length', 'maximum_length', 'pattern'],
-  select: ['key', 'name', 'is_required', 'options'],
-  number: ['key', 'name', 'is_required', 'initial_value', 'minimum', 'maximum', 'integer', 'exclusive_minimum', 'exclusive_maximum'],
-  boolean: ['key', 'name', 'is_required' ],
-  date: ['key', 'name', 'is_required' ],
-  slider: ['key', 'name', 'is_required', 'initial_value', 'minimum', 'maximum'],
-  counter: ['key', 'name', 'is_required', 'initial_value', 'minimum', 'maximum']
+  string: ['key', 'label', 'is_required', 'initial_value', 'minimum_length', 'maximum_length', 'pattern'],
+  select: ['key', 'label', 'is_required', 'options'],
+  number: ['key', 'label', 'is_required', 'initial_value', 'minimum', 'maximum', 'integer', 'exclusive_minimum', 'exclusive_maximum'],
+  boolean: ['key', 'label', 'is_required' ],
+  date: ['key', 'label', 'is_required' ],
+  slider: ['key', 'label', 'is_required', 'initial_value', 'minimum', 'maximum'],
+  counter: ['key', 'label', 'is_required', 'initial_value', 'minimum', 'maximum']
 };
 
 let fieldLabels = {
   key: 'Data Name',
-  name: 'Display Name',
+  label: 'Display Name',
   is_required: 'Required',
   isInteger: 'Integer',
   initial_value: 'Default Value',
@@ -113,7 +113,7 @@ class FieldOptions extends Component {
         <div className="form-pane-title"><h5>Field Options</h5></div>
         <div className="form-pane-wrapper">
           {optionInputs}
-          <button className="btn btn-default" onClick={this.removeField.bind(this)}>Remove</button>
+          <button className="btn btn-danger" onClick={this.removeField.bind(this)}>Delete Field</button>
         </div>
       </div>
     );

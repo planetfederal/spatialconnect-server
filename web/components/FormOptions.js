@@ -31,7 +31,7 @@ class FormOptions extends Component {
               onChange={this.changeLabel.bind(this)}
              />
           </div>
-          <button className="btn btn-default" onClick={this.deleteForm.bind(this)}>Delete</button>
+          <button className="btn btn-danger" onClick={this.deleteForm.bind(this)}>Delete Form</button>
         </div>
       </div>
     );

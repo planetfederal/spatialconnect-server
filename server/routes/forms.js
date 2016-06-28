@@ -28,6 +28,36 @@ var formFields$ = (formId) => {
     .toArray();
 };
 
+var updateFields$ = (formId, fields) => {
+  return Rx.Observable.fromArray(fields)
+    .map(field => {
+      field.form_id = formId;
+      return field;
+    })
+    .flatMap((field) => {
+      return Rx.Observable.fromPromise(models.FormFields.upsert(field));
+    });
+};
+
+var deleteFields$ = (fieldIds) => {
+  return Rx.Observable.fromArray(fieldIds)
+    .flatMap((fieldId) => {
+      return Rx.Observable.fromPromise(models.FormFields.destroy({
+        where: { id: fieldId }
+      }));
+    });
+};
+
+var deleteFormFields$ = (formId) => {
+  return formFields$(formId)
+    .flatMap(Rx.Observable.fromArray)
+    .flatMap((field) => {
+      return Rx.Observable.fromPromise(models.FormFields.destroy({
+        where: { id: field.id }
+      }));
+    });
+};
+
 router.get('/', (req, res) => {
   return Rx.Observable.fromPromise(models.Forms.findAll())
     .flatMap(Rx.Observable.fromArray)
@@ -82,6 +112,39 @@ router.post('/:formId/submit', (req, res) => {
   return Rx.Observable.fromPromise(models.FormData.create(formData))
     .map(filterStampsAndNulls)
     .subscribe(formData => res.json(formData), err => console.log(err));
+});
+
+router.post('/', (req, res) => {
+  return Rx.Observable.fromPromise(models.Forms.create(req.body))
+    .map(filterStampsAndNulls)
+    .map(form => {
+      form.fields = [];
+      return form;
+    })
+    .subscribe(formData => res.json(formData), err => console.log(err));
+});
+
+router.put('/:formId', (req, res) => {
+  return Rx.Observable.fromPromise(models.Forms.update(req.body.form, {
+    where: {
+      id: req.params.formId
+    }
+  }))
+    .merge(updateFields$(req.params.formId, req.body.form.fields))
+    .merge(deleteFields$(req.body.deletedFields))
+    .toArray()
+    .subscribe(r => res.json(r), err => console.log(err));
+});
+
+router.delete('/:formId', (req, res) => {
+  return Rx.Observable.fromPromise(models.Forms.destroy({
+    where: {
+      id: req.params.formId
+    }
+  }))
+    .merge(deleteFormFields$(req.params.formId))
+    .toArray()
+    .subscribe(r => res.json(r), err => console.log(err));
 });
 
 module.exports = router;
