@@ -20,7 +20,7 @@ class FormPreview extends Component {
         <Field
           updateActiveField={this.props.updateActiveField}
           form={this.props.form}
-          input={locals.inputs[field.id]}
+          input={locals.inputs[field.key]}
           key={field.id}
           moveField={this.moveField.bind(this)}
           position={field.position}
@@ -54,7 +54,7 @@ class FormPreview extends Component {
     if (form.get('fields').size == 0) {
       formEl = <div><p className="warning-message">Add fields.</p></div>;
     } else {
-      //console.log(JSON.stringify(form.toJS()));
+      //console.log(form.toJS());
       let { schema, options } = scformschema.translate(form.toJS());
       options.template = locals => this.template(locals);
       formEl = (

@@ -4,7 +4,8 @@ import * as request from 'superagent-bluebird-promise';
 import Immutable from 'immutable';
 import { API_URL } from 'config';
 import uuid from 'node-uuid';
-import { push } from 'react-router-redux'
+import { push } from 'react-router-redux';
+import { pick } from 'lodash';
 
 // define action types
 export const LOAD = 'sc/forms/LOAD';
@@ -88,6 +89,7 @@ export default function reducer(state = initialState, action = {}) {
     case REMOVE_FIELD:
       var fieldsPath = ['forms', action.formId.toString(), 'fields'];
       var fieldPath = ['forms', action.formId.toString(), 'fields', state.getIn(fieldsPath).findIndex(f => f.get('id') === action.fieldId)];
+      var deletedFieldsPath = ['forms', action.formId.toString(), 'deletedFields'];
       let field = state.getIn(fieldPath);
       return state
         .setIn(fieldsPath, state.getIn(fieldsPath).update(fields => {
@@ -99,7 +101,8 @@ export default function reducer(state = initialState, action = {}) {
             }
             return f;
           });
-        }));
+        }))
+        .setIn(deletedFieldsPath, state.getIn(deletedFieldsPath).push(action.fieldId));
     // return the previousState if no actions match
     default: return state;
   }
@@ -122,13 +125,21 @@ export function updateFormName(formId, newName) {
   };
 }
 
+export function updateFormValue(formId, value) {
+  return {
+    type: UPDATE_FORM_VALUE,
+    formId: formId,
+    value: value
+  };
+}
+
 export function addField(payload) {
   return (dispatch, getState) => {
     const { sc } = getState();
-    let order = sc.forms.getIn(['forms', payload.formId.toString(), 'fields']).size;
+    let position = sc.forms.getIn(['forms', payload.formId.toString(), 'fields']).size;
     let field = _.merge({
       id: uuid.v1(),
-      position: order,
+      position: position,
       key: payload.key,
       name: payload.name
     }, payload.options);
@@ -192,6 +203,7 @@ export function receiveForms(forms) {
   //make form order and initial form value
   forms = forms.map(f => {
     f.value = {};
+    f.deletedFields = [];
     f.fields.forEach(field => {
       if (field.hasOwnProperty('initialValue')) {
         f.value[field.key] = field.initialValue;
@@ -246,15 +258,13 @@ export function loadForm(id) {
           dispatch(receiveForms([res.body]));
         });
     }
-
   };
 }
 
 export function addForm() {
   return dispatch => {
     let data = {
-      name: 'New Form',
-      fields: []
+      name: 'New Form'
     };
     return request
       .post(API_URL + 'forms')
@@ -273,12 +283,16 @@ export function addForm() {
 export function saveForm(formId) {
   return (dispatch, getState) => {
     const { sc } = getState();
-    let formSchema = sc.forms.getIn(['forms', formId.toString()]).toJS();
+    let form = sc.forms.getIn(['forms', formId.toString()]).toJS()
+    let data = {
+      form: _.pick(form, ['name', 'fields']),
+      deletedFields: form.deletedFields
+    }
     return request
       .put(API_URL + 'forms/' + formId)
-      .send(formSchema)
+      .send(data)
       .then(function(res) {
-
+        //TODO confirm form save in UI
       }, function(error) {
         throw new Error(res);
       });
