@@ -25,6 +25,9 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname,'../web')));
 
 app.use('/api', router);
+app.get('/dist/bundle.js', function(req, res) {
+  res.sendFile(path.join(__dirname, '../web/dist/bundle.js'));
+});
 
 // return the index for any non-api call
 app.get(/^\/((?!api).)/, function(req, res) {
