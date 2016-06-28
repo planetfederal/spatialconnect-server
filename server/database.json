@@ -1,8 +1,16 @@
 {
-  "development": {
+  "local": {
     "host": "localhost",
     "user": "spacon",
-    "password" : "spacon",
+    "password": "spacon",
+    "database": "spacon",
+    "driver": "postgres",
+    "multipleStatements": true
+  },
+  "development": {
+    "host": "postgres",
+    "user": "postgres",
+    "password": "postgres",
     "database": "spacon",
     "driver": "postgres",
     "multipleStatements": true
@@ -10,10 +18,10 @@
   "production": {
     "host": "postgres",
     "user": "postgres",
-    "password" : "postgres",
+    "password": "postgres",
     "database": "spacon",
     "driver": "postgres",
     "multipleStatements": true
   },
-  "sql-file":true
+  "sql-file": true
 }

@@ -33,7 +33,7 @@ module.exports = {
   },
   resolve: {
     alias: {
-      config: path.join(__dirname, 'config', process.env.NODE_ENV || 'development')
+      config: path.join(__dirname, 'config', process.env.NODE_ENV || 'local')
     }
   }
 };

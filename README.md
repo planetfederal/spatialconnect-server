@@ -16,32 +16,13 @@ First you have to install [Docker](https://docs.docker.com/engine/installation/)
 If you are developing on OS X, make sure that your Docker host vm is started `docker-machine ls` and that your shell is configured to use it `eval $(docker-machine env)`.
 
 
-### Running all the images
+### Running all the images for local development
 
 To setup all of the spatialconnect infrastructure for the first time, use docker-compose to
 setup the dependent services.
 
 ```
-docker-compose up -d zookeeper kafka schema-registry postgres
-```
-
-Then add the bottled water extension to the postgres database.  First
-open a `psql` terminal on the postgres image
-
-```
-docker-compose run -e PGHOST=postgres -e PGUSER=postgres --rm postgres psql
-```
-
-then add the extension
-
-```
-CREATE EXTENSION bottledwater;
-```
-
-Now in another terminal, start the bottledwater client by running
-
-```
-docker-compose up -d bottledwater
+docker-compose up -d zookeeper kafka postgres
 ```
 
 Then create the database and database user:
@@ -51,20 +32,47 @@ docker-compose run -e PGHOST=postgres -e PGUSER=postgres --rm postgres createuse
 docker-compose run -e PGHOST=postgres -e PGUSER=postgres --rm postgres createdb spacon -O spacon
 ```
 
+Then add the bottledwater extension to the postgres server.
+
+```
+docker-compose run -e PGHOST=postgres -e PGUSER=spacon --rm postgres psql -U postgres -d spacon -c "CREATE EXTENSION bottledwater;"
+```
+
 Start the spatialconnect-server container
 
 ```
 docker-compose up -d spatialconnect-server
 ```
 
-> If this is the initial setup, you'll also need to run the migration with `docker-compose run --rm spatialconnect-server node_modules/db-migrate/bin/db-migrate up --env=production`
+> If this is the initial setup, you'll also need to run the migration with `docker-compose run --rm spatialconnect-server node_modules/db-migrate/bin/db-migrate up --env=development`
 
 
-To see all the changes to the `stores` table, run the kafka console consumer for the `stores` topic
+Start the bottledwater client by running
 
 ```
-docker-compose run --rm consumer --from-beginning --topic stores
+docker-compose up -d bottledwater
 ```
+
+To see all the topics that were created by the bottledwater client
+```
+docker-compose run --rm kafka-tools kafka-topics --zookeeper zookeeper --list
+```
+
+To see messages published to a topic, run the kafka console consumer for the
+topic you're interested in.  Below we look at the `stores` topic:
+```
+docker-compose run --rm kafka-tools kafka-console-consumer --zookeeper zookeeper --topic stores --from-beginning
+```
+
+To see the dashboard, you'll need to add an entry to your `/etc/hosts` file mapping
+the IP of your docker machine to the virtual host like so:
+```
+192.168.99.100 spatialconnect-server
+```
+
+Then you can visit http://spatialconnect-server to see everything running on
+your docker machine.
+
 
 When you're done, don't forget to shut it down with
 
