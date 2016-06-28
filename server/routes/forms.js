@@ -19,9 +19,7 @@ var filterStampsAndNulls = (ff) => {
 var formFields$ = (formId) => {
   return Rx.Observable.fromPromise(
       models.FormFields.findAll({
-        where: {
-          form_id: formId
-        }
+        where: { form_id: formId }
       }))
     .flatMap(Rx.Observable.fromArray)
     .map(filterStampsAndNulls)
@@ -40,26 +38,19 @@ var updateFields$ = (formId, fields) => {
 };
 
 var deleteFields$ = (fieldIds) => {
-  return Rx.Observable.fromArray(fieldIds)
-    .flatMap((fieldId) => {
-      return Rx.Observable.fromPromise(models.FormFields.destroy({
-        where: { id: fieldId }
-      }));
-    });
+  return Rx.Observable.fromPromise(models.FormFields.destroy({
+    where: { id: { in: fieldIds } }
+  }));
 };
 
 var deleteFormFields$ = (formId) => {
   return formFields$(formId)
-    .flatMap(Rx.Observable.fromArray)
-    .flatMap((field) => {
-      return Rx.Observable.fromPromise(models.FormFields.destroy({
-        where: { id: field.id }
-      }));
-    });
+    .map(fields => fields.map(f => f.id))
+    .flatMap(deleteFields$);
 };
 
 router.get('/', (req, res) => {
-  return Rx.Observable.fromPromise(models.Forms.findAll())
+  Rx.Observable.fromPromise(models.Forms.findAll())
     .flatMap(Rx.Observable.fromArray)
     .map(filterStampsAndNulls)
     .flatMap((form) => {
@@ -77,7 +68,7 @@ router.get('/', (req, res) => {
 });
 
 router.get('/:formId', (req, res) => {
-  return Rx.Observable.fromPromise(models.Forms.findById(req.params.formId))
+  Rx.Observable.fromPromise(models.Forms.findById(req.params.formId))
     .map(filterStampsAndNulls)
     .flatMap((form) => {
       return Rx.Observable.create((subscriber) => {
@@ -93,10 +84,8 @@ router.get('/:formId', (req, res) => {
 });
 
 router.get('/:formId/results', (req, res) => {
-  return Rx.Observable.fromPromise(models.FormData.findAll({
-    where: {
-      form_id: req.params.formId
-    }
+  Rx.Observable.fromPromise(models.FormData.findAll({
+    where: { form_id: req.params.formId }
   }))
     .flatMap(Rx.Observable.fromArray)
     .map(filterStampsAndNulls)
@@ -109,13 +98,13 @@ router.post('/:formId/submit', (req, res) => {
     val: req.body,
     form_id: req.params.formId
   };
-  return Rx.Observable.fromPromise(models.FormData.create(formData))
+  Rx.Observable.fromPromise(models.FormData.create(formData))
     .map(filterStampsAndNulls)
     .subscribe(formData => res.json(formData), err => console.log(err));
 });
 
 router.post('/', (req, res) => {
-  return Rx.Observable.fromPromise(models.Forms.create(req.body))
+  Rx.Observable.fromPromise(models.Forms.create(req.body))
     .map(filterStampsAndNulls)
     .map(form => {
       form.fields = [];
@@ -125,26 +114,28 @@ router.post('/', (req, res) => {
 });
 
 router.put('/:formId', (req, res) => {
-  return Rx.Observable.fromPromise(models.Forms.update(req.body.form, {
-    where: {
-      id: req.params.formId
-    }
+  Rx.Observable.fromPromise(models.Forms.update(req.body.form, {
+    where: { id: req.params.formId }
   }))
     .merge(updateFields$(req.params.formId, req.body.form.fields))
     .merge(deleteFields$(req.body.deletedFields))
     .toArray()
-    .subscribe(r => res.json(r), err => console.log(err));
+    .subscribe(
+      () => res.json({success: true}),
+      err => res.json({success: false, err: err})
+    );
 });
 
 router.delete('/:formId', (req, res) => {
-  return Rx.Observable.fromPromise(models.Forms.destroy({
-    where: {
-      id: req.params.formId
-    }
+  Rx.Observable.fromPromise(models.Forms.destroy({
+    where: { id: req.params.formId }
   }))
     .merge(deleteFormFields$(req.params.formId))
     .toArray()
-    .subscribe(r => res.json(r), err => console.log(err));
+    .subscribe(
+      () => res.json({success: true}),
+      err => res.json({success: false, err: err})
+    );
 });
 
 module.exports = router;
