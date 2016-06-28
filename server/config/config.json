@@ -2,7 +2,7 @@
   "local": {
     "username": "spacon",
     "password": "spacon",
-    "database": "localhost",
+    "database": "spacon",
     "host": "localhost",
     "dialect": "postgres",
     "logging": false

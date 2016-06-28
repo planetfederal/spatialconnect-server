@@ -4,7 +4,10 @@
   "description": "Dashboard for SpatialConnect",
   "scripts": {
     "test": "cross-env NODE_ENV=test mocha --recursive --compilers js:babel-register --require ./test/setup.js",
-    "test:watch": "npm test -- --watch"
+    "test:watch": "npm test -- --watch",
+    "build:local": "NODE_ENV=local webpack -w",
+    "build:dev": "NODE_ENV=development webpack",
+    "build": "NODE_ENV=production webpack"
   },
   "dependencies": {
     "babel-plugin-transform-class-properties": "^6.8.0",
