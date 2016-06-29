@@ -7,9 +7,8 @@ WORKDIR /usr/src/web
 COPY web /usr/src/web
 RUN npm install --silent
 RUN npm install webpack -g --silent
+ENV NODE_ENV=development
 RUN webpack
-COPY web/dist/bundle.js /usr/src/web/dist/bundle.js
-
 
 # Copy server source to server dir
 RUN mkdir -p /usr/src/server
