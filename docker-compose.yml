@@ -70,11 +70,16 @@ kafka-tools:
     - kafka
 
 geoserver:
-  image: kartoza/geoserver
-  ports:
-    - '8080:8080'
-  links:
-    - postgres
-    - nginx
   environment:
     - VIRTUAL_HOST=geoserver
+    - JAVA_OPTS=-Xmx1536M -XX:MaxPermSize=756M
+  image: 'kartoza/geoserver:latest'
+  links:
+    - nginx
+    - postgis
+  ports:
+    - '8080:8080'
+postgis:
+      image: 'mdillon/postgis'
+      environment:
+        - POSTGRES_USER=spacon
