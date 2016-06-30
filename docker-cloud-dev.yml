@@ -15,6 +15,15 @@ bottledwater:
   links:
     - kafka
     - postgres
+geoserver:
+  environment:
+    - VIRTUAL_HOST=geoserver
+  image: 'kartoza/geoserver:latest'
+  links:
+    - nginx
+    - postgres
+  ports:
+    - '8080:8080'
 kafka:
   environment:
     - KAFKA_ADVERTISED_HOST_NAME=

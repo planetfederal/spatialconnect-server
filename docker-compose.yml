@@ -68,3 +68,13 @@ kafka-tools:
   links:
     - zookeeper
     - kafka
+
+geoserver:
+  image: kartoza/geoserver
+  ports:
+    - '8080:8080'
+  links:
+    - postgres
+    - nginx
+  environment:
+    - VIRTUAL_HOST=geoserver
