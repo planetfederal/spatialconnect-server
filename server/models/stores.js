@@ -10,7 +10,8 @@ module.exports = (sequelize,DataTypes) => {
     store_type : DataTypes.STRING,
     version : DataTypes.FLOAT,
     uri : DataTypes.STRING,
-    name : DataTypes.STRING
+    name : DataTypes.STRING,
+    default_layer : DataTypes.STRING
   },{
     timestamps : true,
     paranoid : true,
