@@ -6,7 +6,6 @@ import expect from 'expect';
 import { shallow } from 'enzyme';
 import { DataStoresContainer } from '../../containers/DataStoresContainer';
 import DataStoresList from '../../components/DataStoresList';
-import AddDataStore from '../../components/AddDataStore';
 import DataStoreForm from '../../components/DataStoreForm';
 import mockDataStores from '../data/mockDataStores';
 
@@ -32,7 +31,7 @@ describe('DataStoresContainer', function() {
 
   it('should exist', function(){
     const { component } = setup();
-    expect(component.hasClass('container')).toBe(true);
+    expect(component.hasClass('wrapper')).toBe(true);
   });
 
   it('should not be loading', () => {
@@ -49,17 +48,6 @@ describe('DataStoresContainer', function() {
   it('should have DataStoreList', () => {
     const { component } = setup()
     expect(component.find(DataStoresList).length).toEqual(1);
-  });
-
-  it('should have AddDataStore when not adding a new store', () => {
-    const { component } = setup()
-    expect(component.find(AddDataStore).length).toEqual(1);
-  });
-
-  it('should have DataStoreForm when adding a new store', () => {
-    const { component } = setup()
-    component.setProps({addingNewDataStore: true});
-    expect(component.find(DataStoreForm).length).toEqual(1);
   });
 
 });

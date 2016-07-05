@@ -16,7 +16,7 @@ import EventsContainer from './containers/EventsContainer';
 import DataStoresContainer from './containers/DataStoresContainer';
 import FormsContainer from './containers/FormsContainer';
 import FormDetailsContainer from './containers/FormDetailsContainer';
-import EventDetails from './components/EventDetails';
+import DataStoresDetailsContainer from './containers/DataStoresDetailsContainer';
 
 import './style/Globals.less';
 
@@ -48,6 +48,10 @@ render(
       <Route path="/" component={App}>
         <IndexRoute component={Home} />
         <Route path="/stores" component={DataStoresContainer}>
+        </Route>
+        <Route path="/stores/:id" component={DataStoresDetailsContainer} >
+        </Route>
+        <Route path="/stores/edit/:id" component={DataStoresDetailsContainer} >
         </Route>
         <Route path="/forms" component={FormsContainer}>
         </Route>

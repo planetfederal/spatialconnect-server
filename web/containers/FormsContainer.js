@@ -26,7 +26,12 @@ class FormsContainer extends Component {
       <div className="wrapper">
         <section className="main">
           {loading ? 'Fetching Forms...' :
-            <FormsList forms={forms} addForm={this.addForm.bind(this)}/>}
+            <div>
+              <div className="btn-toolbar">
+                <button className="btn btn-sc" onClick={this.addForm.bind(this)}>Create Form</button>
+              </div>
+              <FormsList forms={forms} />
+            </div>}
         </section>
         {this.props.children}
       </div>

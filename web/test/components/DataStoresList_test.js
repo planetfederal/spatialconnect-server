@@ -29,7 +29,7 @@ describe('DataStoresList', function() {
 
   it('should render correctly', function(){
     const { component } = setup();
-    expect(component.type()).toBe('ul')
+    expect(component.type()).toBe('div')
   });
 
   it('should render 1 data store list when passed 1 store in the props', () => {
@@ -39,7 +39,7 @@ describe('DataStoresList', function() {
 
   it('should set the dataStore prop of the data store', () => {
     const {component} = setup({dataStores: dataStores});
-    expect(component.find(DataStoreItem).at(0).props().dataStore).toBe(dataStores[0]);
+    expect(component.find(DataStoreItem).at(0).props().store).toBe(dataStores[0]);
   });
 
 });

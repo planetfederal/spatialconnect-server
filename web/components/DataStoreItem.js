@@ -1,19 +1,22 @@
 'use strict';
 import React, { PropTypes } from 'react';
-import DataStoreForm from './DataStoreForm';
+import { Link, browserHistory } from 'react-router';
+import '../style/FormList.less';
 
-const DataStoreItem = ({ dataStore, onSubmit }) => (
-  <li className="list-item">
-    <DataStoreForm
-      initialValues={dataStore}
-      formKey={dataStore.storeId}
-      onSubmit={onSubmit}/>
-  </li>
+const DataStoreItem = ({ store }) => (
+  <div className="form-item" onClick={() => browserHistory.push(`/stores/${store.id}`)}>
+    <h4><Link to={`/stores/${store.id}`}>{store.name}</Link></h4>
+    <ul>
+      <li><strong>ID:</strong> {store.id}</li>
+      <li><strong>Type:</strong> {store.store_type}</li>
+      <li><strong>URI:</strong> {store.uri}</li>
+      <li><strong>Version:</strong> {store.version}</li>
+    </ul>
+  </div>
 );
 
 DataStoreItem.propTypes = {
-  dataStore: PropTypes.object.isRequired,
-  onSubmit: PropTypes.func.isRequired
+  store: PropTypes.object.isRequired
 };
 
 export default DataStoreItem;

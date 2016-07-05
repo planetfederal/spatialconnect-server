@@ -1,18 +1,20 @@
 'use strict';
 import React, { PropTypes } from 'react';
 import DataStoreItem from './DataStoreItem';
+import DataStoreForm from './DataStoreForm';
+import '../style/FormList.less';
 
-const DataStoresList = ({ dataStores, onSubmit }) => (
-  <ul className="list">
-    {dataStores.map(store =>
-      <DataStoreItem key={store.id} dataStore={store} onSubmit={onSubmit} />
-    )}
-  </ul>
+
+const DataStoresList = ({ dataStores }) => (
+  <div className="form-list">
+    {dataStores.map(s => {
+      return <DataStoreItem store={s} key={s.id} />
+    })}
+  </div>
 );
 
 DataStoresList.propTypes = {
-  dataStores: PropTypes.array.isRequired,
-  onSubmit: PropTypes.func.isRequired
+  dataStores: PropTypes.array.isRequired
 };
 
 export default DataStoresList;
