@@ -1,6 +1,6 @@
 /* global beforeEach, afterEach, describe, it */
 'use strict';
-
+var reqwest = require('superagent');
 var request = require('supertest');
 
 function makeStr()
@@ -17,8 +17,20 @@ function makeStr()
 
 describe('Testing Users. It',() => {
   let server;
-  beforeEach(() => {
+  let xaccesstoken;
+  beforeEach((done) => {
     server = require('./../server');
+    request(server)
+      .post('/api/authenticate')
+      .send({email:'admin@something.com',password:'admin'})
+      .set('Content-Type','application/json')
+      .end((err,res) => {
+        if (err) {
+          console.log(err);
+        }
+        xaccesstoken = res.body.token;
+        done();
+      });
   });
   afterEach(() => {
     server.close();
@@ -27,6 +39,8 @@ describe('Testing Users. It',() => {
   it('can get a list of users',(done) => {
     request(server)
       .get('/api/users')
+      .set('Content-Type','application/json')
+      .set('x-access-token',xaccesstoken)
       .expect(200)
       .end((err,res) => {
         if (err) {
@@ -51,6 +65,8 @@ describe('Testing Users. It',() => {
     request(server)
       .post('/api/users')
       .send({name:name,email:email,password:password})
+      .set('Content-Type','application/json')
+      .set('x-access-token',xaccesstoken)
       .expect((res) => {
         res.body.success = true;
       })
@@ -62,6 +78,8 @@ describe('Testing Users. It',() => {
   it('check for new user',(done) => {
     request(server)
       .get('/api/users')
+      .set('Content-Type','application/json')
+      .set('x-access-token',xaccesstoken)
       .expect(200)
       .end((err,res) => {
         if (err) {
