@@ -8,7 +8,7 @@ class App extends Component {
     return (
       <div id="app">
         <header>
-          <Link to="/">SpatialConnect Dashboard</Link>
+          <Link to="/">EFC Dashboard</Link>
           <nav>
             <Link to="/stores" activeClassName="active">Stores</Link>
             <Link to="/forms" activeClassName="active">Forms</Link>

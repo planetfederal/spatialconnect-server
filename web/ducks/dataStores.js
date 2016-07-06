@@ -3,13 +3,14 @@ import { reset } from 'redux-form';
 import * as request from 'superagent-bluebird-promise';
 import Promise from 'bluebird';
 import { API_URL } from 'config';
+import { push } from 'react-router-redux';
 import uuid from 'node-uuid';
+import { find } from 'lodash';
 
 // define action types
 export const LOAD = 'sc/dataStores/LOAD';
 export const LOAD_SUCCESS = 'sc/dataStores/LOAD_SUCCESS';
 export const LOAD_FAIL = 'sc/dataStores/LOAD_FAIL';
-export const ADD_NEW_DATA_STORE_CLICKED = 'sc/dataStores/ADD_NEW_DATA_STORE_CLICKED';
 
 // define an initialState
 const initialState = {
@@ -47,12 +48,6 @@ export default function reducer(state = initialState, action = {}) {
         loaded: false,
         error: action.error
       };
-    case ADD_NEW_DATA_STORE_CLICKED:
-      return {
-        ...state,
-        addingNewDataStore: true,
-        newDataStoreId: uuid.v4()
-      };
     // return the previousState if no actions match
     default: return state;
   }
@@ -65,6 +60,25 @@ export function receiveStores(stores) {
     type: LOAD_SUCCESS,
     stores: stores
   };
+}
+
+export function loadDataStore(storeId) {
+  return (dispatch, getState) => {
+    const { sc } = getState();
+    let store = find(sc.dataStores.stores, { id: storeId });
+    if (store) {
+      return dispatch(receiveStores([store]));
+    } else {
+      dispatch({ type: LOAD });
+      return request
+        .get(API_URL + 'stores/' + storeId)
+        .then(function(res) {
+          return dispatch(receiveStores([res.body]));
+        }, function(error) {
+          return dispatch({type: LOAD_FAIL, error: error});
+        });
+    }
+  }
 }
 
 export function loadDataStores() {
@@ -83,17 +97,9 @@ export function loadDataStores() {
       .then(function(res) {
         return dispatch(receiveStores(res.body));
       }, function(error) {
-        throw new Error(res);
+        return dispatch({type: LOAD_FAIL, error: error});
       });
   }
-}
-
-export function addNewDataStoreClicked() {
-  // clear the form values
-  return dispatch => {
-    dispatch(reset('dataStore'));
-    dispatch({type: ADD_NEW_DATA_STORE_CLICKED});
-  };
 }
 
 export function submitNewDataStore(data) {
@@ -137,7 +143,19 @@ export function updateDataStores(values) {
     }).catch((e) => {
       throw new Error(e);
     })
-    
+
     dispatch(reset('dataStore'));
+  };
+}
+
+export function deleteStore(storeId) {
+  return dispatch => {
+    return request
+      .delete(API_URL + 'stores/' + storeId)
+      .then(function(res) {
+        dispatch(push('/stores'));
+      }, function(error) {
+        throw new Error(res);
+      });
   };
 }
