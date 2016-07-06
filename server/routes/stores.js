@@ -15,27 +15,33 @@ var filterStampsAndNulls = (ff) => {
     .value();
 };
 
-router.get('/', (req,res) => {
+router.get('/', (req, res) => {
   Rx.Observable.fromPromise(models.Stores.findAll())
     .flatMap(Rx.Observable.fromArray)
     .map(filterStampsAndNulls)
     .toArray()
     .subscribe(
       (stores) => res.json(stores),
-      (err) => console.log(err)
+      () => res.status(500).send()
     );
 });
 
-router.post('/', (req,res) => {
+router.post('/', (req, res) => {
   Rx.Observable.fromPromise(models.Stores.create(req.body))
     .map(filterStampsAndNulls)
-    .subscribe(storeData => res.json(storeData), err => console.log(err));
+    .subscribe(
+      storeData => res.json(storeData),
+      () => res.status(500).send()
+    );
 });
 
 router.get('/:storeId', (req, res) => {
   Rx.Observable.fromPromise(models.Stores.findById(req.params.storeId))
     .map(filterStampsAndNulls)
-    .subscribe(stores => res.json(stores), err => res.status(500).send());
+    .subscribe(
+      stores => res.json(stores),
+      () => res.status(404).send()
+    );
 });
 
 router.put('/:storeId', (req, res) => {
@@ -45,7 +51,7 @@ router.put('/:storeId', (req, res) => {
     .toArray()
     .subscribe(
       () => res.json({success: true}),
-      err => res.json({success: false, err: err})
+      () => res.status(500).send()
     );
 });
 
@@ -55,7 +61,7 @@ router.delete('/:storeId', (req, res) => {
   }))
     .subscribe(
       () => res.json({success: true}),
-      err => res.json({success: false, err: err})
+      () => res.status(500).send()
     );
 });
 
