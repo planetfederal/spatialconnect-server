@@ -8,29 +8,20 @@ import { Link, browserHistory } from 'react-router';
 
 class FormsContainer extends Component {
 
-  loadForms = () => {
+  componentDidMount() {
     this.props.actions.loadForms();
   }
 
-  componentDidMount() {
-    this.loadForms();
-  }
-
-  addForm = () => {
-    this.props.actions.addForm();
-  }
-
   render() {
-    const {loading, forms} = this.props;
     return (
       <div className="wrapper">
         <section className="main">
-          {loading ? 'Fetching Forms...' :
+          {this.props.loading ? 'Fetching Forms...' :
             <div>
               <div className="btn-toolbar">
-                <button className="btn btn-sc" onClick={this.addForm.bind(this)}>Create Form</button>
+                <button className="btn btn-sc" onClick={this.props.actions.addForm}>Create Form</button>
               </div>
-              <FormsList forms={forms} />
+              <FormsList forms={this.props.forms} />
             </div>}
         </section>
         {this.props.children}

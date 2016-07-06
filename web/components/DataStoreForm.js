@@ -51,10 +51,6 @@ export class DataStoreForm extends Component {
     }
   }
 
-  cancel() {
-    this.props.cancel();
-  }
-
   render() {
     let store = this.props.store;
     return (
@@ -86,7 +82,7 @@ export class DataStoreForm extends Component {
         </div>
         <div className="btn-toolbar">
           <button className="btn btn-sc" onClick={this.save.bind(this)}>Save</button>
-          <button className="btn btn-sc" onClick={this.cancel.bind(this)}>Cancel</button>
+          <button className="btn btn-sc" onClick={this.props.cancel}>Cancel</button>
         </div>
       </div>
     );
