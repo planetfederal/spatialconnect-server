@@ -5,7 +5,7 @@ import '../style/FormDetails.less';
 let fieldOptions = {
   string: ['key', 'label', 'is_required', 'initial_value', 'minimum_length', 'maximum_length', 'pattern'],
   select: ['key', 'label', 'is_required', 'options'],
-  number: ['key', 'label', 'is_required', 'initial_value', 'minimum', 'maximum', 'integer', 'exclusive_minimum', 'exclusive_maximum'],
+  number: ['key', 'label', 'is_required', 'initial_value', 'minimum', 'maximum', 'is_integer', 'exclusive_minimum', 'exclusive_maximum'],
   boolean: ['key', 'label', 'is_required' ],
   date: ['key', 'label', 'is_required' ],
   slider: ['key', 'label', 'is_required', 'initial_value', 'minimum', 'maximum'],
@@ -16,7 +16,7 @@ let fieldLabels = {
   key: 'Data Name',
   label: 'Display Name',
   is_required: 'Required',
-  isInteger: 'Integer',
+  is_integer: 'Integer',
   initial_value: 'Default Value',
   minimum_length: 'Minimum Length',
   maximum_length: 'Maximum Length',
@@ -56,7 +56,7 @@ class FieldOptions extends Component {
 
   makeOptionInput(field) {
     return fieldOptions[field.get('type')].map((o, i) => {
-      if (o === 'integer' || o === 'is_required') {
+      if (o === 'is_integer' || o === 'is_required') {
         return (
           <div className="checkbox" key={o+i}>
             <label>

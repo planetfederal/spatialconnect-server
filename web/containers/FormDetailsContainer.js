@@ -17,12 +17,30 @@ class FormDetailsContainer extends Component {
     super(props);
     this.state = {
       modalIsOpen: false,
-      validationErrors: false
+      validationErrors: false,
+      edited: false
     };
   }
 
   componentDidMount() {
     this.props.actions.loadForm(this.props.id);
+  }
+
+  checkEditStatus(props) {
+    let edited = false;
+    if (props.saved_form && props.form) {
+      if ((props.saved_form.get('name') === props.form.get('name')) === false) {
+        edited = true;
+      }
+      if (props.saved_form.get('fields').equals(props.form.get('fields')) === false) {
+        edited = true;
+      }
+    }
+    return edited;
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.setState({ edited: this.checkEditStatus(nextProps) });
   }
 
   saveForm(formId) {
@@ -43,7 +61,7 @@ class FormDetailsContainer extends Component {
   }
 
   render() {
-    const {loading, forms, form, activeForm} = this.props;
+    const {loading, forms, form, activeForm, saved_form} = this.props;
     if (!forms.count()) {
       return <div className="wrapper">Fetching Form...</div>
     } else {
@@ -63,8 +81,10 @@ class FormDetailsContainer extends Component {
           </Modal>
             <FormInfoBar
               form={form}
+              saved_form={saved_form}
               updateActiveForm={this.props.actions.updateActiveForm}
               saveForm={this.saveForm.bind(this)}
+              edited={this.state.edited}
               />
             <div className="form-builder">
               <FormControls
@@ -104,8 +124,10 @@ function mapAtomStateToProps(state, ownProps) {
   return {
     id: ownProps.params.id,
     loading: state.sc.forms.get('loading'),
-    form: state.sc.forms.getIn(['forms', ownProps.params.id.toString()]),
     forms: state.sc.forms.get('forms'),
+    form: state.sc.forms.getIn(['forms', ownProps.params.id.toString()]),
+    saved_forms: state.sc.forms.get('saved_forms'),
+    saved_form: state.sc.forms.getIn(['saved_forms', ownProps.params.id.toString()]),
     activeForm: state.sc.forms.get('activeForm')
   };
 }

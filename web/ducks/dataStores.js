@@ -24,10 +24,6 @@ const initialState = {
 // export the reducer function, (previousState, action) => newState
 export default function reducer(state = initialState, action = {}) {
   switch (action.type) {
-    // note that we do not mutate the previous state; instead we use the object
-    // spread operator to make a more readable, succinct expression of the
-    // updated state.  For more details see:
-    // http://redux.js.org/docs/recipes/UsingObjectSpreadOperator.html
     case LOAD:
       return {
         ...state,
@@ -48,7 +44,6 @@ export default function reducer(state = initialState, action = {}) {
         loaded: false,
         error: action.error
       };
-    // return the previousState if no actions match
     default: return state;
   }
 }
