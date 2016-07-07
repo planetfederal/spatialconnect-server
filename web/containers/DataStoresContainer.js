@@ -49,8 +49,8 @@ export class DataStoresContainer extends Component {
     return (
       <div className="wrapper">
         <section className="main">
-          {loading ? <p>Fetching Data Stores...</p> : <p></p>}
-          {this.state.addingNewDataStore ?
+          {loading ? <p>Fetching Data Stores...</p> :
+            this.state.addingNewDataStore ?
             <DataStoreForm
               ref="newDataStoreForm"
               onSubmit={this.submitNewDataStore.bind(this)}

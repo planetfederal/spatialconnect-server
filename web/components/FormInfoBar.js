@@ -1,7 +1,8 @@
 import React, { PropTypes } from 'react';
+import classnames from 'classnames';
 import '../style/FormDetails.less';
 
-const FormInfoBar = ({ form, updateActiveForm, saveForm }) => (
+const FormInfoBar = ({ form, updateActiveForm, saveForm, edited }) => (
   <div className="form-info">
     <div className="form-title">
       <h4>{form.get('name')}</h4>
@@ -20,7 +21,9 @@ const FormInfoBar = ({ form, updateActiveForm, saveForm }) => (
     </div>
     <div className="form-tools">
       <button className="btn btn-sc" onClick={() => updateActiveForm(form.get('id'))}>Edit</button>
-      <button className="btn btn-sc "onClick={() => saveForm(form.get('id'))}>Save</button>
+      <button className={classnames('btn', 'btn-sc', {disabled: !edited})} onClick={() => saveForm(form.get('id'))}>
+      {edited ? 'Save' : 'Saved'}
+      </button>
     </div>
   </div>
 );
