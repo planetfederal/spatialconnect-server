@@ -17,18 +17,14 @@ bottledwater:
     - postgres
 geoserver:
   environment:
+    - 'JAVA_OPTS=-Xmx1536M -XX:MaxPermSize=756M'
     - VIRTUAL_HOST=geoserver
-    - JAVA_OPTS=-Xmx1536M -XX:MaxPermSize=756M
   image: 'kartoza/geoserver:latest'
   links:
     - nginx
     - postgis
   ports:
     - '8080:8080'
-postgis:
-  image: 'mdillon/postgis'
-  environment:
-    - POSTGRES_USER=spacon
 kafka:
   environment:
     - KAFKA_ADVERTISED_HOST_NAME=
@@ -52,11 +48,26 @@ nginx:
     - '80:80'
   volumes:
     - '/var/run/docker.sock:/tmp/docker.sock:ro'
+postgis:
+  environment:
+    - POSTGRES_USER=spacon
+  image: 'mdillon/postgis:latest'
 postgres:
   hostname: postgres
   image: 'confluent/postgres-bw:0.1'
   ports:
     - '5432:5432'
+spatialconnect-connectors:
+  autoredeploy: true
+  environment:
+    - 'GEOSERVER_URL=http://efc-dev.boundlessgeo.com:8080/geoserver/'
+    - 'KAFKA_SERVERS=kafka:9092'
+    - ROOT_LOG_LEVEL=INFO
+    - TOPICS_LIST=form_data
+  image: 'marcusthebrown/spatialconnect-connectors:latest'
+  links:
+    - geoserver
+    - kafka
 spatialconnect-server:
   autoredeploy: true
   command: npm start

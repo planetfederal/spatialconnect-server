@@ -74,6 +74,12 @@ Then you can visit http://spatialconnect-server to see everything running on
 your docker machine.
 
 
+To run the connectors,
+
+```
+dc up -d spatialconnect-connectors
+```
+
 When you're done, don't forget to shut it down with
 
 ```
