@@ -24,18 +24,16 @@ export const validate = values => {
   if(values.uri && !isUrl(values.uri)) {
     errors.uri = 'Must be valid uri';
   }
-
+  if (values.store_type === 'wfs' && !values.uri) {
+    errors.uri = 'Required';
+  }
+  if (values.store_type === 'wfs' && !values.default_layer) {
+    errors.default_layer = 'Required';
+  }
   return errors;
 };
 
 export class DataStoreForm extends Component {
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      errors: {}
-    };
-  }
 
   save() {
     let store = {
@@ -44,42 +42,70 @@ export class DataStoreForm extends Component {
       version: this.refs.version.value,
       uri: this.refs.uri.value
     }
+    if (this.refs.default_layer) {
+      store.default_layer = this.refs.default_layer.value;
+    }
     let errors = validate(store);
-    this.setState({ errors: errors });
+    this.props.actions.updateStoreErrors(errors);
     if(!Object.keys(errors).length) {
       this.props.onSubmit(this.props.store.id, store);
     }
   }
 
+  shouldUpdateLayerList() {
+    if (this.refs.store_type.value === 'wfs' && isUrl(this.refs.uri.value)) {
+      this.props.actions.getWFSLayers(this.refs.uri.value);
+    }
+    if (this.refs.store_type.value !== 'wfs') {
+      this.props.actions.addStoreError('default_layer', false);
+      this.props.actions.updateWFSLayerList([]);
+    }
+  }
+
+  componentDidMount() {
+    this.shouldUpdateLayerList();
+  }
+
   render() {
-    let store = this.props.store;
+    const { store, errors, layerList } = this.props;
     return (
       <div className="store-form">
         <div className="form-group">
           <label>Name:</label>
           <input type="text" className="form-control" ref="name" defaultValue={store.name} />
-          {this.state.errors.name ? <p className="text-danger">{this.state.errors.name}</p> : ''}
+          {errors.name ? <p className="text-danger">{errors.name}</p> : ''}
         </div>
         <div className="form-group">
           <label>Type:</label>
-          <select className="form-control" ref="store_type"  defaultValue={store.store_type}>
+          <select className="form-control" ref="store_type"  defaultValue={store.store_type} onChange={this.shouldUpdateLayerList.bind(this)}>
             <option value="">Select a type..</option>
             <option value="geojson">GeoJSON</option>
             <option value="gpkg">GeoPackage</option>
             <option value="wfs">WFS</option>
           </select>
-          {this.state.errors.store_type ? <p className="text-danger">{this.state.errors.store_type}</p> : ''}
+          {errors.store_type ? <p className="text-danger">{errors.store_type}</p> : ''}
         </div>
         <div className="form-group">
           <label>Version:</label>
           <input type="text" className="form-control" defaultValue={store.version} ref="version" />
-          {this.state.errors.version ? <p className="text-danger">{this.state.errors.version}</p> : ''}
+          {errors.version ? <p className="text-danger">{errors.version}</p> : ''}
         </div>
         <div className="form-group">
           <label>URI:</label>
-          <input type="text" className="form-control" ref="uri" defaultValue={store.uri} />
-          {this.state.errors.uri ? <p className="text-danger">{this.state.errors.uri}</p> : ''}
+          <input type="text" className="form-control" ref="uri" defaultValue={store.uri} onChange={this.shouldUpdateLayerList.bind(this)}/>
+          {errors.uri ? <p className="text-danger">{errors.uri}</p> : ''}
         </div>
+        {this.props.layerList.length || errors.default_layer ?
+          <div className="form-group">
+            <label>Default Layer:</label>
+            <select className="form-control" ref="default_layer"  defaultValue={store.default_layer}>
+            {this.props.layerList.map(layer => (
+              <option value={layer} key={layer}>{layer}</option>
+            ))}
+            </select>
+            {errors.default_layer ? <p className="text-danger">{errors.default_layer}</p> : ''}
+          </div> : ''
+        }
         <div className="btn-toolbar">
           <button className="btn btn-sc" onClick={this.save.bind(this)}>Save</button>
           <button className="btn btn-sc" onClick={this.props.cancel}>Cancel</button>
@@ -92,7 +118,10 @@ export class DataStoreForm extends Component {
 DataStoreForm.propTypes = {
   store: PropTypes.object.isRequired,
   onSubmit: PropTypes.func.isRequired,
-  cancel: PropTypes.func.isRequired
+  cancel: PropTypes.func.isRequired,
+  errors: PropTypes.object.isRequired,
+  layerList: PropTypes.array.isRequired,
+  actions: PropTypes.object.isRequired
 };
 
 export default DataStoreForm;

@@ -40,7 +40,7 @@ class DataStoresDetailsContainer extends Component {
   }
 
   render() {
-    const { stores, store, loading, loaded, error } = this.props;
+    const { stores, store, loading, loaded, error, storeErrors, layerList } = this.props;
     let el = <div></div>;
     if (loading) {
       el = <p>Fetching Store...</p>;
@@ -52,6 +52,9 @@ class DataStoresDetailsContainer extends Component {
         if (this.state.editingDataStore) {
           el = <DataStoreForm
                 store={store}
+                errors={storeErrors}
+                layerList={layerList}
+                actions={this.props.actions}
                 onSubmit={this.updateStore.bind(this)}
                 cancel={this.editStoreCancel.bind(this)}
                 />;
@@ -83,6 +86,8 @@ function mapAtomStateToProps(state, ownProps) {
     loading: state.sc.dataStores.loading,
     loaded: state.sc.dataStores.loaded,
     error: state.sc.dataStores.error,
+    storeErrors: state.sc.dataStores.storeErrors,
+    layerList: state.sc.dataStores.layerList
   };
 }
 
