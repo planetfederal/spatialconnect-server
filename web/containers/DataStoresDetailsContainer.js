@@ -74,21 +74,19 @@ class DataStoresDetailsContainer extends Component {
   }
 }
 
-function mapAtomStateToProps(state, ownProps) {
-  return {
-    id: ownProps.params.id,
-    stores: state.sc.dataStores.stores,
-    store: find(state.sc.dataStores.stores, { id: ownProps.params.id }),
-    editingDataStore: state.sc.dataStores.editingDataStore,
-    loading: state.sc.dataStores.loading,
-    loaded: state.sc.dataStores.loaded,
-    error: state.sc.dataStores.error,
-  };
-}
+const mapStateToProps = (state) => ({
+  id: ownProps.params.id,
+  stores: state.sc.dataStores.stores,
+  store: find(state.sc.dataStores.stores, { id: ownProps.params.id }),
+  editingDataStore: state.sc.dataStores.editingDataStore,
+  loading: state.sc.dataStores.loading,
+  loaded: state.sc.dataStores.loaded,
+  error: state.sc.dataStores.error,
+});
 
-function mapDispatchToProps(dispatch) {
-  return { actions: bindActionCreators(storeActions, dispatch) };
-}
+const mapDispatchToProps = (dispatch) => ({
+  actions: bindActionCreators(storeActions, dispatch)
+});
 
   // connect this "smart" container component to the redux store
-export default connect(mapAtomStateToProps, mapDispatchToProps)(DataStoresDetailsContainer);
+export default connect(mapStateToProps, mapDispatchToProps)(DataStoresDetailsContainer);

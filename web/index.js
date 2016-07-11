@@ -5,14 +5,15 @@ import { render } from 'react-dom';
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware, combineReducers } from 'redux';
 import appReducer from './ducks';
-import App from './components/App';
+import AppContainer from './containers/AppContainer';
 import thunk from 'redux-thunk';
 import createLogger from 'redux-logger';
-import { reducer as formReducer } from 'redux-form';
 import { Router, Route, IndexRoute, browserHistory } from 'react-router';
 import { syncHistoryWithStore, routerReducer, routerMiddleware } from 'react-router-redux';
+import { requireAuthentication } from './utils';
+import { loginUserSuccess } from './ducks/auth';
 import Home from './components/Home';
-import EventsContainer from './containers/EventsContainer';
+import LoginContainer from './containers/LoginContainer';
 import DataStoresContainer from './containers/DataStoresContainer';
 import FormsContainer from './containers/FormsContainer';
 import FormDetailsContainer from './containers/FormDetailsContainer';
@@ -23,7 +24,6 @@ import './style/Globals.less';
 // combine all the reducers into a single reducing function
 const rootReducer = combineReducers({
   sc: appReducer,
-  form: formReducer,
   routing: routerReducer
 });
 
@@ -35,6 +35,12 @@ let store = createStore(
   applyMiddleware(middleware, thunk, createLogger()) // logger must be the last in the chain
 );
 
+let token = localStorage.getItem('token');
+if (token !== null) {
+  store.dispatch(loginUserSuccess(token));
+}
+
+
 // create an enhanced history that syncs navigation events with the store
 const history = syncHistoryWithStore(browserHistory, store);
 
@@ -45,17 +51,18 @@ render(
   <Provider store={store}>
     { /* Tell the Router to use our enhanced history */ }
     <Router history={history}>
-      <Route path="/" component={App}>
+      <Route path="/" component={AppContainer}>
         <IndexRoute component={Home} />
-        <Route path="/stores" component={DataStoresContainer}>
+        <Route path="/login" component={LoginContainer}/>
+        <Route path="/stores" component={requireAuthentication(DataStoresContainer)}>
         </Route>
-        <Route path="/stores/:id" component={DataStoresDetailsContainer} >
+        <Route path="/stores/:id" component={requireAuthentication(DataStoresDetailsContainer)} >
         </Route>
-        <Route path="/stores/edit/:id" component={DataStoresDetailsContainer} >
+        <Route path="/stores/edit/:id" component={requireAuthentication(DataStoresDetailsContainer)} >
         </Route>
-        <Route path="/forms" component={FormsContainer}>
+        <Route path="/forms" component={requireAuthentication(FormsContainer)}>
         </Route>
-        <Route path="/forms/:id" component={FormDetailsContainer} >
+        <Route path="/forms/:id" component={requireAuthentication(FormDetailsContainer)} >
         </Route>
       </Route>
     </Router>

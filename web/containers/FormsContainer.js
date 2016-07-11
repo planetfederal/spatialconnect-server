@@ -30,16 +30,14 @@ class FormsContainer extends Component {
   }
 }
 
-function mapAtomStateToProps(state) {
-  return {
-    loading: state.sc.forms.get('loading'),
-    forms: state.sc.forms.get('forms')
-  };
-}
+const mapStateToProps = (state) => ({
+  loading: state.sc.forms.get('loading'),
+  forms: state.sc.forms.get('forms')
+});
 
-function mapDispatchToProps(dispatch) {
-  return { actions: bindActionCreators(formActions, dispatch) };
-}
+const mapDispatchToProps = (dispatch) => ({
+  actions: bindActionCreators(formActions, dispatch)
+});
 
   // connect this "smart" container component to the redux store
-export default connect(mapAtomStateToProps, mapDispatchToProps)(FormsContainer);
+export default connect(mapStateToProps, mapDispatchToProps)(FormsContainer);

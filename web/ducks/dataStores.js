@@ -60,6 +60,7 @@ export function receiveStores(stores) {
 export function loadDataStore(storeId) {
   return (dispatch, getState) => {
     const { sc } = getState();
+    let token = sc.auth.token;
     let store = find(sc.dataStores.stores, { id: storeId });
     if (store) {
       return dispatch(receiveStores([store]));
@@ -67,6 +68,7 @@ export function loadDataStore(storeId) {
       dispatch({ type: LOAD });
       return request
         .get(API_URL + 'stores/' + storeId)
+        .set('x-access-token', token)
         .then(function(res) {
           return dispatch(receiveStores([res.body]));
         }, function(error) {
@@ -77,18 +79,13 @@ export function loadDataStore(storeId) {
 }
 
 export function loadDataStores() {
-  // When action creators return functions instead of plain action objects, they
-  // are handled by the thunk middleware, which passes the dispatch method as
-  // an argument to the function
-  return dispatch => {
-
-    // disptach an action to update the state, indicating we are starting the
-    // request to load events
+  return (dispatch, getState) => {
+    const { sc } = getState();
+    let token = sc.auth.token;
     dispatch({ type: LOAD });
-
-    // async get the stores and dispatch action when they are received
     return request
       .get(API_URL + 'stores')
+      .set('x-access-token', token)
       .then(function(res) {
         return dispatch(receiveStores(res.body));
       }, function(error) {
@@ -98,9 +95,12 @@ export function loadDataStores() {
 }
 
 export function submitNewDataStore(data) {
-  return dispatch => {
+  return (dispatch, getState) => {
+    const { sc } = getState();
+    let token = sc.auth.token;
     return request
       .post(API_URL + 'stores')
+      .set('x-access-token', token)
       .send(data)
       .then(function(res) {
         return dispatch(loadDataStores());
@@ -111,9 +111,12 @@ export function submitNewDataStore(data) {
 }
 
 export function updateDataStore(id, data) {
-  return dispatch => {
+  return (dispatch, getState) => {
+    const { sc } = getState();
+    let token = sc.auth.token;
     return request
       .put(API_URL + 'stores/' + id)
+      .set('x-access-token', token)
       .send(data)
       .then(function(res) {
         return dispatch(loadDataStores());
@@ -127,10 +130,13 @@ export function updateDataStore(id, data) {
 }
 
 export function updateDataStores(values) {
-  return dispatch => {
+  return (dispatch, getState) => {
+    const { sc } = getState();
+    let token = sc.auth.token;
     return Promise.map(values, (value) => {
       return request
         .put(API_URL + 'stores/' + value.id)
+        .set('x-access-token', token)
         .send(value)
         .promise()
     }).then(() => {
@@ -144,9 +150,12 @@ export function updateDataStores(values) {
 }
 
 export function deleteStore(storeId) {
-  return dispatch => {
+  return (dispatch, getState) => {
+    const { sc } = getState();
+    let token = sc.auth.token;
     return request
       .delete(API_URL + 'stores/' + storeId)
+      .set('x-access-token', token)
       .then(function(res) {
         dispatch(push('/stores'));
       }, function(error) {

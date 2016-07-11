@@ -120,21 +120,19 @@ class FormDetailsContainer extends Component {
   }
 }
 
-function mapAtomStateToProps(state, ownProps) {
-  return {
-    id: ownProps.params.id,
-    loading: state.sc.forms.get('loading'),
-    forms: state.sc.forms.get('forms'),
-    form: state.sc.forms.getIn(['forms', ownProps.params.id.toString()]),
-    saved_forms: state.sc.forms.get('saved_forms'),
-    saved_form: state.sc.forms.getIn(['saved_forms', ownProps.params.id.toString()]),
-    activeForm: state.sc.forms.get('activeForm')
-  };
-}
+const mapStateToProps = (state, ownProps) => ({
+  id: ownProps.params.id,
+  loading: state.sc.forms.get('loading'),
+  forms: state.sc.forms.get('forms'),
+  form: state.sc.forms.getIn(['forms', ownProps.params.id.toString()]),
+  saved_forms: state.sc.forms.get('saved_forms'),
+  saved_form: state.sc.forms.getIn(['saved_forms', ownProps.params.id.toString()]),
+  activeForm: state.sc.forms.get('activeForm')
+});
 
-function mapDispatchToProps(dispatch) {
-  return { actions: bindActionCreators(formActions, dispatch) };
-}
+const mapDispatchToProps = (dispatch) => ({
+  actions: bindActionCreators(formActions, dispatch)
+});
 
   // connect this "smart" container component to the redux store
-export default connect(mapAtomStateToProps, mapDispatchToProps)(FormDetailsContainer);
+export default connect(mapStateToProps, mapDispatchToProps)(FormDetailsContainer);
