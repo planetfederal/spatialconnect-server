@@ -72,18 +72,16 @@ export class DataStoresContainer extends Component {
   }
 }
 
-function mapAtomStateToProps(state) {
-  return {
-    loading: state.sc.dataStores.loading,
-    stores: state.sc.dataStores.stores,
-    storeErrors: state.sc.dataStores.storeErrors,
-    layerList: state.sc.dataStores.layerList
-  };
-}
+const mapStateToProps = (state) => ({
+  loading: state.sc.dataStores.loading,
+  stores: state.sc.dataStores.stores,
+  storeErrors: state.sc.dataStores.storeErrors,
+  layerList: state.sc.dataStores.layerList
+});
 
-function mapDispatchToProps(dispatch) {
-  return { actions: bindActionCreators(dataStoresActions, dispatch) };
-}
+const mapDispatchToProps = (dispatch) => ({
+  actions: bindActionCreators(dataStoresActions, dispatch)
+});
 
   // connect this "smart" container component to the redux store
-export default connect(mapAtomStateToProps, mapDispatchToProps)(DataStoresContainer);
+export default connect(mapStateToProps, mapDispatchToProps)(DataStoresContainer);

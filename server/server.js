@@ -1,7 +1,6 @@
 'use strict';
 
 var express = require('express');
-var router = express.Router();
 var path = require('path');
 var logger = require('morgan');
 var bodyParser = require('body-parser');
@@ -25,7 +24,6 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname,'../web')));
 
-app.use('/api', router);
 app.get('/dist/bundle.js', function(req, res) {
   res.sendFile(path.join(__dirname, '../web/dist/bundle.js'));
 });
@@ -35,7 +33,13 @@ app.get(/^\/((?!api).)/, function(req, res) {
   res.sendFile(path.join(__dirname, '../web/index.html'));
 });
 
-app.use((req,res,next) => {
+var apiRoutes = express.Router();
+
+apiRoutes.use((req,res,next) => {
+  console.log(req.path, req.method);
+  if (req.path === '/users' && req.method === 'POST') {
+    return next();
+  }
   var token = req.body.token || req.query.token || req.headers['x-access-token'];
   if (token) {
     jwt.verify(token,'9014607A0AF70C4DF57A4D',(err,decoded) => {
@@ -58,14 +62,18 @@ app.use((req,res,next) => {
   }
 });
 
-router.use('/ping', ping);
-router.use('/config', config);
-router.use('/forms', forms);
-router.use('/stores', stores);
-router.use('/devices',devices);
-router.use('/users',users);
-router.use('/authenticate',authenticate);
-router.use('/wfs', wfs);
+var router = express.Router();
+app.use('/',router);
+router.use('/api/ping', ping);
+router.use('/api/authenticate',authenticate);
+
+app.use('/api', apiRoutes);
+apiRoutes.use('/config', config);
+apiRoutes.use('/forms', forms);
+apiRoutes.use('/stores', stores);
+apiRoutes.use('/devices',devices);
+apiRoutes.use('/users',users);
+apiRoutes.use('/wfs', wfs);
 
 var server = app.listen(8085, function () {
   console.log('SpatialConnect-Server listening on port 8085!');

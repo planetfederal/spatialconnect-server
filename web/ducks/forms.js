@@ -248,10 +248,13 @@ export function loadForms() {
   // When action creators return functions instead of plain action objects, they
   // are handled by the thunk middleware, which passes the dispatch method as
   // an argument to the function
-  return dispatch => {
+  return (dispatch, getState) => {
+    const { sc } = getState();
+    let token = sc.auth.token;
     dispatch({ type: LOAD });
     request
       .get(API_URL + 'forms')
+      .set('x-access-token', token)
       .end(function(err, res) {
         if (err) {
           throw new Error(res);
@@ -270,9 +273,11 @@ export function loadForm(id) {
         receiveForms([sc.forms.getIn(['forms', id.toString()]).toJS()])
       );
     } else {
+      let token = sc.auth.token;
       dispatch({ type: LOAD });
       request
         .get(API_URL + 'forms/' + id)
+        .set('x-access-token', token)
         .end(function(err, res) {
           if (err) {
             throw new Error(res);
@@ -284,12 +289,15 @@ export function loadForm(id) {
 }
 
 export function addForm() {
-  return dispatch => {
+  return (dispatch, getState) => {
+    const { sc } = getState();
+    let token = sc.auth.token;
     let data = {
       name: 'New Form'
     };
     return request
       .post(API_URL + 'forms')
+      .set('x-access-token', token)
       .send(data)
       .end(function(err, res) {
         if (err) {
@@ -310,8 +318,10 @@ export function saveForm(formId) {
       form: _.pick(form, ['name', 'fields']),
       deletedFields: form.deletedFields
     }
+    let token = sc.auth.token;
     return request
       .put(API_URL + 'forms/' + formId)
+      .set('x-access-token', token)
       .send(data)
       .then(function(res) {
         dispatch(updateSavedForm(formId, form));
@@ -322,9 +332,12 @@ export function saveForm(formId) {
 }
 
 export function deleteForm(formId) {
-  return dispatch => {
+  return (dispatch, getState) => {
+    const { sc } = getState();
+    let token = sc.auth.token;
     return request
       .delete(API_URL + 'forms/' + formId)
+      .set('x-access-token', token)
       .then(function(res) {
         dispatch(push('/forms'));
       }, function(error) {
@@ -334,9 +347,12 @@ export function deleteForm(formId) {
 }
 
 export function submitNewForm(data) {
-  return dispatch => {
+  return (dispatch, getState) => {
+    const { sc } = getState();
+    let token = sc.auth.token;
     request
       .post(API_URL + 'forms')
+      .set('x-access-token', token)
       .send(data)
       .end(function(err, res) {
         if (err) {
