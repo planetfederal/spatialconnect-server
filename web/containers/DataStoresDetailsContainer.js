@@ -40,7 +40,7 @@ class DataStoresDetailsContainer extends Component {
   }
 
   render() {
-    const { stores, store, loading, loaded, error } = this.props;
+    const { stores, store, loading, loaded, error, storeErrors, layerList } = this.props;
     let el = <div></div>;
     if (loading) {
       el = <p>Fetching Store...</p>;
@@ -52,6 +52,9 @@ class DataStoresDetailsContainer extends Component {
         if (this.state.editingDataStore) {
           el = <DataStoreForm
                 store={store}
+                errors={storeErrors}
+                layerList={layerList}
+                actions={this.props.actions}
                 onSubmit={this.updateStore.bind(this)}
                 cancel={this.editStoreCancel.bind(this)}
                 />;
@@ -74,7 +77,7 @@ class DataStoresDetailsContainer extends Component {
   }
 }
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state, ownProps) => ({
   id: ownProps.params.id,
   stores: state.sc.dataStores.stores,
   store: find(state.sc.dataStores.stores, { id: ownProps.params.id }),
@@ -82,6 +85,8 @@ const mapStateToProps = (state) => ({
   loading: state.sc.dataStores.loading,
   loaded: state.sc.dataStores.loaded,
   error: state.sc.dataStores.error,
+  storeErrors: state.sc.dataStores.storeErrors,
+  layerList: state.sc.dataStores.layerList
 });
 
 const mapDispatchToProps = (dispatch) => ({

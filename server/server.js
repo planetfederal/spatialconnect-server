@@ -12,6 +12,7 @@ var devices = require('./routes/devices');
 var stores = require('./routes/stores');
 var authenticate = require('./routes/authenticate');
 var users = require('./routes/users');
+var wfs = require('./routes/wfs');
 var jwt = require('jsonwebtoken');
 var cors = require('cors');
 var app = express();
@@ -68,6 +69,7 @@ apiRoutes.use('/forms', forms);
 apiRoutes.use('/stores', stores);
 apiRoutes.use('/devices',devices);
 apiRoutes.use('/users',users);
+apiRoutes.use('/wfs', wfs);
 
 var server = app.listen(8085, function () {
   console.log('SpatialConnect-Server listening on port 8085!');

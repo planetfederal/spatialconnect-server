@@ -9,6 +9,7 @@ const DataStoreDetails = ({ store, deleteStore, editStore }) => (
     <p>Type: {store.store_type}</p>
     <p>Version: {store.version}</p>
     <p>URI: {store.uri}</p>
+    {store.default_layer ? <p>Default Layer: {store.default_layer}</p> : ''}
     <div className="btn-toolbar">
       <button className="btn btn-sc" onClick={() => { editStore(store.id) }}>Edit Store</button>
       <button className="btn btn-danger" onClick={() => { deleteStore(store.id) }}>Delete Store</button>

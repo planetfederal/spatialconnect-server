@@ -45,7 +45,8 @@ export class DataStoresContainer extends Component {
   }
 
   render() {
-    const {loading, stores, addingNewDataStore, newDataStoreId} = this.props;
+    const {loading, stores, addingNewDataStore, newDataStoreId, storeErrors, layerList } = this.props;
+    console.log(storeErrors);
     return (
       <div className="wrapper">
         <section className="main">
@@ -55,6 +56,9 @@ export class DataStoresContainer extends Component {
               ref="newDataStoreForm"
               onSubmit={this.submitNewDataStore.bind(this)}
               cancel={this.addNewDataStoreCancel.bind(this)}
+              actions={this.props.actions}
+              errors={storeErrors}
+              layerList={layerList}
               store={emptyStore}
               /> :
             <div className="btn-toolbar">
@@ -70,7 +74,9 @@ export class DataStoresContainer extends Component {
 
 const mapStateToProps = (state) => ({
   loading: state.sc.dataStores.loading,
-  stores: state.sc.dataStores.stores
+  stores: state.sc.dataStores.stores,
+  storeErrors: state.sc.dataStores.storeErrors,
+  layerList: state.sc.dataStores.layerList
 });
 
 const mapDispatchToProps = (dispatch) => ({

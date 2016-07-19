@@ -11,6 +11,9 @@ import { find } from 'lodash';
 export const LOAD = 'sc/dataStores/LOAD';
 export const LOAD_SUCCESS = 'sc/dataStores/LOAD_SUCCESS';
 export const LOAD_FAIL = 'sc/dataStores/LOAD_FAIL';
+export const STORE_ERRORS = 'sc/dataStores/STORE_ERRORS';
+export const STORE_ERROR = 'sc/dataStores/STORE_ERROR';
+export const WFS_LAYER_LIST = 'sc/dataStores/WFS_LAYER_LIST';
 
 // define an initialState
 const initialState = {
@@ -18,7 +21,9 @@ const initialState = {
   loaded: false,
   stores: [],
   addingNewDataStore: false,
-  newDataStoreId: null
+  newDataStoreId: null,
+  storeErrors: {},
+  layerList: []
 };
 
 // export the reducer function, (previousState, action) => newState
@@ -43,6 +48,24 @@ export default function reducer(state = initialState, action = {}) {
         loading: false,
         loaded: false,
         error: action.error
+      };
+    case STORE_ERRORS:
+      return {
+        ...state,
+        storeErrors: action.errors
+      };
+    case STORE_ERROR:
+      return {
+        ...state,
+        storeErrors: {
+          ...state.storeErrors,
+          [action.field]: action.error
+        }
+      };
+    case WFS_LAYER_LIST:
+      return {
+        ...state,
+        layerList: action.layerList
       };
     default: return state;
   }
@@ -160,6 +183,42 @@ export function deleteStore(storeId) {
         dispatch(push('/stores'));
       }, function(error) {
         throw new Error(res);
+      });
+  };
+}
+
+export function updateStoreErrors(errors) {
+  return {
+    type: STORE_ERRORS,
+    errors: errors
+  };
+}
+
+export function addStoreError(field, error) {
+  return {
+    type: STORE_ERROR,
+    field: field,
+    error: error
+  };
+}
+
+export function updateWFSLayerList(layerList) {
+  return {
+    type: WFS_LAYER_LIST,
+    layerList: layerList
+  };
+}
+
+export function getWFSLayers(uri) {
+  return dispatch => {
+    return request
+      .get(API_URL + 'wfs/getCapabilities?url=' + encodeURIComponent(uri))
+      .then(res => {
+        dispatch(updateWFSLayerList(res.body));
+        dispatch(addStoreError('default_layer', false));
+      }, err => {
+        dispatch(updateWFSLayerList([]));
+        dispatch(addStoreError('default_layer', 'Could Not Find Layers'));
       });
   };
 }
