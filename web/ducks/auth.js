@@ -7,6 +7,9 @@ import { API_URL } from 'config';
 export const LOGIN_USER_REQUEST = 'sc/auth/LOGIN_USER_REQUEST';
 export const LOGIN_USER_FAILURE = 'sc/auth/LOGIN_USER_FAILURE';
 export const LOGIN_USER_SUCCESS = 'sc/auth/LOGIN_USER_SUCCESS';
+export const SIGNUP_USER_REQUEST = 'sc/auth/SIGNUP_USER_REQUEST';
+export const SIGNUP_USER_FAILURE = 'sc/auth/SIGNUP_USER_FAILURE';
+export const SIGNUP_USER_SUCCESS = 'sc/auth/SIGNUP_USER_SUCCESS';
 export const LOGOUT_USER = 'sc/auth/LOGOUT_USER';
 export const FETCH_PROTECTED_DATA_REQUEST = 'sc/auth/FETCH_PROTECTED_DATA_REQUEST';
 export const RECEIVE_PROTECTED_DATA = 'sc/auth/RECEIVE_PROTECTED_DATA';
@@ -16,7 +19,10 @@ const initialState = {
   userName: null,
   isAuthenticated: false,
   isAuthenticating: false,
-  statusText: null
+  statusText: null,
+  isSigningUp: false,
+  signUpError: null,
+  signUpSuccess: false
 };
 
 export default function reducer(state = initialState, action = {}) {
@@ -33,8 +39,8 @@ export default function reducer(state = initialState, action = {}) {
         isAuthenticating: false,
         isAuthenticated: true,
         token: action.token,
-        userName: jwtDecode(action.token).userName,
-        statusText: 'You have been successfully logged in.'
+        userName: jwtDecode(action.token).user,
+        statusText: null
       };
     case LOGIN_USER_FAILURE:
       return {
@@ -43,7 +49,27 @@ export default function reducer(state = initialState, action = {}) {
         isAuthenticated: false,
         token: null,
         userName: null,
-        statusText: `${action.statusText}`
+        statusText: `Authentication failed: ${action.statusText}`
+      };
+    case SIGNUP_USER_REQUEST:
+      return {
+        ...state,
+        isSigningUp: true,
+        signUpSuccess: false
+      };
+    case SIGNUP_USER_FAILURE:
+      return {
+        ...state,
+        isSigningUp: false,
+        signUpError: action.error,
+        signUpSuccess: false
+      };
+    case SIGNUP_USER_SUCCESS:
+      return {
+        ...state,
+        isSigningUp: false,
+        signUpError: null,
+        signUpSuccess: true
       };
     case LOGOUT_USER:
       return {
@@ -74,9 +100,28 @@ export function loginUserFailure(error) {
   };
 }
 
+export function signUpUserFailure(error) {
+  return {
+    type: SIGNUP_USER_FAILURE,
+    error: error
+  };
+}
+
+export function signUpUserSuccess(error) {
+  return {
+    type: SIGNUP_USER_SUCCESS
+  };
+}
+
 export function loginUserRequest() {
   return {
     type: LOGIN_USER_REQUEST
+  };
+}
+
+export function signUpUserRequest() {
+  return {
+    type: SIGNUP_USER_REQUEST
   };
 }
 
@@ -125,6 +170,29 @@ export function loginUser(email, password, redirect="/") {
       })
       .catch(error => {
         dispatch(loginUserFailure(error));
+      })
+  }
+}
+
+export function signUpUser(name, email, password) {
+  return dispatch => {
+    dispatch(signUpUserRequest());
+    return request
+      .post(API_URL + 'users')
+      .send({name: name, email: email, password: password})
+      .then(response => {
+        if (response.body.success) {
+          dispatch(signUpUserSuccess());
+        } else {
+          dispatch(signUpUserFailure(response.body.error));
+        }
+      })
+      .catch(error => {
+        if (error.body.error.errors) {
+          dispatch(signUpUserFailure(error.body.error.errors[0].message));
+        } else {
+          dispatch(signUpUserFailure(error.body.error));
+        }
       })
   }
 }

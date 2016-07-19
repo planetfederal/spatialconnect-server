@@ -12,7 +12,11 @@ class AppContainer extends Component {
   render() {
     return (
       <div id="app">
-        <Header isAuthenticated={this.props.isAuthenticated} logout={this.props.actions.logoutAndRedirect} />
+        <Header
+          isAuthenticated={this.props.isAuthenticated}
+          logout={this.props.actions.logoutAndRedirect}
+          userName={this.props.userName}
+          />
         <div className="main-container">
           {this.props.children}
         </div>
@@ -23,7 +27,8 @@ class AppContainer extends Component {
 }
 
 const mapStateToProps = (state) => ({
-  isAuthenticated: state.sc.auth.isAuthenticated
+  isAuthenticated: state.sc.auth.isAuthenticated,
+  userName: state.sc.auth.userName
 });
 
 const mapDispatchToProps = (dispatch) => ({
