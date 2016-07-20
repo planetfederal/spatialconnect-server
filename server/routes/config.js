@@ -9,7 +9,10 @@ var _         = require('lodash');
 const tKeys = ['created_at','updated_at','deleted_at'];
 
 var filterStampsAndNulls = (ff) => {
-  return _.chain(ff.dataValues).omit(tKeys).omitBy(_.isNull).value();
+  return _.chain(ff.dataValues)
+    .omit(tKeys)
+    .omitBy(_.isNull)
+    .value();
 };
 
 var formFields$ = (formId) => {
@@ -25,7 +28,13 @@ var formFields$ = (formId) => {
 router.get('/',(req,res) => {
   let stores = Rx.Observable.fromPromise(models.Stores.findAll())
     .flatMap(Rx.Observable.fromArray)
-    .map(filterStampsAndNulls).toArray();
+    .map(filterStampsAndNulls)
+    .map((v) => {
+      v.default_layers = _.remove(v.default_layers,(dl) => {
+        return dl !== null;
+      });
+      return v;
+    }).toArray();
 
   let forms = Rx.Observable.fromPromise(models.Forms.findAll())
     .flatMap(Rx.Observable.fromArray)
