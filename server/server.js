@@ -36,6 +36,10 @@ app.get(/^\/((?!api).)/, function(req, res) {
 var apiRoutes = express.Router();
 
 apiRoutes.use((req,res,next) => {
+  console.log(req.path, req.method);
+  if (req.path === '/users' && req.method === 'POST') {
+    return next();
+  }
   var token = req.body.token || req.query.token || req.headers['x-access-token'];
   if (token) {
     jwt.verify(token,'9014607A0AF70C4DF57A4D',(err,decoded) => {

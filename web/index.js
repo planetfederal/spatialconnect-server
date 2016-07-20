@@ -13,6 +13,7 @@ import { syncHistoryWithStore, routerReducer, routerMiddleware } from 'react-rou
 import { requireAuthentication } from './utils';
 import { loginUserSuccess } from './ducks/auth';
 import Home from './components/Home';
+import SignUpContainer from './containers/SignUpContainer';
 import LoginContainer from './containers/LoginContainer';
 import DataStoresContainer from './containers/DataStoresContainer';
 import FormsContainer from './containers/FormsContainer';
@@ -54,6 +55,7 @@ render(
       <Route path="/" component={AppContainer}>
         <IndexRoute component={Home} />
         <Route path="/login" component={LoginContainer}/>
+        <Route path="/signup" component={SignUpContainer}/>
         <Route path="/stores" component={requireAuthentication(DataStoresContainer)}>
         </Route>
         <Route path="/stores/:id" component={requireAuthentication(DataStoresDetailsContainer)} >

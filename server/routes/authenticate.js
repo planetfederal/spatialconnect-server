@@ -18,14 +18,14 @@ router.post('/',(req,res) => {
       if (!user) {
         sub.onError({
           success:false,
-          message:'Authentication failed.User not found'
+          message:'User not found.'
         });
       } else if (user) {
         bcrypt.compare(req.body.password,user.password,(err,r) => {
           if (!r) {
             sub.onError({
               success:false,
-              message:'Authentication failed. Wrong password'
+              message:'Wrong password.'
             });
           } else {
             var token = jwt.sign({user:user.email}, '9014607A0AF70C4DF57A4D');
