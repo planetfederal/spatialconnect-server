@@ -12,7 +12,7 @@ export function checkHttpStatus(response) {
     error.response = response;
     throw error;
   }
-}
+};
 
 export const requireAuthentication = UserAuthWrapper({
   authSelector: state => state.sc.auth,
@@ -20,3 +20,8 @@ export const requireAuthentication = UserAuthWrapper({
   redirectAction: push,
   wrapperDisplayName: 'UserIsJWTAuthenticated'
 });
+
+export const isUrl = (s) => {
+   var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
+   return regexp.test(s);
+};

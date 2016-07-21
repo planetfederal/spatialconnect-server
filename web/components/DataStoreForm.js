@@ -1,12 +1,6 @@
 'use strict';
 import React, { Component, PropTypes } from 'react';
-
-const fields = ['id', 'storeId', 'name', 'type', 'version']
-
-const isUrl = (s) => {
-   var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
-   return regexp.test(s);
-}
+import { isUrl } from '../utils';
 
 export const validate = values => {
   const errors = {};
@@ -26,13 +20,20 @@ export const validate = values => {
   if (values.store_type === 'wfs' && !values.uri) {
     errors.uri = 'Required';
   }
-  if (values.store_type === 'wfs' && !values.default_layer) {
-    errors.default_layer = 'Required';
+  if (values.store_type === 'wfs' && !values.default_layers.length) {
+    errors.default_layers = 'Must choose at least one default layer.';
   }
   return errors;
 };
 
 export class DataStoreForm extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      store_type: null,
+      default_layers: props.store.default_layers || false
+    };
+  }
 
   save() {
     let store = {
@@ -41,8 +42,8 @@ export class DataStoreForm extends Component {
       version: this.refs.version.value,
       uri: this.refs.uri.value
     }
-    if (this.refs.default_layer) {
-      store.default_layer = this.refs.default_layer.value;
+    if (this.refs.default_layers) {
+      store.default_layers = this.getChosenLayers();
     }
     let errors = validate(store);
     this.props.actions.updateStoreErrors(errors);
@@ -51,14 +52,35 @@ export class DataStoreForm extends Component {
     }
   }
 
+  onStoreTypeChange() {
+    this.setState({store_type: this.refs.store_type.value});
+    this.shouldUpdateLayerList();
+  }
+
   shouldUpdateLayerList() {
-    if (this.refs.store_type.value === 'wfs' && isUrl(this.refs.uri.value)) {
-      this.props.actions.getWFSLayers(this.refs.uri.value);
+    if (this.refs.store_type.value === 'wfs') {
+      if (isUrl(this.refs.uri.value)) {
+        this.props.actions.addStoreError('default_layers', 'Loading layers...');
+        this.props.actions.getWFSLayers(this.refs.uri.value);
+      } else {
+        this.props.actions.addStoreError('default_layers', 'Enter a URI to load layer list.');
+      }
     }
     if (this.refs.store_type.value !== 'wfs') {
-      this.props.actions.addStoreError('default_layer', false);
+      this.props.actions.addStoreError('default_layers', false);
       this.props.actions.updateWFSLayerList([]);
     }
+  }
+
+  getChosenLayers() {
+    let options = Array.from(this.refs.default_layers.options);
+    return options
+      .filter(option => option.selected)
+      .map(option => option.value);
+  }
+
+  onLayersChange() {
+    this.setState({default_layers: this.getChosenLayers()});
   }
 
   componentDidMount() {
@@ -76,7 +98,7 @@ export class DataStoreForm extends Component {
         </div>
         <div className="form-group">
           <label>Type:</label>
-          <select className="form-control" ref="store_type"  defaultValue={store.store_type} onChange={this.shouldUpdateLayerList.bind(this)}>
+          <select className="form-control" ref="store_type"  defaultValue={store.store_type} onChange={this.onStoreTypeChange.bind(this)}>
             <option value="">Select a type..</option>
             <option value="geojson">GeoJSON</option>
             <option value="gpkg">GeoPackage</option>
@@ -94,15 +116,16 @@ export class DataStoreForm extends Component {
           <input type="text" className="form-control" ref="uri" defaultValue={store.uri} onChange={this.shouldUpdateLayerList.bind(this)}/>
           {errors.uri ? <p className="text-danger">{errors.uri}</p> : ''}
         </div>
-        {this.props.layerList.length || errors.default_layer ?
+        {store.store_type === 'wfs' || this.state.store_type === 'wfs' ?
           <div className="form-group">
-            <label>Default Layer:</label>
-            <select className="form-control" ref="default_layer"  defaultValue={store.default_layer}>
-            {this.props.layerList.map(layer => (
-              <option value={layer} key={layer}>{layer}</option>
+            <label>Default Layers:</label>
+            <select multiple={true} className="form-control default_layers" ref="default_layers"  value={this.state.default_layers}
+              onChange={this.onLayersChange.bind(this)}>
+            {this.props.layerList.map((layer, i) => (
+              <option value={layer} key={layer+i}>{layer}</option>
             ))}
             </select>
-            {errors.default_layer ? <p className="text-danger">{errors.default_layer}</p> : ''}
+            {errors.default_layers ? <p className="text-danger">{errors.default_layers}</p> : ''}
           </div> : ''
         }
         <div className="btn-toolbar">

@@ -210,15 +210,18 @@ export function updateWFSLayerList(layerList) {
 }
 
 export function getWFSLayers(uri) {
-  return dispatch => {
+  return (dispatch, getState) => {
+    const { sc } = getState();
+    let token = sc.auth.token;
     return request
       .get(API_URL + 'wfs/getCapabilities?url=' + encodeURIComponent(uri))
+      .set('x-access-token', token)
       .then(res => {
         dispatch(updateWFSLayerList(res.body));
-        dispatch(addStoreError('default_layer', false));
+        dispatch(addStoreError('default_layers', false));
       }, err => {
         dispatch(updateWFSLayerList([]));
-        dispatch(addStoreError('default_layer', 'Could Not Find Layers'));
+        dispatch(addStoreError('default_layers', 'Could Not Find Layers'));
       });
   };
 }
