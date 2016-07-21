@@ -12,15 +12,15 @@ router.post('/',(req,res) => {
   const password = req.body.password;
   const name = req.body.name;
 
-  if (_.isUndefined(password)) {
+  if (!password) {
     res.status(500).json({success:false,error:'password Not Set'});
     return;
   }
-  if (_.isUndefined(name)) {
+  if (!name) {
     res.status(500).json({success:false,error:'name Not Set'});
     return;
   }
-  if (_.isUndefined(email)) {
+  if (!email) {
     res.status(500).json({success:false,error:'email Not Set'});
     return;
   }

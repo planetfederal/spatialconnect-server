@@ -8,25 +8,21 @@ import { Link, browserHistory } from 'react-router';
 
 class FormsContainer extends Component {
 
-  loadForms = () => {
+  componentDidMount() {
     this.props.actions.loadForms();
   }
 
-  componentDidMount() {
-    this.loadForms();
-  }
-
-  addForm = () => {
-    this.props.actions.addForm();
-  }
-
   render() {
-    const {loading, forms} = this.props;
     return (
       <div className="wrapper">
         <section className="main">
-          {loading ? 'Fetching Forms...' :
-            <FormsList forms={forms} addForm={this.addForm.bind(this)}/>}
+          {this.props.loading ? 'Fetching Forms...' :
+            <div>
+              <div className="btn-toolbar">
+                <button className="btn btn-sc" onClick={this.props.actions.addForm}>Create Form</button>
+              </div>
+              <FormsList forms={this.props.forms} />
+            </div>}
         </section>
         {this.props.children}
       </div>
@@ -34,16 +30,14 @@ class FormsContainer extends Component {
   }
 }
 
-function mapAtomStateToProps(state) {
-  return {
-    loading: state.sc.forms.get('loading'),
-    forms: state.sc.forms.get('forms')
-  };
-}
+const mapStateToProps = (state) => ({
+  loading: state.sc.forms.get('loading'),
+  forms: state.sc.forms.get('forms')
+});
 
-function mapDispatchToProps(dispatch) {
-  return { actions: bindActionCreators(formActions, dispatch) };
-}
+const mapDispatchToProps = (dispatch) => ({
+  actions: bindActionCreators(formActions, dispatch)
+});
 
   // connect this "smart" container component to the redux store
-export default connect(mapAtomStateToProps, mapDispatchToProps)(FormsContainer);
+export default connect(mapStateToProps, mapDispatchToProps)(FormsContainer);

@@ -24,75 +24,51 @@ export const UPDATE_FORM_VALUE = 'sc/forms/UPDATE_FORM_VALUE';
 export const UPDATE_FIELD_OPTION = 'sc/forms/UPDATE_FIELD_OPTION';
 export const UPDATE_ACTIVE_FIELD = 'sc/forms/UPDATE_ACTIVE_FIELD';
 export const UPDATE_ACTIVE_FORM = 'sc/forms/UPDATE_ACTIVE_FORM';
+export const UPDATE_SAVED_FORM = 'sc/forms/UPDATE_SAVED_FORM';
 export const REMOVE_FIELD = 'sc/forms/REMOVE_FIELD';
 
 // define an initialState
 const initialState = Immutable.fromJS({
   loading: false,
   loaded: false,
-  forms: [],
+  forms: {},
+  saved_forms: {},
   activeForm: false //field id
 });
 
-export default function reducer(state = initialState, action = {}) {
+function form(state = Immutable.Map(), action) {
   switch (action.type) {
-    case LOAD:
-      return state.set('loading', true);
-    case LOAD_SUCCESS:
-      return state
-        .set('loading', false)
-        .set('loaded', true)
-        .set('forms', Immutable.fromJS(action.forms));
-    case LOAD_FAIL:
-      return state
-        .set('loading', false)
-        .set('loaded', false)
-        .set('error', action.error);
-    case UPDATE_FORM:
-      return state
-        .setIn(['forms', action.formId.toString()], Immutable.fromJS(action.newForm));
     case UPDATE_FORM_NAME:
-      return state
-        .setIn(['forms', action.formId.toString(), 'name'], action.newName);
+      return state.set('name', action.newName);
     case UPDATE_FORM_VALUE:
-      return state
-        .setIn(['forms', action.formId.toString(), 'value'], Immutable.fromJS(action.value));
+      return state.set('value', Immutable.fromJS(action.value));
     case UPDATE_FIELD_OPTION:
-      var fieldsPath = ['forms', action.formId.toString(), 'fields'];
-      return state
-        .setIn(fieldsPath, state.getIn(fieldsPath).update(
-            state.getIn(fieldsPath).findIndex(f => f.get('id') === action.fieldId),
-            f => f.set(action.option, action.value)
-          )
-        );
+      return state.set('fields', state.get('fields').update(
+          state.get('fields').findIndex(f => f.get('id') === action.fieldId),
+          f => f.set(action.option, action.value)
+        )
+      );
     case UPDATE_ACTIVE_FIELD:
-      return state
-        .setIn(['forms', action.formId.toString(), 'activeField'], action.fieldId);
-    case UPDATE_ACTIVE_FORM:
-      return state
-        .set('activeForm', action.formId);
+      return state.set('activeField', action.fieldId);
     case ADD_FIELD:
-      var fieldsPath = ['forms', action.formId.toString(), 'fields'];
-      return state
-        .setIn(fieldsPath, state.getIn(fieldsPath).push(Immutable.fromJS(action.field)));
+       return state.set('fields', state.get('fields').push(Immutable.fromJS(action.field)));
     case SWAP_FIELD_ORDER:
-      var fieldsPath = ['forms', action.formId.toString(), 'fields'];
       return state
-        .setIn(fieldsPath, state.getIn(fieldsPath)
-          .update(state.getIn(fieldsPath).findIndex(f => f.get('position') === action.indexOne), f => {
+        .set('fields', state.get('fields')
+          .update(state.get('fields').findIndex(f => f.get('position') === action.indexOne), f => {
             return f.set('position', action.indexTwo);
           })
-          .update(state.getIn(fieldsPath).findIndex(f => f.get('position') === action.indexTwo), f => {
+          .update(state.get('fields').findIndex(f => f.get('position') === action.indexTwo), f => {
             return f.set('position', action.indexOne);
           })
         );
     case REMOVE_FIELD:
       var fieldsPath = ['forms', action.formId.toString(), 'fields'];
-      var fieldPath = ['forms', action.formId.toString(), 'fields', state.getIn(fieldsPath).findIndex(f => f.get('id') === action.fieldId)];
+      var fieldPath = ['fields', state.get('fields').findIndex(f => f.get('id') === action.fieldId)];
       var deletedFieldsPath = ['forms', action.formId.toString(), 'deletedFields'];
       let field = state.getIn(fieldPath);
       return state
-        .setIn(fieldsPath, state.getIn(fieldsPath).update(fields => {
+        .set('fields', state.get('fields').update(fields => {
           //filter fields to remove fieldId
           return fields.filter(f => f.get('id') !== action.fieldId).map(f => {
             //update field orders to reflect removal
@@ -102,11 +78,49 @@ export default function reducer(state = initialState, action = {}) {
             return f;
           });
         }))
-        .setIn(deletedFieldsPath, state.getIn(deletedFieldsPath).push(action.fieldId));
-    // return the previousState if no actions match
+        .set('deletedFields', state.get('deletedFields').push(action.fieldId));
+    default:
+      return state;
+  }
+}
+
+export default function reducer(state = initialState, action = {}) {
+  switch (action.type) {
+    case LOAD:
+      return state.set('loading', true);
+    case LOAD_SUCCESS:
+      return state
+        .set('loading', false)
+        .set('loaded', true)
+        .set('forms', Immutable.fromJS(action.forms))
+        .set('saved_forms', Immutable.fromJS(action.forms));
+    case LOAD_FAIL:
+      return state
+        .set('loading', false)
+        .set('loaded', false)
+        .set('error', action.error);
+    case UPDATE_ACTIVE_FORM:
+      return state
+        .set('activeForm', action.formId);
+    case UPDATE_SAVED_FORM:
+      return state
+        .setIn(['saved_forms', action.formId.toString()], Immutable.fromJS(action.form));
+    case UPDATE_FORM:
+      return state
+        .setIn(['forms', action.formId.toString()], Immutable.fromJS(action.newForm));
+    case UPDATE_FORM_NAME:
+    case UPDATE_FORM_VALUE:
+    case UPDATE_FIELD_OPTION:
+    case UPDATE_ACTIVE_FIELD:
+    case ADD_FIELD:
+    case SWAP_FIELD_ORDER:
+    case REMOVE_FIELD:
+      let formPath = ['forms', action.formId.toString()];
+      return state.setIn(formPath, form(state.getIn(formPath), action));
     default: return state;
   }
 }
+
 
 // export the action creators (functions that return actions or functions)
 export function updateForm(formId, newForm) {
@@ -188,6 +202,14 @@ export function updateActiveForm(formId) {
   };
 }
 
+export function updateSavedForm(formId, form) {
+  return {
+    type: UPDATE_SAVED_FORM,
+    formId: formId,
+    form: form
+  };
+}
+
 export function removeField(formId, fieldId) {
   return (dispatch) => {
     dispatch({
@@ -226,10 +248,13 @@ export function loadForms() {
   // When action creators return functions instead of plain action objects, they
   // are handled by the thunk middleware, which passes the dispatch method as
   // an argument to the function
-  return dispatch => {
+  return (dispatch, getState) => {
+    const { sc } = getState();
+    let token = sc.auth.token;
     dispatch({ type: LOAD });
     request
       .get(API_URL + 'forms')
+      .set('x-access-token', token)
       .end(function(err, res) {
         if (err) {
           throw new Error(res);
@@ -248,9 +273,11 @@ export function loadForm(id) {
         receiveForms([sc.forms.getIn(['forms', id.toString()]).toJS()])
       );
     } else {
+      let token = sc.auth.token;
       dispatch({ type: LOAD });
       request
         .get(API_URL + 'forms/' + id)
+        .set('x-access-token', token)
         .end(function(err, res) {
           if (err) {
             throw new Error(res);
@@ -262,12 +289,15 @@ export function loadForm(id) {
 }
 
 export function addForm() {
-  return dispatch => {
+  return (dispatch, getState) => {
+    const { sc } = getState();
+    let token = sc.auth.token;
     let data = {
       name: 'New Form'
     };
     return request
       .post(API_URL + 'forms')
+      .set('x-access-token', token)
       .send(data)
       .end(function(err, res) {
         if (err) {
@@ -288,11 +318,13 @@ export function saveForm(formId) {
       form: _.pick(form, ['name', 'fields']),
       deletedFields: form.deletedFields
     }
+    let token = sc.auth.token;
     return request
       .put(API_URL + 'forms/' + formId)
+      .set('x-access-token', token)
       .send(data)
       .then(function(res) {
-        //TODO confirm form save in UI
+        dispatch(updateSavedForm(formId, form));
       }, function(error) {
         throw new Error(res);
       });
@@ -300,9 +332,12 @@ export function saveForm(formId) {
 }
 
 export function deleteForm(formId) {
-  return dispatch => {
+  return (dispatch, getState) => {
+    const { sc } = getState();
+    let token = sc.auth.token;
     return request
       .delete(API_URL + 'forms/' + formId)
+      .set('x-access-token', token)
       .then(function(res) {
         dispatch(push('/forms'));
       }, function(error) {
@@ -312,9 +347,12 @@ export function deleteForm(formId) {
 }
 
 export function submitNewForm(data) {
-  return dispatch => {
+  return (dispatch, getState) => {
+    const { sc } = getState();
+    let token = sc.auth.token;
     request
       .post(API_URL + 'forms')
+      .set('x-access-token', token)
       .send(data)
       .end(function(err, res) {
         if (err) {

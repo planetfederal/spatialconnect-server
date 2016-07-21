@@ -11,18 +11,11 @@ import mockDataStores from '../data/mockDataStores';
 
 describe('DataStoreForm', function() {
 
-  function makefields() {
-    let fieldObj = {}
-    Object.keys(mockDataStores[0]).forEach(f => {
-      fieldObj[f] = { name: f, initialValue: mockDataStores[0][f] }
-    })
-    return fieldObj
-  }
-
   function setup(props={}) {
     let defaultProps = {
-      form: 'dataStore',
-      fields: makefields()
+      store: mockDataStores[0],
+      onSubmit: () => {},
+      cancel: () => {}
     };
     props = Object.assign(defaultProps, props);
 
@@ -37,7 +30,7 @@ describe('DataStoreForm', function() {
 
   it('should render correctly', function(){
     const { component } = setup();
-    expect(component.type()).toBe('form');
+    expect(component.type()).toBe('div');
     expect(component.find('input').length).toBe(3);
     expect(component.find('select').length).toBe(1);
   });
@@ -51,9 +44,8 @@ describe('DataStoreForm', function() {
   it('should return errors on validate', function(){
     const { component } = setup();
     expect(validate({})).toEqual({
-      storeId: 'Required',
       name: 'Required',
-      type: 'Required',
+      store_type: 'Required',
       version: 'Required'
     });
   });

@@ -46,17 +46,6 @@ describe('dataStores async action creators', () => {
     this.server.restore();
   });
 
-  it('should create an action and reset the form for when the "add new data store button" is clicked',
-  () => {
-    const expectedActions = [
-      reset('dataStore'),
-      { type: dataStores.ADD_NEW_DATA_STORE_CLICKED }
-    ];
-    const store = mockStore({ stores: [] });
-    store.dispatch(dataStores.addNewDataStoreClicked())
-    expect(store.getActions()).toEqual(expectedActions);
-  });
-
   it('should emit a LOAD_SUCCESS after stores are fetch successfully', function(done) {
     const expectedActions = [
       { type: dataStores.LOAD },
@@ -156,7 +145,7 @@ describe('dataStores reducer', () => {
         addingNewDataStore: false,
         newDataStoreId: null
       });
-  })
+  });
 
   it('should handle LOAD_FAIL', () => {
     var state = reducer(initialState, {
@@ -166,14 +155,6 @@ describe('dataStores reducer', () => {
     expect(state.loading).toEqual(false)
     expect(state.loaded).toEqual(false)
     expect(state.error).toExist()
-  })
-
-  it('should handle ADD_NEW_DATA_STORE_CLICKED', () => {
-    var state = reducer(initialState, {
-      type: dataStores.ADD_NEW_DATA_STORE_CLICKED
-    })
-    expect(state.newDataStoreId).toBeA('string')
-    expect(state.addingNewDataStore).toEqual(true)
-  })
+  });
 
 });
