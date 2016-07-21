@@ -4,11 +4,18 @@ import { Link, browserHistory } from 'react-router';
 
 const DataStoreDetails = ({ store, deleteStore, editStore }) => (
   <div className="store-details">
-    <p>Name: {store.name}</p>
-    <p>Type: {store.store_type}</p>
-    <p>Version: {store.version}</p>
-    <p>URI: {store.uri}</p>
-    {store.default_layer ? <p>Default Layer: {store.default_layer}</p> : ''}
+    <ul>
+      <li><strong>Name:</strong> {store.name}</li>
+      <li><strong>Type:</strong> {store.store_type}</li>
+      <li><strong>Version:</strong> {store.version}</li>
+      <li><strong>URI:</strong> {store.uri}</li>
+      {store.default_layers.length ? <li><strong>Default Layers:</strong>
+        <ul>
+        {store.default_layers.map(l => (
+          <li key={l}>{l}</li>
+        ))}
+        </ul></li> : null}
+    </ul>
     <div className="btn-toolbar">
       <button className="btn btn-sc" onClick={() => { editStore(store.id) }}>Edit Store</button>
       <button className="btn btn-danger" onClick={() => { deleteStore(store.id) }}>Delete Store</button>

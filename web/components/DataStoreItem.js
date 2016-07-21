@@ -10,9 +10,12 @@ const DataStoreItem = ({ store }) => (
       <li><strong>ID:</strong> {store.id}</li>
       <li><strong>Type:</strong> {store.store_type}</li>
       <li><strong>URI:</strong> {store.uri}</li>
-      {store.default_layer ?
-        <li><strong>Default Layer:</strong> {store.default_layer}</li> : ''
-      }
+      {store.default_layers.length ? <li><strong>Default Layers:</strong>
+        <ul>
+        {store.default_layers.map(l => (
+          <li key={l}>{l}</li>
+        ))}
+        </ul></li> : '' }
       <li><strong>Version:</strong> {store.version}</li>
     </ul>
   </div>
