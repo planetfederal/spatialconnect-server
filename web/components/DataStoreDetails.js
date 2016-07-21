@@ -1,7 +1,6 @@
 'use strict';
 import React, { PropTypes } from 'react';
 import { Link, browserHistory } from 'react-router';
-import '../style/DataStore.less';
 
 const DataStoreDetails = ({ store, deleteStore, editStore }) => (
   <div className="store-details">

@@ -1,6 +1,5 @@
 'use strict';
 import React, { Component, PropTypes } from 'react';
-import '../style/DataStore.less';
 
 const fields = ['id', 'storeId', 'name', 'type', 'version']
 
@@ -69,7 +68,7 @@ export class DataStoreForm extends Component {
   render() {
     const { store, errors, layerList } = this.props;
     return (
-      <div className="store-form">
+      <div className="side-form">
         <div className="form-group">
           <label>Name:</label>
           <input type="text" className="form-control" ref="name" defaultValue={store.name} />
@@ -108,7 +107,7 @@ export class DataStoreForm extends Component {
         }
         <div className="btn-toolbar">
           <button className="btn btn-sc" onClick={this.save.bind(this)}>Save</button>
-          <button className="btn btn-sc" onClick={this.props.cancel}>Cancel</button>
+          <button className="btn btn-default" onClick={this.props.cancel}>Cancel</button>
         </div>
       </div>
     );
