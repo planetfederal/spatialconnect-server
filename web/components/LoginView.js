@@ -27,34 +27,35 @@ export class LoginView extends Component {
 
   render () {
     return (
-      <div className='col-xs-12 col-md-6 col-md-offset-3'>
-        <h3>Login</h3>
-        {this.props.statusText ? <div className='alert alert-danger'>{this.props.statusText}</div> : ''}
-        <form role='form'>
-        <div className='form-group'>
-            <label htmlFor="email">Email</label>
-            <input type='text'
-              id='email'
-              className='form-control'
-              value={this.state.email}
-              onChange={this.emailChange.bind(this)}
-              placeholder='Email' />
-            </div>
+      <section className="main">
+        <div className="side-form">
+          {this.props.statusText ? <div className='alert alert-danger'>{this.props.statusText}</div> : ''}
+          <form role='form'>
           <div className='form-group'>
-            <label htmlFor="password">Password</label>
-            <input type='password'
-              id='password'
-              className='form-control'
-              value={this.state.password}
-              onChange={this.passwordChange.bind(this)}
-              placeholder='Password' />
-          </div>
-          <button type='submit'
-            className='btn btn-sc'
-            disabled={this.props.isAuthenticating}
-            onClick={this.login.bind(this)}>Submit</button>
-      </form>
-    </div>
+              <label htmlFor="email">Email</label>
+              <input type='text'
+                id='email'
+                className='form-control'
+                value={this.state.email}
+                onChange={this.emailChange.bind(this)}
+                placeholder='Email' />
+              </div>
+            <div className='form-group'>
+              <label htmlFor="password">Password</label>
+              <input type='password'
+                id='password'
+                className='form-control'
+                value={this.state.password}
+                onChange={this.passwordChange.bind(this)}
+                placeholder='Password' />
+            </div>
+            <button type='submit'
+              className='btn btn-sc'
+              disabled={this.props.isAuthenticating}
+              onClick={this.login.bind(this)}>Login</button>
+        </form>
+      </div>
+    </section>
     );
   }
 }
