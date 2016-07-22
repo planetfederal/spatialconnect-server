@@ -1,6 +1,5 @@
 /* global beforeEach, afterEach, describe, it */
 'use strict';
-var reqwest = require('superagent');
 var request = require('supertest');
 
 function makeStr()

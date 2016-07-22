@@ -1,15 +1,28 @@
 'use strict';
 
+var Rx = require('rx');
+var _ = require('lodash');
+
+const tKeys = ['created_at', 'updated_at', 'deleted_at'];
+
+var filterStampsAndNulls = (ff) => {
+  return _.chain(ff.dataValues)
+    .omit(tKeys)
+    .omit('form_id')
+    .omitBy(_.isNull)
+    .value();
+};
+
 module.exports = (sequelize,DataTypes) => {
   var FormFields = sequelize.define('FormFields',{
     id : {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
+      type : DataTypes.INTEGER,
+      autoIncrement : true,
       primaryKey : true
     },
     type : DataTypes.STRING,
-    label : DataTypes.STRING,
-    key : DataTypes.STRING,
+    field_label : DataTypes.STRING,
+    field_key : DataTypes.STRING,
     is_required : DataTypes.BOOLEAN,
     position : DataTypes.INTEGER,
     initial_value : DataTypes.STRING,
@@ -26,7 +39,18 @@ module.exports = (sequelize,DataTypes) => {
     timestamps : true,
     paranoid : true,
     underscored : true,
-    tableName : 'form_field'
+    tableName : 'form_fields',
+    classMethods : {
+      formFields$ : (models,formId) => {
+        return Rx.Observable.fromPromise(
+          models.FormFields.findAll({
+            where : {
+              form_id : formId
+            }
+          })).flatMap(Rx.Observable.fromArray)
+          .map(filterStampsAndNulls).toArray();
+      }
+    }
   });
   return FormFields;
 };
