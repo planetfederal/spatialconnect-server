@@ -33,7 +33,7 @@ var updateFields$ = (formId, fields) => {
       return field;
     })
     .flatMap((field) => {
-      return Rx.Observable.fromPromise(models.FormFields.upsert(field));
+      return Rx.Observable.fromPromise(models.FormFields.create(field));
     });
 };
 
@@ -104,26 +104,16 @@ router.post('/:formId/submit', (req, res) => {
 });
 
 router.post('/', (req, res) => {
+  let fields = req.body.fields;
+  let form_id;
   Rx.Observable.fromPromise(models.Forms.create(req.body))
-    .map(filterStampsAndNulls)
-    .map(form => {
-      form.fields = [];
-      return form;
-    })
+    .flatMap((form) => {
+      form_id = form.id;
+      return updateFields$(form.id, fields);
+    }).flatMap(() => {
+      return models.Forms.formDefinition$(models,form_id);
+    }).take(1)
     .subscribe(formData => res.json(formData), err => console.log(err));
-});
-
-router.put('/:formId', (req, res) => {
-  Rx.Observable.fromPromise(models.Forms.update(req.body.form, {
-    where: { id: req.params.formId }
-  }))
-    .merge(updateFields$(req.params.formId, req.body.form.fields))
-    .merge(deleteFields$(req.body.deletedFields))
-    .toArray()
-    .subscribe(
-      () => res.json({success: true}),
-      err => res.json({success: false, err: err})
-    );
 });
 
 router.delete('/:formId', (req, res) => {
