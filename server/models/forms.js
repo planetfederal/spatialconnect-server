@@ -29,7 +29,7 @@ module.exports = (sequelize,DataTypes) => {
       },
       uniqueForms$ : (models) => {
         return Rx.Observable.fromPromise(
-          sequelize.query('SELECT DISTINCT form_key FROM forms',
+          sequelize.query('SELECT DISTINCT form_key FROM forms where deleted_at is null',
           {type: sequelize.QueryTypes.SELECT})
         ).flatMap(Rx.Observable.fromArray)
         .flatMap((f) => {

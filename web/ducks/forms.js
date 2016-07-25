@@ -6,6 +6,7 @@ import { API_URL } from 'config';
 import uuid from 'node-uuid';
 import { push } from 'react-router-redux';
 import { pick } from 'lodash';
+import { initForm } from '../utils';
 
 // define action types
 export const LOAD = 'sc/forms/LOAD';
@@ -15,6 +16,7 @@ export const LOAD_FAIL = 'sc/forms/LOAD_FAIL';
 export const UPDATE_FORM = 'sc/forms/UPDATE_FORM';
 export const UPDATE_FORM_NAME = 'sc/forms/UPDATE_FORM_NAME';
 export const ADD_FORM = 'sc/forms/ADD_FORM';
+export const ADD_FORM_ERROR = 'sc/forms/ADD_FORM_ERROR';
 export const ADD_FIELD = 'sc/forms/ADD_FIELD';
 export const CHANGE_REQUIRED_FIELD = 'sc/forms/CHANGE_REQUIRED_FIELD';
 export const CHANGE_FIELD_NAME = 'sc/forms/CHANGE_FIELD_NAME';
@@ -33,13 +35,14 @@ const initialState = Immutable.fromJS({
   loaded: false,
   forms: {},
   saved_forms: {},
-  activeForm: false //field id
+  activeForm: false, //field id
+  addFormError: false
 });
 
 function form(state = Immutable.Map(), action) {
   switch (action.type) {
     case UPDATE_FORM_NAME:
-      return state.set('name', action.newName);
+      return state.set('form_label', action.newName);
     case UPDATE_FORM_VALUE:
       return state.set('value', Immutable.fromJS(action.value));
     case UPDATE_FIELD_OPTION:
@@ -99,6 +102,12 @@ export default function reducer(state = initialState, action = {}) {
         .set('loading', false)
         .set('loaded', false)
         .set('error', action.error);
+    case ADD_FORM:
+      return state
+        .setIn(['forms', action.form.id.toString()], Immutable.fromJS(action.form))
+    case ADD_FORM_ERROR:
+      return state
+        .set('addFormError', action.error)
     case UPDATE_ACTIVE_FORM:
       return state
         .set('activeForm', action.formId);
@@ -131,6 +140,13 @@ export function updateForm(formId, newForm) {
   };
 }
 
+export function addFormError(error) {
+  return {
+    type: ADD_FORM_ERROR,
+    error: error
+  };
+}
+
 export function updateFormName(formId, newName) {
   return {
     type: UPDATE_FORM_NAME,
@@ -152,10 +168,10 @@ export function addField(payload) {
     const { sc } = getState();
     let position = sc.forms.getIn(['forms', payload.formId.toString(), 'fields']).size;
     let field = _.merge({
-      id: uuid.v1(),
+      id: position + 1,
       position: position,
-      key: payload.key,
-      name: payload.name
+      field_key: payload.field_key,
+      field_label: payload.field_label
     }, payload.options);
     dispatch({
       type: ADD_FIELD,
@@ -222,25 +238,21 @@ export function removeField(formId, fieldId) {
 }
 
 export function receiveForms(forms) {
-  //make form order and initial form value
-  forms = forms.map(f => {
-    f.value = {};
-    f.deletedFields = [];
-    f.fields.forEach(field => {
-      if (field.hasOwnProperty('initialValue')) {
-        f.value[field.key] = field.initialValue;
-      }
-    });
-    return f;
-  })
-  //convert list of forms to map
+  let newForms = forms.map(initForm);
   let formMap = {};
-  forms.forEach(f => {
+  newForms.forEach(f => {
     formMap[f.id.toString()] = f;
   });
   return {
     type: LOAD_SUCCESS,
     forms: formMap
+  };
+}
+
+export function receiveForm(form) {
+  return {
+    type: ADD_FORM,
+    form: initForm(form)
   };
 }
 
@@ -264,19 +276,20 @@ export function loadForms() {
   }
 }
 
-export function loadForm(id) {
+export function loadForm(form_key) {
   return (dispatch, getState) => {
     const { sc } = getState();
     //load from cache
-    if (sc.forms.getIn(['forms', id.toString()], null) !== null) {
+    let form = sc.forms.get('forms').find(f => f.get('form_key') === form_key)
+    if (form) {
       dispatch(
-        receiveForms([sc.forms.getIn(['forms', id.toString()]).toJS()])
+        receiveForms([form.toJS()])
       );
     } else {
       let token = sc.auth.token;
       dispatch({ type: LOAD });
       request
-        .get(API_URL + 'forms/' + id)
+        .get(API_URL + 'forms/' + form_key)
         .set('x-access-token', token)
         .end(function(err, res) {
           if (err) {
@@ -288,80 +301,67 @@ export function loadForm(id) {
   };
 }
 
-export function addForm() {
+export function addForm(form) {
   return (dispatch, getState) => {
     const { sc } = getState();
     let token = sc.auth.token;
+    form.version = form.version + 1;
     let data = {
-      name: 'New Form'
+      form: _.pick(form, ['form_key', 'form_label', 'version']),
+      fields: form.fields
     };
     return request
       .post(API_URL + 'forms')
       .set('x-access-token', token)
       .send(data)
-      .end(function(err, res) {
-        if (err) {
-          throw new Error(res);
+      .then(function(res) {
+        dispatch(updateSavedForm(res.body.id, res.body));
+        dispatch(receiveForm(res.body));
+        dispatch(addFormError(false));
+      })
+      .catch(error => {
+        if (error.body.error.errors) {
+          dispatch(addFormError(error.body.error.errors[0].message));
+        } else {
+          dispatch(addFormError(error.body.error));
         }
-        dispatch(updateActiveForm(res.body.id));
-        dispatch(updateForm(res.body.id, res.body));
-        dispatch(push('/forms/' + res.body.id));
-      });
+      })
   };
 }
 
-export function saveForm(formId) {
+export function saveForm(form) {
   return (dispatch, getState) => {
     const { sc } = getState();
-    let form = sc.forms.getIn(['forms', formId.toString()]).toJS()
-    let data = {
-      form: _.pick(form, ['name', 'fields']),
-      deletedFields: form.deletedFields
-    }
     let token = sc.auth.token;
+    form.version = form.version + 1;
+    let data = {
+      form: _.pick(form, ['form_key', 'form_label', 'version']),
+      fields: form.fields
+    };
     return request
-      .put(API_URL + 'forms/' + formId)
+      .post(API_URL + 'forms')
       .set('x-access-token', token)
       .send(data)
       .then(function(res) {
-        dispatch(updateSavedForm(formId, form));
+        dispatch(updateSavedForm(res.body.id, res.body));
+        dispatch(receiveForms([res.body]));
       }, function(error) {
         throw new Error(res);
       });
   };
 }
 
-export function deleteForm(formId) {
+export function deleteForm(form_key) {
   return (dispatch, getState) => {
     const { sc } = getState();
     let token = sc.auth.token;
     return request
-      .delete(API_URL + 'forms/' + formId)
+      .delete(API_URL + 'forms/' + form_key)
       .set('x-access-token', token)
       .then(function(res) {
         dispatch(push('/forms'));
       }, function(error) {
         throw new Error(res);
       });
-  };
-}
-
-export function submitNewForm(data) {
-  return (dispatch, getState) => {
-    const { sc } = getState();
-    let token = sc.auth.token;
-    request
-      .post(API_URL + 'forms')
-      .set('x-access-token', token)
-      .send(data)
-      .end(function(err, res) {
-        if (err) {
-          throw new Error(res);
-        }
-        dispatch(loadForms());
-      });
-
-    // clear the form values
-    dispatch(reset('newForm'));
   };
 }
