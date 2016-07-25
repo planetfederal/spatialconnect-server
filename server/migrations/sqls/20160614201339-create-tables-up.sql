@@ -38,8 +38,8 @@ ALTER TABLE public.forms
 CREATE TABLE IF NOT EXISTS public.devices
 (
   id SERIAL PRIMARY KEY,
-  name TEXT,
-  identifier TEXT,
+  identifier text UNIQUE,
+  device_info json,
   created_at timestamp DEFAULT NOW(),
   updated_at timestamp DEFAULT NOW(),
   deleted_at timestamp with time zone

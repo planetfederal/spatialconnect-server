@@ -7,8 +7,8 @@ var Rx = require('rx');
 
 router.post('/register', (req, res) => {
   Rx.Observable.fromPromise(models.Devices.upsert({
-    identifier : req.body.identifier,
-    name : req.body.name
+    identifier: req.body.identifier,
+    device_info: req.body.device_info
   })).subscribe(
     () => res.json({success:true}),
     (err) => res.json({success:false,message:err})
