@@ -2,11 +2,11 @@
 
 module.exports = (sequelize,DataTypes) => {
   var Devices = sequelize.define('Devices',{
-    name : DataTypes.STRING,
     identifier : {
       type : DataTypes.STRING,
       unique : true
-    }
+    },
+    device_info : DataTypes.JSON
   },{
     timestamps : true,
     paranoid : true,

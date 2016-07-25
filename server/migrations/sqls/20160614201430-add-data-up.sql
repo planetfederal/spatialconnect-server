@@ -2,8 +2,8 @@ INSERT INTO stores (name,store_type,version,uri,id) VALUES ('gj1','geojson','1',
 INSERT INTO stores (name,store_type,version,uri,id) VALUES ('gj2','geojson','1','feature.geojson','3e6c072e-8e62-41be-8d1a-7a3116df9c16');
 INSERT INTO stores (name,store_type,version,uri,id) VALUES ('Haiti','gpkg','1','http://www.geopackage.org/data/haiti-vectors-split.gpkg','f6dcc750-1349-46b9-a324-0223764d46d1');
 INSERT INTO stores (name,store_type,version,uri,id) VALUES ('Whitehorse','gpkg','1','https://portal.opengeospatial.org/files/63156','fad33ae1-f529-4c79-affc-befc37c104ae');
-INSERT INTO devices (name,identifier) VALUES ('iphone','afsasdfasdfasdfsf');
-INSERT INTO devices (name,identifier) VALUES ('android',';ljljlkjljljljlkj');
+INSERT INTO devices (identifier,device_info) VALUES ('07b962d7-d091-4dad-8c4e-a083694d34b0', '{"os": "Android"}');
+INSERT INTO devices (identifier,device_info) VALUES ('0c20b743-5485-4109-823c-c9c4f54038c4', '{"os": "iOS"}');
 INSERT INTO forms (form_key,form_label) VALUES ('weed_inspector','Weed Inspector');
 
 INSERT INTO form_fields (form_id,position,field_key,field_label,type,is_integer,is_required)
