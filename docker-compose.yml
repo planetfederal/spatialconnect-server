@@ -52,8 +52,6 @@ spatialconnect-server:
   ports:
     - '8085:8085'
   links:
-    - zookeeper
-    - kafka
     - postgres
     - nginx
   environment:
