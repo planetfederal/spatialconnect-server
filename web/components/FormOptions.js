@@ -15,7 +15,7 @@ class FormOptions extends Component {
   }
 
   deleteForm() {
-    this.props.deleteForm(this.props.form.get('id'));
+    this.props.deleteForm(this.props.form.get('form_key'));
   }
 
   render() {
@@ -27,7 +27,7 @@ class FormOptions extends Component {
           <div className="form-group">
             <label htmlFor="exampleInputEmail1">Form name</label>
             <input type="text" className="form-control"
-              value={form.get('name')}
+              value={form.get('form_label')}
               onChange={this.changeLabel.bind(this)}
              />
           </div>

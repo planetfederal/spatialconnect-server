@@ -64,7 +64,7 @@ render(
         </Route>
         <Route path="/forms" component={requireAuthentication(FormsContainer)}>
         </Route>
-        <Route path="/forms/:id" component={requireAuthentication(FormDetailsContainer)} >
+        <Route path="/forms/:form_key" component={requireAuthentication(FormDetailsContainer)} >
         </Route>
       </Route>
     </Router>

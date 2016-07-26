@@ -80,6 +80,13 @@ describe('Testing Users. It',() => {
     ]
   };
 
+  let newForm = {
+    form_key:formname,
+    form_label:formname,
+    version : 4,
+    fields : []
+  };
+
   let formupdate = {
     form_key:formname,
     form_label:formname,
@@ -115,6 +122,17 @@ describe('Testing Users. It',() => {
       .set('Content-Type','application/json')
       .set('x-access-token',xaccesstoken)
       .send(form).end(function(err) {
+        if (err) done(err);
+        done();
+      });
+  });
+
+  it('can get a create a form with no fields',(done) => {
+    request(server)
+      .post('/api/forms')
+      .set('Content-Type','application/json')
+      .set('x-access-token',xaccesstoken)
+      .send(newForm).end(function(err) {
         if (err) done(err);
         done();
       });

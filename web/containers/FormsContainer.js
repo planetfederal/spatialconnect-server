@@ -4,9 +4,31 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as formActions from '../ducks/forms';
 import FormsList from '../components/FormsList';
+import FormCreate from '../components/FormCreate';
 import { Link, browserHistory } from 'react-router';
 
 class FormsContainer extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      addingNewForm: false
+    };
+  }
+
+  addNewForm() {
+    this.setState({ addingNewForm: true });
+  }
+
+  addNewFormCancel() {
+    this.setState({ addingNewForm: false });
+    this.props.actions.addFormError(false);
+  }
+
+  submitNewForm(form) {
+    this.setState({ addingNewForm: false });
+    this.props.actions.addForm(form);
+  }
 
   componentDidMount() {
     this.props.actions.loadForms();
@@ -16,13 +38,19 @@ class FormsContainer extends Component {
     return (
       <div className="wrapper">
         <section className="main">
-          {this.props.loading ? 'Fetching Forms...' :
-            <div>
-              <div className="btn-toolbar">
-                <button className="btn btn-sc" onClick={this.props.actions.addForm}>Create Form</button>
-              </div>
-              <FormsList forms={this.props.forms} />
-            </div>}
+          {this.state.addingNewForm || this.props.addFormError ?
+            <FormCreate
+              ref="newForm"
+              onSubmit={this.submitNewForm.bind(this)}
+              cancel={this.addNewFormCancel.bind(this)}
+              forms={this.props.forms}
+              addFormError={this.props.addFormError}
+              /> :
+            <div className="btn-toolbar">
+              <button className="btn btn-sc" onClick={this.addNewForm.bind(this)}>Create Form</button>
+            </div>
+          }
+          <FormsList forms={this.props.forms} />
         </section>
         {this.props.children}
       </div>
@@ -32,7 +60,8 @@ class FormsContainer extends Component {
 
 const mapStateToProps = (state) => ({
   loading: state.sc.forms.get('loading'),
-  forms: state.sc.forms.get('forms')
+  forms: state.sc.forms.get('forms'),
+  addFormError: state.sc.forms.get('addFormError')
 });
 
 const mapDispatchToProps = (dispatch) => ({

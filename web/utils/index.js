@@ -22,6 +22,25 @@ export const requireAuthentication = UserAuthWrapper({
 });
 
 export const isUrl = (s) => {
-   var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
-   return regexp.test(s);
+  var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
+  return regexp.test(s);
 };
+
+export const toKey = (s) => {
+  let key = s.toLowerCase().replace(' ', '_');
+  return key;
+};
+
+export const initForm = form => {
+  let newForm = {
+    ...form,
+    value: {},
+    deletedFields: []
+  };
+  form.fields.forEach(field => {
+    if (field.hasOwnProperty('initialValue')) {
+      newForm.value[field.field_key] = field.initialValue;
+    }
+  });
+  return newForm;
+}

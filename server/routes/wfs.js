@@ -22,7 +22,12 @@ router.get('/getCapabilities', (req, res) => {
     let layers = feature_list['FeatureType'];
     return layers;
   })
-  .map(layers => layers.map(l => l.Name))
+  .map(layers => {
+    if (!Array.isArray(layers)) {
+      layers = [layers];
+    }
+    return layers.map(l => l.Name);
+  })
   .subscribe(layer_names => res.json(layer_names), () => res.status(500).send());
 });
 
