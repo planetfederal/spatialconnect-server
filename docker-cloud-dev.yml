@@ -79,10 +79,8 @@ spatialconnect-server:
     - VIRTUAL_HOST=efc-dev.boundlessgeo.com
   image: 'marcusthebrown/spatialconnect-server:latest'
   links:
-    - kafka
     - nginx
     - postgres
-    - zookeeper
   ports:
     - '8085:8085'
 zookeeper:

@@ -23,7 +23,7 @@ postgres:
     - '5432:5432'
 
 bottledwater:
-  image: marcusthebrown/bottledwater-json
+  image: boundlessgeo/bottledwater-json
   hostname: bottledwater
   command: --output-format=json --allow-unkeyed
   links:
@@ -84,7 +84,7 @@ postgis:
         - POSTGRES_USER=spacon
 
 spatialconnect-connectors:
-  image: marcusthebrown/spatialconnect-connectors
+  image: boundlessgeo/spatialconnect-connectors:master
   links:
     - kafka
     - geoserver
