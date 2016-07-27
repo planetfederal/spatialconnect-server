@@ -6,6 +6,8 @@ authorizedkeys:
   image: 'dockercloud/authorizedkeys'
   volumes:
     - '/root:/user'
+  tags:
+    - production
 bottledwater:
   autoredeploy: true
   environment:
@@ -15,6 +17,8 @@ bottledwater:
   links:
     - kafka
     - postgres
+  tags:
+    - production
 geoserver:
   environment:
     - 'JAVA_OPTS=-Xmx1536M -XX:MaxPermSize=756M'
@@ -25,6 +29,8 @@ geoserver:
     - postgis
   ports:
     - '8080:8080'
+  tags:
+    - production
 kafka:
   environment:
     - KAFKA_ADVERTISED_HOST_NAME=
@@ -36,27 +42,37 @@ kafka:
     - zookeeper
   ports:
     - '9092:9092'
+  tags:
+    - production
 mosquitto:
   hostname: mosquitto
   image: 'jllopis/mosquitto:v1.4.8'
   ports:
     - '1883:1883'
     - '9883:9883'
+  tags:
+    - production
 nginx:
   image: 'jwilder/nginx-proxy:0.4.0'
   ports:
     - '80:80'
   volumes:
     - '/var/run/docker.sock:/tmp/docker.sock:ro'
+  tags:
+    - production
 postgis:
   environment:
     - POSTGRES_USER=spacon
   image: 'mdillon/postgis:9.5'
+  tags:
+    - production
 postgres:
   hostname: postgres
   image: 'confluent/postgres-bw:0.1'
   ports:
     - '5432:5432'
+  tags:
+    - production
 spatialconnect-connectors:
   autoredeploy: true
   environment:
@@ -68,6 +84,8 @@ spatialconnect-connectors:
   links:
     - geoserver
     - kafka
+  tags:
+    - production
 spatialconnect-server:
   autoredeploy: true
   command: npm start
@@ -83,8 +101,12 @@ spatialconnect-server:
     - postgres
   ports:
     - '8085:8085'
+  tags:
+    - production
 zookeeper:
   hostname: zookeeper
   image: 'confluent/zookeeper:3.4.6-cp1'
   ports:
     - '2181:2181'
+  tags:
+    - production
