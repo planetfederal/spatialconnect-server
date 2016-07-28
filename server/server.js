@@ -16,6 +16,8 @@ var wfs = require('./routes/wfs');
 var jwt = require('jsonwebtoken');
 var cors = require('cors');
 var app = express();
+var mqttClient = require('./client');
+var strategy = require('./strategies');
 
 app.use(cors());
 app.use(logger('dev'));
