@@ -84,7 +84,7 @@ postgis:
         - POSTGRES_USER=spacon
 
 spatialconnect-connectors:
-  image: boundlessgeo/spatialconnect-connectors:master
+  image: boundlessgeo/spatialconnect-connectors:latest
   links:
     - kafka
     - geoserver
