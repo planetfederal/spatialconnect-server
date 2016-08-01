@@ -30,7 +30,7 @@ router.get('/:identifier', (req,res) => {
     }
   })).subscribe(
     (s) => res.json(s),
-    (err) => res.error({error:err})
+    (err) => res.json({error:err})
   );
 });
 

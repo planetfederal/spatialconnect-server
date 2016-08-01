@@ -9,7 +9,8 @@ let fieldOptions = {
   boolean: ['field_label', 'field_key', 'is_required' ],
   date: ['field_label', 'field_key', 'is_required' ],
   slider: ['field_label', 'field_key', 'is_required', 'initial_value', 'minimum', 'maximum'],
-  counter: ['field_label', 'field_key', 'is_required', 'initial_value', 'minimum', 'maximum']
+  counter: ['field_label', 'field_key', 'is_required', 'initial_value', 'minimum', 'maximum'],
+  photo: ['field_label', 'field_key', 'is_required'],
 };
 
 let fieldLabels = {
