@@ -7,6 +7,14 @@
     "driver": "postgres",
     "multipleStatements": true
   },
+  "container": {
+    "host": "192.168.99.100",
+    "user": "spacon",
+    "password": "spacon",
+    "database": "spacon",
+    "driver": "postgres",
+    "multipleStatements": true
+  },
   "development": {
     "host": "postgres",
     "user": "postgres",

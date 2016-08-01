@@ -5,7 +5,7 @@ using the SpatialConnect libraries.  It's also the API that powers the
 dashboard web application.
 
 ## Version
-0.4
+0.5
 
 ## Running with Docker
 
@@ -46,6 +46,23 @@ docker-compose up -d spatialconnect-server
 
 > If this is the initial setup, you'll also need to run the migration with `docker-compose run --rm spatialconnect-server node_modules/db-migrate/bin/db-migrate up --env=development`
 
+
+You may also want to run the spatialconnect-server locally when developing
+instead of in the container.  This will allow you to have the hot reloading
+without having to rebuild the container each time or deal with syncing the
+container filesystem with your workstation.  
+
+You can still use the postgres container as the
+database even when running the code outside of the container but you have to
+setup a few things first:
+```
+# build the js bundle using NODE_ENV=container so it gets the correct API_URL
+cd web/
+NODE_ENV=container webpack
+# run the server with NODE_ENV=container so it connects to the container db
+cd ../server/
+NODE_ENV=container npm start
+```
 
 Start the bottledwater client by running
 
