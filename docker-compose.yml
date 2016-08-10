@@ -23,7 +23,7 @@ postgres:
     - '5432:5432'
 
 bottledwater:
-  image: marcusthebrown/bottledwater-json
+  image: boundlessgeo/bottledwater-json
   hostname: bottledwater
   command: --output-format=json --allow-unkeyed
   links:
@@ -52,8 +52,6 @@ spatialconnect-server:
   ports:
     - '8085:8085'
   links:
-    - zookeeper
-    - kafka
     - postgres
     - nginx
   environment:
@@ -86,7 +84,7 @@ postgis:
         - POSTGRES_USER=spacon
 
 spatialconnect-connectors:
-  image: marcusthebrown/spatialconnect-connectors
+  image: boundlessgeo/spatialconnect-connectors:latest
   links:
     - kafka
     - geoserver

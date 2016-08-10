@@ -46,7 +46,6 @@ export class DataStoresContainer extends Component {
 
   render() {
     const {loading, stores, addingNewDataStore, newDataStoreId, storeErrors, layerList } = this.props;
-    console.log(storeErrors);
     return (
       <div className="wrapper">
         <section className="main">

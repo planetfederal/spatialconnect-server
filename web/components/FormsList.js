@@ -4,9 +4,10 @@ import { Link, browserHistory } from 'react-router';
 import '../style/FormList.less';
 
 const FormItem = ({ form }) => (
-  <div className="form-item" onClick={() => browserHistory.push(`/forms/${form.get('id')}`)}>
-    <h4><Link to={`/forms/${form.get('id')}`}>{form.get('name')}</Link></h4>
+  <div className="form-item" onClick={() => browserHistory.push(`/forms/${form.get('form_key')}`)}>
+    <h4><Link to={`/forms/${form.get('form_key')}`}>{form.get('form_label')}</Link></h4>
     <ul>
+      <li>Version: {form.get('version')}</li>
       <li>Number of Records: 23</li>
       <li>Last Active: 14 hours ago</li>
     </ul>

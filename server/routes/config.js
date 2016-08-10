@@ -15,16 +15,6 @@ var filterStampsAndNulls = (ff) => {
     .value();
 };
 
-var formFields$ = (formId) => {
-  return Rx.Observable.fromPromise(
-    models.FormFields.findAll({
-      where : {
-        form_id : formId
-      }
-    })).flatMap(Rx.Observable.fromArray)
-    .map(filterStampsAndNulls).toArray();
-};
-
 router.get('/',(req,res) => {
   let stores = Rx.Observable.fromPromise(models.Stores.findAll())
     .flatMap(Rx.Observable.fromArray)
@@ -36,11 +26,10 @@ router.get('/',(req,res) => {
       return v;
     }).toArray();
 
-  let forms = Rx.Observable.fromPromise(models.Forms.findAll())
-    .flatMap(Rx.Observable.fromArray)
-    .map(filterStampsAndNulls).flatMap((form) => {
+  let forms = models.Forms.uniqueForms$(models)
+    .flatMap((form) => {
       return Rx.Observable.create((subscriber) => {
-        formFields$(form.id).subscribe(
+        models.FormFields.formFields$(models,form.id).subscribe(
           (ff) => {
             form.fields = ff;
             subscriber.onNext(form);

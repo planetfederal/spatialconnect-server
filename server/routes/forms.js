@@ -16,70 +16,29 @@ var filterStampsAndNulls = (ff) => {
     .value();
 };
 
-var formFields$ = (formId) => {
-  return Rx.Observable.fromPromise(
-      models.FormFields.findAll({
-        where: { form_id: formId }
-      }))
-    .flatMap(Rx.Observable.fromArray)
-    .map(filterStampsAndNulls)
-    .toArray();
-};
-
 var updateFields$ = (formId, fields) => {
   return Rx.Observable.fromArray(fields)
     .map(field => {
       field.form_id = formId;
+      field = _.omit(field, 'id');
       return field;
     })
     .flatMap((field) => {
-      return Rx.Observable.fromPromise(models.FormFields.upsert(field));
+      return Rx.Observable.fromPromise(models.FormFields.create(field));
     });
 };
 
-var deleteFields$ = (fieldIds) => {
-  return Rx.Observable.fromPromise(models.FormFields.destroy({
-    where: { id: { in: fieldIds } }
-  }));
-};
-
-var deleteFormFields$ = (formId) => {
-  return formFields$(formId)
-    .map(fields => fields.map(f => f.id))
-    .flatMap(deleteFields$);
-};
-
 router.get('/', (req, res) => {
-  Rx.Observable.fromPromise(models.Forms.findAll())
-    .flatMap(Rx.Observable.fromArray)
-    .map(filterStampsAndNulls)
-    .flatMap((form) => {
-      return Rx.Observable.create((subscriber) => {
-        formFields$(form.id)
-          .subscribe((fields) => {
-            form.fields = fields;
-            subscriber.onNext(form);
-            subscriber.onCompleted();
-          }, (err) => subscriber.onError(err));
-      });
-    })
+  models.Forms.uniqueForms$(models)
+    .flatMap(form => models.Forms.formDefinition$(models, form.id))
     .toArray()
     .subscribe(forms => res.json(forms), err => console.log(err));
 });
 
-router.get('/:formId', (req, res) => {
-  Rx.Observable.fromPromise(models.Forms.findById(req.params.formId))
-    .map(filterStampsAndNulls)
-    .flatMap((form) => {
-      return Rx.Observable.create((subscriber) => {
-        formFields$(form.id)
-          .subscribe((fields) => {
-            form.fields = fields;
-            subscriber.onNext(form);
-            subscriber.onCompleted();
-          }, (err) => subscriber.onError(err));
-      });
-    })
+router.get('/:form_key', (req, res) => {
+  models.Forms.uniqueForms$(models)
+    .filter(form => form.form_key === req.params.form_key)
+    .flatMap(form => models.Forms.formDefinition$(models, form.id))
     .subscribe(forms => res.json(forms), err => console.log(err));
 });
 
@@ -104,33 +63,34 @@ router.post('/:formId/submit', (req, res) => {
 });
 
 router.post('/', (req, res) => {
-  Rx.Observable.fromPromise(models.Forms.create(req.body))
-    .map(filterStampsAndNulls)
-    .map(form => {
-      form.fields = [];
-      return form;
+  let fields = req.body.fields;
+  let form_id;
+  Rx.Observable.fromPromise(models.Forms.create(req.body.form))
+    .flatMap((form) => {
+      form_id = form.dataValues.id;
+      return updateFields$(form.dataValues.id, fields);
     })
+    .materialize()
+    .filter(x => {
+      if (x.kind === 'E') {
+        res.status(500).send({success: false, error: x.error});
+      }
+      return x.kind === 'C';
+    })
+    .flatMap(() => models.Forms.formDefinition$(models,form_id))
     .subscribe(formData => res.json(formData), err => console.log(err));
 });
 
-router.put('/:formId', (req, res) => {
-  Rx.Observable.fromPromise(models.Forms.update(req.body.form, {
-    where: { id: req.params.formId }
+router.delete('/:form_key', (req, res) => {
+  Rx.Observable.fromPromise(models.Forms.findAll({
+    where: { form_key: req.params.form_key }
   }))
-    .merge(updateFields$(req.params.formId, req.body.form.fields))
-    .merge(deleteFields$(req.body.deletedFields))
-    .toArray()
-    .subscribe(
-      () => res.json({success: true}),
-      err => res.json({success: false, err: err})
-    );
-});
-
-router.delete('/:formId', (req, res) => {
-  Rx.Observable.fromPromise(models.Forms.destroy({
-    where: { id: req.params.formId }
-  }))
-    .merge(deleteFormFields$(req.params.formId))
+    .flatMap(Rx.Observable.fromArray)
+    .flatMap(ff => {
+      return Rx.Observable.fromPromise(models.Forms.destroy({
+        where: { id: ff.dataValues.id }
+      }));
+    })
     .toArray()
     .subscribe(
       () => res.json({success: true}),

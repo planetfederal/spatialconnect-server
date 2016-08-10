@@ -3,18 +3,19 @@ import _ from 'lodash';
 import '../style/FormDetails.less';
 
 let fieldOptions = {
-  string: ['key', 'label', 'is_required', 'initial_value', 'minimum_length', 'maximum_length', 'pattern'],
-  select: ['key', 'label', 'is_required', 'options'],
-  number: ['key', 'label', 'is_required', 'initial_value', 'minimum', 'maximum', 'is_integer', 'exclusive_minimum', 'exclusive_maximum'],
-  boolean: ['key', 'label', 'is_required' ],
-  date: ['key', 'label', 'is_required' ],
-  slider: ['key', 'label', 'is_required', 'initial_value', 'minimum', 'maximum'],
-  counter: ['key', 'label', 'is_required', 'initial_value', 'minimum', 'maximum']
+  string: ['field_label', 'field_key', 'is_required', 'initial_value', 'minimum_length', 'maximum_length', 'pattern'],
+  select: ['field_label', 'field_key', 'is_required', 'options'],
+  number: ['field_label', 'field_key', 'is_required', 'initial_value', 'minimum', 'maximum', 'is_integer', 'exclusive_minimum', 'exclusive_maximum'],
+  boolean: ['field_label', 'field_key', 'is_required' ],
+  date: ['field_label', 'field_key', 'is_required' ],
+  slider: ['field_label', 'field_key', 'is_required', 'initial_value', 'minimum', 'maximum'],
+  counter: ['field_label', 'field_key', 'is_required', 'initial_value', 'minimum', 'maximum'],
+  photo: ['field_label', 'field_key', 'is_required'],
 };
 
 let fieldLabels = {
-  key: 'Data Name',
-  label: 'Display Name',
+  field_key: 'Field Key',
+  field_label: 'Field Label',
   is_required: 'Required',
   is_integer: 'Integer',
   initial_value: 'Default Value',
@@ -121,8 +122,8 @@ class FieldOptions extends Component {
 }
 
 FieldOptions.propTypes = {
-  form: PropTypes.object.is_required,
-  activeField: PropTypes.string.is_required,
+  form: PropTypes.object.isRequired,
+  activeField: PropTypes.string,
 };
 
 export default FieldOptions;

@@ -5,4 +5,7 @@ DROP TABLE IF EXISTS device_locations CASCADE;
 DROP TABLE IF EXISTS form_def CASCADE;
 DROP TABLE IF EXISTS form_type CASCADE;
 DROP TABLE IF EXISTS form_data CASCADE;
-DROP TABLE IF EXISTS form_field CASCADE;
+DROP TABLE IF EXISTS form_fields CASCADE;
+DROP TYPE IF EXISTS form_type;
+DROP FUNCTION update_updated_at_column();
+DROP TRIGGER update_updated_at_users;

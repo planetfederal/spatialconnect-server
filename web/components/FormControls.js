@@ -8,11 +8,10 @@ const AddFieldControl = ({ text, onClick, options }) => (
 class FormControls extends Component {
 
   addField(options) {
-    let size = this.props.form.get('fields').size;
     this.props.addField({
       formId: this.props.form.get('id'),
-      key: 'data_name_' + (size + 1),
-      name: '',
+      field_key: '',
+      field_label: '',
       options: options
     });
   }
@@ -56,6 +55,11 @@ class FormControls extends Component {
             text="Select"
             onClick={this.addField.bind(this)}
             options={{type: 'select', options: []}}
+            />
+          <AddFieldControl
+            text="Photo"
+            onClick={this.addField.bind(this)}
+            options={{type: 'photo', pattern: ''}}
             />
         </div>
       </div>

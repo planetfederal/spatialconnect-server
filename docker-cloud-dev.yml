@@ -6,15 +6,19 @@ authorizedkeys:
   image: 'dockercloud/authorizedkeys:latest'
   volumes:
     - '/root:/user'
+  tags:
+    - develop
 bottledwater:
   autoredeploy: true
   environment:
     - DB_NAME=spacon
   hostname: bottledwater
-  image: 'marcusthebrown/bottledwater-json:latest'
+  image: 'boundlessgeo/bottledwater-json:latest'
   links:
     - kafka
     - postgres
+  tags:
+    - develop
 geoserver:
   environment:
     - 'JAVA_OPTS=-Xmx1536M -XX:MaxPermSize=756M'
@@ -25,6 +29,8 @@ geoserver:
     - postgis
   ports:
     - '8080:8080'
+  tags:
+    - develop
 kafka:
   environment:
     - KAFKA_ADVERTISED_HOST_NAME=
@@ -36,27 +42,37 @@ kafka:
     - zookeeper
   ports:
     - '9092:9092'
+  tags:
+    - develop
 mosquitto:
   hostname: mosquitto
   image: 'jllopis/mosquitto:v1.4.8'
   ports:
     - '1883:1883'
     - '9883:9883'
+  tags:
+    - develop
 nginx:
   image: 'jwilder/nginx-proxy:latest'
   ports:
     - '80:80'
   volumes:
     - '/var/run/docker.sock:/tmp/docker.sock:ro'
+  tags:
+    - develop
 postgis:
   environment:
     - POSTGRES_USER=spacon
   image: 'mdillon/postgis:latest'
+  tags:
+    - develop
 postgres:
   hostname: postgres
   image: 'confluent/postgres-bw:0.1'
   ports:
     - '5432:5432'
+  tags:
+    - develop
 spatialconnect-connectors:
   autoredeploy: true
   environment:
@@ -64,10 +80,12 @@ spatialconnect-connectors:
     - 'KAFKA_SERVERS=kafka:9092'
     - ROOT_LOG_LEVEL=INFO
     - TOPICS_LIST=form_data
-  image: 'marcusthebrown/spatialconnect-connectors:latest'
+  image: 'boundlessgeo/spatialconnect-connectors:latest'
   links:
     - geoserver
     - kafka
+  tags:
+    - develop
 spatialconnect-server:
   autoredeploy: true
   command: npm start
@@ -77,16 +95,18 @@ spatialconnect-server:
     - PGHOST=postgres
     - PGUSER=postgres
     - VIRTUAL_HOST=efc-dev.boundlessgeo.com
-  image: 'marcusthebrown/spatialconnect-server:latest'
+  image: 'boundlessgeo/spatialconnect-server:latest'
   links:
-    - kafka
     - nginx
     - postgres
-    - zookeeper
   ports:
     - '8085:8085'
+  tags:
+    - develop
 zookeeper:
   hostname: zookeeper
   image: 'confluent/zookeeper:3.4.6-cp1'
   ports:
     - '2181:2181'
+  tags:
+    - develop

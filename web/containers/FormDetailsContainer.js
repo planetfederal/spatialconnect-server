@@ -22,14 +22,14 @@ class FormDetailsContainer extends Component {
     };
   }
 
-  componentDidMount() {
-    this.props.actions.loadForm(this.props.id);
+  componentWillMount() {
+    this.props.actions.loadForm(this.props.form_key);
   }
 
   checkEditStatus(props) {
     let edited = false;
     if (props.saved_form && props.form) {
-      if ((props.saved_form.get('name') === props.form.get('name')) === false) {
+      if ((props.saved_form.get('form_label') === props.form.get('form_label')) === false) {
         edited = true;
       }
       if (props.saved_form.get('fields').equals(props.form.get('fields')) === false) {
@@ -44,7 +44,8 @@ class FormDetailsContainer extends Component {
   }
 
   saveForm(formId) {
-    let validationErrors = scformschema.validate(this.props.form.toJS());
+    let form = this.props.form.toJS();
+    let validationErrors = scformschema.validate(form);
     if (validationErrors.length) {
       this.setState({
         modalIsOpen: true,
@@ -52,7 +53,7 @@ class FormDetailsContainer extends Component {
       });
     } else {
       this.setState({ validationErrors: false });
-      this.props.actions.saveForm(formId);
+      this.props.actions.saveForm(form);
     }
   }
 
@@ -62,7 +63,7 @@ class FormDetailsContainer extends Component {
 
   render() {
     const {loading, forms, form, activeForm, saved_form} = this.props;
-    if (!forms.count()) {
+    if (!form) {
       return <div className="wrapper">Fetching Form...</div>
     } else {
       return (
@@ -121,12 +122,12 @@ class FormDetailsContainer extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  id: ownProps.params.id,
+  form_key: ownProps.params.form_key,
   loading: state.sc.forms.get('loading'),
   forms: state.sc.forms.get('forms'),
-  form: state.sc.forms.getIn(['forms', ownProps.params.id.toString()]),
+  form: state.sc.forms.get('forms').find(f => f.get('form_key') === ownProps.params.form_key),
   saved_forms: state.sc.forms.get('saved_forms'),
-  saved_form: state.sc.forms.getIn(['saved_forms', ownProps.params.id.toString()]),
+  saved_form: state.sc.forms.get('saved_forms').find(f => f.get('form_key') === ownProps.params.form_key),
   activeForm: state.sc.forms.get('activeForm')
 });
 

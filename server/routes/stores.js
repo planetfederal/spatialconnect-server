@@ -15,10 +15,18 @@ var filterStampsAndNulls = (ff) => {
     .value();
 };
 
+var filterNullLayers = s => {
+  s.default_layers = _.remove(s.default_layers,(dl) => {
+    return dl !== null;
+  });
+  return s;
+};
+
 router.get('/', (req, res) => {
   Rx.Observable.fromPromise(models.Stores.findAll())
     .flatMap(Rx.Observable.fromArray)
     .map(filterStampsAndNulls)
+    .map(filterNullLayers)
     .toArray()
     .subscribe(
       (stores) => res.json(stores),
@@ -38,6 +46,7 @@ router.post('/', (req, res) => {
 router.get('/:storeId', (req, res) => {
   Rx.Observable.fromPromise(models.Stores.findById(req.params.storeId))
     .map(filterStampsAndNulls)
+    .map(filterNullLayers)
     .subscribe(
       stores => res.json(stores),
       () => res.status(404).send()
