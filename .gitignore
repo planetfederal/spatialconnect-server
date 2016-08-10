@@ -76,3 +76,8 @@ testdb.json
 # never check in the keystore!
 spatialconnect.keystore
 
+Commands.h
+Commands.java
+Scmessage.pbobjc.*
+SCMessageOuterClass.java
+node_modules
