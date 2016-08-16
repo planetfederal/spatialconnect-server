@@ -6,6 +6,7 @@ module.exports = (sequelize,DataTypes) => {
   var Devices = sequelize.define('Devices',{
     identifier : {
       type : DataTypes.STRING,
+      primaryKey : true,
       unique : true
     },
     device_info : DataTypes.JSON
@@ -23,6 +24,13 @@ module.exports = (sequelize,DataTypes) => {
         return Rx.Observable.fromPromise(models.Devices.findOne({
           where : {
             identifier : ident
+          }
+        }));
+      },
+      register : (models,payload) => {
+        return Rx.Observable.fromPromise(models.Devices.upsert(payload,{
+          where : {
+            identifier : payload.identifier
           }
         }));
       }

@@ -1,13 +1,9 @@
 'use strict';
 
-var models = require('./../models/');
-var SCMessage = require('./../SCMessage');
+var FormCommands = require('./../commands/form');
 
-module.exports = (mqttClient) => {
-  let form$ = mqttClient.listenOnTopic('/store/form')
-    .map((d) => {
-      return SCMessage.decode(d.message);
-    });
+module.exports = (mqttClient,dispatcher) => {
+  let form$ = mqttClient.listenOnTopic('/store/form');
 
   let reply = form$.filter((d) => d.replyTo !== '');
   let message = form$.filter((d) => d.replyTo === '');
@@ -25,7 +21,12 @@ module.exports = (mqttClient) => {
     (err) => console.log(err)
   );
 
+  let setupListeners = () => {
+    dispatcher.subscribe(FormCommands.CHANNEL_FORM_CREATE,() => {});
+  };
+
   return {
-    name : 'form'
+    name : 'form',
+    setupListeners
   };
 };

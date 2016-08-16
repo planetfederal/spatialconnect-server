@@ -5,7 +5,6 @@ var SCMessage = require('./../SCMessage');
 module.exports = (mqttClient) => {
   let form$ = mqttClient.listenOnTopic('/ping')
     .map((d) => {
-      console.log('Decode');
       return SCMessage.decode(d.message);
     });
 
@@ -14,10 +13,7 @@ module.exports = (mqttClient) => {
 
   reply.subscribe(
     (d) => {
-      console.log('ReplyToChannel');
-      console.log(d);
       mqttClient.publish(d.replyTo,d.toBuffer());
-      console.log('Sent to:'+d.replyTo);
     }
   );
 
@@ -29,7 +25,12 @@ module.exports = (mqttClient) => {
     (err) => console.log(err)
   );
 
+  let setupListeners = () => {
+
+  };
+
   return {
-    name : 'form'
+    name : 'form',
+    setupListeners
   };
 };
