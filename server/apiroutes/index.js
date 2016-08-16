@@ -6,6 +6,7 @@ var forms = require('./forms');
 var stores = require('./stores');
 var devices = require('./devices');
 var users = require('./users');
+var operations = require('./operations');
 var wfs = require('./wfs');
 var locations = require('./location');
 var jwt = require('jsonwebtoken');
@@ -49,4 +50,5 @@ module.exports = function(app) {
   apiRoutes.use('/users',users);
   apiRoutes.use('/wfs', wfs);
   apiRoutes.use('/locations',locations);
+  apiRoutes.use('/operations', operations);
 };

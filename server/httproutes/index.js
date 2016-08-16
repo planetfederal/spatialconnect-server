@@ -4,6 +4,7 @@ var path = require('path');
 var express = require('express');
 var ping = require('./ping');
 var authenticate = require('./authenticate');
+var sync = require('./sync');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var cors = require('cors');
@@ -30,4 +31,5 @@ module.exports = function(app) {
   app.use('/',router);
   router.use('/api/ping', ping);
   router.use('/api/authenticate',authenticate);
+  router.use('/api/sync',sync);
 };
