@@ -1,23 +1,20 @@
 'use strict';
 
-var SCMessage = require('./../SCMessage');
 var TrackingCommands = require('./../commands/tracking');
 
 module.exports = (mqttClient,dispatcher) => {
   mqttClient.listenOnTopic('/store/tracking')
-    .map((d) => {
-      return SCMessage.decode(d.message);
-    }).subscribe(
+    .subscribe(
       (d) => {
-        let geojson = JSON.parse(d.payload);
+        let geojson = JSON.parse(d.message.payload);
         TrackingCommands.upsertLocation(geojson);
+        dispatcher.publish(TrackingCommands.CHANNEL_TRACKING_UPDATE,geojson);
       },
       (err) => console.log(err)
     );
 
-  let setupListeners = () => {
+  let setupListeners = () => {};
 
-  };
   return {
     name : 'device_tracking',
     setupListeners
