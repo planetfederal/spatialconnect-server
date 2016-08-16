@@ -51,6 +51,7 @@
     "sqlite3": "3.1.4",
     "superagent": "2.0.0",
     "transducers-js": "0.4.174",
+    "turf-inside": "3.0.12",
     "webpack": "1.13.1",
     "xml2json": "0.9.1"
   }

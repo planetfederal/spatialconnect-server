@@ -11,13 +11,13 @@ module.exports = (mqttClient,dispatcher) => {
       (d) => {
         let geojson = JSON.parse(d.payload);
         TrackingCommands.upsertLocation(geojson);
+        dispatcher.publish(TrackingCommands.CHANNEL_TRACKING_UPDATE,geojson);
       },
       (err) => console.log(err)
     );
 
-  let setupListeners = () => {
+  let setupListeners = () => {};
 
-  };
   return {
     name : 'device_tracking',
     setupListeners
