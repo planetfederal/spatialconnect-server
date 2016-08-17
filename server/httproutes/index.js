@@ -12,18 +12,18 @@ var logger = require('morgan');
 module.exports = function(app) {
   app.use(cors());
   app.use(logger('dev'));
-  app.use(bodyParser.urlencoded({extended : false}));
-  app.use(bodyParser.json());
+  app.use(bodyParser.urlencoded({limit: '10mb', extended : false}));
+  app.use(bodyParser.json({limit: '10mb'}));
   app.use(cookieParser());
-  app.use(express.static(path.join(__dirname,'../web')));
+  app.use(express.static(path.join(__dirname,'../../web')));
 
   app.get('/dist/bundle.js', function(req, res) {
-    res.sendFile(path.join(__dirname, '../web/dist/bundle.js'));
+    res.sendFile(path.join(__dirname, '../../web/dist/bundle.js'));
   });
 
   // return the index for any non-api call
   app.get(/^\/((?!api).)/, function(req, res) {
-    res.sendFile(path.join(__dirname, '../web/index.html'));
+    res.sendFile(path.join(__dirname, '../../web/index.html'));
   });
 
   var router = express.Router();

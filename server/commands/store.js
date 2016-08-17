@@ -30,7 +30,8 @@ module.exports = (() => {
       models.Stores.findAll())
       .flatMap(Rx.Observable.fromArray)
       .map(filterStampsAndNulls)
-      .map(filterNullLayers);
+      .map(filterNullLayers)
+      .toArray();
   };
   let store = id => {
     return Rx.Observable.fromPromise(
