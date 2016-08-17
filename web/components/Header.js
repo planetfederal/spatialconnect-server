@@ -8,6 +8,7 @@ const Header = ({ isAuthenticated, logout, userName }) => (
       <nav>
         <Link to="/stores" activeClassName="active">Stores</Link>
         <Link to="/forms" activeClassName="active">Forms</Link>
+        <Link to="/data" activeClassName="active">Data</Link>
         <div className="user">{ userName }
           <a href='#' onClick={() => logout()} className="glyphicon glyphicon-log-out" aria-hidden="true"></a>
         </div>

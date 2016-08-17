@@ -1,0 +1,44 @@
+@import './palette';
+
+.data-map {
+  display: flex;
+  flex: 1;
+  .data-form-list {
+    width: 250px;
+    background: @BACKGROUND_COLOR;
+    border-right: 1px solid @BORDER_COLOR;
+    overflow-y: auto;
+    .data-form-list-title {
+      font-size: 18px;
+      padding: 10px 5px;
+      border-bottom: 1px solid @BORDER_COLOR;
+      h4 {
+        margin: 0;
+      }
+    }
+    .data-form-list-items {
+      .data-form-list-item {
+        color: @lightblue;
+        padding: 10px 5px;
+        border-bottom: 1px solid @BORDER_COLOR;
+        cursor: pointer;
+        h4 {
+          margin: 0 0 0 5px;
+          display: inline;
+        }
+      }
+    }
+    li.active {
+      color: red;
+    }
+  }
+}
+
+.form-label {
+  font-weight: 600;
+  margin: 0;
+}
+
+.form-note {
+  font-size: 12px;
+}
