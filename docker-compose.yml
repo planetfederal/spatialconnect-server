@@ -54,12 +54,14 @@ spatialconnect-server:
   links:
     - postgres
     - nginx
+    - mosquitto
   environment:
     - PGHOST=postgres
     - PGUSER=postgres
     - PGDATABASE=postgres
     - VIRTUAL_HOST=spatialconnect-server
     - NODE_ENV=development
+    - MQTT_BROKER_HOST=mosquitto
 
 kafka-tools:
   image: confluent/tools:0.9.0.0-cp1
