@@ -94,11 +94,13 @@ spatialconnect-server:
     - PGDATABASE=postgres
     - PGHOST=postgres
     - PGUSER=postgres
+    - MQTT_BROKER_HOST=mosquitto
     - VIRTUAL_HOST=efc-dev.boundlessgeo.com
   image: 'boundlessgeo/spatialconnect-server:latest'
   links:
     - nginx
     - postgres
+    - mosquitto
   ports:
     - '8085:8085'
   tags:

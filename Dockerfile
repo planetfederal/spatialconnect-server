@@ -14,6 +14,7 @@ RUN webpack
 # Copy server source to server dir
 RUN mkdir -p /usr/src/server
 WORKDIR /usr/src/server
+COPY schema /usr/src/schema
 COPY server /usr/src/server
 RUN rm -rf /usr/src/web/node_modules
 
