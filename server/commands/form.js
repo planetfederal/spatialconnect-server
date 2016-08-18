@@ -24,7 +24,7 @@ module.exports = (() => {
       .flatMap(form => models.Forms.formDefinition$(models, form.id))
       .toArray();
     },
-    updateFields : (formId, fields, cc) => {
+    updateFields : (formId, fields) => {
       Rx.Observable.fromArray(fields)
       .map(field => {
         field.form_id = formId;
@@ -33,7 +33,7 @@ module.exports = (() => {
       })
       .flatMap((field) => {
         return Rx.Observable.fromPromise(models.FormFields.create(field));
-      }).subscribe(d => cc(d));
+      });
     },
     form : key => {
       return models.Forms.uniqueForms$(models)
@@ -58,7 +58,7 @@ module.exports = (() => {
       models.FormData.create(formData))
       .map(filterStampsAndNulls);
     },
-    createForm : (fields,form,cc) => {
+    createForm : (fields,form) => {
       let formId;
       return Rx.Observable.fromPromise(
       models.Forms.create(form))
@@ -68,10 +68,7 @@ module.exports = (() => {
       })
       .materialize()
       .filter(x => {
-        if (x.kind === 'E') {
-          cc(null,x.error);
-        }
-        return x.kind === 'C';
+        return x.kind === 'C' || x.kind === 'E';
       })
       .flatMap(() => models.Forms.formDefinition$(models,formId));
     },
