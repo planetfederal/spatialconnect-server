@@ -19,6 +19,7 @@ import DataStoresContainer from './containers/DataStoresContainer';
 import FormsContainer from './containers/FormsContainer';
 import FormDetailsContainer from './containers/FormDetailsContainer';
 import DataStoresDetailsContainer from './containers/DataStoresDetailsContainer';
+import DataContainer from './containers/DataContainer';
 
 import './style/Globals.less';
 
@@ -65,6 +66,8 @@ render(
         <Route path="/forms" component={requireAuthentication(FormsContainer)}>
         </Route>
         <Route path="/forms/:form_key" component={requireAuthentication(FormDetailsContainer)} >
+        </Route>
+        <Route path="/data" component={requireAuthentication(DataContainer)}>
         </Route>
       </Route>
     </Router>
