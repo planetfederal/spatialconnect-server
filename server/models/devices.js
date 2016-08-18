@@ -6,7 +6,6 @@ module.exports = (sequelize,DataTypes) => {
   var Devices = sequelize.define('Devices',{
     identifier : {
       type : DataTypes.STRING,
-      primaryKey : true,
       unique : true
     },
     device_info : DataTypes.JSON
