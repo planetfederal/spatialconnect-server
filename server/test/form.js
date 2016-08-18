@@ -1,7 +1,6 @@
 /* global beforeEach, afterEach, describe, it */
 'use strict';
 var request = require('supertest');
-var uuid = require('node-uuid');
 
 function makeStr(len)
 {
