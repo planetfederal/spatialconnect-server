@@ -3,6 +3,8 @@
 var TrackingCommands = require('./../commands/tracking');
 var NotifyCommands = require('./../commands/notify');
 var inside = require('turf-inside');
+var Notification = require('./../notification');
+
 var geofence =
   {
     'type': 'Feature',
@@ -40,10 +42,10 @@ module.exports = (mqttClient,dispatcher) => {
 
   let checkGeoFence = pt => {
     var isIn = inside(pt,geofence);
-    //console.log('Is it in? '+isIn);
     if (isIn) {
-      console.log('Pushing to Notify Channel');
-      dispatcher.publish(NotifyCommands.CHANNEL_NOTIFY_INFO,'Point is in Polygon');
+      var n = Notification();
+      n.title('Geofence').body('Point is in Polygon').alert();
+      dispatcher.publish(NotifyCommands.CHANNEL_NOTIFY_INFO,n);
     }
   };
 
