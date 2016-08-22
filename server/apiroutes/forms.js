@@ -32,9 +32,8 @@ router.post('/:formId/submit', (req, res) => {
 });
 
 router.post('/', (req, res) => {
-  let fields = req.body.fields;
-  let form = req.body.form;
-  FormCommand.createForm(fields,form)
+  let form = req.body;
+  FormCommand.createForm(form)
     .subscribe(
       d => res.json(d),
       err => res.status(500).send({
