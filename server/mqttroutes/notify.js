@@ -7,9 +7,9 @@ module.exports = (mqttClient,dispatcher) => {
   let publishNotification = n => {
     const notif = n.value();
     if (notif.to === 'all') {
-      mqttClient.publishObj('/notify',notif);
+      mqttClient.publishObj('/notify',{payload:JSON.stringify(notif)});
     } else {
-      mqttClient.publishObj('/notify/'+notif.to,notif);
+      mqttClient.publishObj('/notify/'+notif.to,{payload:JSON.stringify(notif)});
     }
   };
 
