@@ -45,10 +45,13 @@ kafka:
   tags:
     - develop
 mosquitto:
+  image: marcusthebrown/mosquitto
   hostname: mosquitto
-  image: 'jllopis/mosquitto:v1.4.8'
+  links:
+    - spatialconnect-server
   ports:
     - '1883:1883'
+    - '8883:8883'
     - '9883:9883'
   tags:
     - develop
@@ -100,7 +103,6 @@ spatialconnect-server:
   links:
     - nginx
     - postgres
-    - mosquitto
   ports:
     - '8085:8085'
   tags:
