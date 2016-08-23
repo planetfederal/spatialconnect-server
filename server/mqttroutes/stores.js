@@ -1,6 +1,7 @@
 'use strict';
 
 var StoreCommands = require('./../commands/store');
+var Rx = require('rx');
 
 module.exports = (mqttClient,dispatcher) => {
   let listenOnTopic = (topic) => {
@@ -11,7 +12,7 @@ module.exports = (mqttClient,dispatcher) => {
       );
   };
 
-  StoreCommands.stores()
+  StoreCommands.stores().flatMap(Rx.Observable.fromArray)
     .subscribe(
       (store) => {
         listenOnTopic('/store/'+store.id);
