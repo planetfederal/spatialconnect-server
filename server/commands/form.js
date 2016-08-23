@@ -14,6 +14,18 @@ var filterStampsAndNulls = (ff) => {
     .value();
 };
 
+let updateFields = (formId, fields) => {
+  return Rx.Observable.fromArray(fields)
+  .map(field => {
+    field.form_id = formId;
+    field = _.omit(field, 'id');
+    return field;
+  })
+  .flatMap((field) => {
+    return Rx.Observable.fromPromise(models.FormFields.create(field));
+  });
+};
+
 module.exports = (() => {
   return {
     CHANNEL_FORM_SUBMIT : '@@channel/form_submit',
@@ -23,17 +35,6 @@ module.exports = (() => {
       return models.Forms.uniqueForms$(models)
       .flatMap(form => models.Forms.formDefinition$(models, form.id))
       .toArray();
-    },
-    updateFields : (formId, fields) => {
-      Rx.Observable.fromArray(fields)
-      .map(field => {
-        field.form_id = formId;
-        field = _.omit(field, 'id');
-        return field;
-      })
-      .flatMap((field) => {
-        return Rx.Observable.fromPromise(models.FormFields.create(field));
-      });
     },
     form : key => {
       return models.Forms.uniqueForms$(models)
@@ -58,13 +59,14 @@ module.exports = (() => {
       models.FormData.create(formData))
       .map(filterStampsAndNulls);
     },
-    createForm : (fields,form) => {
+    createForm : (form) => {
       let formId;
+      let fields = form.fields;
       return Rx.Observable.fromPromise(
       models.Forms.create(form))
       .flatMap((form) => {
         formId = form.dataValues.id;
-        return this.updateFields(form.dataValues.id, fields);
+        return updateFields(formId, fields);
       })
       .materialize()
       .filter(x => {
