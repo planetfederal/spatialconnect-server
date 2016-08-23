@@ -4,8 +4,13 @@ var NotifyCommands = require('./../commands/notify');
 
 module.exports = (mqttClient,dispatcher) => {
 
-  let publishNotification = obj => {
-    mqttClient.publishObj('/notify',{payload:obj});
+  let publishNotification = n => {
+    const notif = n.value();
+    if (notif.to === 'all') {
+      mqttClient.publishObj('/notify',notif);
+    } else {
+      mqttClient.publishObj('/notify/'+notif.to,notif);
+    }
   };
 
   let setupListeners = () => {
