@@ -6,7 +6,7 @@ module.exports = (mqttClient,dispatcher) => {
   mqttClient.listenOnTopic('/store/tracking')
     .subscribe(
       (d) => {
-        let geojson = JSON.parse(d.message.payload);
+        let geojson = JSON.parse(d.payload);
         TrackingCommands.upsertLocation(geojson);
         dispatcher.publish(TrackingCommands.CHANNEL_TRACKING_UPDATE,geojson);
       },

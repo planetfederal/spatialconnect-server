@@ -5,7 +5,7 @@ var Rx = require('rx');
 var SCMessage = require('./SCMessage');
 var _ = require('lodash');
 
-module.exports = (host,port) => {
+module.exports = (host,port,clientId = 'spatialconnect_server') => {
   if (!host || !port) {
     throw new Error('Host and Port must be set for MQTT Connection');
   } else {
@@ -15,7 +15,7 @@ module.exports = (host,port) => {
   var returnObject = {};
 
   var client = mqtt.connect('mqtt://'+host+':'+port,{
-    clientId : 'spatialconnect_server'
+    clientId : clientId
   });
 
   client.on('connect',() => {
@@ -28,14 +28,14 @@ module.exports = (host,port) => {
 
   var messages = Rx.Observable.create((sub) => {
     client.on('message',(t,m) => {
-      sub.onNext({topic:t,message:SCMessage.decode(m)});
+      const mm = SCMessage.decode(m);
+      sub.onNext({topic:t,message:mm});
     });
   }).share();
 
   returnObject.listenOnTopic = (topic) => {
     client.subscribe(topic);
-    console.log('Subscribed on:'+topic);
-    return messages.filter((d) => d.topic === topic);
+    return messages.filter((d) => d.topic === topic).map(m => m.message);
   };
 
   returnObject.publishObj = (topic,obj) => {
@@ -46,10 +46,6 @@ module.exports = (host,port) => {
       payload : ''
     });
     client.publish(topic,SCMessage.encode(newObj).toBuffer());
-  };
-
-  returnObject.publish = (topic,message) => {
-    client.publish(topic,message);
   };
 
   returnObject.end = () => {
