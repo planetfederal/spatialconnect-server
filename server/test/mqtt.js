@@ -31,10 +31,16 @@ describe('Testing MQTT. It',() => {
     client.listenOnTopic('/anaconda').subscribe(
       m => {
         expect(m.payload).to.be('pong');
+        expect(m.correlationId).to.be(123);
+        expect(m.action).to.be(0);
         done();
       },err => console.log(err)
     );
-    client.publishObj('/ping',{replyTo:'/anaconda'});
+    client.publishObj('/ping',{
+      replyTo:'/anaconda',
+      correlationId: 123,
+      action: 0
+    });
   });
 
   it('can get config',done => {
