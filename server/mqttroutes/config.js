@@ -11,8 +11,7 @@ module.exports = (mqttClient,dispatcher) => {
       (d) => {
         ConfigCommands.full().take(1).subscribe(
           cfg => {
-            d.message.payload = JSON.stringify(cfg);
-            mqttClient.publishObj(d.message.replyTo,d.message);
+            mqttClient.publishObj(d.replyTo,{payload:JSON.stringify(cfg)});
           }
         );
       },
@@ -22,7 +21,7 @@ module.exports = (mqttClient,dispatcher) => {
   mqttClient.listenOnTopic('/config/register')
     .subscribe(
       (d) => {
-        models.Devices.register(models,JSON.parse(d.message.payload));
+        models.Devices.register(models,JSON.parse(d.payload));
       }
     );
 
