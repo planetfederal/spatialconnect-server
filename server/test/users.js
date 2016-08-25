@@ -66,12 +66,7 @@ describe('Testing Users. It',() => {
       .send({name:name,email:email,password:password})
       .set('Content-Type','application/json')
       .set('x-access-token',xaccesstoken)
-      .expect((res) => {
-        res.body.success = true;
-      })
-      .expect(200,{
-        success : true
-      },done);
+      .expect(200,done);
   });
 
   it('check for new user',(done) => {

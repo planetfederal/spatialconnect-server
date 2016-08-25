@@ -1,10 +1,10 @@
 'use strict';
 
 module.exports = (mqttClient) => {
-
   mqttClient.listenOnTopic('/ping').subscribe(
     (d) => {
-      mqttClient.publishObj(d.replyTo,{payload:'pong'});
+      d.payload = 'pong';
+      mqttClient.publishObj(d.replyTo,d);
     }
   );
 
