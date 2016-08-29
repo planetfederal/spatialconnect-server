@@ -11,7 +11,10 @@ module.exports = (mqttClient,dispatcher) => {
       (d) => {
         ConfigCommands.full().take(1).subscribe(
           cfg => {
-            mqttClient.publishObj(d.replyTo,{payload:JSON.stringify(cfg)});
+            mqttClient.publishObj(d.replyTo,{
+              correlationId:d.correlationId,
+              payload:JSON.stringify(cfg)
+            });
           }
         );
       },
