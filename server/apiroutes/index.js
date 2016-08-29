@@ -9,6 +9,8 @@ var users = require('./users');
 var wfs = require('./wfs');
 var jwt = require('jsonwebtoken');
 var dispatcher = require('./../dispatcher');
+var authorize = require('./authorize');
+
 
 var apiRoutes = express.Router();
 
@@ -43,6 +45,7 @@ module.exports = function(app) {
     }
   });
 
+  apiRoutes.use('/authorize', authorize);
   apiRoutes.use('/config', config);
   apiRoutes.use('/forms', forms);
   apiRoutes.use('/stores', stores(dispatcher));
