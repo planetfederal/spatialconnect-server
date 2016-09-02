@@ -30,7 +30,7 @@ module.exports = function() {
   };
 
   returnObject.info = () => {
-    notification.info = 'info';
+    notification.priority = 'info';
     return returnObject;
   };
 
