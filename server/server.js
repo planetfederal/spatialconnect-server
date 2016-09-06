@@ -7,7 +7,7 @@ var httproutes = require('./httproutes/');
 var apiroutes = require('./apiroutes/');
 
 var mqttBrokerHost = process.env.MQTT_BROKER_HOST || 'localhost';
-var mqttBrokerPort = process.env.MQTT_BROKER_HOST || 1883;
+var mqttBrokerPort = process.env.MQTT_BROKER_PORT || 1883;
 
 httproutes(app);
 apiroutes(app);
