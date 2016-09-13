@@ -17,7 +17,7 @@ function makeStr(len)
 describe('Testing Users. It',() => {
   let server;
   let xaccesstoken;
-  beforeEach((done) => {
+  beforeEach(done => {
     server = require('./../server');
     request(server)
       .post('/api/authenticate')
@@ -27,7 +27,7 @@ describe('Testing Users. It',() => {
         if (err) {
           console.log(err);
         }
-        xaccesstoken = res.body.token;
+        xaccesstoken = res.body.result.token;
         done();
       });
   });

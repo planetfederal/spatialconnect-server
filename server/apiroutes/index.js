@@ -20,7 +20,6 @@ module.exports = function(app) {
     if (req.path === '/users' && req.method === 'POST') {
       return next();
     }
-    return next();
     var token = req.body.token || req.query.token || req.headers['x-access-token'];
     if (token) {
       jwt.verify(token,'9014607A0AF70C4DF57A4D',(err,decoded) => {

@@ -3,24 +3,25 @@
 var express = require('express');
 let router = express.Router();
 var DeviceCommand = require('./../commands/device');
+var response = require('./../httpresponse');
 
 router.post('/register', (req, res) => {
   DeviceCommand.register(req.body)
     .subscribe(
-      () => res.json({success:true}),
-      err => res.json({success:false,message:err})
+      () => response.success(res,{success:true}),
+      err => response.internalError(res,err)
     );
 });
 
 router.get('/',(req,res) => {
-  DeviceCommand.devices().subscribe(s => res.json(s));
+  DeviceCommand.devices().subscribe(s => response.success(res,s));
 });
 
 router.get('/:identifier', (req,res) => {
   DeviceCommand.device(req.params.identifier)
     .subscribe(
-      s => res.json(s),
-      () => res.status(500).send()
+      s => response.success(res,s),
+      err => response.internalError(res,err)
   );
 });
 
