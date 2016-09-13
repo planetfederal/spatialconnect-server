@@ -56,6 +56,11 @@ class FormControls extends Component {
             onClick={this.addField.bind(this)}
             options={{type: 'select', options: []}}
             />
+          <AddFieldControl
+            text="Photo"
+            onClick={this.addField.bind(this)}
+            options={{type: 'photo', pattern: ''}}
+            />
         </div>
       </div>
     );

@@ -306,14 +306,11 @@ export function addForm(form) {
     const { sc } = getState();
     let token = sc.auth.token;
     form.version = form.version + 1;
-    let data = {
-      form: _.pick(form, ['form_key', 'form_label', 'version']),
-      fields: form.fields
-    };
+    let f = _.pick(form, ['form_key', 'form_label', 'version', 'fields']);
     return request
       .post(API_URL + 'forms')
       .set('x-access-token', token)
-      .send(data)
+      .send(f)
       .then(function(res) {
         dispatch(updateSavedForm(res.body.id, res.body));
         dispatch(receiveForm(res.body));
@@ -334,14 +331,11 @@ export function saveForm(form) {
     const { sc } = getState();
     let token = sc.auth.token;
     form.version = form.version + 1;
-    let data = {
-      form: _.pick(form, ['form_key', 'form_label', 'version']),
-      fields: form.fields
-    };
+    let f = _.pick(form, ['form_key', 'form_label', 'version', 'fields']);
     return request
       .post(API_URL + 'forms')
       .set('x-access-token', token)
-      .send(data)
+      .send(f)
       .then(function(res) {
         dispatch(updateSavedForm(res.body.id, res.body));
         dispatch(receiveForms([res.body]));

@@ -1,5 +1,7 @@
 'use strict';
 
+var Rx = require('rx');
+
 module.exports = (sequelize,DataTypes) => {
   var Devices = sequelize.define('Devices',{
     identifier : {
@@ -15,6 +17,21 @@ module.exports = (sequelize,DataTypes) => {
     classMethods : {
       associate : (models) => {
         models.Devices.hasMany(models.FormData);
+        models.Devices.hasMany(models.DeviceLocations);
+      },
+      findByIdentifier: (models,ident) => {
+        return Rx.Observable.fromPromise(models.Devices.findOne({
+          where : {
+            identifier : ident
+          }
+        }));
+      },
+      register : (models,payload) => {
+        return Rx.Observable.fromPromise(models.Devices.upsert(payload,{
+          where : {
+            identifier : payload.identifier
+          }
+        }));
       }
     }
   });

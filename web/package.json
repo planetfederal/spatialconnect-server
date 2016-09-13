@@ -1,6 +1,6 @@
 {
   "name": "spatialconnect-server-dashboard",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Dashboard for SpatialConnect",
   "scripts": {
     "test": "./node_modules/.bin/karma start",
@@ -34,7 +34,7 @@
     "redux-form": "^5.2.3",
     "redux-logger": "*",
     "redux-thunk": "^2.0.1",
-    "spatialconnect-form-schema": "2.0.2",
+    "spatialconnect-form-schema": "2.1.0",
     "superagent": "^1.8.0-beta.2",
     "superagent-bluebird-promise": "^3.0.0",
     "tcomb-form": "^0.9.4",
