@@ -3,6 +3,7 @@
 var express = require('express');
 var router = express.Router();
 var AuthCommands = require('./../commands/authenticate');
+var response = require('./../httpresponse');
 
 router.post('/',(req,res) => {
   let email = req.body.email;
@@ -10,8 +11,8 @@ router.post('/',(req,res) => {
 
   AuthCommands.authenticate(email,pass)
     .subscribe(
-      (d) => res.json(d),
-      (err) => res.json(err)
+      d => response.success(res,d),
+      err => response.internalError(res,err)
     );
 });
 

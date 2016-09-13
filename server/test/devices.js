@@ -28,7 +28,7 @@ describe('Testing Devices. It',() => {
         if (err) {
           console.log(err);
         }
-        xaccesstoken = res.body.token;
+        xaccesstoken = res.body.result.token;
         done();
       });
   });
