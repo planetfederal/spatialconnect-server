@@ -27,7 +27,7 @@ describe('Testing Users. It',() => {
         if (err) {
           console.log(err);
         }
-        xaccesstoken = res.body.token;
+        xaccesstoken = res.body.result.token;
         done();
       });
   });
@@ -45,12 +45,12 @@ describe('Testing Users. It',() => {
         if (err) {
           return done(err);
         }
-        res.body.map((v,idx) => {
+        res.body.result.map((v,idx) => {
           if (v.password !== undefined) {
             done(new Error('Password is being returned'));
           }
 
-          if (idx === res.body.length - 1) {
+          if (idx === res.body.result.length - 1) {
             done();
           }
         });
@@ -79,13 +79,13 @@ describe('Testing Users. It',() => {
         if (err) {
           return done(err);
         }
-        res.body.map((v,idx) => {
+        res.body.result.map((v,idx) => {
           if (v.email === email && v.name === name) {
             done();
             return;
           }
 
-          if (idx === res.body.length - 1) {
+          if (idx === res.body.result.length - 1) {
             done(new Error('Did not find the newly created user'));
           }
         });

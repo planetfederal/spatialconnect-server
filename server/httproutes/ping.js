@@ -1,10 +1,11 @@
 'use strict';
 
 var express = require('express');
-let router = express.Router();
+var router = express.Router();
+var response = require('./../httpresponse');
 
 router.get('/',(req,res) => {
-  res.send('pong');
+  response.success(res,'pong');
 });
 
 module.exports = router;

@@ -1,15 +1,15 @@
 'use strict';
 
-let express = require('express');
-let WFSCommands = require('./../commands/wfs');
-
-let router = express.Router();
+var express = require('express');
+var WFSCommands = require('./../commands/wfs');
+var response = require('./../httpresponse');
+var router = express.Router();
 
 router.get('/getCapabilities', (req, res) => {
-  let url = req.query.url;
+  var url = req.query.url;
   WFSCommands.getCapabilities(url).subscribe(
-    d => res.json(d),
-    () => res.status(500).send()
+    d => response.success(res,d),
+    err => response.internalError(res,err)
   );
 });
 
