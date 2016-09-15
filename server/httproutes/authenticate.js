@@ -12,7 +12,7 @@ router.post('/',(req,res) => {
   AuthCommands.authenticate(email,pass)
     .subscribe(
       d => response.success(res,d),
-      err => response.internalError(res,err)
+      err => response.unauthorized(res,err)
     );
 });
 

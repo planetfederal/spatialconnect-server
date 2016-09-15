@@ -91,12 +91,12 @@ export function loginUserSuccess(token) {
   };
 }
 
-export function loginUserFailure(error) {
+export function loginUserFailure(res) {
   localStorage.removeItem('token');
   return {
     type: LOGIN_USER_FAILURE,
-    status: error.response.status,
-    statusText: error.response.statusText
+    status: res.status,
+    statusText: res.body.error.message
   };
 }
 
@@ -147,15 +147,15 @@ export function loginUser(email, password, redirect="/") {
       .send({email: email, password: password})
       .then(response => {
         try {
-          if (response.body.success) {
-            let decoded = jwtDecode(response.body.token);
-            dispatch(loginUserSuccess(response.body.token));
+          if (response.body.result.success) {
+            let decoded = jwtDecode(response.body.result.token);
+            dispatch(loginUserSuccess(response.body.result.token));
             dispatch(push(redirect));
           } else {
             dispatch(loginUserFailure({
               response: {
                 status: 403,
-                statusText: response.body.message
+                statusText: response.body.result.message
               }
             }));
           }
@@ -180,20 +180,13 @@ export function signUpUser(name, email, password) {
     return request
       .post(API_URL + 'users')
       .send({name: name, email: email, password: password})
-      .then(response => {
-        if (response.body.success) {
-          dispatch(signUpUserSuccess());
+      .then(response => dispatch(signUpUserSuccess()))
+      .catch(response => {
+        if (response.body.error.errors) {
+          dispatch(signUpUserFailure(response.body.error.errors[0].message));
         } else {
           dispatch(signUpUserFailure(response.body.error));
         }
       })
-      .catch(error => {
-        if (error.body.error.errors) {
-          dispatch(signUpUserFailure(error.body.error.errors[0].message));
-        } else {
-          dispatch(signUpUserFailure(error.body.error));
-        }
-      })
   }
 }
-
