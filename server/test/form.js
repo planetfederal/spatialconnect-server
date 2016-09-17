@@ -64,7 +64,7 @@ describe('Testing Users. It',() => {
   let newForm = {
     form_key: formname,
     form_label: formname,
-    version : 4,
+    version : 3,
     fields : []
   };
 
@@ -165,23 +165,23 @@ describe('Testing Users. It',() => {
     });
   });
 
-  it('can get a create a form with no fields',(done) => {
-    request(server)
-      .post('/api/forms')
-      .set('Content-Type','application/json')
-      .set('x-access-token',xaccesstoken)
-      .send(newForm).end(function(err) {
-        if (err) done(err);
-        done();
-      });
-  });
-
   it('can update a form',(done) => {
     request(server)
       .post('/api/forms')
       .set('Content-Type','application/json')
       .set('x-access-token',xaccesstoken)
       .send(formupdate).end(function(err) {
+        if (err) done(err);
+        done();
+      });
+  });
+
+  it('can get a create a form with no fields',(done) => {
+    request(server)
+      .post('/api/forms')
+      .set('Content-Type','application/json')
+      .set('x-access-token',xaccesstoken)
+      .send(newForm).end(function(err) {
         if (err) done(err);
         done();
       });

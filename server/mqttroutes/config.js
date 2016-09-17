@@ -53,16 +53,35 @@ module.exports = (mqttClient,dispatcher) => {
     mqttClient.publishObj('/config/update',obj);
   };
 
+  let formAdded = form => {
+    let obj = {payload:JSON.stringify(form)};
+    obj.action = SCCommands.CONFIG_ADD_FORM;
+    mqttClient.publishObj('/config/update',obj);
+  };
+
+  let formUpdated = form => {
+    let obj = {payload:JSON.stringify(form)};
+    obj.action = SCCommands.CONFIG_UPDATE_FORM;
+    mqttClient.publishObj('/config/update',obj);
+  };
+
+  let formRemoved = formKey => {
+    let obj = {payload:formKey};
+    obj.action = SCCommands.CONFIG_REMOVE_FORM;
+    mqttClient.publishObj('/config/update',obj);
+  };
+
   let setupListeners = function() {
     dispatcher.subscribe(StoreCommands.CHANNEL_STORE_CREATE, storeAdded);
     dispatcher.subscribe(StoreCommands.CHANNEL_STORE_UPDATE, storeUpdated);
     dispatcher.subscribe(StoreCommands.CHANNEL_STORE_DELETE, storeDeleted);
-    dispatcher.subscribe(FormCommands.CHANNEL_FORM_CREATE, () => console.log('FORM CREATE'));
-    dispatcher.subscribe(FormCommands.CHANNEL_FORM_DELETE, () => console.log('FORM DELETE'));
+    dispatcher.subscribe(FormCommands.CHANNEL_FORM_CREATE, formAdded);
+    dispatcher.subscribe(FormCommands.CHANNEL_FORM_UPDATE, formUpdated);
+    dispatcher.subscribe(FormCommands.CHANNEL_FORM_DELETE, formRemoved);
   };
 
   return {
     name : 'config',
-    setupListeners
+    setupListeners : setupListeners
   };
 };

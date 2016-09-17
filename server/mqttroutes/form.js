@@ -19,7 +19,6 @@ module.exports = (mqttClient,dispatcher) => {
   );
 
   let setupListeners = () => {
-    dispatcher.subscribe(FormCommands.CHANNEL_FORM_CREATE,() => {});
   };
 
   return {
