@@ -30,7 +30,10 @@ module.exports = dispatcher => {
     let id = req.params.storeId;
     let store = req.body;
     StoreCommands.updateStore(id,store)
-      .subscribe(d => response.success(res,d));
+      .subscribe(d => {
+        response.success(res,d);
+        dispatcher.publish(StoreCommands.CHANNEL_STORE_UPDATE,d);
+      });
   });
 
   router.delete('/:storeId', (req, res) => {
@@ -38,7 +41,7 @@ module.exports = dispatcher => {
     StoreCommands.deleteStore(id)
       .subscribe(d => {
         response.success(res,d);
-        dispatcher.publish(StoreCommands.CHANNEL_STORE_DELETE, id);
+        dispatcher.publish(StoreCommands.CHANNEL_STORE_DELETE,id);
       });
   });
 
