@@ -36,7 +36,10 @@ module.exports = dispatcher => {
   router.delete('/:storeId', (req, res) => {
     let id = req.params.storeId;
     StoreCommands.deleteStore(id)
-      .subscribe(d => response.success(res,d));
+      .subscribe(d => {
+        response.success(res,d);
+        dispatcher.publish(StoreCommands.CHANNEL_STORE_DELETE, id);
+      });
   });
 
   return router;
