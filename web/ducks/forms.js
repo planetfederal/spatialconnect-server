@@ -271,7 +271,7 @@ export function loadForms() {
         if (err) {
           throw new Error(res);
         }
-        dispatch(receiveForms(res.body));
+        dispatch(receiveForms(res.body.result));
       });
   }
 }
@@ -295,7 +295,7 @@ export function loadForm(form_key) {
           if (err) {
             throw new Error(res);
           }
-          dispatch(receiveForms([res.body]));
+          dispatch(receiveForms([res.body.result]));
         });
     }
   };
@@ -312,8 +312,8 @@ export function addForm(form) {
       .set('x-access-token', token)
       .send(f)
       .then(function(res) {
-        dispatch(updateSavedForm(res.body.id, res.body));
-        dispatch(receiveForm(res.body));
+        dispatch(updateSavedForm(res.body.result.id, res.body.result));
+        dispatch(receiveForm(res.body.result));
         dispatch(addFormError(false));
       })
       .catch(error => {
@@ -337,8 +337,8 @@ export function saveForm(form) {
       .set('x-access-token', token)
       .send(f)
       .then(function(res) {
-        dispatch(updateSavedForm(res.body.id, res.body));
-        dispatch(receiveForms([res.body]));
+        dispatch(updateSavedForm(res.body.result.id, res.body.result));
+        dispatch(receiveForms([res.body.result]));
       }, function(error) {
         throw new Error(res);
       });

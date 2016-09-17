@@ -7,7 +7,7 @@ var response = require('./../httpresponse');
 
 router.get('/',(req,res) => {
   UserCommands.users().subscribe(
-    d =>response.success(res,d),
+    d => response.success(res,d),
     err => response.internalError(res,err)
   );
 });

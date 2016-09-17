@@ -93,7 +93,7 @@ export function loadDataStore(storeId) {
         .get(API_URL + 'stores/' + storeId)
         .set('x-access-token', token)
         .then(function(res) {
-          return dispatch(receiveStores([res.body]));
+          return dispatch(receiveStores([res.body.result]));
         }, function(error) {
           return dispatch({type: LOAD_FAIL, error: error});
         });
@@ -110,7 +110,7 @@ export function loadDataStores() {
       .get(API_URL + 'stores')
       .set('x-access-token', token)
       .then(function(res) {
-        return dispatch(receiveStores(res.body));
+        return dispatch(receiveStores(res.body.result));
       }, function(error) {
         return dispatch({type: LOAD_FAIL, error: error});
       });
@@ -217,7 +217,7 @@ export function getWFSLayers(uri) {
       .get(API_URL + 'wfs/getCapabilities?url=' + encodeURIComponent(uri))
       .set('x-access-token', token)
       .then(res => {
-        dispatch(updateWFSLayerList(res.body));
+        dispatch(updateWFSLayerList(res.body.result));
         dispatch(addStoreError('default_layers', false));
       }, err => {
         dispatch(updateWFSLayerList([]));

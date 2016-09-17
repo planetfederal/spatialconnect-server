@@ -55,7 +55,7 @@ export function getFormData(form) {
     return request
       .get(API_URL + `form/${form.id}/results`)
       .set('x-access-token', token)
-      .then(res => res.body)
+      .then(res => res.body.result)
       .then(data => data.map(f => {
         f.form = form;
         return f;
@@ -70,7 +70,7 @@ export function loadFormDataAll() {
     return request
       .get(API_URL + 'forms')
       .set('x-access-token', token)
-      .then(res => res.body)
+      .then(res => res.body.result)
       .then(forms => {
         return Promise.all(
           forms.map(form => {
@@ -78,7 +78,7 @@ export function loadFormDataAll() {
             return request
               .get(API_URL + `forms/${form.id}/results`)
               .set('x-access-token', token)
-              .then(res => res.body)
+              .then(res => res.body.result)
               .then(data => data.map(f => {
                 f.form = form;
                 return f;
