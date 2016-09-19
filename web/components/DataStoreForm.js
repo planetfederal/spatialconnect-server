@@ -14,7 +14,7 @@ export const validate = values => {
   if (!values.version) {
     errors.version = 'Required';
   }
-  if(values.uri && !isUrl(values.uri)) {
+  if(!values.uri) {
     errors.uri = 'Must be valid uri';
   }
   if (values.store_type === 'wfs' && !values.uri) {
