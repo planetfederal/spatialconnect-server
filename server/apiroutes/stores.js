@@ -32,7 +32,7 @@ module.exports = dispatcher => {
     StoreCommands.updateStore(id,store)
       .subscribe(d => {
         response.success(res,d);
-        dispatcher.publish(StoreCommands.CHANNEL_STORE_UPDATE,d);
+        dispatcher.publish(StoreCommands.CHANNEL_STORE_UPDATE,{...store, id:id});
       });
   });
 
