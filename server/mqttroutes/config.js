@@ -4,6 +4,7 @@ var models = require('./../models/');
 var StoreCommands = require('./../commands/store');
 var FormCommands = require('./../commands/form');
 var ConfigCommands = require('./../commands/config');
+var SCCommands = require('../../schema/actions');
 
 module.exports = (mqttClient,dispatcher) => {
   mqttClient.listenOnTopic('/config')
@@ -29,14 +30,33 @@ module.exports = (mqttClient,dispatcher) => {
     );
 
   let storeAdded = store => {
-    let obj = {payload:store.toString()};
-    mqttClient.publishObj('/config/store',obj);
+    let obj = {
+      action:SCCommands.CONFIG_ADD_STORE,
+      payload:JSON.stringify(store)
+    };
+    mqttClient.publishObj('/config/update',obj);
+  };
+
+  let storeUpdated = store => {
+    let obj = {
+      action:SCCommands.CONFIG_UPDATE_STORE,
+      payload:JSON.stringify(store)
+    };
+    mqttClient.publishObj('/config/update',obj);
+  };
+
+  let storeDeleted = storeId => {
+    let obj = {
+      action:SCCommands.CONFIG_REMOVE_STORE,
+      payload:storeId
+    };
+    mqttClient.publishObj('/config/update',obj);
   };
 
   let setupListeners = function() {
-    dispatcher.subscribe(StoreCommands.CHANNEL_STORE_CREATE,storeAdded);
-    dispatcher.subscribe(StoreCommands.CHANNEL_STORE_UPDATE,() => console.log('STORE UPDATE'));
-    dispatcher.subscribe(StoreCommands.CHANNEL_STORE_DELETE,() => console.log('STORE DELETE'));
+    dispatcher.subscribe(StoreCommands.CHANNEL_STORE_CREATE, storeAdded);
+    dispatcher.subscribe(StoreCommands.CHANNEL_STORE_UPDATE, storeUpdated);
+    dispatcher.subscribe(StoreCommands.CHANNEL_STORE_DELETE, storeDeleted);
     dispatcher.subscribe(FormCommands.CHANNEL_FORM_CREATE, () => console.log('FORM CREATE'));
     dispatcher.subscribe(FormCommands.CHANNEL_FORM_DELETE, () => console.log('FORM DELETE'));
   };
