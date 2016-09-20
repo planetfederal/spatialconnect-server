@@ -31,6 +31,7 @@ module.exports = (() => {
     CHANNEL_FORM_SUBMIT : '@@channel/form_submit',
     CHANNEL_FORM_CREATE : '@@channel/form_create',
     CHANNEL_FORM_DELETE : '@@channel/form_delete',
+    CHANNEL_FORM_UPDATE : '@@channel/form_update',
     forms : () => {
       return models.Forms.uniqueForms$(models)
       .flatMap(form => models.Forms.formDefinition$(models, form.id))

@@ -4,6 +4,7 @@ var express = require('express');
 let router = express.Router();
 var FormCommand = require('./../commands/form');
 var response = require('./../httpresponse');
+var dispatcher = require('./../dispatcher');
 
 router.get('/', (req, res) => {
   FormCommand.forms().subscribe(
@@ -36,7 +37,10 @@ router.post('/', (req, res) => {
   let form = req.body;
   FormCommand.createForm(form)
     .subscribe(
-      d => response.success(res,d),
+      d => {
+        response.success(res,d);
+        dispatcher.publish(FormCommand.CHANNEL_FORM_CREATE,d);
+      },
       err => response.internalError(res,err)
   );
 });
@@ -44,7 +48,13 @@ router.post('/', (req, res) => {
 router.delete('/:form_key', (req, res) => {
   let key = req.params.form_key;
   FormCommand.deleteForm(key)
-    .subscribe(d => response.success(res,d));
+    .subscribe(
+      d => {
+        response.success(res,d);
+        dispatcher.publish(FormCommand.CHANNEL_FORM_DELETE,key);
+      },
+      err => response.internalError(res,err)
+    );
 });
 
 module.exports = router;

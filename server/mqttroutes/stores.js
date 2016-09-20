@@ -20,9 +20,6 @@ module.exports = (mqttClient,dispatcher) => {
     );
 
   let setupListeners = function() {
-    dispatcher.subscribe(StoreCommands.CHANNEL_STORE_CREATE,d => {
-      mqttClient.listenOnTopic('/store/'+d.id);
-    });
   };
 
   return {
