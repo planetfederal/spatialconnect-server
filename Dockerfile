@@ -23,4 +23,4 @@ RUN npm install --silent
 
 # Start the service
 EXPOSE 8085
-CMD ["npm", "start"]
+CMD ["npm", "run", "start:dev"]
