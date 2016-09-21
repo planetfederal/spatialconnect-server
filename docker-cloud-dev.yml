@@ -88,7 +88,7 @@ spatialconnect-connectors:
     - develop
 spatialconnect-server:
   autoredeploy: true
-  command: npm start
+  command: 'npm run start:development'
   environment:
     - NODE_ENV=development
     - PGDATABASE=postgres

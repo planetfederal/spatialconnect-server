@@ -7,7 +7,7 @@
     "test": "env NODE_ENV=local mocha --compilers js:babel-core/register -R spec test/*",
     "start": "node server.js",
     "start:local": "NODE_ENV=local nodemon server.js --exec babel-node --presets es2015,stage-0",
-    "start:dev": "NODE_ENV=development node server.js --exec babel-node --presets es2015,stage-0",
+    "start:development": "NODE_ENV=development nodemon server.js --exec babel-node --presets es2015,stage-0",
     "watch-lint": "esw -w -f simple-detail || true",
     "lint": "esw -f simple-detail || true"
   },

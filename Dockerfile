@@ -20,7 +20,9 @@ RUN rm -rf /usr/src/web/node_modules
 
 # Install server dependencies
 RUN npm install --silent
+RUN npm install nodemon -g --silent
+RUN npm install babel-cli -g --silent
 
 # Start the service
 EXPOSE 8085
-CMD ["npm", "run", "start:dev"]
+CMD ["npm", "run", "start:development"]
