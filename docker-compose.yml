@@ -48,7 +48,7 @@ mosquitto:
 
 spatialconnect-server:
   build: .
-  command: npm start
+  command: 'npm run start:development'
   ports:
     - '8085:8085'
   links:
