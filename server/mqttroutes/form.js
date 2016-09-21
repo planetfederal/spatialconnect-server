@@ -12,7 +12,7 @@ module.exports = (mqttClient,dispatcher) => {
       let data = JSON.parse(d.payload);
       FormCommands.formSubmit(data.form_id,data.feature)
         .subscribe(
-          dispatcher.publish(FormCommands.CHANNEL_FORM_CREATE,d.payload)
+          dispatcher.publish(FormCommands.CHANNEL_FORM_SUBMIT,d.payload)
         );
     },
     (err) => console.log(err)
