@@ -36,6 +36,9 @@ class DataMap extends Component {
 
           })
         }),
+        // new ol.layer.Tile({
+        //     source: new ol.source.OSM()
+        //   }),
         vectorLayer
       ],
       view: new ol.View({
