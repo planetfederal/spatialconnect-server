@@ -68,9 +68,6 @@ class DataMap extends Component {
     let selectForm = new ol.interaction.Select({
       layers: [vectorLayer, deviceLocationsLayer]
     });
-    let selectDevice = new ol.interaction.Select({
-      layers: [deviceLocationsLayer]
-    });
     this.map.addInteraction(selectForm);
     selectForm.on('select', e => {
       if (e.selected.length) {
