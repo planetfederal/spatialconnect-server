@@ -7,6 +7,7 @@ var stores = require('./stores');
 var devices = require('./devices');
 var users = require('./users');
 var wfs = require('./wfs');
+var locations = require('./location');
 var jwt = require('jsonwebtoken');
 var dispatcher = require('./../dispatcher');
 
@@ -16,7 +17,6 @@ module.exports = function(app) {
   app.use('/api', apiRoutes);
 
   apiRoutes.use((req,res,next) => {
-    console.log(req.path, req.method);
     if (req.path === '/users' && req.method === 'POST') {
       return next();
     }
@@ -48,4 +48,5 @@ module.exports = function(app) {
   apiRoutes.use('/devices',devices);
   apiRoutes.use('/users',users);
   apiRoutes.use('/wfs', wfs);
+  apiRoutes.use('/locations',locations);
 };
