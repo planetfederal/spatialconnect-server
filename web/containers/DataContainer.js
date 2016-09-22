@@ -9,15 +9,17 @@ import DataMap from '../components/DataMap';
 export class DataContainer extends Component {
 
   componentDidMount() {
-    this.props.formActions.loadForms();
-    this.props.dataActions.loadFormDataAll();
+    this.props.formActions.loadForms()
+      .then(() => {
+        this.props.dataActions.loadFormDataAll();
+      })
   }
 
   render () {
     return (
       <div className="data-map">
-        <FormList forms={this.props.forms} form_ids={this.props.form_ids} actions={this.props.dataActions} />
-        <DataMap form_data={this.props.form_data} form_ids={this.props.form_ids} actions={this.props.dataActions} />
+        <FormList forms={this.props.forms} form_data={this.props.form_data} form_ids={this.props.form_ids} actions={this.props.dataActions} />
+        <DataMap forms={this.props.forms.toJS()} form_data={this.props.form_data} form_ids={this.props.form_ids} actions={this.props.dataActions} />
       </div>
     );
   }

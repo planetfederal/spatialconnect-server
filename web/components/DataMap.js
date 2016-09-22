@@ -56,7 +56,7 @@ class DataMap extends Component {
         let c = feature.getGeometry().getCoordinates();
         this.map.addOverlay(popup);
         popup.setPosition(c);
-        let form_data = this.props.form_data.filter(fd => fd.val.id === gj.id);
+        let form_data = this.props.form_data.filter(fd => fd.id === gj.id);
         this.setState({activeFeature: form_data[0]});
       } else {
         this.map.removeOverlay(popup);
@@ -72,9 +72,11 @@ class DataMap extends Component {
     this.vectorSource.clear();
     let features = props.form_data
       .filter(f => f.val.geometry)
-      .filter(f => props.form_ids.indexOf(f.form.id) >= 0)
-      .map(f => {
+      .filter(f => {
+        return props.form_ids.indexOf(f.form_id) >= 0
+      }).map(f => {
         let feature = format.readFeature(f.val);
+        feature.setId(f.id);
         feature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
         feature.setStyle(iconStyle);
         return feature;
@@ -89,7 +91,8 @@ class DataMap extends Component {
     }
   }
   makePopupTable(f) {
-    let rows = f.form.fields.map(field => {
+    const form = this.props.forms[f.form_id];
+    let rows = form.fields.map(field => {
       let value = field.type === 'photo'
       return (<tr key={field.field_key}>
         <td className="form-label">{field.field_label}</td>
@@ -97,7 +100,7 @@ class DataMap extends Component {
       </tr>);
     });
     let table = <div>
-      <p className="form-label">{f.form.form_label}</p>
+      <p className="form-label">{form.form_label}</p>
       <p className="form-note">{f.val.metadata.created_at}</p>
       <table className="table table-bordered table-striped"><tbody>{rows}</tbody></table>
     </div>;

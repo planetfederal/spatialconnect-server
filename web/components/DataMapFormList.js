@@ -14,11 +14,11 @@ export class FormList extends Component {
   render () {
     return (
       <div className="data-form-list">
-        
         <div className="data-form-list-items">
         {this.props.forms.valueSeq()
           .map(f => f.toJS())
           .map(f => {
+            let count = this.props.form_data.filter(fd => fd.form_id == f.id).length;
             let active = this.props.form_ids.indexOf(f.id) >= 0;
             let c = classNames('data-form-list-item', {
               active: active
@@ -28,7 +28,7 @@ export class FormList extends Component {
               className={c}
               onClick={e => this.toggleForm(f)}>
               <input type="checkbox" checked={active}/>
-              <h4>{f.form_label}</h4>
+              <h4>{f.form_label}</h4><div className="count">({count})</div>
             </div>
           })
         }
