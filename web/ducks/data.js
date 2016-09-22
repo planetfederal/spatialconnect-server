@@ -1,8 +1,9 @@
 import * as request from 'superagent-bluebird-promise'
 import { push } from 'react-router-redux'
 import { checkHttpStatus } from '../utils';
-import { flatten, without } from 'lodash';
+import { flatten, without, values } from 'lodash';
 import { API_URL } from 'config';
+import { formActions } from './forms';
 
 export const LOAD_FORM_DATA_ALL = 'sc/auth/LOAD_FORM_DATA_ALL';
 export const ADD_FORM_ID = 'sc/auth/ADD_FORM_ID';
@@ -65,33 +66,30 @@ export function getFormData(form) {
 
 export function loadFormDataAll() {
   return (dispatch, getState) => {
-    const { sc } = getState();
-    let token = sc.auth.token;
-    return request
-      .get(API_URL + 'forms')
-      .set('x-access-token', token)
-      .then(res => res.body.result)
-      .then(forms => {
-        return Promise.all(
-          forms.map(form => {
-            dispatch(addFormId(form.id));
-            return request
-              .get(API_URL + `forms/${form.id}/results`)
-              .set('x-access-token', token)
-              .then(res => res.body.result)
-              .then(data => data.map(f => {
-                f.form = form;
-                return f;
-              }))
-          })
-        );
+    const state = getState();
+    let token = state.sc.auth.token;
+    let forms = values(state.sc.forms.get('forms').toJS());
+    return Promise.all(
+      forms.map(form => {
+        dispatch(addFormId(form.id));
+        return request
+          .get(API_URL + `forms/${form.id}/results`)
+          .set('x-access-token', token)
+          .then(res => res.body.result)
+          .then(function(form, data) {
+            return data.map(f => {
+              f.form_id = form.id;
+              return f;
+            });
+          }.bind(this, form))
       })
-      .then(form_data =>  _.flatten(form_data))
-      .then(form_data => {
-        dispatch({
-          type: LOAD_FORM_DATA_ALL,
-          payload: { form_data: form_data }
-        });
+    )
+    .then(form_data =>  _.flatten(form_data))
+    .then(form_data => {
+      dispatch({
+        type: LOAD_FORM_DATA_ALL,
+        payload: { form_data: form_data }
       });
+    });
   }
 }

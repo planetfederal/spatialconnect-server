@@ -264,15 +264,15 @@ export function loadForms() {
     const { sc } = getState();
     let token = sc.auth.token;
     dispatch({ type: LOAD });
-    request
+    return request
       .get(API_URL + 'forms')
       .set('x-access-token', token)
-      .end(function(err, res) {
-        if (err) {
-          throw new Error(res);
-        }
+      .then(res => {
         dispatch(receiveForms(res.body.result));
-      });
+      })
+      .catch(err => {
+        throw new Error(err);
+      })
   }
 }
 
