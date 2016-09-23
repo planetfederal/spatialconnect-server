@@ -65,14 +65,11 @@ class DataMap extends Component {
       stopEvent: false,
       offset: [0, -50]
     });
-    let selectForm = new ol.interaction.Select({
+    let selectInteraction = new ol.interaction.Select({
       layers: [vectorLayer, deviceLocationsLayer]
     });
-    let selectDevice = new ol.interaction.Select({
-      layers: [deviceLocationsLayer]
-    });
-    this.map.addInteraction(selectForm);
-    selectForm.on('select', e => {
+    this.map.addInteraction(selectInteraction);
+    selectInteraction.on('select', e => {
       if (e.selected.length) {
         let feature = e.selected[0];
         let gj = JSON.parse(format.writeFeature(feature));
@@ -160,8 +157,8 @@ class DataMap extends Component {
           <tr><td>Device Info:</td><td>{f.metadata.device_info}</td></tr> : null}
         {typeof f.metadata.device_info.os === 'string' ?
           <tr><td>OS:</td><td>{f.metadata.device_info.os}</td></tr> : null}
-          {typeof f.metadata.created_at === 'string' ?
-            <tr><td>Time Recorded:</td><td>{moment(f.metadata.created_at).format("dddd, MMMM Do YYYY, h:mm:ss a")}</td></tr> : null}
+        {typeof f.metadata.updated_at === 'string' ?
+          <tr><td>Time Recorded:</td><td>{moment(f.metadata.updated_at).format("dddd, MMMM Do YYYY, h:mm:ss a")}</td></tr> : null}
       </tbody></table>
     </div>;
     return table;
