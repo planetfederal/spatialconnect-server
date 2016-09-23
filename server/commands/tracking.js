@@ -64,7 +64,10 @@ module.exports = (() => {
         let l = obj.location;
         return {
           id : l.id,
-          metadata : obj.device,
+          metadata : {
+            ...obj.device,
+            created_at: l.created_at
+          },
           type : 'Feature',
           geometry : {
             type : 'Point',
