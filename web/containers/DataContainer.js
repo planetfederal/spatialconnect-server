@@ -9,6 +9,7 @@ import DataMap from '../components/DataMap';
 export class DataContainer extends Component {
 
   componentDidMount() {
+    this.props.dataActions.loadDeviceLocations();
     this.props.formActions.loadForms()
       .then(() => {
         this.props.dataActions.loadFormDataAll();
@@ -18,8 +19,8 @@ export class DataContainer extends Component {
   render () {
     return (
       <div className="data-map">
-        <FormList forms={this.props.forms} form_data={this.props.form_data} form_ids={this.props.form_ids} actions={this.props.dataActions} />
-        <DataMap forms={this.props.forms.toJS()} form_data={this.props.form_data} form_ids={this.props.form_ids} actions={this.props.dataActions} />
+        <FormList {...this.props} />
+        <DataMap {...this.props} />
       </div>
     );
   }
@@ -28,7 +29,9 @@ export class DataContainer extends Component {
 const mapStateToProps = (state) => ({
   form_data: state.sc.data.form_data,
   form_ids: state.sc.data.form_ids,
-  forms: state.sc.forms.get('forms'),
+  forms: state.sc.forms.get('forms').toJS(),
+  device_locations: state.sc.data.device_locations,
+  device_locations_on: state.sc.data.device_locations_on,
 });
 
 const mapDispatchToProps = (dispatch) => ({

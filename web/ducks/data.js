@@ -5,13 +5,18 @@ import { flatten, without, values } from 'lodash';
 import { API_URL } from 'config';
 import { formActions } from './forms';
 
-export const LOAD_FORM_DATA_ALL = 'sc/auth/LOAD_FORM_DATA_ALL';
-export const ADD_FORM_ID = 'sc/auth/ADD_FORM_ID';
-export const REMOVE_FORM_ID = 'sc/auth/REMOVE_FORM_ID';
+export const LOAD_FORM_DATA_ALL = 'sc/data/LOAD_FORM_DATA_ALL';
+export const ADD_FORM_ID = 'sc/data/ADD_FORM_ID';
+export const REMOVE_FORM_ID = 'sc/data/REMOVE_FORM_ID';
+export const LOAD_DEVICE_LOCATIONS = 'sc/data/LOAD_DEVICE_LOCATIONS';
+export const TOGGLE_DEVICE_LOCATIONS = 'sc/data/TOGGLE_DEVICE_LOCATIONS';
+
 
 const initialState = {
   form_data: [],
   form_ids: [],
+  device_locations: [],
+  device_locations_on: true,
 };
 
 export default function reducer(state = initialState, action = {}) {
@@ -31,6 +36,16 @@ export default function reducer(state = initialState, action = {}) {
         ...state,
         form_ids: without(state.form_ids, action.payload.form_id)
       };
+    case LOAD_DEVICE_LOCATIONS:
+      return {
+        ...state,
+        device_locations: action.payload.device_locations,
+      };
+    case TOGGLE_DEVICE_LOCATIONS:
+      return {
+        ...state,
+        device_locations_on: action.payload.device_locations_on,
+      };
     default: return state;
   }
 }
@@ -46,6 +61,13 @@ export function removeFormId(form_id) {
   return {
     type: REMOVE_FORM_ID,
     payload: { form_id: form_id }
+  };
+}
+
+export function toggleDeviceLocations(device_locations_on) {
+  return {
+    type: TOGGLE_DEVICE_LOCATIONS,
+    payload: { device_locations_on }
   };
 }
 
@@ -92,4 +114,22 @@ export function loadFormDataAll() {
       });
     });
   }
+}
+
+export function loadDeviceLocations() {
+  return (dispatch, getState) => {
+    const { sc } = getState();
+    let token = sc.auth.token;
+    return request
+      .get(API_URL + `locations`)
+      .set('x-access-token', token)
+      .then(res => res.body.result)
+      .then(data => {
+        console.log(data);
+        dispatch({
+          type: LOAD_DEVICE_LOCATIONS,
+          payload: { device_locations: data.features }
+        });
+      })
+    }
 }

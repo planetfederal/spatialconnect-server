@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import * as _ from 'lodash';
 import '../style/DataMap.less';
+import moment from 'moment';
 
 var iconStyle = new ol.style.Style({
   image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
@@ -8,6 +9,16 @@ var iconStyle = new ol.style.Style({
     anchorXUnits: 'fraction',
     anchorYUnits: 'pixels',
     src: 'marker-icon.png'
+  }))
+});
+
+var deviceStyle = new ol.style.Style({
+  image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+    anchor: [0.5, 20],
+    anchorXUnits: 'fraction',
+    anchorYUnits: 'pixels',
+    src: 'mobile.png',
+    size: [41, 41]
   }))
 });
 
@@ -22,8 +33,12 @@ class DataMap extends Component {
   }
   createMap() {
     this.vectorSource = new ol.source.Vector();
+    this.deviceLocationsSource = new ol.source.Vector();
     var vectorLayer = new ol.layer.Vector({
       source: this.vectorSource
+    });
+    var deviceLocationsLayer = new ol.layer.Vector({
+      source: this.deviceLocationsSource
     });
     this.map = new ol.Map({
       target: this.refs.map,
@@ -36,7 +51,8 @@ class DataMap extends Component {
 
           })
         }),
-        vectorLayer
+        vectorLayer,
+        deviceLocationsLayer
       ],
       view: new ol.View({
         center: ol.proj.fromLonLat([-100, 30]),
@@ -49,16 +65,33 @@ class DataMap extends Component {
       stopEvent: false,
       offset: [0, -50]
     });
-    this.map.on('click', evt => {
-      var feature = this.map.forEachFeatureAtPixel(evt.pixel, f => f);
-      if (feature) {
+    let selectForm = new ol.interaction.Select({
+      layers: [vectorLayer, deviceLocationsLayer]
+    });
+    let selectDevice = new ol.interaction.Select({
+      layers: [deviceLocationsLayer]
+    });
+    this.map.addInteraction(selectForm);
+    selectForm.on('select', e => {
+      if (e.selected.length) {
+        let feature = e.selected[0];
         let gj = JSON.parse(format.writeFeature(feature));
         let c = feature.getGeometry().getCoordinates();
         this.map.addOverlay(popup);
         popup.setPosition(c);
-        let form_data = this.props.form_data.filter(fd => fd.id === gj.id);
-        this.setState({activeFeature: form_data[0]});
+        if (gj.id.indexOf('form_submission') > -1) {
+          let data = this.props.form_data.filter(fd => fd.id === +gj.id.replace('form_submission.', ''));
+          this.setState({activeFeature: data[0]});
+        }
+        if (gj.id.indexOf('device_location') > -1) {
+          let data = this.props.device_locations.filter(fd => fd.id === +gj.id.replace('device_location.', ''));
+          this.setState({deviceLocationActive: data[0]});
+        }
       } else {
+        this.setState({
+          activeFeature: false,
+          deviceLocationActive: false
+        });
         this.map.removeOverlay(popup);
       }
     });
@@ -76,12 +109,24 @@ class DataMap extends Component {
         return props.form_ids.indexOf(f.form_id) >= 0
       }).map(f => {
         let feature = format.readFeature(f.val);
-        feature.setId(f.id);
+        feature.setId('form_submission.'+f.id);
         feature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
         feature.setStyle(iconStyle);
         return feature;
       });
     this.vectorSource.addFeatures(features);
+    this.deviceLocationsSource.clear();
+    if (props.device_locations_on) {
+      let deviceLocationFeatures = props.device_locations
+        .map(f => {
+          let feature = format.readFeature(f);
+          feature.setId('device_location.'+f.id);
+          feature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
+          feature.setStyle(deviceStyle);
+          return feature;
+        });
+      this.deviceLocationsSource.addFeatures(deviceLocationFeatures);
+    }
   }
   makeFieldValue(field, value) {
     if (field.type === 'photo') {
@@ -90,7 +135,7 @@ class DataMap extends Component {
       return value;
     }
   }
-  makePopupTable(f) {
+  makePopupTableFormSubmission(f) {
     const form = this.props.forms[f.form_id];
     let rows = form.fields.map(field => {
       let value = field.type === 'photo'
@@ -106,6 +151,21 @@ class DataMap extends Component {
     </div>;
     return table;
   }
+  makePopupTableDeviceLocation(f) {
+    let table = <div>
+      <p className="form-label">Device Location</p>
+      <table className="table table-bordered table-striped"><tbody>
+        <tr><td>Identifier:</td><td>{f.metadata.identifier}</td></tr>
+        {typeof f.metadata.device_info === 'string' ?
+          <tr><td>Device Info:</td><td>{f.metadata.device_info}</td></tr> : null}
+        {typeof f.metadata.device_info.os === 'string' ?
+          <tr><td>OS:</td><td>{f.metadata.device_info.os}</td></tr> : null}
+          {typeof f.metadata.created_at === 'string' ?
+            <tr><td>Time Recorded:</td><td>{moment(f.metadata.created_at).format("dddd, MMMM Do YYYY, h:mm:ss a")}</td></tr> : null}
+      </tbody></table>
+    </div>;
+    return table;
+  }
   componentDidMount() {
     this.createMap();
   }
@@ -113,8 +173,14 @@ class DataMap extends Component {
     this.renderFeatures(nextProps);
   }
   render() {
-    let table = this.state.activeFeature ? this.makePopupTable(this.state.activeFeature)
-      : <table></table>
+    let table;
+    if (this.state.activeFeature) {
+      table = this.makePopupTableFormSubmission(this.state.activeFeature);
+    } else if (this.state.deviceLocationActive) {
+      table = this.makePopupTableDeviceLocation(this.state.deviceLocationActive)
+    } else {
+      table = <table></table>;
+    }
     return (
       <div className="map" ref="map" style={style.map}>
         <div className="popup" ref="popup" style={style.popup}>{table}</div>
