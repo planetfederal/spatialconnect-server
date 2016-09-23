@@ -66,7 +66,8 @@ module.exports = (() => {
           id : l.id,
           metadata : {
             ...obj.device,
-            created_at: l.created_at
+            created_at: l.created_at,
+            updated_at: l.updated_at
           },
           type : 'Feature',
           geometry : {
