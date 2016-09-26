@@ -317,10 +317,10 @@ export function addForm(form) {
         dispatch(addFormError(false));
       })
       .catch(error => {
-        if (error.body.error.errors) {
-          dispatch(addFormError(error.body.error.errors[0].message));
+        if (error.body.result.error.errors) {
+          dispatch(addFormError(error.body.result.error.errors[0].message));
         } else {
-          dispatch(addFormError(error.body.error));
+          dispatch(addFormError(error.body.result.error));
         }
       })
   };

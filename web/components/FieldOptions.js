@@ -1,5 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import _ from 'lodash';
+import { toKey } from '../utils';
 import '../style/FormDetails.less';
 
 let fieldOptions = {
@@ -37,6 +38,14 @@ class FieldOptions extends Component {
       value = e.target.checked;
     } else if (option === 'options') {
       value = e.target.value.split('\n');
+    } else if (option === 'field_label') {
+      value = e.target.value;
+      this.props.updateFieldOption(
+        this.props.form.get('id'),
+        this.props.form.get('activeField'),
+        'field_key',
+        toKey(value)
+      );
     } else {
       value = e.target.value;
     }
@@ -74,8 +83,9 @@ class FieldOptions extends Component {
       if (o === 'options') {
         return (
           <div className="form-group" key={o+i}>
-            <label htmlFor="exampleInputEmail1">{fieldLabels[o]}</label>
+            <label htmlFor={o}>{fieldLabels[o]}</label>
             <textarea className="form-control" rows="3"
+              id={o}
               onChange={e => { this.changeOption(o, e)}}
               value={field.get(o, null) !== null ? field.get(o).join('\n') : ''}
               />
@@ -84,8 +94,9 @@ class FieldOptions extends Component {
       }
       return (
         <div className="form-group" key={o+i}>
-          <label htmlFor="exampleInputEmail1">{fieldLabels[o]}</label>
+          <label htmlFor={o}>{fieldLabels[o]}</label>
           <input type="text" className="form-control"
+            id={o}
             value={field.get(o, null) !== null ? field.get(o) : ''}
             onChange={e => { this.changeOption(o, e)}}
            />

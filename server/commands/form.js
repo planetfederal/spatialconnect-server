@@ -73,7 +73,11 @@ module.exports = (() => {
       .filter(x => {
         return x.kind === 'C' || x.kind === 'E';
       })
-      .flatMap(() => models.Forms.formDefinition$(models,formId));
+      .flatMap(x => {
+        return formId ?
+          models.Forms.formDefinition$(models,formId):
+          Rx.Observable.throw(x);
+      });
     },
     deleteForm : key => {
       return Rx.Observable.fromPromise(
