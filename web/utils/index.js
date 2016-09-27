@@ -27,7 +27,7 @@ export const isUrl = (s) => {
 };
 
 export const toKey = (s) => {
-  let key = s.toLowerCase().replace(' ', '_');
+  let key = s.toLowerCase().replace(/ /g, '_');
   return key;
 };
 

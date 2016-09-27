@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Modal from 'react-modal';
+import { last } from 'lodash';
 import scformschema from 'spatialconnect-form-schema';
 import * as formActions from '../ducks/forms';
 import FormInfoBar from '../components/FormInfoBar';
@@ -10,6 +11,13 @@ import FormControls from '../components/FormControls';
 import FormPreview from '../components/FormPreview';
 import FormOptions from '../components/FormOptions';
 import FieldOptions from '../components/FieldOptions';
+
+const ErrorMessage = ({ error }) => (
+  <p>
+    {error.property.split('.').length ?
+    last(error.property.split('.')) : error.property} {error.message}
+  </p>
+);
 
 class FormDetailsContainer extends Component {
 
@@ -76,7 +84,7 @@ class FormDetailsContainer extends Component {
             >
             <h3>Errors</h3>
             {this.state.validationErrors ? this.state.validationErrors.map((e, i) => {
-              return <p key={i}>{e.name} {e.message}</p>;
+              return <ErrorMessage key={i} error={e} />;
             }) : <div></div>}
             <button className="btn btn-sc" onClick={this.closeModal.bind(this)}>Dismiss</button>
           </Modal>

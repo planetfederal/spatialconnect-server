@@ -1,16 +1,23 @@
 'use strict';
 import React, { PropTypes } from 'react';
 import { Link, browserHistory } from 'react-router';
+import moment from 'moment';
+import PropertyListItem from './PropertyListItem';
 import '../style/FormList.less';
 
 const FormItem = ({ form }) => (
-  <div className="form-item" onClick={() => browserHistory.push(`/forms/${form.get('form_key')}`)}>
+  <div className="form-item">
     <h4><Link to={`/forms/${form.get('form_key')}`}>{form.get('form_label')}</Link></h4>
-    <ul>
-      <li>Version: {form.get('version')}</li>
-      <li>Number of Records: 23</li>
-      <li>Last Active: 14 hours ago</li>
-    </ul>
+    <div className="properties">
+      <PropertyListItem name={'Version'} value={form.get('version')} />
+      {form.get('metadata') ?
+      <div>
+        <PropertyListItem name={'Number of Records'} value={form.get('metadata').get('count')} />
+        {form.get('metadata').get('lastActivity') ?
+          <PropertyListItem name={'Last Activity'} value={moment(form.get('metadata').get('lastActivity')).fromNow()} />
+        : null}
+      </div> : null }
+    </div>
   </div>
 );
 

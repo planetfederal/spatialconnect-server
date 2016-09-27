@@ -35,12 +35,14 @@ module.exports = (() => {
     forms : () => {
       return models.Forms.uniqueForms$(models)
       .flatMap(form => models.Forms.formDefinition$(models, form.id))
+      .flatMap(form => models.Forms.formMetadata$(models, form))
       .toArray();
     },
     form : key => {
       return models.Forms.uniqueForms$(models)
       .filter(form => form.form_key === key)
-      .flatMap(form => models.Forms.formDefinition$(models, form.id));
+      .flatMap(form => models.Forms.formDefinition$(models, form.id))
+      .flatMap(form => models.Forms.formMetadata$(models, form));
     },
     formResults : id => {
       return Rx.Observable.fromPromise(
@@ -73,7 +75,11 @@ module.exports = (() => {
       .filter(x => {
         return x.kind === 'C' || x.kind === 'E';
       })
-      .flatMap(() => models.Forms.formDefinition$(models,formId));
+      .flatMap(x => {
+        return formId ?
+          models.Forms.formDefinition$(models,formId):
+          Rx.Observable.throw(x);
+      });
     },
     deleteForm : key => {
       return Rx.Observable.fromPromise(

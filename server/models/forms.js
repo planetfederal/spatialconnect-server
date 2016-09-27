@@ -60,6 +60,34 @@ module.exports = (sequelize,DataTypes) => {
           f.fields = ff;
           return f;
         });
+      },
+      formMetadata$ : (models,form) => {
+        let count =  Rx.Observable.fromPromise(
+          models.FormData.count({
+            where : {
+              form_id : form.id
+            }
+          }));
+
+        let lastActivity = Rx.Observable.fromPromise(
+          models.FormData.find({
+            where : {
+              form_id : form.id
+            },
+            order: 'id desc',
+            limit: 1
+          }));
+
+        return Rx.Observable.combineLatest(count,lastActivity,(c,la) => {
+          return {
+            ...form,
+            metadata: {
+              ...form.metadata,
+              count: c,
+              lastActivity: la ? la.dataValues.updated_at : false
+            }
+          };
+        });
       }
     }
   });

@@ -85,7 +85,7 @@ export class FormCreate extends Component {
             onChange={this.onFormKeyChange.bind(this)}/>
           {this.state.errors.form_key ? <p className="text-danger">{this.state.errors.form_key}</p> : ''}
         </div>
-        {this.props.addFormError ? <p className="text-danger">{this.props.addFormError}</p> : ''}
+        {(this.props.addFormError && !Object.keys(this.state.errors).length) ? <p className="text-danger">{this.props.addFormError}</p> : ''}
         <div className="btn-toolbar">
           <button className="btn btn-sc" onClick={this.save.bind(this)}>Create</button>
           <button className="btn btn-default" onClick={this.props.cancel}>Cancel</button>

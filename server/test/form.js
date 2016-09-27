@@ -14,7 +14,7 @@ function makeStr(len)
   return text;
 }
 
-describe('Testing Users. It',() => {
+describe('Testing Forms. It',() => {
   let server;
   let xaccesstoken;
   beforeEach(done => {
@@ -113,7 +113,7 @@ describe('Testing Users. It',() => {
     type: 'Feature'
   };
 
-  it('can get a create a form',(done) => {
+  it('can create a form',(done) => {
     request(server)
       .post('/api/forms')
       .set('Content-Type','application/json')
@@ -123,6 +123,15 @@ describe('Testing Users. It',() => {
         if (err) done(err);
         done();
       });
+  });
+
+  it('cannot create a form duplicate',(done) => {
+    request(server)
+      .post('/api/forms')
+      .set('Content-Type','application/json')
+      .set('x-access-token',xaccesstoken)
+      .send(form)
+      .expect(500, done);
   });
 
   it('can get a list of forms',(done) => {
