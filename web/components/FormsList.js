@@ -10,10 +10,13 @@ const FormItem = ({ form }) => (
     <h4><Link to={`/forms/${form.get('form_key')}`}>{form.get('form_label')}</Link></h4>
     <div className="properties">
       <PropertyListItem name={'Version'} value={form.get('version')} />
-      <PropertyListItem name={'Number of Records'} value={form.get('metadata').get('count')} />
-      {form.get('metadata').get('lastActivity') ?
-        <PropertyListItem name={'Last Activity'} value={moment(form.get('metadata').get('lastActivity')).fromNow()} />
-      : null}
+      {form.get('metadata') ?
+      <div>
+        <PropertyListItem name={'Number of Records'} value={form.get('metadata').get('count')} />
+        {form.get('metadata').get('lastActivity') ?
+          <PropertyListItem name={'Last Activity'} value={moment(form.get('metadata').get('lastActivity')).fromNow()} />
+        : null}
+      </div> : null }
     </div>
   </div>
 );
@@ -25,7 +28,6 @@ FormItem.propTypes = {
 const FormsList = ({ forms }) => (
   <div className="form-list">
     {forms.valueSeq().map(f => {
-      console.log(f.toJS());
       return <FormItem form={f} key={f.get('id')} />
     })}
   </div>

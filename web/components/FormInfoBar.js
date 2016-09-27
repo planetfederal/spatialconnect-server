@@ -22,6 +22,7 @@ const FormInfoBar = ({ form, updateActiveForm, saveForm, edited }) => (
         <li><label>Form Name:</label> {form.get('form_label')}</li>
       </ul>
     </div>
+    {form.get('metadata') ?
     <div className="form-info-block">
       <ul>
         {form.get('metadata').get('lastActivity') ?
@@ -29,7 +30,7 @@ const FormInfoBar = ({ form, updateActiveForm, saveForm, edited }) => (
         : ''}
         <li><label>Number of Records:</label> {form.get('metadata').get('count')}</li>
       </ul>
-    </div>
+    </div> : null }
     <div className="form-tools">
       <button className="btn btn-sc" onClick={() => updateActiveForm(form.get('id'))}>Edit</button>
       <button className={classnames('btn', 'btn-sc', {disabled: !edited})} onClick={() => saveForm(form.get('id'))}>
