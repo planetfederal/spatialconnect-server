@@ -27,19 +27,22 @@ module.exports = (() => {
     },
     updateTrigger : t => {
       return Rx.Observable.fromPromise(
-        models.SpatialTriggers.findById(t.id)
+        models.Triggers.findById(t.id)
       ).flatMap(trg => {
         trg.definition = t.definition;
         trg.recipients = t.recipients;
         return Rx.Observable.fromPromise(trg.save());
+      }).map(t => {
+        return filterStampsAndNulls(t);
       });
     },
     deleteTrigger : tId => {
-      return models.Triggers.destroy({
-        where : {
-          id : tId
-        }
-      });
+      return Rx.Observable.fromPromise(
+        models.Triggers.destroy({
+          where : {
+            id : tId
+          }
+        }));
     },
     triggers : () => {
       return Rx.Observable.fromPromise(
@@ -48,6 +51,13 @@ module.exports = (() => {
         .map(t => {
           return filterStampsAndNulls(t);
         }).toArray();
+    },
+    trigger: tId => {
+      return Rx.Observable.fromPromise(
+        models.Triggers.findById(tId)
+      ).map(t => {
+        return filterStampsAndNulls(t);
+      });
     }
   };
 })();

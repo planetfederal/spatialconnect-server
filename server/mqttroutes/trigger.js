@@ -26,16 +26,16 @@ module.exports = (mqttClient,dispatcher) => {
     console.log(triggers);
   };
 
-  let removeTrigger = tn => {
+  let removeTrigger = tId => {
     console.log('previousState');
     console.log(triggers);
-    triggers = _.omit(triggers,tn.id);
+    triggers = _.omit(triggers,tId);
     console.log('usertedState');
     console.log(triggers);
   };
 
   let checkGeoFence = pt => {
-    _.map(triggers,(t,k) => {
+    _.map(_.filter(triggers, 'definition'),(t,k) => {
       console.log('Checking '+k+' against '+pt.id);
       var isIn = inside(pt,t.definition);
 
