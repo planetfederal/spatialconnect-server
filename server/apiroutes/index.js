@@ -15,7 +15,9 @@ var dispatcher = require('./../dispatcher');
 
 var apiRoutes = express.Router();
 
+
 module.exports = function(app) {
+  var expressWs = require('express-ws')(app);
   app.use('/api', apiRoutes);
 
   apiRoutes.use((req,res,next) => {

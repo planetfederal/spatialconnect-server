@@ -12,43 +12,29 @@ module.exports = (mqttClient,dispatcher) => {
 
   TriggerCommands.triggers().subscribe(
     d => {
-      console.log(d);
       triggers = _.keyBy(d,'id');
-      console.log(triggers);
     }
   );
 
   let upsertTrigger = tn => {
-    console.log('previousState');
-    console.log(triggers);
     triggers[tn.id] = tn;
-    console.log('upsertedState');
-    console.log(triggers);
   };
 
-  let removeTrigger = tId => {
-    console.log('previousState');
-    console.log(triggers);
-    triggers = _.omit(triggers,tId);
-    console.log('usertedState');
-    console.log(triggers);
+  let removeTrigger = tn => {
+    triggers = _.omit(triggers,tn.id);
   };
 
   let checkGeoFence = pt => {
-    _.map(_.filter(triggers, 'definition'),(t,k) => {
-      console.log('Checking '+k+' against '+pt.id);
+    _.map(_.filter(triggers, 'definition'),t => {
       var isIn = inside(pt,t.definition);
 
       if (isIn) {
-        console.log('Is In ' + k);
         var n = Notification();
         n.title('Geofence').body('Point is in Polygon').alert();
         if (t.recipients !== undefined && t.recipients.length > 0) {
           n.to(t.recipients);
         }
         dispatcher.publish(NotifyCommands.CHANNEL_NOTIFY_INFO,n);
-      } else {
-        console.log('Not in '+ k);
       }
     });
   };
