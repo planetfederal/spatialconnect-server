@@ -30,6 +30,10 @@ export class FormList extends Component {
     this.props.dataActions.toggleDeviceLocations(!this.props.device_locations_on);
   }
 
+  toggleSpatialTriggers() {
+    this.props.dataActions.toggleSpatialTriggers(!this.props.spatial_triggers_on);
+  }
+
   render () {
     return (
       <div className="data-form-list">
@@ -48,6 +52,11 @@ export class FormList extends Component {
           title={'Device Locations'}
           count={this.props.device_locations.length}
           onClick={this.toggleDeviceLocations.bind(this)} />
+        <FormListItem key={'spatial_triggers'}
+          active={this.props.spatial_triggers_on}
+          title={'Spatial Triggers'}
+          count={this.props.spatial_triggers.length}
+          onClick={this.toggleSpatialTriggers.bind(this)} />
         </div>
       </div>
     );

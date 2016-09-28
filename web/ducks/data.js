@@ -10,13 +10,14 @@ export const ADD_FORM_ID = 'sc/data/ADD_FORM_ID';
 export const REMOVE_FORM_ID = 'sc/data/REMOVE_FORM_ID';
 export const LOAD_DEVICE_LOCATIONS = 'sc/data/LOAD_DEVICE_LOCATIONS';
 export const TOGGLE_DEVICE_LOCATIONS = 'sc/data/TOGGLE_DEVICE_LOCATIONS';
-
+export const TOGGLE_SPATIAL_TRIGGERS = 'sc/data/TOGGLE_SPATIAL_TRIGGERS';
 
 const initialState = {
   form_data: [],
   form_ids: [],
   device_locations: [],
   device_locations_on: true,
+  spatial_triggers_on: true
 };
 
 export default function reducer(state = initialState, action = {}) {
@@ -46,6 +47,11 @@ export default function reducer(state = initialState, action = {}) {
         ...state,
         device_locations_on: action.payload.device_locations_on,
       };
+    case TOGGLE_SPATIAL_TRIGGERS:
+      return {
+        ...state,
+        spatial_triggers_on: action.payload.spatial_triggers_on,
+      };
     default: return state;
   }
 }
@@ -68,6 +74,13 @@ export function toggleDeviceLocations(device_locations_on) {
   return {
     type: TOGGLE_DEVICE_LOCATIONS,
     payload: { device_locations_on }
+  };
+}
+
+export function toggleSpatialTriggers(spatial_triggers_on) {
+  return {
+    type: TOGGLE_SPATIAL_TRIGGERS,
+    payload: { spatial_triggers_on }
   };
 }
 
