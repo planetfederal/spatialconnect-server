@@ -34,11 +34,15 @@ class DataMap extends Component {
   createMap() {
     this.vectorSource = new ol.source.Vector();
     this.deviceLocationsSource = new ol.source.Vector();
+    this.spatialTriggersSource = new ol.source.Vector();
     var vectorLayer = new ol.layer.Vector({
       source: this.vectorSource
     });
     var deviceLocationsLayer = new ol.layer.Vector({
       source: this.deviceLocationsSource
+    });
+    var spatialTriggersLayer = new ol.layer.Vector({
+      source: this.spatialTriggersSource
     });
     this.map = new ol.Map({
       target: this.refs.map,
@@ -52,7 +56,8 @@ class DataMap extends Component {
           })
         }),
         vectorLayer,
-        deviceLocationsLayer
+        deviceLocationsLayer,
+        spatialTriggersLayer
       ],
       view: new ol.View({
         center: ol.proj.fromLonLat([-100, 30]),
@@ -112,6 +117,7 @@ class DataMap extends Component {
         return feature;
       });
     this.vectorSource.addFeatures(features);
+
     this.deviceLocationsSource.clear();
     if (props.device_locations_on) {
       let deviceLocationFeatures = props.device_locations
@@ -123,6 +129,24 @@ class DataMap extends Component {
           return feature;
         });
       this.deviceLocationsSource.addFeatures(deviceLocationFeatures);
+    }
+
+    this.spatialTriggersSource.clear();
+    if (props.spatial_triggers_on) {
+      let spatialTriggerFeatures = props.spatial_triggers
+        .map(t => {
+          let gj = t.geojson;
+          gj.id = t.id;
+          return gj;
+        })
+        .map(f => {
+          let feature = format.readFeature(f);
+          feature.setId('spatial_trigger.'+f.id);
+          feature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
+          //feature.setStyle(deviceStyle);
+          return feature;
+        });
+      this.spatialTriggersSource.addFeatures(spatialTriggerFeatures);
     }
   }
   makeFieldValue(field, value) {
@@ -188,7 +212,7 @@ class DataMap extends Component {
 
 var style = {
   map: {
-    flexGrow: 1
+    flex: 1
   },
   popup: {
     background: 'white',
