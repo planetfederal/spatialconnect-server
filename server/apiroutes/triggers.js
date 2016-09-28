@@ -14,6 +14,15 @@ router.get('/',(req,res) => {
     );
 });
 
+router.get('/:id',(req,res) => {
+  TriggerCommand.trigger(req.params.id)
+    .subscribe(
+      d => response.success(res,d),
+      err => response.internalError(res,err)
+    );
+});
+
+
 router.post('/',(req,res) => {
   TriggerCommand.createTrigger(req.body)
     .subscribe(
@@ -30,10 +39,19 @@ router.put('/',(req,res) => {
     .subscribe(
       d => {
         response.success(res,d);
-        dispatcher.publish(TriggerCommand.CHANNEL_TRIGGER_UPDATE);
+        dispatcher.publish(TriggerCommand.CHANNEL_TRIGGER_UPDATE,d);
       },
       err => response.internalError(res,err)
     );
+});
+
+router.delete('/:id', (req, res) => {
+  let id = req.params.id;
+  TriggerCommand.deleteTrigger(id)
+    .subscribe(d => {
+      response.success(res,d);
+      dispatcher.publish(TriggerCommand.CHANNEL_TRIGGER_REMOVE,id);
+    });
 });
 
 module.exports = router;

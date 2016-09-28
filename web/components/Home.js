@@ -8,6 +8,7 @@ const Home = () => (
       <ul>
         <li><Link to="/stores">Stores</Link></li>
         <li><Link to="/forms">Forms</Link></li>
+        <li><Link to="/triggers">Triggers</Link></li>
         <li><Link to="/data">Data</Link></li>
       </ul>
     </section>
