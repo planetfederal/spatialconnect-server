@@ -62,7 +62,7 @@ module.exports = (() => {
       models.FormData.create(formData))
       .map(filterStampsAndNulls);
     },
-    createForm : (form) => {
+    createForm : form => {
       let formId;
       let fields = form.fields;
       return Rx.Observable.fromPromise(

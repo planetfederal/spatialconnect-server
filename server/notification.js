@@ -15,7 +15,7 @@ module.exports = function() {
   };
 
   returnObject.to = (recipient) => {
-    notification.to = recipient;
+    notification.to = recipient; //Array
     return returnObject;
   };
 
