@@ -10,8 +10,8 @@
     "start:development": "NODE_ENV=development nodemon server.js --exec babel-node --presets es2015,stage-0",
     "watch-lint": "esw -w -f simple-detail || true",
     "lint": "esw -f simple-detail || true",
-    "dbup":"db-migrate up -env=local",
-    "dbdown":"db-migrate down -env=local"
+    "dbup":"db-migrate up --env=local",
+    "dbdown":"db-migrate down --env=local"
   },
   "repository": {
     "type": "git",

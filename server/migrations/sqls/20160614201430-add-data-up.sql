@@ -52,3 +52,5 @@ INSERT INTO stores (name,store_type,version,uri,id,default_layers) VALUES ('wfst
 
 INSERT INTO users (name,email,password) VALUES ('Admin Person','admin@something.com','$2a$10$j57V/gWt9UR3wRzUC7ddye9Nhp4SWJVMm2o.lCBQe2IeE6ETztqGy');
 INSERT INTO users (name,email,password) VALUES ('Easy admin','a','$2a$10$3F76hRYXoxS4EZ8jgGY8auzLRWZb.UWbMY5b41Zrt7Nqb3c1NShlW');
+
+INSERT INTO triggers (definition) VALUES ('{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[-86.8359375,37.43997405227057],[-86.8359375,39.095962936305476],[-83.671875,39.095962936305476],[-83.671875,37.43997405227057],[-86.8359375,37.43997405227057]]]}}');
