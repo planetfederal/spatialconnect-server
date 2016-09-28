@@ -1,48 +1,12 @@
 import * as request from 'superagent-bluebird-promise'
 import { find, findIndex } from 'lodash';
+import { push } from 'react-router-redux';
 import { API_URL } from 'config';
 
 export const LOAD_SPATIAL_TRIGGERS = 'sc/triggers/LOAD_SPATIAL_TRIGGERS';
 export const ADD_TRIGGER = 'sc/triggers/ADD_TRIGGER';
 export const UPDATE_TRIGGER = 'sc/triggers/UPDATE_TRIGGER';
 export const TRIGGER_ERRORS = 'sc/triggers/TRIGGER_ERRORS';
-
-const geofence = {
-  id: 1,
-  name: 'Cupertino',
-  type: 'geofence',
-  geojson: {
-    'type': 'Feature',
-    'properties': {},
-    'geometry': {
-      'type': 'Polygon',
-      'coordinates': [
-        [
-          [
-            -122.04248428344727,
-            37.33263104074124
-          ],
-          [
-            -122.04248428344727,
-            37.33774934661962
-          ],
-          [
-            -122.03553199768068,
-            37.33774934661962
-          ],
-          [
-            -122.03553199768068,
-            37.33263104074124
-          ],
-          [
-            -122.04248428344727,
-            37.33263104074124
-          ]
-        ]
-      ]
-    }
-  }
-};
 
 const initialState = {
   spatial_triggers: [],
@@ -63,7 +27,6 @@ export default function reducer(state = initialState, action = {}) {
       };
     case UPDATE_TRIGGER:
       const idx = findIndex(state.spatial_triggers, { id: action.payload.trigger.id });
-      console.log(idx);
       return {
         ...state,
         spatial_triggers: [
@@ -91,21 +54,32 @@ export function updateTriggerErrors(errors) {
 }
 
 export function updateTrigger(trigger) {
-  return {
-    type: UPDATE_TRIGGER,
-    payload: { trigger }
+  return (dispatch, getState) => {
+    const { sc } = getState();
+    let token = sc.auth.token;
+    return request
+      .put(API_URL + 'triggers')
+      .set('x-access-token', token)
+      .send(trigger)
+      .then(
+        res => dispatch(loadTrigger(trigger.id, true)),
+        err => dispatch(updateTriggerErrors(err))
+      );
   };
 }
 
 export function addTrigger(trigger) {
-  return {
-    type: ADD_TRIGGER,
-    payload: {
-      trigger: {
-        ...trigger,
-        id: 2
-      }
-    }
+  return (dispatch, getState) => {
+    const { sc } = getState();
+    let token = sc.auth.token;
+    return request
+      .post(API_URL + 'triggers')
+      .set('x-access-token', token)
+      .send(trigger)
+      .then(
+        res => dispatch(loadTriggers()),
+        err => dispatch(updateTriggerErrors(err))
+      );
   };
 }
 
@@ -118,27 +92,32 @@ export function receiveTriggers(triggers) {
   };
 }
 
-export function loadTrigger(triggerId) {
+export function deleteTrigger(trigger) {
   return (dispatch, getState) => {
     const { sc } = getState();
     let token = sc.auth.token;
-    let trigger = find(sc.triggers.spatial_triggers, { id: +triggerId });
-    if (trigger) {
+    return request
+      .delete(API_URL + 'triggers/' + trigger.id)
+      .set('x-access-token', token)
+      .then(() => dispatch(push('/triggers')));
+  };
+}
+
+
+export function loadTrigger(triggerId, refresh=false) {
+  return (dispatch, getState) => {
+    const { sc } = getState();
+    let token = sc.auth.token;
+    let trigger = find(sc.triggers.spatial_triggers, { id: triggerId });
+    if (trigger && !refresh) {
       return dispatch(receiveTriggers([trigger]));
     } else {
-      dispatch({
-        type: LOAD_SPATIAL_TRIGGERS,
-        payload: { spatial_triggers: [geofence] }
-      });
       //dispatch({ type: LOAD });
-      // return request
-      //   .get(API_URL + 'triggers/' + triggerId)
-      //   .set('x-access-token', token)
-      //   .then(function(res) {
-      //     return dispatch(receiveTriggers([res.body.result]));
-      //   }, function(error) {
-      //     //return dispatch({type: LOAD_FAIL, error: error});
-      //   });
+      return request
+        .get(API_URL + 'triggers/' + triggerId)
+        .set('x-access-token', token)
+        .then(res => res.body.result)
+        .then(data => dispatch(receiveTriggers([data])));
     }
   }
 }
@@ -147,20 +126,10 @@ export function loadTriggers() {
   return (dispatch, getState) => {
     const { sc } = getState();
     let token = sc.auth.token;
-    dispatch({
-      type: LOAD_SPATIAL_TRIGGERS,
-      payload: { spatial_triggers: [geofence] }
-    });
+    return request
+      .get(API_URL + `triggers`)
+      .set('x-access-token', token)
+      .then(res => res.body.result)
+      .then(data => dispatch(receiveTriggers(data)));
   }
-    // return request
-    //   .get(API_URL + `triggers`)
-    //   .set('x-access-token', token)
-    //   .then(res => res.body.result)
-    //   .then(data => {
-    //     dispatch({
-    //       type: LOAD_TRIGGERS,
-    //       payload: { triggers: data }
-    //     });
-    //   })
-    // }
 }

@@ -6,9 +6,7 @@ import TriggerForm from '../components/TriggerForm';
 import TriggerList from '../components/TriggerList';
 
 const emptyTrigger = {
-  id: false,
-  name: '',
-  type: '',
+  name: ''
 };
 
 export class TriggersContainer extends Component {

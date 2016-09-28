@@ -22,6 +22,17 @@ var deviceStyle = new ol.style.Style({
   }))
 });
 
+const triggerStyle = new ol.style.Style({
+  fill: new ol.style.Fill({
+    color: 'rgba(255, 0, 0, 0.1)'
+  }),
+  stroke: new ol.style.Stroke({
+    color: '#f00',
+    width: 1
+  })
+});
+
+
 var format = new ol.format.GeoJSON();
 
 class DataMap extends Component {
@@ -42,7 +53,8 @@ class DataMap extends Component {
       source: this.deviceLocationsSource
     });
     var spatialTriggersLayer = new ol.layer.Vector({
-      source: this.spatialTriggersSource
+      source: this.spatialTriggersSource,
+      style: triggerStyle
     });
     this.map = new ol.Map({
       target: this.refs.map,
@@ -134,8 +146,9 @@ class DataMap extends Component {
     this.spatialTriggersSource.clear();
     if (props.spatial_triggers_on) {
       let spatialTriggerFeatures = props.spatial_triggers
+        .filter(t => t.definition)
         .map(t => {
-          let gj = t.geojson;
+          let gj = t.definition;
           gj.id = t.id;
           return gj;
         })
