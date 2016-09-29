@@ -41,10 +41,14 @@ nginx:
 
 mosquitto:
   image: jllopis/mosquitto:v1.4.8
-  hostname: mosquitto
   ports:
     - '1883:1883'
     - '9883:9883'
+
+geogig:
+  image: marcusthebrown/geogig:latest
+  ports:
+    - '8182:8182'
 
 spatialconnect-server:
   build: .
@@ -55,6 +59,7 @@ spatialconnect-server:
     - postgres
     - nginx
     - mosquitto
+    - geogig
   environment:
     - PGHOST=postgres
     - PGUSER=postgres
