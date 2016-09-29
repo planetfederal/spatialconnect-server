@@ -16,6 +16,7 @@
     "bluebird": "3.4.1",
     "classnames": "^2.2.5",
     "expect": "^1.19.0",
+    "express-ws": "2.0.0",
     "immutable": "^3.8.1",
     "json-loader": "0.5.4",
     "jwt-decode": "2.0.1",
