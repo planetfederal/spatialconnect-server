@@ -8,12 +8,16 @@ var devices = require('./devices');
 var users = require('./users');
 var wfs = require('./wfs');
 var locations = require('./location');
+var triggers = require('./triggers');
+
 var jwt = require('jsonwebtoken');
 var dispatcher = require('./../dispatcher');
 
 var apiRoutes = express.Router();
 
+
 module.exports = function(app) {
+  var expressWs = require('express-ws')(app);
   app.use('/api', apiRoutes);
 
   apiRoutes.use((req,res,next) => {
@@ -49,4 +53,5 @@ module.exports = function(app) {
   apiRoutes.use('/users',users);
   apiRoutes.use('/wfs', wfs);
   apiRoutes.use('/locations',locations);
+  apiRoutes.use('/triggers',triggers);
 };

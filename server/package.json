@@ -9,7 +9,9 @@
     "start:local": "NODE_ENV=local nodemon server.js --exec babel-node --presets es2015,stage-0",
     "start:development": "NODE_ENV=development nodemon server.js --exec babel-node --presets es2015,stage-0",
     "watch-lint": "esw -w -f simple-detail || true",
-    "lint": "esw -f simple-detail || true"
+    "lint": "esw -f simple-detail || true",
+    "dbup": "db-migrate up --env=local",
+    "dbdown": "db-migrate down --env=local"
   },
   "repository": {
     "type": "git",
@@ -58,6 +60,7 @@
     "transducers-js": "0.4.174",
     "turf-inside": "3.0.12",
     "webpack": "1.13.1",
+    "ws": "1.1.1",
     "xml2json": "0.9.1"
   }
 }

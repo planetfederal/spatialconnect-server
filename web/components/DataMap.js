@@ -22,6 +22,17 @@ var deviceStyle = new ol.style.Style({
   }))
 });
 
+const triggerStyle = new ol.style.Style({
+  fill: new ol.style.Fill({
+    color: 'rgba(255, 0, 0, 0.1)'
+  }),
+  stroke: new ol.style.Stroke({
+    color: '#f00',
+    width: 1
+  })
+});
+
+
 var format = new ol.format.GeoJSON();
 
 class DataMap extends Component {
@@ -34,25 +45,34 @@ class DataMap extends Component {
   createMap() {
     this.vectorSource = new ol.source.Vector();
     this.deviceLocationsSource = new ol.source.Vector();
+    this.spatialTriggersSource = new ol.source.Vector();
     var vectorLayer = new ol.layer.Vector({
       source: this.vectorSource
     });
     var deviceLocationsLayer = new ol.layer.Vector({
       source: this.deviceLocationsSource
     });
+    var spatialTriggersLayer = new ol.layer.Vector({
+      source: this.spatialTriggersSource,
+      style: triggerStyle
+    });
     this.map = new ol.Map({
       target: this.refs.map,
       layers: [
+        // new ol.layer.Tile({
+        //   extent: [-20237886, -14945274, 20237886, 20211553.9],
+        //   source: new ol.source.TileWMS({
+        //     url: 'http://tiles.boundlessgeo.com/wms',
+        //     params: {'LAYERS': 'openstreetmap:osm', 'TILED': true, srs: 'EPSG:900913', FORMAT: 'image/png8', VERSION: '1.1.0', TRANSPARENT: 'false'}
+        //
+        //   })
+        // }),
         new ol.layer.Tile({
-          extent: [-20237886, -14945274, 20237886, 20211553.9],
-          source: new ol.source.TileWMS({
-            url: 'http://tiles.boundlessgeo.com/wms',
-            params: {'LAYERS': 'openstreetmap:osm', 'TILED': true, srs: 'EPSG:900913', FORMAT: 'image/png8', VERSION: '1.1.0', TRANSPARENT: 'false'}
-
-          })
+          source: new ol.source.OSM(),
         }),
         vectorLayer,
-        deviceLocationsLayer
+        deviceLocationsLayer,
+        spatialTriggersLayer
       ],
       view: new ol.View({
         center: ol.proj.fromLonLat([-100, 30]),
@@ -112,17 +132,52 @@ class DataMap extends Component {
         return feature;
       });
     this.vectorSource.addFeatures(features);
+
     this.deviceLocationsSource.clear();
     if (props.device_locations_on) {
       let deviceLocationFeatures = props.device_locations
         .map(f => {
+          console.log('IDENTIFIER', f.metadata.identifier);
           let feature = format.readFeature(f);
-          feature.setId('device_location.'+f.id);
+          feature.setId(f.metadata.identifier);
           feature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
           feature.setStyle(deviceStyle);
           return feature;
         });
       this.deviceLocationsSource.addFeatures(deviceLocationFeatures);
+
+      this.connection = new WebSocket('ws://localhost:8086');
+      this.connection.onmessage = m => {
+        let gj = JSON.parse(m.data);
+        let newFeature = format.readFeature(gj);
+        newFeature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
+        let feature = this.deviceLocationsSource.getFeatureById(gj.metadata.client);
+        if(feature) {
+          feature.setGeometry(newFeature.getGeometry())
+        }
+      }
+    } else {
+      if (this.connection) {
+        this.connection.close();
+      }
+    }
+
+    this.spatialTriggersSource.clear();
+    if (props.spatial_triggers_on) {
+      let spatialTriggerFeatures = props.spatial_triggers
+        .filter(t => t.definition)
+        .map(t => {
+          let gj = t.definition;
+          gj.id = t.id;
+          return gj;
+        })
+        .map(f => {
+          let feature = format.readFeature(f);
+          feature.setId('spatial_trigger.'+f.id);
+          feature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
+          return feature;
+        });
+      this.spatialTriggersSource.addFeatures(spatialTriggerFeatures);
     }
   }
   makeFieldValue(field, value) {
@@ -166,6 +221,11 @@ class DataMap extends Component {
   componentDidMount() {
     this.createMap();
   }
+  componentWillUnmount() {
+    if (this.connection) {
+      this.connection.close();
+    }
+  }
   componentWillReceiveProps(nextProps) {
     this.renderFeatures(nextProps);
   }
@@ -188,7 +248,7 @@ class DataMap extends Component {
 
 var style = {
   map: {
-    flexGrow: 1
+    flex: 1
   },
   popup: {
     background: 'white',

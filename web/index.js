@@ -20,6 +20,8 @@ import FormsContainer from './containers/FormsContainer';
 import FormDetailsContainer from './containers/FormDetailsContainer';
 import DataStoresDetailsContainer from './containers/DataStoresDetailsContainer';
 import DataContainer from './containers/DataContainer';
+import TriggersContainer from './containers/TriggersContainer';
+import TriggerDetailsContainer from './containers/TriggerDetailsContainer';
 
 import './style/Globals.less';
 
@@ -68,6 +70,10 @@ render(
         <Route path="/forms/:form_key" component={requireAuthentication(FormDetailsContainer)} >
         </Route>
         <Route path="/data" component={requireAuthentication(DataContainer)}>
+        </Route>
+        <Route path="/triggers" component={requireAuthentication(TriggersContainer)}>
+        </Route>
+        <Route path="/triggers/:id" component={requireAuthentication(TriggerDetailsContainer)}>
         </Route>
       </Route>
     </Router>
