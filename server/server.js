@@ -9,7 +9,6 @@ var apiroutes = require('./apiroutes/');
 var mqttBrokerHost = process.env.MQTT_BROKER_HOST || 'localhost';
 var mqttBrokerPort = process.env.MQTT_BROKER_PORT || 1883;
 
-var Rx = require('rx');
 var dispatcher = require('./dispatcher');
 var TrackingCommands = require('./commands/tracking');
 
@@ -26,8 +25,9 @@ var wss = WebSocketServer({port:8086});
 
 wss.on('connection',ws => {
   let send = t => {
-    console.log('tracking update');
-    ws.send(JSON.stringify(t));
+    if (ws.readyState == 1) {
+      ws.send(JSON.stringify(t));
+    }
   };
   dispatcher.subscribe(TrackingCommands.CHANNEL_TRACKING_UPDATE,send);
 });

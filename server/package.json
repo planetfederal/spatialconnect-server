@@ -10,8 +10,8 @@
     "start:development": "NODE_ENV=development nodemon server.js --exec babel-node --presets es2015,stage-0",
     "watch-lint": "esw -w -f simple-detail || true",
     "lint": "esw -f simple-detail || true",
-    "dbup":"db-migrate up --env=local",
-    "dbdown":"db-migrate down --env=local"
+    "dbup": "db-migrate up --env=local",
+    "dbdown": "db-migrate down --env=local"
   },
   "repository": {
     "type": "git",
@@ -42,7 +42,6 @@
     "eslint": "2.13.1",
     "eslint-watch": "2.1.11",
     "express": "4.13.4",
-    "express-ws": "2.0.0",
     "geobuf": "2.0.0",
     "jsonwebtoken": "7.0.1",
     "lodash": "4.13.1",
@@ -61,6 +60,7 @@
     "transducers-js": "0.4.174",
     "turf-inside": "3.0.12",
     "webpack": "1.13.1",
+    "ws": "1.1.1",
     "xml2json": "0.9.1"
   }
 }
