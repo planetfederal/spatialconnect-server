@@ -1,0 +1,11 @@
+FROM openjdk:8
+
+#RUN wget https://github.com/locationtech/geogig/releases/download/1.0-RC3/geogig-1.0-RC3.zip
+#RUN unzip -d /opt/ geogig-1.0-RC3.zip
+RUN wget http://ares.boundlessgeo.com/geogig/dev/geogig-dev-latest.zip
+RUN unzip -d /opt/ geogig-dev-latest.zip
+RUN /opt/geogig/bin/geogig config --global user.name spatialconnect
+RUN /opt/geogig/bin/geogig config --global user.email spatialconnect@boundlessgeo.com
+
+EXPOSE 8182
+CMD ["/opt/geogig/bin/geogig", "serve", "-m"]
