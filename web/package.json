@@ -7,9 +7,11 @@
     "test:watch": "./node_modules/.bin/karma start --no-single-run",
     "build:local": "NODE_ENV=local webpack -w",
     "build:dev": "NODE_ENV=development webpack",
+    "build:release": "NODE_ENV=release webpack",
     "build": "NODE_ENV=production webpack"
   },
   "dependencies": {
+    "babel-cli": "^6.16.0",
     "babel-plugin-transform-class-properties": "^6.8.0",
     "babel-plugin-transform-object-rest-spread": "^6.8.0",
     "babel-polyfill": "^6.8.0",
