@@ -23,6 +23,14 @@
     "dialect": "postgres",
     "logging": false
   },
+  "release": {
+    "username": "spacon",
+    "password": "spacon",
+    "database": "spacon",
+    "host": "postgres",
+    "dialect": "postgres",
+    "logging": false
+  },
   "production": {
     "username": "spacon",
     "password": "spacon",

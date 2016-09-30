@@ -23,6 +23,14 @@
     "driver": "postgres",
     "multipleStatements": true
   },
+  "release": {
+    "host": "postgres",
+    "user": "postgres",
+    "password": "postgres",
+    "database": "spacon",
+    "driver": "postgres",
+    "multipleStatements": true
+  },
   "production": {
     "host": "postgres",
     "user": "postgres",
