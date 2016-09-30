@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS public.forms
   id SERIAL PRIMARY KEY,
   form_key TEXT,
   form_label TEXT,
-  version integer DEFAULT 0,
+  version integer DEFAULT 1,
   created_at timestamp DEFAULT NOW(),
   updated_at timestamp DEFAULT NOW(),
   deleted_at timestamp with time zone,
