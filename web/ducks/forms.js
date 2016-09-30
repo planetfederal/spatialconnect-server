@@ -170,7 +170,7 @@ export function addField(payload) {
     let field = _.merge({
       id: position + 1,
       position: position,
-      field_key: payload.field_key,
+      field_key: position + 1,
       field_label: payload.field_label
     }, payload.options);
     dispatch({
