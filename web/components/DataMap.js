@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import * as _ from 'lodash';
+import { WS_URL } from 'config';
 import '../style/DataMap.less';
 import moment from 'moment';
 
@@ -137,7 +138,6 @@ class DataMap extends Component {
     if (props.device_locations_on) {
       let deviceLocationFeatures = props.device_locations
         .map(f => {
-          console.log('IDENTIFIER', f.metadata.identifier);
           let feature = format.readFeature(f);
           feature.setId(f.metadata.identifier);
           feature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
@@ -146,14 +146,20 @@ class DataMap extends Component {
         });
       this.deviceLocationsSource.addFeatures(deviceLocationFeatures);
 
-      this.connection = new WebSocket('ws://localhost:8086');
+      this.connection = new WebSocket(WS_URL);
       this.connection.onmessage = m => {
         let gj = JSON.parse(m.data);
         let newFeature = format.readFeature(gj);
         newFeature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
         let feature = this.deviceLocationsSource.getFeatureById(gj.metadata.client);
-        if(feature) {
+        if (feature) {
           feature.setGeometry(newFeature.getGeometry())
+        } else {
+          let newFeature = format.readFeature(gj);
+          newFeature.setId(gj.metadata.identifier);
+          newFeature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
+          newFeature.setStyle(deviceStyle);
+          this.deviceLocationsSource.addFeature(newFeature);
         }
       }
     } else {
