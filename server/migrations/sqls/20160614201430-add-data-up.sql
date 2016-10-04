@@ -53,5 +53,3 @@ INSERT INTO stores (name,store_type,version,uri,id,default_layers) VALUES ('wfst
 INSERT INTO users (name,email,password) VALUES ('Admin Person','admin@something.com','$2a$10$j57V/gWt9UR3wRzUC7ddye9Nhp4SWJVMm2o.lCBQe2IeE6ETztqGy');
 INSERT INTO users (name,email,password) VALUES ('Easy admin','a','$2a$10$3F76hRYXoxS4EZ8jgGY8auzLRWZb.UWbMY5b41Zrt7Nqb3c1NShlW');
 
-INSERT INTO triggers (name,description,definition) VALUES ('Freeway Drive', 'iOS Simulator geofence', '{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[-122.04248428344727,37.33263104074124],[-122.04248428344727,37.33774934661962],[-122.03553199768068,37.33774934661962],[-122.03553199768068,37.33263104074124],[-122.04248428344727,37.33263104074124]]]}}');
-INSERT INTO triggers (name,definition) VALUES ('Test Geofence', '{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[-75.728759765625,38.496593518947584],[-74.87182617187499,39.308800296002914],[-74.102783203125,38.634036452919226],[-74.02587890625,37.71859032558816],[-75.289306640625,37.42252593456307],[-76.146240234375,37.84883250647402],[-75.728759765625,38.496593518947584]]]}}');
