@@ -1,4 +1,4 @@
-(ns spacon.db
+(ns spacon.db.conn
   (:require [yesql.core :refer [defqueries]]
             [ragtime.jdbc :as jdbc]
             [ragtime.repl :as repl]))
