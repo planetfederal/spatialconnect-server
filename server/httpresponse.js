@@ -29,11 +29,11 @@ module.exports = (() => {
   };
 
   let internalError = (res,err) => {
-    response(res.status(500),err);
+    response(res.status(500),null,err);
   };
 
   let serviceUnavailable = (res,err) => {
-    response(res.status(503),err);
+    response(res.status(503),null,err);
   };
   return {
     success,
