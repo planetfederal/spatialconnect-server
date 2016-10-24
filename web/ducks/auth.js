@@ -91,12 +91,11 @@ export function loginUserSuccess(token) {
   };
 }
 
-export function loginUserFailure(res) {
+export function loginUserFailure(error) {
   localStorage.removeItem('token');
   return {
     type: LOGIN_USER_FAILURE,
-    status: res.status,
-    statusText: res.body.error.message
+    statusText: error
   };
 }
 
@@ -152,25 +151,21 @@ export function loginUser(email, password, redirect="/") {
             dispatch(loginUserSuccess(response.body.result.token));
             dispatch(push(redirect));
           } else {
-            dispatch(loginUserFailure({
-              response: {
-                status: 403,
-                statusText: response.body.result.message
-              }
-            }));
+            dispatch(loginUserFailure(response.body.error.message));
           }
         } catch (e) {
-          dispatch(loginUserFailure({
-            response: {
-              status: 403,
-              statusText: 'Invalid token'
-            }
-          }));
+          dispatch(loginUserFailure('Invalid token'));
         }
       })
-      .catch(error => {
-        dispatch(loginUserFailure(error));
-      })
+      .catch(response => {
+        if (response.body.error.errors) {
+          dispatch(loginUserFailure(response.body.error.errors[0].message));
+        } else if (response.body.error.message) {
+          dispatch(loginUserFailure(response.body.error.message));
+        } else {
+          dispatch(loginUserFailure('Login unsuccessful.'));
+        }
+      });
   }
 }
 
@@ -184,9 +179,11 @@ export function signUpUser(name, email, password) {
       .catch(response => {
         if (response.body.error.errors) {
           dispatch(signUpUserFailure(response.body.error.errors[0].message));
+        } else if (response.body.error.message) {
+          dispatch(signUpUserFailure(response.body.error.message));
         } else {
-          dispatch(signUpUserFailure(response.body.error));
+          dispatch(signUpUserFailure('Sign Up unsuccessful.'));
         }
-      })
+      });
   }
 }
