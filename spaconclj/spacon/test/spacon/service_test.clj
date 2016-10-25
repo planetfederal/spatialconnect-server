@@ -1,34 +1,15 @@
 (ns spacon.service-test
   (:require [clojure.test :refer :all]
+            [clojure.data.json :as json]
             [io.pedestal.test :refer :all]
             [io.pedestal.http :as bootstrap]
-            [spacon.service :as service]))
+            [spacon.http.service :as service]))
 
 (def service
   (::bootstrap/service-fn (bootstrap/create-servlet service/service)))
 
-(deftest home-page-test
+(deftest ping
   (is (=
-       (:body (response-for service :get "/"))
-       "Hello World!"))
-  (is (=
-       (:headers (response-for service :get "/"))
-       {"Content-Type" "text/html;charset=UTF-8"
-        "Strict-Transport-Security" "max-age=31536000; includeSubdomains"
-        "X-Frame-Options" "DENY"
-        "X-Content-Type-Options" "nosniff"
-        "X-XSS-Protection" "1; mode=block"})))
-
-
-(deftest about-page-test
-  (is (.contains
-       (:body (response-for service :get "/about"))
-       "Clojure 1.8"))
-  (is (=
-       (:headers (response-for service :get "/about"))
-       {"Content-Type" "text/html;charset=UTF-8"
-        "Strict-Transport-Security" "max-age=31536000; includeSubdomains"
-        "X-Frame-Options" "DENY"
-        "X-Content-Type-Options" "nosniff"
-        "X-XSS-Protection" "1; mode=block"})))
+       (:body (response-for service :get "/ping"))
+       (json/write-str {:response "pong"}))))
 

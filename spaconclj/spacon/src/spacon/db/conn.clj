@@ -14,6 +14,9 @@
                 {:connection-uri "jdbc:postgresql://localhost:5432/spacon?user=spacon&password=spacon"})
    :migrations (jdbc/load-resources "migrations")})
 
+(defrecord Database [host port db user pass]
+  )
+
 (defn migrate [] (repl/migrate (loadconfig)))
 
 (defn rollback [] (repl/rollback (loadconfig)))
