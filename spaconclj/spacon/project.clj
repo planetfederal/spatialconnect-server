@@ -17,7 +17,7 @@
                  [org.slf4j/log4j-over-slf4j "1.7.21"]
                  [pedestal-api "0.3.1-SNAPSHOT" :exclusions [prismatic/schema]]
                  [prismatic/schema "1.1.3"]
-                 ]
+                 [com.stuartsierra/component "0.3.1"]]
 
   :def-dependencies [[lein-reload "1.0.0"]]
 

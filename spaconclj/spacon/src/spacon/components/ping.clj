@@ -9,7 +9,3 @@
   (stop [this]
     (print "Stopping Ping")
     ))
-
-
-
-(def routes #{["/" :get ]})

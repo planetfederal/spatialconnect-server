@@ -1,39 +1,63 @@
 (ns spacon.server
-  (:gen-class) ; for -main method in uberjar
+  (:gen-class)                                              ; for -main method in uberjar
   (:require [io.pedestal.http :as server]
             [io.pedestal.http.route :as route]
-            [spacon.http.service :as service]))
+            [spacon.http.service :as service]
+            [com.stuartsierra.component :as component]
+            [clojure.tools.namespace.repl :refer (refresh)]))
 
-(defonce runnable-production (server/create-server service/service))
+(defrecord Server [http-service-map]
+  component/Lifecycle
+  (start [component]
+    (let [server (server/create-server http-service-map)]
+      (println "Starting Server")
+      (server/start server)
+      (assoc component :server server)))
+  (stop [component]
+    (println "Stopping Server")
+    (update-in component [:server] server/stop)))
 
-(defonce dev-server (atom nil))
+(defn new-server [http-config]
+  (map->Server {:http-service-map http-config} ))
 
-(defn run-dev
-  "The entry-point for 'lein run-dev'"
-  [& args]
-  (println "\nCreating your [DEV] server...")
-  (-> service/service ;; start with production configuration
-      (merge {:env :dev
-              ::server/join? false
-              ::server/routes #(route/expand-routes (deref #'service/routes))
-              ::server/allowed-origins {:creds true :allowed-origins (constantly true)}})
-      server/default-interceptors
-      server/dev-interceptors
-      server/create-server
-      server/start))
+(defn system [config-options]
+  (let [{:keys [http-config]} config-options]
+    (component/system-map
+      :server (new-server http-config))))
+
+(defn init-dev []
+  (system
+    {:http-config
+     (merge service/service {:env                     :dev
+                             ::server/join?           false
+                             ::server/routes          #(route/expand-routes (deref #'service/routes))
+                             ::server/allowed-origins {:creds true :allowed-origins (constantly true)}})}))
 
 (defn stop-dev []
-  (server/stop @dev-server))
+  (component/stop-system system))
 
-(defn start-dev []
-  (reset! dev-server (run-dev)))
+(def system-val nil)
 
-(defn restart []
-  (stop-dev)
-  (start-dev))
+(defn init []
+  (alter-var-root #'system-val (constantly (init-dev))))
+
+(defn start []
+  (alter-var-root #'system-val component/start-system))
+
+(defn stop []
+  (alter-var-root #'system-val
+                  (fn [s] (when s (component/stop-system s)))))
+
+(defn go []
+  (init)
+  (start))
+
+(defn reset []
+  (stop)
+  (go))
 
 (defn -main
   "The entry-point for 'lein run'"
   [& args]
   (println "\nCreating your server...")
-  (server/start runnable-production))
+  (component/start-system (system {:http-config service/service})))
