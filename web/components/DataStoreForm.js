@@ -39,8 +39,8 @@ export class DataStoreForm extends Component {
     let store = {
       name: this.refs.name.value,
       store_type: this.refs.store_type.value,
-      version: this.refs.version.value,
-      uri: this.refs.uri.value
+      version: this.refs.version.value.trim(),
+      uri: this.refs.uri.value.trim()
     }
     if (this.refs.default_layers) {
       store.default_layers = this.getChosenLayers();
@@ -107,8 +107,8 @@ export class DataStoreForm extends Component {
           {errors.store_type ? <p className="text-danger">{errors.store_type}</p> : ''}
         </div>
         <div className="form-group">
-          <label>Version:</label>
-          <input type="text" className="form-control" defaultValue={store.version} ref="version" />
+          <label>Versionsss:</label>
+          <input type="text" className="form-control" defaultValue={store.version} ref="version" maxLength={15} />
           {errors.version ? <p className="text-danger">{errors.version}</p> : ''}
         </div>
         <div className="form-group">
