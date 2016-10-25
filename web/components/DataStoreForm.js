@@ -107,7 +107,7 @@ export class DataStoreForm extends Component {
           {errors.store_type ? <p className="text-danger">{errors.store_type}</p> : ''}
         </div>
         <div className="form-group">
-          <label>Versionsss:</label>
+          <label>Version:</label>
           <input type="text" className="form-control" defaultValue={store.version} ref="version" maxLength={15} />
           {errors.version ? <p className="text-danger">{errors.version}</p> : ''}
         </div>
