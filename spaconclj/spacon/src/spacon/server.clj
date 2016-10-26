@@ -4,12 +4,15 @@
             [io.pedestal.http.route :as route]
             [spacon.http.service :as service]
             [com.stuartsierra.component :as component]
-            [clojure.tools.namespace.repl :refer (refresh)]))
+            [clojure.tools.namespace.repl :refer (refresh)]
+            [spacon.components.database :as database]
+            [spacon.components.ping :as ping]
+            [spacon.components.device :as device]))
 
-(defrecord Server [http-service-map]
+(defrecord Server [service]
   component/Lifecycle
   (start [component]
-    (let [server (server/create-server http-service-map)]
+    (let [server (server/create-server (:service-def service))]
       (println "Starting Server")
       (server/start server)
       (assoc component :server server)))
@@ -17,21 +20,32 @@
     (println "Stopping Server")
     (update-in component [:server] server/stop)))
 
-(defn new-server [http-config]
-  (map->Server {:http-service-map http-config} ))
+(defn new-server []
+  (map->Server {} ))
 
 (defn system [config-options]
   (let [{:keys [http-config]} config-options]
     (component/system-map
-      :server (new-server http-config))))
+      :database (database/make-db-spec)
+      :ping (component/using
+              (ping/make-ping-component)
+              [:database])
+      :device (component/using
+                (device/make-device-component)
+                [:database])
+      :service (component/using
+                 (service/make-service http-config)
+                 [:ping :device])
+      :server (component/using
+                (new-server)
+                [:service]))))
 
 (defn init-dev []
   (system
     {:http-config
-     (merge service/service {:env                     :dev
-                             ::server/join?           false
-                             ::server/routes          #(route/expand-routes (deref #'service/routes))
-                             ::server/allowed-origins {:creds true :allowed-origins (constantly true)}})}))
+     {:env                     :dev
+      ::server/join?           false
+      ::server/allowed-origins {:creds true :allowed-origins (constantly true)}}}))
 
 (defn stop-dev []
   (component/stop-system system))
@@ -60,4 +74,4 @@
   "The entry-point for 'lein run'"
   [& args]
   (println "\nCreating your server...")
-  (component/start-system (system {:http-config service/service})))
+  (component/start-system (system {:http-config {}})))

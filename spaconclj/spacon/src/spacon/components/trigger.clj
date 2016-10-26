@@ -1,0 +1,1 @@
+(ns spacon.components.trigger)
