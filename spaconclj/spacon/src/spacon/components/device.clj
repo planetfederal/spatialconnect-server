@@ -44,10 +44,6 @@
 (defn http-delete-device [context]
   (delete-device! (get-in [:request-params] context)))
 
-(defn http-create-device [context]
-  (let [device (create-device<! context)]
-    device))
-
 (defn- routes [] #{["/api/devices" :get
                     (conj intercept/common-interceptors `http-get)]
                    ["/api/devices/:id" :get
@@ -55,7 +51,7 @@
                    ["/api/devices/:id" :put
                     (conj intercept/common-interceptors `http-put-device)]
                    ["/api/devices" :post
-                    (conj intercept/common-interceptors `http-create-device)]
+                    (conj intercept/common-interceptors `http-post-device)]
                    ["/api/devices/:id" :delete
                     (conj intercept/common-interceptors `http-delete-device)]})
 
@@ -69,4 +65,4 @@
     this))
 
 (defn make-device-component []
-  (map->DeviceComponent {}))
+  (->DeviceComponent))

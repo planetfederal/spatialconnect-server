@@ -6,7 +6,8 @@
             [com.stuartsierra.component :as component]
             [clojure.tools.namespace.repl :refer (refresh)]
             [spacon.components.ping :as ping]
-            [spacon.components.device :as device]))
+            [spacon.components.device :as device]
+            [spacon.components.config :as config]))
 
 (defrecord Server [service]
   component/Lifecycle
@@ -27,6 +28,7 @@
     (component/system-map
       :ping (ping/make-ping-component)
       :device (device/make-device-component)
+      :config (config/make-config-component)
       :service (component/using
                  (service/make-service http-config)
                  [:ping :device])
