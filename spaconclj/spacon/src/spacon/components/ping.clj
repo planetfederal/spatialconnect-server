@@ -8,9 +8,9 @@
   [request]
   (ring-resp/response (json/write-str {:response "pong"})))
 
-(defn- routes [] #{["/ping" :get (conj intercept/common-interceptors `pong)]})
+(defn- routes [] #{["/api/ping" :get (conj intercept/common-interceptors `pong)]})
 
-(defrecord PingComponent [database]
+(defrecord PingComponent []
   component/Lifecycle
   (start [this]
     (assoc this :routes (routes)))

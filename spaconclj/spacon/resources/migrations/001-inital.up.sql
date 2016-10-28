@@ -1,4 +1,31 @@
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
+CREATE EXTENSION IF NOT EXISTS postgis;
+
+--CREATE TABLE IF NOT EXISTS publc.organization
+--(
+--   id serial PRIMARY KEY,
+--   name TEXT
+--)
+--WITH (
+--   OIDS=FALSE
+--);
+--
+--ALTER TABLE public.organization OWNER TO spacon;
+--
+--CREATE TABLE IF NOT EXISTS public.team
+--(
+--    id serial PRIMARY KEY,
+--    name TEXT,
+--    organization_id INTEGER,
+--    CONSTRAINT team_org_id_fkey FOREIGN KEY (organization_id)
+--        REFERENCES public.organization (id) MATCH SIMPLE
+--        ON UPDATE CASCADE ON DELETE CASCADE
+--)
+--WITH (
+--    OIDS=FALSE
+--);
+--
+--ALTER TABLE public.team OWNER TO spacon;
 
 CREATE TABLE IF NOT EXISTS public.stores
 (
@@ -38,6 +65,7 @@ ALTER TABLE public.forms
 CREATE TABLE IF NOT EXISTS public.devices
 (
   id SERIAL PRIMARY KEY,
+  name TEXT,
   identifier text UNIQUE,
   device_info json,
   created_at timestamp DEFAULT NOW(),

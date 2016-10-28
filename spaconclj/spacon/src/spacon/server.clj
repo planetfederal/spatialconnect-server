@@ -5,7 +5,6 @@
             [spacon.http.service :as service]
             [com.stuartsierra.component :as component]
             [clojure.tools.namespace.repl :refer (refresh)]
-            [spacon.components.database :as database]
             [spacon.components.ping :as ping]
             [spacon.components.device :as device]))
 
@@ -26,13 +25,8 @@
 (defn system [config-options]
   (let [{:keys [http-config]} config-options]
     (component/system-map
-      :database (database/make-db-spec)
-      :ping (component/using
-              (ping/make-ping-component)
-              [:database])
-      :device (component/using
-                (device/make-device-component)
-                [:database])
+      :ping (ping/make-ping-component)
+      :device (device/make-device-component)
       :service (component/using
                  (service/make-service http-config)
                  [:ping :device])
