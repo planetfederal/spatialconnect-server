@@ -6,7 +6,7 @@
 
 (defn- pong
   [request]
-  (ring-resp/response (json/write-str {:response "pong"})))
+  (ring-resp/response {:response "pong"}))
 
 (defn- routes [] #{["/api/ping" :get (conj intercept/common-interceptors `pong)]})
 
@@ -15,7 +15,6 @@
   (start [this]
     (assoc this :routes (routes)))
   (stop [this]
-    (print "Stopping Ping")
     this))
 
 (defn make-ping-component []

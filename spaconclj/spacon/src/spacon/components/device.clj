@@ -33,7 +33,7 @@
     (ring-resp/response {:response d})))
 
 (defn http-get-device [context]
-  (let [d (find-device {})]))
+  (let [d (find-device (get-in [:path-params :id] context))]))
 
 (defn http-post-device [context]
   (entity->map (insert-device<! (:body-params context))))
@@ -58,10 +58,8 @@
 (defrecord DeviceComponent []
   component/Lifecycle
   (start [this]
-    (print "Starting Device")
     (assoc this :routes (routes)))
   (stop [this]
-    (print "Stopping Device")
     this))
 
 (defn make-device-component []
