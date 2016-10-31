@@ -23,26 +23,54 @@
   (map (fn [d]
          (entity->map d)) (device-list-query)))
 
-(defn find-device [id]
-  (if-let [d (find-by-id-query id)]
-      (entity->map d)
-      nil))
+(defn find-device [ident]
+    (some-> (find-by-identifier-query {:identifier ident})
+            (last)
+            entity->map))
+
+(defn create-device [d]
+  (let [di (:device_info d)]
+    (entity->map
+      (insert-device<! {:identifier (:identifier d)
+                        :device_info (if (nil? di)
+                                       nil
+                                       (json/write-str di))}))))
+
+(defn update-device [identifier d]
+  (let [di (:device_info d)]
+    (entity->map
+      (update-device<! {:identifier identifier
+                        :device_info (if (nil? di)
+                                       nil
+                                       (json/write-str di))}))))
+
+(defn delete-device [identifier]
+  (delete-device! {:identifier identifier}))
 
 (defn http-get [context]
   (let [d (device-list)]
     (ring-resp/response {:response d})))
 
 (defn http-get-device [context]
-  (let [d (find-device (get-in [:path-params :id] context))]))
+  (if-let [id (get-in context [:path-params :id])]
+    (ring-resp/response {:response (find-device id)})
+    (ring-resp/response {:response nil})))
 
 (defn http-post-device [context]
-  (entity->map (insert-device<! (:body-params context))))
+  (if-let [d (create-device (:json-params context))]
+    (ring-resp/response {:response d})
+    (ring-resp/response {:response "Error creating"})))
 
 (defn http-put-device [context]
-  (entity->map (update-device<! (:body-params context))))
+  (if-let [d (update-device
+               (get-in context [:path-params :id])
+               (:json-params context))]
+    (ring-resp/response {:response d})
+    (ring-resp/response {:response "Error updating"})))
 
 (defn http-delete-device [context]
-  (delete-device! (get-in [:request-params] context)))
+  (delete-device (get-in context [:path-params :id]))
+  (ring-resp/response {:response "success"}))
 
 (defn- routes [] #{["/api/devices" :get
                     (conj intercept/common-interceptors `http-get)]

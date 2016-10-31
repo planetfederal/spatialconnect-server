@@ -8,13 +8,16 @@
             [spacon.components.ping :as ping]
             [com.stuartsierra.component :as component]))
 
-(defrecord Service [http-config ping device]
+(defrecord Service [http-config ping device location]
   component/Lifecycle
   (start [this]
     (println (:routes ping))
       (assoc this :service-def (merge http-config {:env :prod
                                                ::http/routes #(route/expand-routes
-                                                               (clojure.set/union #{} (:routes ping) (:routes device)))
+                                                               (clojure.set/union #{}
+                                                                                  (:routes ping)
+                                                                                  (:routes device)
+                                                                                  (:routes location)))
                                                ::http/resource-path "/public"
                                                ::http/type :jetty
                                                ::http/port 8080

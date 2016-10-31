@@ -7,7 +7,8 @@
             [clojure.tools.namespace.repl :refer (refresh)]
             [spacon.components.ping :as ping]
             [spacon.components.device :as device]
-            [spacon.components.config :as config]))
+            [spacon.components.config :as config]
+            [spacon.components.location :as location]))
 
 (defrecord Server [service]
   component/Lifecycle
@@ -29,9 +30,10 @@
       :ping (ping/make-ping-component)
       :device (device/make-device-component)
       :config (config/make-config-component)
+      :location (location/make-location-component)
       :service (component/using
                  (service/make-service http-config)
-                 [:ping :device])
+                 [:ping :device :location])
       :server (component/using
                 (new-server)
                 [:service]))))

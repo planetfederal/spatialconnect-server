@@ -8,11 +8,8 @@
             [com.stuartsierra.component :as component]
             [spacon.components.device :as device]))
 
-
-
 (deftest test-system
   (spacon.server/go)
-  (let [service (get-in [:service] spacon.server/system-val)]
-    (print "fooooooo")
-    (print service))
+    (is (= (:body (response-for (:service-def service) :get "/api/ping"))
+           {:response "pong"})))
   (spacon.server/stop))

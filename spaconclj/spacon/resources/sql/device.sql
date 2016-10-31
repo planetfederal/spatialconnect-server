@@ -33,8 +33,10 @@ WHERE identifier = :identifier AND deleted_at IS NULL
 
 -- name: update-device<!
 -- updates the device
-UPDATE devices SET identifier = :identifier, updated_at = NOW() WHERE id = :id
+UPDATE devices SET
+device_info = :device_info::json,
+updated_at = NOW() WHERE identifier = :identifier
 
 -- name: delete-device!
 -- deletes the device
-UPDATE devices SET deleted_at = NOW() WHERE id = :id
+UPDATE devices SET deleted_at = NOW() WHERE identifier = :identifier
