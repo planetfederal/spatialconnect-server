@@ -1,6 +1,6 @@
 {
   "name": "spacon-server",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "SpatialConnect backend server for mobile lib and form builder",
   "main": "server.js",
   "scripts": {
