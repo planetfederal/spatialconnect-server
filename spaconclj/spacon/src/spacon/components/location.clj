@@ -10,34 +10,32 @@
             {:connection db/db-spec})
 
 (defn entity->map [c]
-  (print (.toString (:updated_at c)))
   (assoc c :device_info (if-let [v (:device_info c)]
-                  (json/read-str (.getValue v))
-                  nil)
-           :updated_at (.toString (:updated_at c))
-           ))
+                          (json/read-str (.getValue v))
+                          nil)
+           :updated_at (.toString (:updated_at c))))
 
-(defn locations[]
+(defn locations []
   (map (fn [d]
          (entity->map d)) (device-locations)))
 
 (defn location->geojson [locations]
   (map (fn [l]
-         {:type "Feature"
-          :id (:identifier l)
-          :geometry {:type "Point"
+         {:type     "Feature"
+          :id       (:identifier l)
+          :geometry {:type        "Point"
                      :coordinates [(:x l) (:y l) (:z l)]
                      }
-          :metadata {:device {:device_info (:device_info l)
-                              :identifier (:identifier l)
-                              }
+          :metadata {:device     {:device_info (:device_info l)
+                                  :identifier  (:identifier l)
+                                  }
                      :updated_at (:updated_at l)
                      }
           }) locations))
 
 (defn http-get [context]
   (let [fs (location->geojson (locations))]
-    (ring-resp/response {:response {:type "FeatureCollection"
+    (ring-resp/response {:response {:type     "FeatureCollection"
                                     :features fs}})))
 
 (defn- routes [] #{["/api/location" :get

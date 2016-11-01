@@ -11,5 +11,5 @@
 (deftest test-system
   (spacon.server/go)
     (is (= (:body (response-for (:service-def service) :get "/api/ping"))
-           {:response "pong"})))
+           {:response "pong"}))
   (spacon.server/stop))

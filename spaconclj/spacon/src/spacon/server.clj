@@ -8,7 +8,8 @@
             [spacon.components.ping :as ping]
             [spacon.components.device :as device]
             [spacon.components.config :as config]
-            [spacon.components.location :as location]))
+            [spacon.components.location :as location]
+            [spacon.components.trigger :as trigger]))
 
 (defrecord Server [service]
   component/Lifecycle
@@ -31,9 +32,10 @@
       :device (device/make-device-component)
       :config (config/make-config-component)
       :location (location/make-location-component)
+      :trigger (trigger/make-trigger-component)
       :service (component/using
                  (service/make-service http-config)
-                 [:ping :device :location])
+                 [:ping :device :location :trigger])
       :server (component/using
                 (new-server)
                 [:service]))))
