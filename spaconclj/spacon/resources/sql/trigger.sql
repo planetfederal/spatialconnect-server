@@ -9,12 +9,17 @@ SELECT * FROM triggers WHERE deleted_at IS NULL AND id = :id
 
 -- name: insert-trigger<!
 -- inserts a new trigger definition
-INSERT INTO triggers (recipients,definition,created_at,updated_at)
-VALUES (:recipients,:definition::json,NOW(),NOW());
+INSERT INTO triggers (name,description,recipients,definition,created_at,updated_at)
+VALUES (:name,:description,:recipients,:definition::json,NOW(),NOW())
 
 -- name: update-trigger<!
 -- updates definition and recipients
-UPDATE triggers SET recipients = :recipients, definition = :definition, updated_at = NOW()
+UPDATE triggers SET
+name = :name,
+description = :description,
+recipients = :recipients,
+definition = :definition::json,
+updated_at = NOW()
 WHERE id = :id
 
 -- name: delete-trigger!

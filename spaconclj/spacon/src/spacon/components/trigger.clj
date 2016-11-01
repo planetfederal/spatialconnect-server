@@ -14,8 +14,9 @@
    :created_at (.toString (:created_at t))
    :updated_at (.toString (:updated_at t))
    :definition (if-let [v (:definition t)]
-                         (json/read-str (.getValue v))
-                         nil)
+                         (if (string? v)
+                           (json/read-str (.getValue v))
+                           v))
    :recipients (:recipients t)})
 
 (defn row-fn [row]
@@ -37,14 +38,34 @@
           (first)
           entity->map))
 
+(defn map->entity [t]
+  (if (nil? (:definition t))
+    t
+    (assoc t :definition (json/write-str (:definition t)))))
+
+(deftype StringArray [items]
+  clojure.java.jdbc/ISQLParameter
+  (set-parameter [_ stmt ix]
+    (let [as-array (into-array Object items)
+          jdbc-array (.createArrayOf (.getConnection stmt) "text" as-array)]
+      (.setArray stmt ix jdbc-array))))
+
 (defn create-trigger [t]
-  (insert-trigger<! t))
+  (let [entity (map->entity t)
+        new-trigger (insert-trigger<! (assoc entity :recipients (->StringArray (:recipients t))))]
+    (entity->map (assoc t :id (:id new-trigger)
+                          :created_at (:created_at new-trigger)
+                          :updated_at (:updated_at new-trigger)))))
 
 (defn update-trigger [id t]
-  (update-trigger<! t))
+  (let [entity (map->entity (assoc t :id (java.util.UUID/fromString id)))
+        updated-trigger (update-trigger<! (assoc entity :recipients (->StringArray (:recipients t))))]
+    (entity->map (assoc t :id (:id updated-trigger)
+                          :created_at (:created_at updated-trigger)
+                          :updated_at (:updated_at updated-trigger)))))
 
 (defn delete-trigger [id]
-  (delete-trigger! {:id id}))
+  (delete-trigger! {:id (java.util.UUID/fromString id)}))
 
 (defn http-get [context]
   (ring-resp/response {:response (trigger-list)}))
@@ -60,7 +81,8 @@
   (ring-resp/response {:response (create-trigger (:json-params context))}))
 
 (defn http-delete-trigger [context]
-  (ring-resp/response {:response (delete-trigger (get-in context [:path-params :id]))}))
+  (delete-trigger (get-in context [:path-params :id]))
+  (ring-resp/response {:response "success"}))
 
 (defn- routes [] #{["/api/triggers" :get
                     (conj intercept/common-interceptors `http-get)]
