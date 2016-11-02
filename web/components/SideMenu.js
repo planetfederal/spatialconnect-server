@@ -24,6 +24,10 @@ const SideMenu = ({ isAuthenticated, actions, userName }) => (
         <div className="side-menu-item">
           <a href='#' onClick={() => actions.logoutAndRedirect()} aria-hidden="true">Sign Out</a>
         </div>
+        <div className="side-menu-spacer"></div>
+        <div className="side-menu-item bottom">
+          <span>{'v'+VERSION}</span>
+        </div>
       </nav>
       : <nav>
             <div className="side-menu-item">
@@ -34,6 +38,7 @@ const SideMenu = ({ isAuthenticated, actions, userName }) => (
             </div>
         </nav>
     }
+
   </div>
 );
 
