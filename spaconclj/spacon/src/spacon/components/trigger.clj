@@ -4,7 +4,8 @@
             [yesql.core :refer [defqueries]]
             [clojure.data.json :as json]
             [spacon.http.intercept :as intercept]
-            [ring.util.response :as ring-resp]))
+            [ring.util.response :as ring-resp])
+  (:import (org.postgresql.util PGobject)))
 
 (defqueries "sql/trigger.sql"
             {:connection db/db-spec})
@@ -14,9 +15,9 @@
    :created_at (.toString (:created_at t))
    :updated_at (.toString (:updated_at t))
    :definition (if-let [v (:definition t)]
-                         (if (string? v)
-                           (json/read-str (.getValue v))
-                           v))
+                         (cond (string? v) (json/read-str (.getValue v))
+                               (instance? org.postgresql.util.PGobject v) (json/read-str (.getValue v))
+                                :else v))
    :recipients (:recipients t)})
 
 (defn row-fn [row]
