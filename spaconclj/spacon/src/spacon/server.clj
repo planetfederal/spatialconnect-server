@@ -9,7 +9,8 @@
             [spacon.components.device :as device]
             [spacon.components.config :as config]
             [spacon.components.location :as location]
-            [spacon.components.trigger :as trigger]))
+            [spacon.components.trigger :as trigger]
+            [spacon.components.mqtt :as mqtt]))
 
 (defrecord Server [service]
   component/Lifecycle
@@ -29,6 +30,7 @@
   (let [{:keys [http-config]} config-options]
     (component/system-map
       :ping (ping/make-ping-component)
+      :mqtt (mqtt/make-mqtt-component {})
       :device (device/make-device-component)
       :config (config/make-config-component)
       :location (location/make-location-component)
