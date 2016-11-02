@@ -52,7 +52,7 @@ export class LoginView extends Component {
             <button type='submit'
               className='btn btn-sc'
               disabled={this.props.isAuthenticating}
-              onClick={this.login.bind(this)}>Login</button>
+              onClick={this.login.bind(this)}>Sign In</button>
         </form>
       </div>
     </section>

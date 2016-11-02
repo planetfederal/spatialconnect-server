@@ -3,6 +3,7 @@
 html, body {
   height: 100%;
   width: 100%;
+  font-family: 'Rubik', sans-serif;
 }
 
 #root {
@@ -15,74 +16,121 @@ html, body {
   height: 100%;
   display: flex;
   flex-direction: column;
+  background-color: @main_gray;
 }
 
 .main-container {
   display: flex;
   flex: 1;
   position: relative;
+  flex-direction: row;
+}
+
+.side-menu {
+  min-width: 250px;
+  padding: 10px 10px 10px 0;
+  height: 100%;
+  overflow-y: auto;
+  nav {
+    .side-menu-item {
+      margin: 0 0 10px 0;
+    }
+    .side-menu-title {
+      font-size: 12px;
+      display: inline-block;
+      width: 100%;
+      padding: 10px 0 5px 10px;
+    }
+    .side-menu-separator {
+      height: 20px;
+      width: 100%;
+      margin-bottom: 20px;
+      border-bottom: 1px solid @main_border;
+    }
+    a {
+      color: @main_black;
+      display: inline-block;
+      width: 100%;
+      padding: 5px 0 5px 10px;
+      &.active {
+        background-color: darken(@main_gray, 10%);
+        color: @main;
+      }
+    }
+  }
 }
 
 .wrapper {
   height: 100%;
   width: 100%;
-  position: absolute;
+  min-width: 500px;
+  flex: 1;
 }
 
 header {
-  background-color: @lightblue;
+  background-color: @main;
   display: flex;
   height: 40px;
-  a {
-    color: white;
-    font-size: 19px;
-    line-height: 40px;
-    padding: 0 10px;
-    &:hover {
+  z-index: 999;
+  box-shadow: 0 0px 3px rgba(0,0,0,0.12), 0 0px 2px rgba(0,0,0,0.24);
+  .header-title {
+    width: 250px;
+    a {
       color: white;
-    }
-    &:focus {
-      color: white;
+      font-size: 19px;
+      line-height: 40px;
+      padding: 0 10px;
+      &:hover {
+        color: white;
+      }
+      &:focus {
+        color: white;
+      }
     }
   }
-}
-
-nav {
-  flex-grow: 1;
-  a {
-    display: inline-block;
-    color: white;
-    font-size: 14px;
-    line-height: 40px;
-    &:hover {
+  nav .breadcrumbs {
+    flex-grow: 1;
+    span {
+      font-size: 16px;
+      line-height: 40px;
       color: white;
     }
-    &:focus {
+    .breadcrumbs-separator {
+      color: red;
+    }
+    a {
       color: white;
+      &:hover {
+        color: white;
+      }
+      &:focus {
+        color: white;
+      }
     }
-    &.active {
-      background: lighten(@lightblue, 10%);
+    .user {
+      float: right;
+      display: inline-block;
+      color: white;
+      margin-right: 10px;
+      font-size: 14px;
+      line-height: 40px;
     }
-  }
-  .user {
-    float: right;
-    display: inline-block;
-    color: white;
-    margin-right: 10px;
-    font-size: 14px;
-    line-height: 40px;
   }
 }
 
 footer {
   height: 40px;
-  background: @lightblue;
+  background: @main;
 }
 
 section.main {
-  padding: 10px;
+  padding: 10px 10px 0 0;
   height: 100%;
   overflow-y: auto;
+}
+
+section.main.noPad {
+  padding: 0;
 }
 
 .btn-toolbar {

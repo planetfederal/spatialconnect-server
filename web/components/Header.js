@@ -1,28 +1,26 @@
-import React, { PropTypes } from 'react';
+import React, { Component, PropTypes } from 'react';
 import { Link } from 'react-router';
+import Breadcrumbs from './Breadcrumbs';
 
-const Header = ({ isAuthenticated, logout, userName }) => (
-  <header>
-    <Link to="/">EFC Dashboard</Link>
-    {isAuthenticated ?
-      <nav>
-        <Link to="/stores" activeClassName="active">Stores</Link>
-        <Link to="/forms" activeClassName="active">Forms</Link>
-        <Link to="/triggers" activeClassName="active">Triggers</Link>
-        <Link to="/data" activeClassName="active">Data</Link>
-        <div className="user">{ userName }
-          <a href='#' onClick={() => logout()} className="glyphicon glyphicon-log-out" aria-hidden="true"></a>
+class Header extends Component {
+  render() {
+    //console.log('Header props', this.props);
+    const { isAuthenticated, logout, userName, routes } = this.props;
+    const depth = routes.length;
+    return (
+      <header>
+        <div className="header-title">
+          <Link to="/">spatialconnect</Link>
         </div>
-      </nav>
-      : <nav>
-          <div className="user">{ userName }
-            <Link to="/login" activeClassName="active">Login</Link>
-            <Link to="/signup" activeClassName="active">Sign Up</Link>
-          </div>
-        </nav>
-    }
-  </header>
-);
+        {isAuthenticated &&
+          <nav>
+            <Breadcrumbs {...this.props} />
+          </nav>
+        }
+      </header>
+    );
+  }
+}
 
 Header.propTypes = {
   isAuthenticated: PropTypes.bool.isRequired,

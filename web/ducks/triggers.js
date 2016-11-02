@@ -108,17 +108,11 @@ export function loadTrigger(triggerId, refresh=false) {
   return (dispatch, getState) => {
     const { sc } = getState();
     let token = sc.auth.token;
-    let trigger = find(sc.triggers.spatial_triggers, { id: triggerId });
-    if (trigger && !refresh) {
-      return dispatch(receiveTriggers([trigger]));
-    } else {
-      //dispatch({ type: LOAD });
-      return request
-        .get(API_URL + 'triggers/' + triggerId)
-        .set('x-access-token', token)
-        .then(res => res.body.result)
-        .then(data => dispatch(receiveTriggers([data])));
-    }
+    return request
+      .get(API_URL + 'triggers/' + triggerId)
+      .set('x-access-token', token)
+      .then(res => res.body.result)
+      .then(data => dispatch(receiveTriggers([data])));
   }
 }
 

@@ -134,7 +134,7 @@ export function logout() {
 export function logoutAndRedirect() {
   return (dispatch, state) => {
     dispatch(logout());
-    dispatch(push('/'));
+    dispatch(push('/login'));
   };
 }
 

@@ -279,25 +279,17 @@ export function loadForms() {
 export function loadForm(form_key) {
   return (dispatch, getState) => {
     const { sc } = getState();
-    //load from cache
-    let form = sc.forms.get('forms').find(f => f.get('form_key') === form_key)
-    if (form) {
-      dispatch(
-        receiveForms([form.toJS()])
-      );
-    } else {
-      let token = sc.auth.token;
-      dispatch({ type: LOAD });
-      request
-        .get(API_URL + 'forms/' + form_key)
-        .set('x-access-token', token)
-        .end(function(err, res) {
-          if (err) {
-            throw new Error(res);
-          }
-          dispatch(receiveForms([res.body.result]));
-        });
-    }
+    let token = sc.auth.token;
+    dispatch({ type: LOAD });
+    request
+      .get(API_URL + 'forms/' + form_key)
+      .set('x-access-token', token)
+      .end(function(err, res) {
+        if (err) {
+          throw new Error(res);
+        }
+        dispatch(receiveForms([res.body.result]));
+      });
   };
 }
 

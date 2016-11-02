@@ -5,8 +5,9 @@
   flex: 1;
   .data-form-list {
     width: 250px;
-    background: @BACKGROUND_COLOR;
-    border-right: 1px solid @BORDER_COLOR;
+    background: white;
+    border-right: 1px solid @main_border;
+    border-left: 1px solid @main_border;
     overflow-y: auto;
     .data-form-list-title {
       font-size: 18px;
@@ -18,9 +19,9 @@
     }
     .data-form-list-items {
       .data-form-list-item {
-        color: @lightblue;
+        color: @main;
         padding: 10px 5px;
-        border-bottom: 1px solid @BORDER_COLOR;
+        border-bottom: 1px solid @main_border;
         cursor: pointer;
         h4 {
           margin: 0 0 0 5px;

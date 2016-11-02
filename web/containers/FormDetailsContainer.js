@@ -31,7 +31,9 @@ class FormDetailsContainer extends Component {
   }
 
   componentWillMount() {
-    this.props.actions.loadForm(this.props.form_key);
+    if (!this.props.form) {
+      this.props.actions.loadForm(this.props.form_key);
+    }
   }
 
   checkEditStatus(props) {
@@ -72,11 +74,10 @@ class FormDetailsContainer extends Component {
   render() {
     const {loading, forms, form, activeForm, saved_form} = this.props;
     if (!form) {
-      return <div className="wrapper">Fetching Form...</div>
+      return <div className="form-details">Fetching Form...</div>
     } else {
       return (
-        <div className="wrapper">
-          <div className="form-details">
+        <div className="form-details">
           <Modal
             isOpen={this.state.modalIsOpen}
             className="sc-modal"
@@ -88,40 +89,39 @@ class FormDetailsContainer extends Component {
             }) : <div></div>}
             <button className="btn btn-sc" onClick={this.closeModal.bind(this)}>Dismiss</button>
           </Modal>
-            <FormInfoBar
+          <FormInfoBar
+            form={form}
+            saved_form={saved_form}
+            updateActiveForm={this.props.actions.updateActiveForm}
+            saveForm={this.saveForm.bind(this)}
+            edited={this.state.edited}
+            />
+          <div className="form-builder">
+            <FormControls
               form={form}
-              saved_form={saved_form}
-              updateActiveForm={this.props.actions.updateActiveForm}
-              saveForm={this.saveForm.bind(this)}
-              edited={this.state.edited}
+              addField={(options) => this.props.actions.addField(options)}
+              updateForm={(newForm) => this.props.actions.updateForm(newForm)}
               />
-            <div className="form-builder">
-              <FormControls
+            <FormPreview
+              form={form}
+              updateActiveField={this.props.actions.updateActiveField}
+              updateFormValue={this.props.actions.updateFormValue}
+              swapFieldOrder={this.props.actions.swapFieldOrder}
+              />
+            {activeForm !== false ?
+              <FormOptions
                 form={form}
-                addField={(options) => this.props.actions.addField(options)}
-                updateForm={(newForm) => this.props.actions.updateForm(newForm)}
-                />
-              <FormPreview
+                updateFormName={this.props.actions.updateFormName}
+                deleteForm={this.props.actions.deleteForm}
+                /> :
+              <FieldOptions
                 form={form}
-                updateActiveField={this.props.actions.updateActiveField}
-                updateFormValue={this.props.actions.updateFormValue}
-                swapFieldOrder={this.props.actions.swapFieldOrder}
+                updateFieldOption={this.props.actions.updateFieldOption}
+                removeField={this.props.actions.removeField}
+                changeFieldName={this.props.actions.changeFieldName}
+                changeRequired={this.props.actions.changeRequired}
                 />
-              {activeForm !== false ?
-                <FormOptions
-                  form={form}
-                  updateFormName={this.props.actions.updateFormName}
-                  deleteForm={this.props.actions.deleteForm}
-                  /> :
-                <FieldOptions
-                  form={form}
-                  updateFieldOption={this.props.actions.updateFieldOption}
-                  removeField={this.props.actions.removeField}
-                  changeFieldName={this.props.actions.changeFieldName}
-                  changeRequired={this.props.actions.changeRequired}
-                  />
-              }
-            </div>
+            }
           </div>
         </div>
       );

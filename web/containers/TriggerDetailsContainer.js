@@ -9,7 +9,9 @@ import * as triggerActions from '../ducks/triggers';
 class TriggerDetailsContainer extends Component {
 
   componentDidMount() {
-    this.props.actions.loadTrigger(this.props.id);
+    if (!this.props.trigger) {
+      this.props.actions.loadTrigger(this.props.id);
+    }
   }
 
   render() {

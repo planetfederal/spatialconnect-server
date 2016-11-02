@@ -2,6 +2,7 @@
 import React, { Component, PropTypes } from 'react';
 import { Link, browserHistory } from 'react-router';
 import { isEqual } from 'lodash';
+import TriggerItem from './TriggerItem';
 import '../style/Triggers.less';
 
 const format = new ol.format.GeoJSON();
@@ -149,7 +150,8 @@ class TriggerDetails extends Component {
         <button className="btn btn-default" onClick={this.onCancel.bind(this)}>Cancel</button>
       </div> :
       <div className="btn-toolbar">
-        <button className="btn btn-sc" onClick={this.onCreate.bind(this)}>Create</button>
+        <button className="btn btn-sc" onClick={this.onCreate.bind(this)}>Draw</button>
+        <button className="btn btn-danger" onClick={this.onDelete.bind(this)}>Delete</button>
       </div>
     } else return null;
   }
@@ -163,6 +165,7 @@ class TriggerDetails extends Component {
       </div> :
       <div className="btn-toolbar">
         <button className="btn btn-sc" onClick={this.onEdit.bind(this)}>Edit</button>
+        <button className="btn btn-danger" onClick={this.onDelete.bind(this)}>Delete</button>
       </div>
     } else return null;
   }
@@ -172,16 +175,9 @@ class TriggerDetails extends Component {
     return (
       <div className="trigger-details">
         <div className="trigger-props">
-          <h4>{trigger.name}</h4>
-          {trigger.description ?
-            <p>{trigger.description}</p> :
-            null
-          }
+          <TriggerItem trigger={this.props.trigger} />
           {this.renderCreating()}
           {this.renderEditing()}
-          <div className="btn-toolbar">
-            <button className="btn btn-danger" onClick={this.onDelete.bind(this)}>Delete</button>
-          </div>
         </div>
         <div className="trigger-map" ref="map">
         </div>

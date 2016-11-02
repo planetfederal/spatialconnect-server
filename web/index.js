@@ -53,27 +53,24 @@ const history = syncHistoryWithStore(browserHistory, store);
 // explicitly as a prop
 render(
   <Provider store={store}>
-    { /* Tell the Router to use our enhanced history */ }
     <Router history={history}>
-      <Route path="/" component={AppContainer}>
+      <Route path="/" name="Home" component={AppContainer}>
         <IndexRoute component={Home} />
-        <Route path="/login" component={LoginContainer}/>
-        <Route path="/signup" component={SignUpContainer}/>
-        <Route path="/stores" component={requireAuthentication(DataStoresContainer)}>
+        <Route path="/login" name="Login" component={LoginContainer}/>
+        <Route path="/signup" name="Sign Up" component={SignUpContainer}/>
+        <Route path="/stores" name="Stores" component={requireAuthentication(DataStoresContainer)}>
+          <Route path="/stores/:id" staticName={true} component={requireAuthentication(DataStoresDetailsContainer)}>
+          </Route>
         </Route>
-        <Route path="/stores/:id" component={requireAuthentication(DataStoresDetailsContainer)} >
+        <Route path="/forms" name="Forms" component={requireAuthentication(FormsContainer)}>
+          <Route path="/forms/:form_key" staticName={true} component={requireAuthentication(FormDetailsContainer)} >
+          </Route>
         </Route>
-        <Route path="/stores/edit/:id" component={requireAuthentication(DataStoresDetailsContainer)} >
+        <Route path="/triggers" name="Triggers" component={requireAuthentication(TriggersContainer)}>
+          <Route path="/triggers/:id" staticName={true} component={requireAuthentication(TriggerDetailsContainer)}>
+          </Route>
         </Route>
-        <Route path="/forms" component={requireAuthentication(FormsContainer)}>
-        </Route>
-        <Route path="/forms/:form_key" component={requireAuthentication(FormDetailsContainer)} >
-        </Route>
-        <Route path="/data" component={requireAuthentication(DataContainer)}>
-        </Route>
-        <Route path="/triggers" component={requireAuthentication(TriggersContainer)}>
-        </Route>
-        <Route path="/triggers/:id" component={requireAuthentication(TriggerDetailsContainer)}>
+        <Route path="/data" name="Data" component={requireAuthentication(DataContainer)}>
         </Route>
       </Route>
     </Router>

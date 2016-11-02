@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import * as formActions from '../ducks/forms';
 import FormsList from '../components/FormsList';
 import FormCreate from '../components/FormCreate';
+import FormDetailsContainer from './FormDetailsContainer';
 import { Link, browserHistory } from 'react-router';
 
 class FormsContainer extends Component {
@@ -35,6 +36,16 @@ class FormsContainer extends Component {
   }
 
   render() {
+    const { children } = this.props;
+    if (children) {
+      return (
+        <div className="wrapper">
+          <section className="main noPad">
+            {children}
+          </section>
+        </div>
+      );
+    }
     return (
       <div className="wrapper">
         <section className="main">

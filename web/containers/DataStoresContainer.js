@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import * as dataStoresActions from '../ducks/dataStores';
 import DataStoresList from '../components/DataStoresList';
 import DataStoreForm from '../components/DataStoreForm';
+import DataStoresDetailsContainer from './DataStoresDetailsContainer';
 
 let emptyStore = {
   id: false,
@@ -45,7 +46,16 @@ export class DataStoresContainer extends Component {
   }
 
   render() {
-    const {loading, stores, addingNewDataStore, newDataStoreId, storeErrors, layerList } = this.props;
+    const {loading, stores, addingNewDataStore, newDataStoreId, storeErrors, layerList, children } = this.props;
+    if (children) {
+      return (
+        <div className="wrapper">
+          <section className="main">
+            {children}
+          </section>
+        </div>
+      );
+    }
     return (
       <div className="wrapper">
         <section className="main">
