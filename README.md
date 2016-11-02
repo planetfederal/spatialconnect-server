@@ -5,7 +5,7 @@ using the SpatialConnect libraries.  It's also the API that powers the
 dashboard web application.
 
 ## Version
-0.5
+0.6
 
 ## Running with Docker
 
@@ -107,4 +107,17 @@ And if you want to remove all the containers, you can run
 
 ```
 docker-compose rm -vf
+```
+
+To start the mosquitto container:
+```
+docker-compose up -d mosquitto
+```
+
+To test the TLS configuration, you can use the `mosquitto_pub` command line
+client.  Make sure you obtain a valid token by authenticating to the
+spatialconnect-server container api first.  Also note that the password is
+required even though it is not used.
+```
+mosquitto_pub -h <container hostname or ip> -p 8883 -t "test" -m "sample pub"  -u "valid jwt" -P "anypass" --cafile path/to/ca.crt --insecure -d
 ```

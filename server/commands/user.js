@@ -6,22 +6,25 @@ var Rx = require('rx');
 var models = require('./../models/');
 
 module.exports = {
-  createUser : (user,cc,err) => {
+  createUser : (user) => {
     const email = user.email;
     const password = user.password;
     const name = user.name;
 
     if (!password) {
-      err('password not set');
-      return;
+      return Rx.Observable.throw({
+        message: 'password not set'
+      });
     }
     if (!name) {
-      err('name Not Set');
-      return;
+      return Rx.Observable.throw({
+        message: 'name not set'
+      });
     }
     if (!email) {
-      err('email Not Set');
-      return;
+      return Rx.Observable.throw({
+        message: 'email not set'
+      });
     }
 
     return hashPass(password)

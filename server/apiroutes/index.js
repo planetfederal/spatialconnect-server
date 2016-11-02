@@ -9,9 +9,10 @@ var users = require('./users');
 var wfs = require('./wfs');
 var locations = require('./location');
 var triggers = require('./triggers');
-
 var jwt = require('jsonwebtoken');
 var dispatcher = require('./../dispatcher');
+var authorize = require('./authorize');
+
 
 var apiRoutes = express.Router();
 
@@ -24,7 +25,7 @@ module.exports = function(app) {
     if (req.path === '/users' && req.method === 'POST') {
       return next();
     }
-    var token = req.body.token || req.query.token || req.headers['x-access-token'];
+    var token = req.body.token || req.query.token || req.headers['x-access-token'] || req.headers.authorization.split(' ')[1];
     if (token) {
       jwt.verify(token,'9014607A0AF70C4DF57A4D',(err,decoded) => {
         if (err) {
@@ -46,6 +47,7 @@ module.exports = function(app) {
     }
   });
 
+  apiRoutes.use('/authorize', authorize);
   apiRoutes.use('/config', config);
   apiRoutes.use('/forms', forms);
   apiRoutes.use('/stores', stores(dispatcher));
