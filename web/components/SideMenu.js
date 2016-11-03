@@ -1,41 +1,35 @@
 import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
 
-const SideMenu = ({ isAuthenticated, actions, userName }) => (
-  <div className="side-menu">
+const SideMenuItem = ({ path, name, onClick }) => (
+  <div className="side-menu-item">
+    <Link to={path} activeClassName="active" onClick={onClick}>{name}</Link>
+  </div>
+);
+
+const SideMenu = ({ isAuthenticated, actions, userName, closeMenu, menuOpen }) => (
+  <div className={'side-menu ' + (menuOpen ? 'open' : 'closed')}>
     {isAuthenticated ?
       <nav>
-        <div className="side-menu-item">
-          <Link to="/stores" activeClassName="active">Stores</Link>
-        </div>
-        <div className="side-menu-item">
-          <Link to="/forms" activeClassName="active">Forms</Link>
-        </div>
-        <div className="side-menu-item">
-          <Link to="/triggers" activeClassName="active">Triggers</Link>
-        </div>
-        <div className="side-menu-item">
-          <Link to="/data" activeClassName="active">Data</Link>
-        </div>
+        <SideMenuItem path={'/stores'} name={'Stores'} onClick={closeMenu} />
+        <SideMenuItem path={'/forms'} name={'Forms'} onClick={closeMenu} />
+        <SideMenuItem path={'/triggers'} name={'Triggers'} onClick={closeMenu} />
+        <SideMenuItem path={'/data'} name={'Data'} onClick={closeMenu} />
         <div className="side-menu-separator"></div>
-        <div className="side-menu-item">
-          <Link to={`/user`} activeClassName="active">{userName}</Link>
-        </div>
-        <div className="side-menu-item">
-          <a href='#' onClick={() => actions.logoutAndRedirect()} aria-hidden="true">Sign Out</a>
-        </div>
+        <SideMenuItem path={'/user'} name={userName} onClick={closeMenu} />
+        <SideMenuItem path={'/login'} name={'Sign Out'} onClick={() => {
+          actions.logoutAndRedirect();
+          closeMenu();
+        }} />
+        <div className="side-menu-separator"></div>
         <div className="side-menu-spacer"></div>
         <div className="side-menu-item bottom">
           <span>{'v'+VERSION}</span>
         </div>
       </nav>
       : <nav>
-            <div className="side-menu-item">
-              <Link to="/login" activeClassName="active">Sign In</Link>
-            </div>
-            <div className="side-menu-item">
-              <Link to="/signup" activeClassName="active">Sign Up</Link>
-            </div>
+          <SideMenuItem path={'/login'} name={'Sign In'} onClick={closeMenu} />
+          <SideMenuItem path={'/signup'} name={'Sign Up'} onClick={closeMenu} />
         </nav>
     }
 

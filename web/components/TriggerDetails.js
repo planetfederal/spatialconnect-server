@@ -37,6 +37,9 @@ class TriggerDetails extends Component {
   }
 
   createMap() {
+    while (this.refs.map.firstChild) {
+      this.refs.map.removeChild(this.refs.map.firstChild);
+    }
     this.triggerSource = new ol.source.Vector();
     var triggerLayer = new ol.layer.Vector({
       source: this.triggerSource,
@@ -73,6 +76,10 @@ class TriggerDetails extends Component {
     this.create.on('drawstart', e => {
       this.triggerSource.clear();
     });
+
+    if (this.props.trigger.definition) {
+      this.addTrigger(this.props.trigger);
+    }
 
   }
 
@@ -131,15 +138,16 @@ class TriggerDetails extends Component {
 
   componentDidMount() {
     this.createMap();
-    if (this.props.trigger.definition) {
-      this.addTrigger(this.props.trigger);
-    }
+    window.addEventListener("resize", () => {
+      this.createMap();
+    });
   }
 
   componentWillReceiveProps(nextProps) {
     if (!isEqual(nextProps.trigger.definition, this.props.trigger.definition)) {
       this.addTrigger(nextProps.trigger);
     }
+    this.map.updateSize();
   }
 
   renderCreating() {
@@ -171,6 +179,7 @@ class TriggerDetails extends Component {
   }
 
   render() {
+    console.log(this.state.width);
     const { trigger } = this.props;
     return (
       <div className="trigger-details">

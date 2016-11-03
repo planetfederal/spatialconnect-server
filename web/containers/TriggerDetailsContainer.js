@@ -16,11 +16,11 @@ class TriggerDetailsContainer extends Component {
 
   render() {
     return (
-      <div className="trigger-details-container">
+      <section className="main noPad">
         {this.props.trigger ?
           <TriggerDetails {...this.props} />
           : null}
-      </div>
+      </section>
     );
   }
 }

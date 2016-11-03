@@ -12,7 +12,7 @@ import { Router, Route, IndexRoute, browserHistory } from 'react-router';
 import { syncHistoryWithStore, routerReducer, routerMiddleware } from 'react-router-redux';
 import { requireAuthentication } from './utils';
 import { loginUserSuccess } from './ducks/auth';
-import Home from './components/Home';
+import HomeContainer from './containers/HomeContainer';
 import SignUpContainer from './containers/SignUpContainer';
 import LoginContainer from './containers/LoginContainer';
 import DataStoresContainer from './containers/DataStoresContainer';
@@ -55,7 +55,7 @@ render(
   <Provider store={store}>
     <Router history={history}>
       <Route path="/" name="Home" component={AppContainer}>
-        <IndexRoute component={Home} />
+        <IndexRoute component={requireAuthentication(HomeContainer)} />
         <Route path="/login" name="Login" component={LoginContainer}/>
         <Route path="/signup" name="Sign Up" component={SignUpContainer}/>
         <Route path="/stores" name="Stores" component={requireAuthentication(DataStoresContainer)}>

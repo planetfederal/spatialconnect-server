@@ -19,7 +19,6 @@ export class DataContainer extends Component {
   }
 
   render () {
-    console.log(this.props);
     return (
       <div className="data-map">
         <FormList {...this.props} />

@@ -33,7 +33,7 @@ export class LoginView extends Component {
           <form role='form'>
           <div className='form-group'>
               <label htmlFor="email">Email</label>
-              <input type='text'
+              <input type='email'
                 id='email'
                 className='form-control'
                 value={this.state.email}

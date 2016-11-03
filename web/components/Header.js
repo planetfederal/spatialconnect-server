@@ -4,12 +4,11 @@ import Breadcrumbs from './Breadcrumbs';
 
 class Header extends Component {
   render() {
-    //console.log('Header props', this.props);
-    const { isAuthenticated, logout, userName, routes } = this.props;
-    const depth = routes.length;
+    const { isAuthenticated, toggleMenu } = this.props;
     return (
       <header>
         <div className="header-title">
+          <a className="menu" href="#menu" onClick={toggleMenu}>&#9776;</a>
           <Link to="/">spatialconnect</Link>
         </div>
         {isAuthenticated &&

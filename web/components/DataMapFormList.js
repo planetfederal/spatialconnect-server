@@ -37,7 +37,7 @@ export class FormList extends Component {
   render () {
     return (
       <div className="data-form-list">
-        <div className="data-form-list-items">
+
         {values(this.props.forms)
           .map(f => {
             let boundClick = this.toggleForm.bind(this, f);
@@ -57,7 +57,7 @@ export class FormList extends Component {
           title={'Spatial Triggers'}
           count={this.props.spatial_triggers.length}
           onClick={this.toggleSpatialTriggers.bind(this)} />
-        </div>
+        
       </div>
     );
   }
