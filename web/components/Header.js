@@ -8,7 +8,7 @@ class Header extends Component {
     return (
       <header>
         <div className="header-title">
-          <a className="menu" href="#menu" onClick={toggleMenu}>&#9776;</a>
+          <span className="menu" onClick={toggleMenu}>&#9776;</span>
           <Link to="/">spatialconnect</Link>
         </div>
         {isAuthenticated &&

@@ -147,7 +147,10 @@ class TriggerDetails extends Component {
     if (!isEqual(nextProps.trigger.definition, this.props.trigger.definition)) {
       this.addTrigger(nextProps.trigger);
     }
-    this.map.updateSize();
+    if (this.props.menu.open !== nextProps.menu.open) {
+      //wait for menu to transition
+      setTimeout(() => this.map.updateSize(), 200);
+    }
   }
 
   renderCreating() {
@@ -179,7 +182,6 @@ class TriggerDetails extends Component {
   }
 
   render() {
-    console.log(this.state.width);
     const { trigger } = this.props;
     return (
       <div className="trigger-details">

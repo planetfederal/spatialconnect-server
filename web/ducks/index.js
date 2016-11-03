@@ -5,6 +5,7 @@ import forms from './forms';
 import auth from './auth';
 import data from './data';
 import triggers from './triggers';
+import menu from './menu';
 
 // http://redux.js.org/docs/api/combineReducers.html
 const appReducer = combineReducers({
@@ -12,7 +13,8 @@ const appReducer = combineReducers({
   forms,
   auth,
   data,
-  triggers
+  triggers,
+  menu
 });
 
 export default appReducer;

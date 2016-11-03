@@ -25,7 +25,7 @@ html, body {
   flex: 1;
   position: relative;
   flex-direction: row;
-  overflow-y: scroll;
+  overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
 }
@@ -68,7 +68,7 @@ html, body {
     max-width: 0px !important;
   }
   .side-menu-item {
-    margin: 0 0 10px 0;
+    margin-bottom: 10px;
     &.bottom {
       position: absolute;
       bottom: 0;
@@ -86,9 +86,9 @@ html, body {
     padding: 10px 0 5px 10px;
   }
   .side-menu-separator {
-    height: 20px;
+    height: 0px;
     width: 100%;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     border-bottom: 1px solid @main_border;
   }
   .side-menu-spacer {
@@ -98,11 +98,26 @@ html, body {
   a {
     color: @main_black;
     display: inline-block;
+    font-size: 16px;
     width: 100%;
-    padding: 5px 0 5px 10px;
+    padding: 10px 0 10px 10px;
+    border-left: 3px solid @main_gray;
     &.active {
       background-color: darken(@main_gray, 10%);
       color: @main;
+      border-left: 3px solid @main;
+    }
+    &:hover {
+      text-decoration: none;
+      color: @main;
+      background-color: darken(@main_gray, 10%);
+      border-left: 3px solid darken(@main_gray, 10%);
+      &.active {
+        border-left: 3px solid @main;
+      }
+    }
+    &:focus {
+      text-decoration: none;
     }
   }
   span {
@@ -129,7 +144,7 @@ header {
   .header-title {
     width: 250px;
     display: inline-block;
-    a {
+    a,span {
       color: white;
       font-size: 19px;
       line-height: 50px;
@@ -146,6 +161,7 @@ header {
         font-size: 26px;
         &:hover {
           text-decoration: none;
+          cursor: pointer;
         }
         &:focus {
           text-decoration: none;

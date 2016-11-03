@@ -2,7 +2,6 @@
 var path = require('path');
 var webpack = require('webpack');
 var pkg = require('./package.json');
-console.log(pkg.version);
 
 module.exports = {
   devtool: 'cheap-module-eval-source-map',

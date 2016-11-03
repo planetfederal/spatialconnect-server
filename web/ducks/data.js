@@ -138,7 +138,6 @@ export function loadDeviceLocations() {
       .set('x-access-token', token)
       .then(res => res.body.result)
       .then(data => {
-        console.log(data);
         dispatch({
           type: LOAD_DEVICE_LOCATIONS,
           payload: { device_locations: data.features }

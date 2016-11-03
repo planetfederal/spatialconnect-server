@@ -28,6 +28,7 @@ class TriggerDetailsContainer extends Component {
 const mapStateToProps = (state, ownProps) => ({
   id: ownProps.params.id,
   trigger: find(state.sc.triggers.spatial_triggers, { id: ownProps.params.id }),
+  menu: state.sc.menu
 });
 
 const mapDispatchToProps = (dispatch) => ({

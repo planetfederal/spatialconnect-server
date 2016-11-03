@@ -3,10 +3,12 @@ import React, { Component } from 'react';
 import { Link } from 'react-router';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { delay } from 'lodash';
 import Header from '../components/Header';
 import SideMenu from '../components/SideMenu';
 import Sidebar from 'react-sidebar';
 import * as authActions from '../ducks/auth';
+import * as menuActions from '../ducks/menu';
 
 import '../style/App.less';
 
@@ -24,16 +26,15 @@ class AppContainer extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      width: getWindowWidth(),
-      menuOpen: getWindowWidth() >= 600
+      width: getWindowWidth()
     };
   }
   toggleMenu() {
-    this.setState({ menuOpen: !this.state.menuOpen });
+    this.props.menuActions.toggleMenu();
   }
   closeMenu() {
     if (this.state.width < 600) {
-      this.setState({ menuOpen: false });
+      this.props.menuActions.closeMenu();
     }
   }
   updateDimensions() {
@@ -41,6 +42,11 @@ class AppContainer extends Component {
   }
   componentDidMount() {
     window.addEventListener("resize", this.updateDimensions.bind(this));
+    if (getWindowWidth() >= 600) {
+      this.props.menuActions.openMenu();
+    } else {
+      this.props.menuActions.closeMenu();
+    }
   }
   componentWillUnmount() {
     window.removeEventListener("resize", this.updateDimensions.bind(this));
@@ -50,7 +56,7 @@ class AppContainer extends Component {
       <div id="app">
         <Header {...this.props} toggleMenu={this.toggleMenu.bind(this)} />
         <div className="main-container">
-          <SideMenu {...this.props} closeMenu={this.closeMenu.bind(this)} menuOpen={this.state.menuOpen} />
+          <SideMenu {...this.props} closeMenu={this.closeMenu.bind(this)} menuOpen={this.props.menu.open} />
           {this.props.children}
         </div>
       </div>
@@ -63,11 +69,13 @@ const mapStateToProps = (state, ownProps) => {
     isAuthenticated: state.sc.auth.isAuthenticated,
     userName: state.sc.auth.userName,
     id: ownProps.params.id,
+    menu: state.sc.menu
   };
 };
 
 const mapDispatchToProps = (dispatch) => ({
-  actions: bindActionCreators(authActions, dispatch)
+  actions: bindActionCreators(authActions, dispatch),
+  menuActions: bindActionCreators(menuActions, dispatch)
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppContainer);

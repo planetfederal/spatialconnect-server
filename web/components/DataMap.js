@@ -222,8 +222,7 @@ class DataMap extends Component {
   componentDidMount() {
     this.createMap();
     window.addEventListener("resize", () => {
-      this.createMap();
-      this.renderFeatures(this.props);
+      this.map.updateSize();
     });
   }
   componentWillUnmount() {
@@ -232,7 +231,10 @@ class DataMap extends Component {
     }
   }
   componentWillReceiveProps(nextProps) {
-    this.map.updateSize();
+    if (this.props.menu.open !== nextProps.menu.open) {
+      //wait for menu to transition
+      setTimeout(() => this.map.updateSize(), 200);
+    }
     this.renderFeatures(nextProps);
   }
   render() {
