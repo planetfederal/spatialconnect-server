@@ -10,7 +10,8 @@
             [spacon.components.config :as config]
             [spacon.components.location :as location]
             [spacon.components.trigger :as trigger]
-            [spacon.components.mqtt :as mqtt]))
+            [spacon.components.mqtt :as mqtt]
+            [spacon.components.notification :as notification]))
 
 (defrecord Server [service]
   component/Lifecycle
@@ -35,6 +36,9 @@
       :config (config/make-config-component)
       :location (location/make-location-component)
       :trigger (trigger/make-trigger-component)
+      :notification (component/using
+                      (notification/make-notification-component)
+                      [:mqtt])
       :service (component/using
                  (service/make-service http-config)
                  [:ping :device :location :trigger])
