@@ -8,32 +8,21 @@
 
 (def broker-url (str "tcp://localhost:1883"))
 
-(defn parseProto [proto]
-  {:correlationId (.getCorrelationId proto)
-   :replyTo (.getReplyTo proto)
-   :action (.getAction proto)
-   :payload (.getPayload proto)})
-
-(SCCommand/AUTHSERVICE_ACCESS_TOKEN)
-
-(defn writeProto [correlation-id reply-to action payload]
-  (-> (SCMessageOuterClass$SCMessage/newBuilder)
-      (.setReplyTo reply-to)
-      (.setAction action)
-      (.setPayload payload)
-      (.setCorrelationId correlation-id)
-      (.build)))
-
 (defn- connectmqtt []
   (mh/connect broker-url id))
 
 (defn publish [mqtt topic message]
-  ;
+  ; mqtt component
+  ; topic to publish to
+  ; message is a protobuf obj
   (mh/publish (:conn mqtt) topic (.toByteArray message)))
 
-(defn subscribe [mqtt topic]
+(defn subscribe [mqtt topic f]
   (mh/subscribe (:conn mqtt) {topic 0} (fn [^String topic _ ^bytes payload]
-                                         (SCMessageOuterClass$SCMessage/parseFrom payload))))
+                                         (f  ))))
+
+(defn listenOnTopic [mqtt topic f]
+  (subscribe mqtt topic f))
 
 (defrecord MqttComponent [mqtt-config]
   component/Lifecycle
