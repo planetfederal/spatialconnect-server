@@ -13,8 +13,8 @@ WHERE deleted_at IS NULL;
 
 -- name: insert-device<!
 -- registers a new device
-INSERT INTO devices (identifier,device_info,created_at,updated_at)
-SELECT :identifier,:device_info::json, NOW(), NOW()
+INSERT INTO devices (name,identifier,device_info,created_at,updated_at)
+SELECT :name,:identifier,:device_info::json, NOW(), NOW()
 WHERE NOT EXISTS
 (SELECT 1 FROM devices
     WHERE identifier = :identifier)

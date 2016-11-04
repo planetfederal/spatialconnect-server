@@ -40,6 +40,16 @@ Once the image it built, it's cached.  To delete the image and build a new one:
 1. `capstan rmi spacon; capstan build`
 
 
+### To run the migrations
+
+`lein migrate`
+
+### To run the tests
+
+`lein test`
+
+
+
 ## Links
 * [Other examples](https://github.com/pedestal/samples)
 
