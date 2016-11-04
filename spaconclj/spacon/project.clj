@@ -19,13 +19,13 @@
                  [prismatic/schema "1.1.3"]
                  [com.stuartsierra/component "0.3.1"]
                  [clojurewerkz/machine_head "1.0.0-beta9"]
-                 [protobuf "0.6.2"]]
+                 [com.boundlessgeo.spatialconnect/schema "0.7"]]
 
+  :repositories {"project" "file:repo"}
   :def-dependencies [[lein-reload "1.0.0"]]
 
   :plugins [[lein-environ "1.0.3"]
-            [ragtime/ragtime.lein "0.3.6"]
-            [lein-protobuf "0.5.0"]]
+            [ragtime/ragtime.lein "0.3.6"]]
 
   :aliases {"migrate" ["run" "-m" "spacon.db.conn/migrate"]
             "rollback" ["run" "-m" "spacon.db.conn/rollback"]}

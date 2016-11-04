@@ -13,4 +13,4 @@
     this))
 
 (defn make-config-component []
-  (->ConfigComponent))
+  (map->ConfigComponent {}))
