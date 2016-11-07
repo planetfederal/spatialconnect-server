@@ -6,7 +6,6 @@ import { connect } from 'react-redux';
 import { delay } from 'lodash';
 import Header from '../components/Header';
 import SideMenu from '../components/SideMenu';
-import Sidebar from 'react-sidebar';
 import * as authActions from '../ducks/auth';
 import * as menuActions from '../ducks/menu';
 
