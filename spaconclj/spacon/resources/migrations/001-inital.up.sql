@@ -1,7 +1,15 @@
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE EXTENSION IF NOT EXISTS postgis;
 
-CREATE TABLE IF NOT EXISTS public.organization
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+        RETURNS TRIGGER AS '
+    BEGIN
+        NEW.updated_at = NOW();
+        RETURN NEW;
+    END;
+' LANGUAGE 'plpgsql';
+
+CREATE TABLE IF NOT EXISTS public.organizations
 (
    id serial PRIMARY KEY,
    name TEXT,
@@ -13,7 +21,11 @@ WITH (
    OIDS=FALSE
 );
 
-ALTER TABLE public.organization OWNER TO spacon;
+ALTER TABLE public.organizations OWNER TO spacon;
+
+CREATE TRIGGER update_updated_at_organizations
+    BEFORE UPDATE ON organizations FOR EACH ROW EXECUTE
+    PROCEDURE update_updated_at_column();
 
 CREATE TABLE IF NOT EXISTS public.teams
 (
@@ -24,7 +36,7 @@ CREATE TABLE IF NOT EXISTS public.teams
     updated_at timestamp DEFAULT NOW(),
     deleted_at timestamp with time zone,
     CONSTRAINT team_org_id_fkey FOREIGN KEY (organization_id)
-        REFERENCES public.organization (id) MATCH SIMPLE
+        REFERENCES public.organizations (id) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE CASCADE
 )
 WITH (
@@ -32,6 +44,10 @@ WITH (
 );
 
 ALTER TABLE public.teams OWNER TO spacon;
+
+CREATE TRIGGER update_updated_at_teams
+    BEFORE UPDATE ON teams FOR EACH ROW EXECUTE
+    PROCEDURE update_updated_at_column();
 
 CREATE TABLE IF NOT EXISTS public.stores
 (
@@ -55,6 +71,10 @@ WITH (
 ALTER TABLE public.stores
   OWNER TO spacon;
 
+CREATE TRIGGER update_updated_at_stores
+    BEFORE UPDATE ON stores FOR EACH ROW EXECUTE
+    PROCEDURE update_updated_at_column();
+
 CREATE TABLE IF NOT EXISTS public.forms
 (
   id SERIAL PRIMARY KEY,
@@ -76,6 +96,10 @@ WITH (
 ALTER TABLE public.forms
   OWNER TO spacon;
 
+CREATE TRIGGER update_updated_at_forms
+  BEFORE UPDATE ON forms FOR EACH ROW EXECUTE
+  PROCEDURE update_updated_at_column();
+
 CREATE TABLE IF NOT EXISTS public.devices
 (
   id SERIAL PRIMARY KEY,
@@ -91,6 +115,10 @@ WITH (
 );
 ALTER TABLE public.devices
   OWNER TO spacon;
+
+CREATE TRIGGER update_updated_at_devices
+  BEFORE UPDATE ON devices FOR EACH ROW EXECUTE
+  PROCEDURE update_updated_at_column();
 
 CREATE TABLE IF NOT EXISTS public.device_locations
 (
@@ -111,6 +139,10 @@ WITH (
 );
 ALTER TABLE public.device_locations
   OWNER TO spacon;
+
+CREATE TRIGGER update_updated_at_device_locations
+  BEFORE UPDATE ON device_locations FOR EACH ROW EXECUTE
+  PROCEDURE update_updated_at_column();
 
 CREATE TABLE IF NOT EXISTS public.form_fields
 (
@@ -145,6 +177,10 @@ WITH (
 ALTER TABLE public.form_fields
   OWNER TO spacon;
 
+CREATE TRIGGER update_updated_at_form_fields
+  BEFORE UPDATE ON form_fields FOR EACH ROW EXECUTE
+  PROCEDURE update_updated_at_column();
+
 CREATE TABLE IF NOT EXISTS public.form_data
 (
   id SERIAL PRIMARY KEY,
@@ -167,13 +203,16 @@ WITH (
 ALTER TABLE public.form_data
   OWNER TO spacon;
 
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-        RETURNS TRIGGER AS '
-    BEGIN
-        NEW.updated_at = NOW();
-        RETURN NEW;
-    END;
-' LANGUAGE 'plpgsql';
+CREATE TRIGGER update_updated_at_form_data
+    BEFORE UPDATE ON form_data FOR EACH ROW EXECUTE
+    PROCEDURE update_updated_at_column();
+
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_role_type') THEN
+        CREATE TYPE user_role_type AS ENUM ('user','team_admin','org_admin');
+    END IF;
+END$$;
 
 DO $$
 BEGIN
@@ -187,8 +226,8 @@ CREATE TABLE IF NOT EXISTS users (
   name          TEXT NOT NULL CHECK (name <> ''),
   email         TEXT NOT NULL UNIQUE,
   role          user_role_type,
-  created_at    timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at    timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  created_at    timestamp DEFAULT NOW(),
+  updated_at    timestamp DEFAULT NOW(),
   deleted_at    timestamp with time zone,
   password      VARCHAR(72) NOT NULL DEFAULT 'invalid'
 );
@@ -225,3 +264,7 @@ WITH (
 );
 
 ALTER TABLE public.users OWNER TO spacon;
+
+CREATE TRIGGER update_updated_at_triggers
+    BEFORE UPDATE ON triggers FOR EACH ROW EXECUTE
+    PROCEDURE update_updated_at_column();
