@@ -87,7 +87,7 @@ CREATE TABLE IF NOT EXISTS public.device_locations
   created_at timestamp DEFAULT NOW(),
   updated_at timestamp DEFAULT NOW(),
   deleted_at timestamp with time zone,
-  device_id integer,
+  device_id integer UNIQUE,
   CONSTRAINT device_locations_devices_fkey FOREIGN KEY (device_id)
     REFERENCES public.devices (id) MATCH SIMPLE
     ON UPDATE CASCADE ON DELETE SET NULL
