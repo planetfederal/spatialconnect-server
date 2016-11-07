@@ -1,31 +1,37 @@
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE EXTENSION IF NOT EXISTS postgis;
 
---CREATE TABLE IF NOT EXISTS publc.organization
---(
---   id serial PRIMARY KEY,
---   name TEXT
---)
---WITH (
---   OIDS=FALSE
---);
---
---ALTER TABLE public.organization OWNER TO spacon;
---
---CREATE TABLE IF NOT EXISTS public.team
---(
---    id serial PRIMARY KEY,
---    name TEXT,
---    organization_id INTEGER,
---    CONSTRAINT team_org_id_fkey FOREIGN KEY (organization_id)
---        REFERENCES public.organization (id) MATCH SIMPLE
---        ON UPDATE CASCADE ON DELETE CASCADE
---)
---WITH (
---    OIDS=FALSE
---);
---
---ALTER TABLE public.team OWNER TO spacon;
+CREATE TABLE IF NOT EXISTS public.organization
+(
+   id serial PRIMARY KEY,
+   name TEXT,
+   created_at timestamp DEFAULT NOW(),
+   updated_at timestamp DEFAULT NOW(),
+   deleted_at timestamp with time zone
+)
+WITH (
+   OIDS=FALSE
+);
+
+ALTER TABLE public.organization OWNER TO spacon;
+
+CREATE TABLE IF NOT EXISTS public.teams
+(
+    id serial PRIMARY KEY,
+    name TEXT,
+    organization_id INTEGER,
+    created_at timestamp DEFAULT NOW(),
+    updated_at timestamp DEFAULT NOW(),
+    deleted_at timestamp with time zone,
+    CONSTRAINT team_org_id_fkey FOREIGN KEY (organization_id)
+        REFERENCES public.organization (id) MATCH SIMPLE
+        ON UPDATE CASCADE ON DELETE CASCADE
+)
+WITH (
+    OIDS=FALSE
+);
+
+ALTER TABLE public.teams OWNER TO spacon;
 
 CREATE TABLE IF NOT EXISTS public.stores
 (
@@ -35,9 +41,13 @@ CREATE TABLE IF NOT EXISTS public.stores
   uri TEXT,
   name TEXT,
   default_layers TEXT[],
+  team_id INTEGER NOT NULL,
   created_at timestamp DEFAULT NOW(),
   updated_at timestamp DEFAULT NOW(),
-  deleted_at timestamp with time zone
+  deleted_at timestamp with time zone,
+    CONSTRAINT stores_team_fkey FOREIGN KEY (team_id)
+          REFERENCES public.teams (id) MATCH SIMPLE
+          ON UPDATE CASCADE ON DELETE CASCADE
 )
 WITH (
   OIDS=FALSE
@@ -51,10 +61,14 @@ CREATE TABLE IF NOT EXISTS public.forms
   form_key TEXT,
   form_label TEXT,
   version integer DEFAULT 1,
+  team_id INTEGER NOT NULL,
   created_at timestamp DEFAULT NOW(),
   updated_at timestamp DEFAULT NOW(),
   deleted_at timestamp with time zone,
-  CONSTRAINT key_version_c UNIQUE (form_key,version)
+  CONSTRAINT key_version_c UNIQUE (form_key,version),
+  CONSTRAINT forms_team_fkey FOREIGN KEY (team_id)
+        REFERENCES public.teams (id) MATCH SIMPLE
+        ON UPDATE CASCADE ON DELETE CASCADE
 )
 WITH (
   OIDS=FALSE
@@ -134,7 +148,7 @@ ALTER TABLE public.form_fields
 CREATE TABLE IF NOT EXISTS public.form_data
 (
   id SERIAL PRIMARY KEY,
-  val json,
+  val jsonb,
   created_at timestamp DEFAULT NOW(),
   updated_at timestamp DEFAULT NOW(),
   deleted_at timestamp with time zone,
@@ -161,15 +175,34 @@ CREATE OR REPLACE FUNCTION update_updated_at_column()
     END;
 ' LANGUAGE 'plpgsql';
 
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_role_type') THEN
+        CREATE TYPE user_role_type AS ENUM ('user','team_admin','org_admin');
+    END IF;
+END$$;
+
 CREATE TABLE IF NOT EXISTS users (
-  id          serial PRIMARY KEY,
-  name        TEXT NOT NULL CHECK (name <> ''),
-  email       TEXT NOT NULL UNIQUE,
-  created_at  timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at  timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  deleted_at timestamp with time zone,
-  password VARCHAR(72) NOT NULL DEFAULT 'invalid',
-  level VARCHAR(12) NOT NULL default 'user'
+  id            serial PRIMARY KEY,
+  name          TEXT NOT NULL CHECK (name <> ''),
+  email         TEXT NOT NULL UNIQUE,
+  role          user_role_type,
+  created_at    timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at    timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  deleted_at    timestamp with time zone,
+  password      VARCHAR(72) NOT NULL DEFAULT 'invalid'
+);
+
+CREATE TABLE IF NOT EXISTS user_team (
+  id serial PRIMARY KEY,
+  user_id INTEGER,
+  team_id INTEGER,
+  CONSTRAINT user_team_user_fkey FOREIGN KEY (user_id)
+      REFERENCES public.users (id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT user_team_team_fkey FOREIGN KEY (team_id)
+      REFERENCES public.teams (id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TRIGGER update_updated_at_users
