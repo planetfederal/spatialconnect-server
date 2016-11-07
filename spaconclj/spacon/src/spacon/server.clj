@@ -25,7 +25,7 @@
     (update-in component [:server] server/stop)))
 
 (defn new-server []
-  (map->Server {} ))
+  (map->Server {}))
 
 (defn system [config-options]
   (let [{:keys [http-config]} config-options]
@@ -34,7 +34,9 @@
       :mqtt (mqtt/make-mqtt-component {})
       :device (device/make-device-component)
       :config (config/make-config-component)
-      :location (location/make-location-component)
+      :location (component/using
+                  (location/make-location-component)
+                  [:mqtt])
       :trigger (trigger/make-trigger-component)
       :notification (component/using
                       (notification/make-notification-component)

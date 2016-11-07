@@ -4,7 +4,9 @@
             [clojure.data.json :as json]
             [ring.util.response :as ring-resp]
             [spacon.db.conn :as db]
-            [yesql.core :refer [defqueries]]))
+            [yesql.core :refer [defqueries]]
+            [spacon.components.mqtt :as mqttcomp]
+            [spacon.util.protobuf :as pbf]))
 
 (defqueries "sql/location.sql"
             {:connection db/db-spec})
@@ -19,18 +21,22 @@
   (map (fn [d]
          (entity->map d)) (device-locations)))
 
+(defn upsert-location [loc]
+  (let [x (get-in loc [:geometry :coordinates 0])
+        y (get-in loc [:geometry :coordinates 1])
+        z (get-in loc [:geometry :coordinates 2])
+        did (get-in loc [:metadata :client])]
+    (upsert-location! {:x x :y y :z z :device_id did})))
+
 (defn location->geojson [locations]
   (map (fn [l]
          {:type     "Feature"
           :id       (:identifier l)
           :geometry {:type        "Point"
-                     :coordinates [(:x l) (:y l) (:z l)]
-                     }
-          :metadata {:device     {:device_info (:device_info l)
-                                  :identifier  (:identifier l)
-                                  }
-                     :updated_at (:updated_at l)
-                     }
+                     :coordinates [(:x l) (:y l) (:z l)]}
+
+          :metadata {:client     (:identifier l)
+                     :updated_at (:updated_at l)}
           }) locations))
 
 (defn http-get [context]
@@ -41,12 +47,15 @@
 (defn- routes [] #{["/api/location" :get
                     (conj intercept/common-interceptors `http-get)]})
 
-(defrecord LocationComponent []
+(defrecord LocationComponent [mqtt]
   component/Lifecycle
   (start [this]
+    (mqttcomp/listenOnTopic mqtt "/store/tracking" (fn [s]
+                                                     (let [payload (:payload (pbf/bytes->map s))]
+                                                       (upsert-location (json/read-str payload)))))
     (assoc this :routes (routes)))
   (stop [this]
     this))
 
 (defn make-location-component []
-  (->LocationComponent))
+  (->LocationComponent nil))
