@@ -33,7 +33,7 @@ export class LoginView extends Component {
           <form role='form'>
           <div className='form-group'>
               <label htmlFor="email">Email</label>
-              <input type='text'
+              <input type='email'
                 id='email'
                 className='form-control'
                 value={this.state.email}
@@ -52,7 +52,7 @@ export class LoginView extends Component {
             <button type='submit'
               className='btn btn-sc'
               disabled={this.props.isAuthenticating}
-              onClick={this.login.bind(this)}>Login</button>
+              onClick={this.login.bind(this)}>Sign In</button>
         </form>
       </div>
     </section>

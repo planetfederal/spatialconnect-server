@@ -84,20 +84,15 @@ export function loadDataStore(storeId) {
   return (dispatch, getState) => {
     const { sc } = getState();
     let token = sc.auth.token;
-    let store = find(sc.dataStores.stores, { id: storeId });
-    if (store) {
-      return dispatch(receiveStores([store]));
-    } else {
-      dispatch({ type: LOAD });
-      return request
-        .get(API_URL + 'stores/' + storeId)
-        .set('x-access-token', token)
-        .then(function(res) {
-          return dispatch(receiveStores([res.body.result]));
-        }, function(error) {
-          return dispatch({type: LOAD_FAIL, error: error});
-        });
-    }
+    dispatch({ type: LOAD });
+    return request
+      .get(API_URL + 'stores/' + storeId)
+      .set('x-access-token', token)
+      .then(function(res) {
+        return dispatch(receiveStores([res.body.result]));
+      }, function(error) {
+        return dispatch({type: LOAD_FAIL, error: error});
+      });
   }
 }
 
@@ -166,8 +161,7 @@ export function updateDataStores(values) {
       return dispatch(loadDataStores());
     }).catch((e) => {
       throw new Error(e);
-    })
-
+    });
     dispatch(reset('dataStore'));
   };
 }
@@ -179,10 +173,11 @@ export function deleteStore(storeId) {
     return request
       .delete(API_URL + 'stores/' + storeId)
       .set('x-access-token', token)
-      .then(function(res) {
-        dispatch(push('/stores'));
-      }, function(error) {
-        throw new Error(res);
+      .then(() => {
+        dispatch(loadDataStores());
+        return dispatch(push('/stores'));
+      }, e => {
+        throw new Error(e);
       });
   };
 }

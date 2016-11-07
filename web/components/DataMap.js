@@ -44,6 +44,9 @@ class DataMap extends Component {
     };
   }
   createMap() {
+    while (this.refs.map.firstChild) {
+      this.refs.map.removeChild(this.refs.map.firstChild);
+    }
     this.vectorSource = new ol.source.Vector();
     this.deviceLocationsSource = new ol.source.Vector();
     this.spatialTriggersSource = new ol.source.Vector();
@@ -60,14 +63,6 @@ class DataMap extends Component {
     this.map = new ol.Map({
       target: this.refs.map,
       layers: [
-        // new ol.layer.Tile({
-        //   extent: [-20237886, -14945274, 20237886, 20211553.9],
-        //   source: new ol.source.TileWMS({
-        //     url: 'http://tiles.boundlessgeo.com/wms',
-        //     params: {'LAYERS': 'openstreetmap:osm', 'TILED': true, srs: 'EPSG:900913', FORMAT: 'image/png8', VERSION: '1.1.0', TRANSPARENT: 'false'}
-        //
-        //   })
-        // }),
         new ol.layer.Tile({
           source: new ol.source.OSM(),
         }),
@@ -226,6 +221,9 @@ class DataMap extends Component {
   }
   componentDidMount() {
     this.createMap();
+    window.addEventListener("resize", () => {
+      this.map.updateSize();
+    });
   }
   componentWillUnmount() {
     if (this.connection) {
@@ -233,6 +231,10 @@ class DataMap extends Component {
     }
   }
   componentWillReceiveProps(nextProps) {
+    if (this.props.menu.open !== nextProps.menu.open) {
+      //wait for menu to transition
+      setTimeout(() => this.map.updateSize(), 200);
+    }
     this.renderFeatures(nextProps);
   }
   render() {

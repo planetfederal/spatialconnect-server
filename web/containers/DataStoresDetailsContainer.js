@@ -19,7 +19,9 @@ class DataStoresDetailsContainer extends Component {
   }
 
   componentDidMount() {
-    this.props.actions.loadDataStore(this.props.id);
+    if (!this.props.store) {
+      this.props.actions.loadDataStore(this.props.id);
+    }
   }
 
   deleteStore(storeId) {
@@ -49,6 +51,7 @@ class DataStoresDetailsContainer extends Component {
         el = <p>Store Not Found</p>;
       }
       if (loaded && store) {
+        this.title = store.name;
         if (this.state.editingDataStore) {
           el = <DataStoreForm
                 store={store}
@@ -68,10 +71,8 @@ class DataStoresDetailsContainer extends Component {
       }
     }
     return (
-      <div className="wrapper">
-        <section className="main">
+      <div className="data-store-details">
         {el}
-        </section>
       </div>
     );
   }

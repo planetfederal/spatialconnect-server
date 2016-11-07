@@ -1,20 +1,41 @@
 @import './palette';
 
-.trigger-details-container {
-  display: flex;
-  flex: 1;
-  position: relative;
-  .trigger-details {
-    display: flex;
-    flex: 1;
-    .trigger-props {
-      width: 250px;
-      padding: 10px;
-
-      overflow-y: auto;
-    }
-    .trigger-map {
-      flex: 1;
-    }
+@media (max-width: 600px) {
+  .trigger-props {
+    width: 100% !important;
   }
 }
+
+@media (max-width: 850px) {
+  .trigger-details {
+    flex-flow: column wrap;
+  }
+  .trigger-props {
+    width: 100% !important;
+  }
+}
+
+@media (min-width: 850px) {
+  .trigger-details {
+    flex-flow: row wrap;
+  }
+  .trigger-props {
+    width: 250px;
+  }
+}
+
+.trigger-details {
+  height: 100%;
+  display: flex;
+  flex: 1;
+  .trigger-props {
+    overflow-y: auto;
+    padding: 10px 10px 0 10px !important;
+  }
+  .trigger-map {
+    flex: 1;
+    min-width: 300px;
+    min-height: 300px;
+  }
+}
+

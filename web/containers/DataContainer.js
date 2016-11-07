@@ -19,7 +19,6 @@ export class DataContainer extends Component {
   }
 
   render () {
-    console.log(this.props);
     return (
       <div className="data-map">
         <FormList {...this.props} />
@@ -36,7 +35,8 @@ const mapStateToProps = (state) => ({
   device_locations: state.sc.data.device_locations,
   device_locations_on: state.sc.data.device_locations_on,
   spatial_triggers_on: state.sc.data.spatial_triggers_on,
-  spatial_triggers: state.sc.triggers.spatial_triggers
+  spatial_triggers: state.sc.triggers.spatial_triggers,
+  menu: state.sc.menu
 });
 
 const mapDispatchToProps = (dispatch) => ({

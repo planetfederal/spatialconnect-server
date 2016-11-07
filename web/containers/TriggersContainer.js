@@ -36,6 +36,14 @@ export class TriggersContainer extends Component {
   }
 
   render () {
+    const { children } = this.props;
+    if (children) {
+      return (
+        <div className="wrapper">
+          {children}
+        </div>
+      );
+    }
     return (
       <div className="wrapper">
         <section className="main">

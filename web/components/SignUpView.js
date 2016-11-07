@@ -31,7 +31,7 @@ export class LoginView extends Component {
 
   renderSuccessView() {
     return (
-      <p>Sign up successful. <Link to="/login">Login</Link> with your new account.</p>
+      <p>Sign up successful. <Link to="/login">Sign in</Link> with your new account.</p>
     );
   }
 
@@ -60,7 +60,7 @@ export class LoginView extends Component {
             </div>
             <div className='form-group'>
               <label htmlFor="email">Email</label>
-              <input type='text'
+              <input type='email'
                 id='email'
                 className='form-control'
                 value={this.state.email}

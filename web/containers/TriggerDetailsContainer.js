@@ -9,16 +9,18 @@ import * as triggerActions from '../ducks/triggers';
 class TriggerDetailsContainer extends Component {
 
   componentDidMount() {
-    this.props.actions.loadTrigger(this.props.id);
+    if (!this.props.trigger) {
+      this.props.actions.loadTrigger(this.props.id);
+    }
   }
 
   render() {
     return (
-      <div className="trigger-details-container">
+      <section className="main noPad">
         {this.props.trigger ?
           <TriggerDetails {...this.props} />
           : null}
-      </div>
+      </section>
     );
   }
 }
@@ -26,6 +28,7 @@ class TriggerDetailsContainer extends Component {
 const mapStateToProps = (state, ownProps) => ({
   id: ownProps.params.id,
   trigger: find(state.sc.triggers.spatial_triggers, { id: ownProps.params.id }),
+  menu: state.sc.menu
 });
 
 const mapDispatchToProps = (dispatch) => ({

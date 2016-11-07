@@ -54,7 +54,6 @@ class FormPreview extends Component {
     if (form.get('fields').size == 0) {
       formEl = <div><p className="warning-message">Add fields.</p></div>;
     } else {
-      //console.log(form.toJS());
       let { schema, options } = scformschema.translate(form.toJS());
       options.template = locals => this.template(locals);
       formEl = (

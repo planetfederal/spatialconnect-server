@@ -1,6 +1,7 @@
 'use strict';
 var path = require('path');
 var webpack = require('webpack');
+var pkg = require('./package.json');
 
 module.exports = {
   devtool: 'cheap-module-eval-source-map',
@@ -15,7 +16,10 @@ module.exports = {
   plugins: [
     new webpack.optimize.OccurenceOrderPlugin(),
     new webpack.HotModuleReplacementPlugin(),
-    new webpack.NoErrorsPlugin()
+    new webpack.NoErrorsPlugin(),
+    new webpack.DefinePlugin({
+      VERSION: JSON.stringify(pkg.version)
+    })
   ],
   module: {
     loaders: [

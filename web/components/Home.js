@@ -1,16 +1,24 @@
 'use strict';
 import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
+import { reduce } from 'lodash';
+import PropertyListItem from './PropertyListItem';
 
-const Home = () => (
+const Home = ({ stores, forms, spatial_triggers, device_locations }) => (
   <div className="wrapper">
     <section className="main">
-      <ul>
-        <li><Link to="/stores">Stores</Link></li>
-        <li><Link to="/forms">Forms</Link></li>
-        <li><Link to="/triggers">Triggers</Link></li>
-        <li><Link to="/data">Data</Link></li>
-      </ul>
+      <p>Welcome to the spatialconnect dashboard.</p>
+      <div className="form-list">
+        <div className="form-item">
+          <div className="properties">
+            <PropertyListItem name={'Stores'} value={stores.length} />
+            <PropertyListItem name={'Forms'} value={Object.keys(forms).length} />
+            <PropertyListItem name={'Form Submissions'} value={reduce(forms, (r,v) => r + v.metadata.count, 0)} />
+            <PropertyListItem name={'Spatial Triggers'} value={spatial_triggers.length} />
+            <PropertyListItem name={'Connected Devices'} value={device_locations.length} />
+          </div>
+        </div>
+      </div>
     </section>
   </div>
 );
