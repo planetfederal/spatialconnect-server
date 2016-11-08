@@ -268,3 +268,4 @@ ALTER TABLE public.users OWNER TO spacon;
 CREATE TRIGGER update_updated_at_triggers
     BEFORE UPDATE ON triggers FOR EACH ROW EXECUTE
     PROCEDURE update_updated_at_column();
+

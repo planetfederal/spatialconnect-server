@@ -47,7 +47,7 @@
 (defn- routes [] #{["/api/location" :get
                     (conj intercept/common-interceptors `http-get)]})
 
-(defrecord LocationComponent [mqtt]
+(defrecord LocationComponent [mqtt trigger]
   component/Lifecycle
   (start [this]
     (mqttcomp/listenOnTopic mqtt "/store/tracking" (fn [s]
@@ -58,4 +58,4 @@
     this))
 
 (defn make-location-component []
-  (->LocationComponent nil))
+  (map->LocationComponent {}))

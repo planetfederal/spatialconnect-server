@@ -96,7 +96,7 @@
                    ["/api/triggers/:id" :delete
                     (conj intercept/common-interceptors `http-delete-trigger)]})
 
-(defrecord TriggerComponent []
+(defrecord TriggerComponent [notify]
   component/Lifecycle
   (start [this]
     (assoc this :routes (routes)))
@@ -104,4 +104,4 @@
     this))
 
 (defn make-trigger-component []
-  (->TriggerComponent))
+  (->TriggerComponent nil))

@@ -34,13 +34,15 @@
       :mqtt (mqtt/make-mqtt-component {})
       :device (device/make-device-component)
       :config (config/make-config-component)
-      :location (component/using
-                  (location/make-location-component)
-                  [:mqtt])
-      :trigger (trigger/make-trigger-component)
-      :notification (component/using
+      :notify (component/using
                       (notification/make-notification-component)
                       [:mqtt])
+      :trigger (component/using
+                 (trigger/make-trigger-component)
+                 [:notify])
+      :location (component/using
+                  (location/make-location-component)
+                  [:mqtt :trigger])
       :service (component/using
                  (service/make-service http-config)
                  [:ping :device :location :trigger])
