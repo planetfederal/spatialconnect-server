@@ -25,7 +25,6 @@
   (start [this]
     (let [m (connectmqtt)]
       (assoc this :conn m)))
-
   (stop [this]
     (mh/disconnect (:conn this))
     this))

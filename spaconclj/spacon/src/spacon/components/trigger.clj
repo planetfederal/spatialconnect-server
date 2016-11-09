@@ -7,9 +7,6 @@
             [ring.util.response :as ring-resp])
   (:import (org.postgresql.util PGobject)))
 
-(defqueries "sql/trigger.sql"
-            {:connection db/db-spec})
-
 (defn entity->map [t]
   {:id (.toString (:id t))
    :created_at (.toString (:created_at t))
