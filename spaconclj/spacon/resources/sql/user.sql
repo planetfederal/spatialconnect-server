@@ -16,7 +16,7 @@ WHERE id = :id AND deleted_at IS NULL;
 -- name: find-by-email
 -- Gets a user by the name
 SELECT * FROM users
-WHERE email = :email LIMIT 1 AND deleted_at IS NULL;
+WHERE email = :email AND deleted_at IS NULL;
 
 -- name: create<!
 -- Creates a new user and returns it with a db-generated id

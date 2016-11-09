@@ -17,8 +17,8 @@
       (if-let [new-user (user/create<! {:name     (:name u)
                                         :email    (:email u)
                                         :password (hashers/derive (:password u))})]
-        {:status 200 :body (user/sanitize new-user)}
-        {:status 500 :body (str "failed to create user" (s/explain-str :spacon.models.users/spec u))}))))
+              {:status 200 :body (user/sanitize new-user)})
+        {:status 500 :body (str "failed to create user:\n" (s/explain-str :spacon.models.user/spec u))})))
 
 (defn- routes []
   #{["/api/users" :get  (conj intercept/common-interceptors `get-all-users)]
