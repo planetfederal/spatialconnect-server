@@ -1,7 +1,9 @@
 (ns spacon.components.organization
-  (:require [com.stuartsierra.component :as component]))
+  (:require [com.stuartsierra.component :as component]
+            [spacon.db.conn :as db]
+            [yesql.core :refer [defqueries]]))
 
-(defqueries "sql/organization.sql" {:connection db-spec})
+(defqueries "sql/organization.sql" {:connection db/db-spec})
 
 (defrecord OrganizationComponent []
   component/Lifecycle

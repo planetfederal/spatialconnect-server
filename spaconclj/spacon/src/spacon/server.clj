@@ -9,6 +9,7 @@
             [spacon.components.user :as user]
             [spacon.components.device :as device]
             [spacon.components.config :as config]
+            [spacon.components.store :as store]
             [spacon.components.location :as location]
             [spacon.components.trigger :as trigger]
             [spacon.components.mqtt :as mqtt]
