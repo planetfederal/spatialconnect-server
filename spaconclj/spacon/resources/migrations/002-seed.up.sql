@@ -1,2 +1,1 @@
-INSERT INTO users (name,email,password) VALUES ('Admin Person','admin@something.com','$2a$10$j57V/gWt9UR3wRzUC7ddye9Nhp4SWJVMm2o.lCBQe2IeE6ETztqGy');
-INSERT INTO users (name,email,password) VALUES ('Easy admin','a','$2a$10$3F76hRYXoxS4EZ8jgGY8auzLRWZb.UWbMY5b41Zrt7Nqb3c1NShlW');
+INSERT INTO users (name,email,password) VALUES ('Admin Person','admin@something.com','bcrypt+sha512$4588e3bec69d6cd42533a71ac375c2e7$12$a56c911a6bd02cb7a872fc6d5d6876462b99c44f4bdc8218');

@@ -2,16 +2,18 @@
   (:require
     [io.pedestal.http :as http]
     [io.pedestal.http.route :as route]
-    [com.stuartsierra.component :as component]))
+    [com.stuartsierra.component :as component]
+    [spacon.http.auth :as auth]))
 
-(defrecord Service [http-config ping device location trigger]
+(defrecord Service [http-config ping user device location trigger]
   component/Lifecycle
   (start [this]
-    (println (:routes ping))
     (assoc this :service-def (merge http-config {:env                     :prod
                                                  ::http/routes            #(route/expand-routes
                                                                             (clojure.set/union #{}
+                                                                                               (auth/routes)
                                                                                                (:routes ping)
+                                                                                               (:routes user)
                                                                                                (:routes device)
                                                                                                (:routes location)
                                                                                                (:routes trigger)))

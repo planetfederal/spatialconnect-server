@@ -229,7 +229,7 @@ CREATE TABLE IF NOT EXISTS users (
   created_at    timestamp DEFAULT NOW(),
   updated_at    timestamp DEFAULT NOW(),
   deleted_at    timestamp with time zone,
-  password      VARCHAR(72) NOT NULL DEFAULT 'invalid'
+  password      TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS user_team (

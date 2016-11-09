@@ -19,7 +19,8 @@
                  [prismatic/schema "1.1.3"]
                  [com.stuartsierra/component "0.3.1"]
                  [clojurewerkz/machine_head "1.0.0-beta9"]
-                 [com.boundlessgeo.spatialconnect/schema "0.7"]]
+                 [com.boundlessgeo.spatialconnect/schema "0.7"]
+                 [buddy "1.1.0"]]
 
   :repositories {"project" "file:repo"}
   :def-dependencies [[lein-reload "1.0.0"]]

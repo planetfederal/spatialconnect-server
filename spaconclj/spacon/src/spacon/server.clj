@@ -6,6 +6,7 @@
             [com.stuartsierra.component :as component]
             [clojure.tools.namespace.repl :refer (refresh)]
             [spacon.components.ping :as ping]
+            [spacon.components.user :as user]
             [spacon.components.device :as device]
             [spacon.components.config :as config]
             [spacon.components.location :as location]
@@ -31,6 +32,7 @@
   (let [{:keys [http-config]} config-options]
     (component/system-map
       :ping (ping/make-ping-component)
+      :user (user/make-user-component)
       :mqtt (mqtt/make-mqtt-component {})
       :device (device/make-device-component)
       :config (config/make-config-component)
@@ -45,7 +47,7 @@
                   [:mqtt :trigger])
       :service (component/using
                  (service/make-service http-config)
-                 [:ping :device :location :trigger])
+                 [:ping :user :device :location :trigger])
       :server (component/using
                 (new-server)
                 [:service]))))
