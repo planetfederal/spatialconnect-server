@@ -9,13 +9,13 @@
 
 (defn accepted-type
   [context]
-  (get-in context [:request :accept :field] "text/plain"))
+  (get-in context [:request :accept :field] "application/json"))
 
 (defn transform-content
   [body content-type]
   (case content-type
-    "text/html"        body
-    "text/plain"       body
+    "text/html"        (json/write-str body)
+    "text/plain"       (json/write-str body)
     "application/edn"  (pr-str body)
     "application/json" (json/write-str body)))
 
