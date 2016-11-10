@@ -14,9 +14,7 @@
 (s/def ::name string?)
 (s/def ::team_id integer?)
 (s/def ::default_layers (s/coll-of string?))
-(s/def ::spec (s/keys :req-un [::name ::store_type ::team_id]
-                      :opt-un [::version ::uri]))
-
+(s/def ::spec (s/keys :req-un [::name ::store_type ::team_id ::version ::uri ::default_layers]))
 
 (defrecord StoreRecord [id store_type uri version name team_id default_layers])
 
