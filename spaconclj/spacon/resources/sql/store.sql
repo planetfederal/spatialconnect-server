@@ -15,7 +15,7 @@ WHERE id = :id AND deleted_at IS NULL
 -- name: insert-store<!
 -- creates a new store
 INSERT INTO stores (name,store_type,version,uri,default_layers,team_id,created_at,updated_at)
-VALUES :name,:store_type,:version,:uri,:default_layers, :team_id, NOW(), NOW()
+VALUES (:name,:store_type,:version,:uri,:default_layers, :team_id, NOW(), NOW())
 
 -- name: update-store<!
 -- updates store
