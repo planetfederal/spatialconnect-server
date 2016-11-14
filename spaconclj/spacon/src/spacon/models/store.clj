@@ -29,7 +29,9 @@
    :identifiers clojure.string/lower-case})
 
 (defn sanitize [store]
-  (dissoc store :created_at :updated_at :deleted_at))
+  (let [string-id  (.toString (:id store))
+        santized-store (dissoc store :created_at :updated_at :deleted_at)]
+    (assoc santized-store :id string-id)))
 
 (defn store-list[]
   (map (fn [d]
