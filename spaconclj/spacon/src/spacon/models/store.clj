@@ -28,13 +28,17 @@
    :row-fn row-fn
    :identifiers clojure.string/lower-case})
 
+(defn sanitize [store]
+  (dissoc store :created_at :updated_at :deleted_at))
+
 (defn store-list[]
   (map (fn [d]
-         (map->StoreRecord d)) (store-list-query {} result->map)))
+         (map->StoreRecord (sanitize d))) (store-list-query {} result->map)))
 
 (defn find-store [id]
   (some-> (find-by-id-query {:id (java.util.UUID/fromString id)} result->map)
           (first)
+          (sanitize)
           map->StoreRecord))
 
 (defn create-store [t]
