@@ -34,7 +34,8 @@
                    (update-in [:response] coerce-to (accepted-type context))))})
 
 (defn response [status body & {:as headers}]
-  {:status status :body body :headers headers})
+  (let [res-body (assoc-in {:result body} [:result :success] (> 300 status))]
+    {:status status :body res-body :headers headers}))
 
 (def ok (partial response 200))
 (def created (partial response 201))

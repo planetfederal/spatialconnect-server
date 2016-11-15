@@ -39,7 +39,7 @@ export default function reducer(state = initialState, action = {}) {
         isAuthenticating: false,
         isAuthenticated: true,
         token: action.token,
-        userName: jwtDecode(action.token).user,
+        userName: jwtDecode(action.token).user.name,
         statusText: null
       };
     case LOGIN_USER_FAILURE:

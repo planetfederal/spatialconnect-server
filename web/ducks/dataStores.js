@@ -87,7 +87,7 @@ export function loadDataStore(storeId) {
     dispatch({ type: LOAD });
     return request
       .get(API_URL + 'stores/' + storeId)
-      .set('x-access-token', token)
+      .set('Authorization', 'Token ' + token)
       .then(function(res) {
         return dispatch(receiveStores([res.body.result]));
       }, function(error) {
@@ -103,7 +103,7 @@ export function loadDataStores() {
     dispatch({ type: LOAD });
     return request
       .get(API_URL + 'stores')
-      .set('x-access-token', token)
+      .set('Authorization', 'Token ' + token)
       .then(function(res) {
         return dispatch(receiveStores(res.body.result));
       }, function(error) {
@@ -118,7 +118,7 @@ export function submitNewDataStore(data) {
     let token = sc.auth.token;
     return request
       .post(API_URL + 'stores')
-      .set('x-access-token', token)
+      .set('Authorization', 'Token ' + token)
       .send(data)
       .then(function(res) {
         return dispatch(loadDataStores());
@@ -134,7 +134,7 @@ export function updateDataStore(id, data) {
     let token = sc.auth.token;
     return request
       .put(API_URL + 'stores/' + id)
-      .set('x-access-token', token)
+      .set('Authorization', 'Token ' + token)
       .send(data)
       .then(function(res) {
         return dispatch(loadDataStores());
@@ -154,7 +154,7 @@ export function updateDataStores(values) {
     return Promise.map(values, (value) => {
       return request
         .put(API_URL + 'stores/' + value.id)
-        .set('x-access-token', token)
+        .set('Authorization', 'Token ' + token)
         .send(value)
         .promise()
     }).then(() => {
@@ -172,7 +172,7 @@ export function deleteStore(storeId) {
     let token = sc.auth.token;
     return request
       .delete(API_URL + 'stores/' + storeId)
-      .set('x-access-token', token)
+      .set('Authorization', 'Token ' + token)
       .then(() => {
         dispatch(loadDataStores());
         return dispatch(push('/stores'));
@@ -210,7 +210,7 @@ export function getWFSLayers(uri) {
     let token = sc.auth.token;
     return request
       .get(API_URL + 'wfs/getCapabilities?url=' + encodeURIComponent(uri))
-      .set('x-access-token', token)
+      .set('Authorization', 'Token ' + token)
       .then(res => {
         dispatch(updateWFSLayerList(res.body.result));
         dispatch(addStoreError('default_layers', false));
