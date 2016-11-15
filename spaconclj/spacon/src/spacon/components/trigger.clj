@@ -1,6 +1,7 @@
 (ns spacon.components.trigger
   (:require [com.stuartsierra.component :as component]
             [spacon.db.conn :as db]
+            [spacon.util.db :as dbutil]
             [yesql.core :refer [defqueries]]
             [clojure.data.json :as json]
             [spacon.http.intercept :as intercept]
@@ -20,22 +21,12 @@
                                 :else v))
    :recipients (:recipients t)})
 
-(defn row-fn [row]
-  (if-let [r (:recipients row)]
-    (assoc row :recipients (vec (.getArray r)))
-    row))
-
-(def result->map
-  {:result-set-fn doall
-   :row-fn row-fn
-   :identifiers clojure.string/lower-case})
-
 (defn trigger-list []
   (map (fn [t]
-         (entity->map t)) (trigger-list-query {} result->map)))
+         (entity->map t)) (trigger-list-query {} dbutil/result->map)))
 
 (defn find-trigger [id]
-  (some-> (find-by-id-query {:id (java.util.UUID/fromString id)} result->map)
+  (some-> (find-by-id-query {:id (java.util.UUID/fromString id)} dbutil/result->map)
           (first)
           entity->map))
 
