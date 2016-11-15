@@ -18,23 +18,17 @@
 
 (defrecord StoreRecord [id store_type uri version name team_id default_layers])
 
-(defn row-fn [row]
-  (if-let [r (:default_layers row)]
-    (assoc row :default_layers (vec (.getArray r)))
-    row))
-
-(def result->map
-  {:result-set-fn doall
-   :row-fn row-fn
-   :identifiers clojure.string/lower-case})
+(defn sanitize [store]
+  (dissoc store :created_at :updated_at :deleted_at))
 
 (defn store-list[]
   (map (fn [d]
-         (map->StoreRecord d)) (store-list-query {} result->map)))
+         (map->StoreRecord (sanitize d))) (store-list-query {} dbutil/result->map)))
 
 (defn find-store [id]
-  (some-> (find-by-id-query {:id (java.util.UUID/fromString id)} result->map)
+  (some-> (find-by-id-query {:id (java.util.UUID/fromString id)} dbutil/result->map)
           (first)
+          (sanitize)
           map->StoreRecord))
 
 (defn create-store [t]

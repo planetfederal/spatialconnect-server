@@ -6,3 +6,29 @@
     (let [as-array (into-array Object items)
           jdbc-array (.createArrayOf (.getConnection stmt) "text" as-array)]
       (.setArray stmt ix jdbc-array))))
+
+(defn format-default-layers [row]
+  (if-let [r (:default_layers row)]
+    (assoc row :default_layers (vec (.getArray r)))
+    row))
+
+(defn format-recipients [row]
+  (if-let [r (:recipients row)]
+    (assoc row :recipients (vec (.getArray r)))
+    row))
+
+(defn format-uuid [row]
+  (if-let [r (:id row)]
+    (assoc row :id (if (instance? java.util.UUID r) (.toString r) r))
+    row))
+
+(defn row-fn [row]
+  (-> row
+      format-default-layers
+      format-recipients
+      format-uuid))
+
+(def result->map
+  {:result-set-fn doall
+   :row-fn row-fn
+   :identifiers clojure.string/lower-case})
