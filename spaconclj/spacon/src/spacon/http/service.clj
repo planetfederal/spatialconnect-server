@@ -5,7 +5,7 @@
     [com.stuartsierra.component :as component]
     [spacon.http.auth :as auth]))
 
-(defrecord Service [http-config ping user device location trigger]
+(defrecord Service [http-config ping user device location trigger store config]
   component/Lifecycle
   (start [this]
     (assoc this :service-def (merge http-config {:env                     :prod
@@ -16,7 +16,9 @@
                                                                                                (:routes user)
                                                                                                (:routes device)
                                                                                                (:routes location)
-                                                                                               (:routes trigger)))
+                                                                                               (:routes trigger)
+                                                                                               (:routes store)
+                                                                                               (:routes config)))
                                                  ::http/resource-path     "/public"
                                                  ::http/type              :jetty
                                                  ::http/port              8080

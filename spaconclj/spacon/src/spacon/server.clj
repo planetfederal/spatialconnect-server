@@ -36,8 +36,10 @@
       :user (user/make-user-component)
       :mqtt (mqtt/make-mqtt-component {})
       :device (device/make-device-component)
-      :config (config/make-config-component)
       :store (store/make-store-component)
+      :config (component/using
+                (config/make-config-component)
+                [:mqtt])
       :notify (component/using
                       (notification/make-notification-component)
                       [:mqtt])
@@ -49,7 +51,7 @@
                   [:mqtt :trigger])
       :service (component/using
                  (service/make-service http-config)
-                 [:ping :user :device :location :trigger :store])
+                 [:ping :user :device :location :trigger :store :config])
       :server (component/using
                 (new-server)
                 [:service]))))
