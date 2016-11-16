@@ -2,12 +2,13 @@
   (:require [com.stuartsierra.component :as component]
             [io.pedestal.interceptor.helpers :refer [defhandler]]
             [spacon.http.intercept :as intercept]
+            [spacon.http.response :as response]
             [spacon.models.user :as user]
             [spacon.http.auth :refer [check-auth]]
             [clojure.spec :as s]))
 
-(defhandler get-all-users [request]
-  {:status 200 :body (map user/sanitize (user/find-all))})
+(defn get-all-users [context]
+  (response/success (map user/sanitize (user/find-all)) "Content-Type" "application/json"))
 
 (defn create-user
   "Creates a new user"
@@ -15,8 +16,8 @@
   (let [user (get-in context [:request :json-params])]
     (if (s/valid? :spacon.models.user/spec user)
       (if-let [new-user (user/add-user! user)]
-        {:status 200 :body (user/sanitize new-user)})
-      {:status 500 :body (str "failed to crueate user:\n" (s/explain-str :spacon.models.user/spec user))})))
+        (response/success (user/sanitize new-user)))
+        (response/error (str "failed to crueate user:\n" (s/explain-str :spacon.models.user/spec user))))))
 
 (defn- routes []
   #{["/api/users" :get  (conj intercept/common-interceptors `get-all-users)]

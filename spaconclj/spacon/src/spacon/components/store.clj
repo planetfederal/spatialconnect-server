@@ -1,35 +1,41 @@
 (ns spacon.components.store
   (:require [com.stuartsierra.component :as component]
             [spacon.http.intercept :as intercept]
+            [spacon.http.response :as response]
             [spacon.models.store :as store]))
 
 (defn http-get [context]
   (if-let [d (store/store-list)]
-    (intercept/ok d)
-    (intercept/error "Error")))
+    (response/success d)
+    (response/error "Error")))
+
+(defn http-get-error [context]
+    (response/error "Error"))
 
 (defn http-get-store [context]
   (if-let [d (store/find-store (get-in context [:path-params :id]))]
-    (intercept/ok d)
-    (intercept/error "Error retrieving store")))
+    (response/success d)
+    (response/error "Error retrieving store")))
 
 (defn http-put-store [context]
   (if-let [d (store/update-store (get-in context [:path-params :id])
                                   (:json-params context))]
-    (intercept/ok "success")
-    (intercept/error "Error updating")))
+    (response/success "success")
+    (response/error "Error updating")))
 
 (defn http-post-store [context]
   (if-let [d (store/create-store (:json-params context))]
-    (intercept/ok d)
-    (intercept/error "Error creating")))
+    (response/success d)
+    (response/error "Error creating")))
 
 (defn http-delete-store [context]
   (store/delete-store (get-in context [:path-params :id]))
-  (intercept/ok "success"))
+  (response/success "success"))
 
 (defn- routes [] #{["/api/stores" :get
                     (conj intercept/common-interceptors `http-get)]
+                   ["/api/stores-error" :get
+                    (conj intercept/common-interceptors `http-get-error)]
                    ["/api/stores/:id" :get
                     (conj intercept/common-interceptors `http-get-store)]
                    ["/api/stores/:id" :put

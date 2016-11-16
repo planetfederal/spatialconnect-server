@@ -4,7 +4,8 @@
             [spacon.util.db :as dbutil]
             [yesql.core :refer [defqueries]]
             [clojure.data.json :as json]
-            [spacon.http.intercept :as intercept])
+            [spacon.http.intercept :as intercept]
+            [spacon.http.response :as response])
   (:import (org.postgresql.util PGobject)))
 
 (defqueries "sql/trigger.sql"
@@ -59,27 +60,27 @@
   (delete-trigger! {:id (java.util.UUID/fromString id)}))
 
 (defn http-get [context]
-  (intercept/ok (trigger-list)))
+  (response/success (trigger-list)))
 
 (defn http-get-trigger [context]
   (if-let [d (find-trigger (get-in context [:path-params :id]))]
-    (intercept/ok d)
-    (intercept/error "Error retrieving")))
+    (response/success d)
+    (response/error "Error retrieving")))
 
 (defn http-put-trigger [context]
   (if-let [d (update-trigger (get-in context [:path-params :id])
                              (:json-params context))]
-    (intercept/ok d)
-    (intercept/error "Error updating ")))
+    (response/success d)
+    (response/error "Error updating ")))
 
 (defn http-post-trigger [context]
   (if-let [d (create-trigger (:json-params context))]
-    (intercept/ok d)
-    (intercept/error "Error creating")))
+    (response/success d)
+    (response/error "Error creating")))
 
 (defn http-delete-trigger [context]
   (delete-trigger (get-in context [:path-params :id]))
-  (intercept/ok "success"))
+  (response/success "success"))
 
 (defn- routes [] #{["/api/triggers" :get
                     (conj intercept/common-interceptors `http-get)]

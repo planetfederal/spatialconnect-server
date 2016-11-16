@@ -1,6 +1,7 @@
 (ns spacon.components.location
   (:require [com.stuartsierra.component :as component]
             [spacon.http.intercept :as intercept]
+            [spacon.http.response :as response]
             [clojure.data.json :as json]
             [spacon.db.conn :as db]
             [yesql.core :refer [defqueries]]
@@ -40,7 +41,7 @@
 
 (defn http-get [context]
   (let [fs (location->geojson (locations))]
-    (intercept/ok {:type     "FeatureCollection"
+    (response/success {:type     "FeatureCollection"
                                     :features fs})))
 
 (defn- routes [] #{["/api/location" :get

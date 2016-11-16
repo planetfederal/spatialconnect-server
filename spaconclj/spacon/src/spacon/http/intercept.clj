@@ -1,5 +1,6 @@
 (ns spacon.http.intercept
   (:require [clojure.data.json :as json]
+            [spacon.http.response :as response]
             [io.pedestal.http.body-params :as body-params]
             [io.pedestal.http.content-negotiation :as conneg]))
 
@@ -13,17 +14,19 @@
 
 (defn transform-content
   [body content-type]
+  (println "transform-content" content-type)
   (case content-type
     "text/html"        (json/write-str body)
     "text/plain"       (json/write-str body)
     "application/edn"  (pr-str body)
     "application/json" (json/write-str body)))
 
+; always set response content-type to json
 (defn coerce-to
   [response content-type]
   (-> response
       (update :body transform-content content-type)
-      (assoc-in [:headers "Content-Type"] content-type)))
+      (assoc-in [:headers "Content-Type"] "application/json")))
 
 (def coerce-body
   {:name ::coerce-body
@@ -33,20 +36,4 @@
                    (nil? (get-in context [:response :body :headers "Content-Type"]))
                    (update-in [:response] coerce-to (accepted-type context))))})
 
-(defn response [status body & {:as headers}]
-  (let [res-body (assoc-in {:result body} [:result :success] (> 300 status))]
-    {:status status :body res-body :headers headers}))
-
-(def ok (partial response 200))
-(def created (partial response 201))
-(def accepted (partial response 202))
-(def error (partial response 500))
-
-(def entity-render
-  {:name :entity-render
-   :leave (fn [context]
-            (if-let [item (:result context)]
-              (assoc context :response (ok item "Content-Type" "application/json"))
-              context))})
-
-(def common-interceptors [entity-render coerce-body content-neg-intc (body-params/body-params)])
+(def common-interceptors [coerce-body content-neg-intc (body-params/body-params)])
