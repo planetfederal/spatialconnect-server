@@ -6,7 +6,7 @@
             [buddy.auth.protocols :as proto]
             [buddy.auth.backends :as backends]
             [buddy.sign.jwt :as jwt]
-            [clj-time.core :refer [hours from-now]]
+            [clj-time.core :refer [weeks from-now]]
             [spacon.models.user :as user]))
 
 (defonce secret "spaconsecret")
@@ -23,10 +23,10 @@
     (if-not authn?
       {:status 401 :body "not authenticated!"}
       (let [claims {:user (user/sanitize user)
-                    :exp  (-> 3 hours from-now)}
+                    :exp  (-> 2 weeks from-now)}
             ;; todo: encrypt the token
             token (jwt/sign claims secret)]
-        {:status 200 :body {:token token}}))))
+        (intercept/ok {:token token})))))
 
 
 (defhandler authorize-user
@@ -45,10 +45,12 @@
                                           (proto/-authenticate auth-backend request))
                                  (catch Exception _))]
               (if (:user auth-data)
-                  (assoc context :identity auth-data)
+                  (assoc-in context [:request :identity] auth-data)
                   (-> context
                       terminate
-                      (assoc :response {:status 401 :body {:message "Request failed auth check."}})))))})
+                      (assoc :response {:status 401
+                                        :body {:result {:success false
+                                                        :message "Request failed auth check."}}})))))})
 
 
 (defn routes []

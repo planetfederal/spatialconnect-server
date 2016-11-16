@@ -90,7 +90,7 @@ export function getFormData(form) {
     let token = sc.auth.token;
     return request
       .get(API_URL + `form/${form.id}/results`)
-      .set('x-access-token', token)
+      .set('Authorization', 'Token ' + token)
       .then(res => res.body.result)
       .then(data => data.map(f => {
         f.form = form;
@@ -109,7 +109,7 @@ export function loadFormDataAll() {
         dispatch(addFormId(form.id));
         return request
           .get(API_URL + `forms/${form.id}/results`)
-          .set('x-access-token', token)
+          .set('Authorization', 'Token ' + token)
           .then(res => res.body.result)
           .then(function(form, data) {
             return data.map(f => {
@@ -135,7 +135,7 @@ export function loadDeviceLocations() {
     let token = sc.auth.token;
     return request
       .get(API_URL + `locations`)
-      .set('x-access-token', token)
+      .set('Authorization', 'Token ' + token)
       .then(res => res.body.result)
       .then(data => {
         dispatch({

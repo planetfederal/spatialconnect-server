@@ -266,8 +266,9 @@ export function loadForms() {
     dispatch({ type: LOAD });
     return request
       .get(API_URL + 'forms')
-      .set('x-access-token', token)
+      .set('Authorization', 'Token ' + token)
       .then(res => {
+        console.log('received forms ' + JSON.stringify(res.body.result))
         dispatch(receiveForms(res.body.result));
       })
       .catch(err => {
@@ -283,7 +284,7 @@ export function loadForm(form_key) {
     dispatch({ type: LOAD });
     request
       .get(API_URL + 'forms/' + form_key)
-      .set('x-access-token', token)
+      .set('Authorization', 'Token ' + token)
       .end(function(err, res) {
         if (err) {
           throw new Error(res);
@@ -301,7 +302,7 @@ export function addForm(form) {
     let f = _.pick(form, ['form_key', 'form_label', 'version', 'fields']);
     return request
       .post(API_URL + 'forms')
-      .set('x-access-token', token)
+      .set('Authorization', 'Token ' + token)
       .send(f)
       .then(function(res) {
         dispatch(updateSavedForm(res.body.result.id, res.body.result));
@@ -326,7 +327,7 @@ export function saveForm(form) {
     let f = _.pick(form, ['form_key', 'form_label', 'version', 'fields']);
     return request
       .post(API_URL + 'forms')
-      .set('x-access-token', token)
+      .set('Authorization', 'Token ' + token)
       .send(f)
       .then(function(res) {
         dispatch(updateSavedForm(res.body.result.id, res.body.result));
@@ -343,7 +344,7 @@ export function deleteForm(form_key) {
     let token = sc.auth.token;
     return request
       .delete(API_URL + 'forms/' + form_key)
-      .set('x-access-token', token)
+      .set('Authorization', 'Token ' + token)
       .then(function(res) {
         dispatch(push('/forms'));
       }, function(error) {

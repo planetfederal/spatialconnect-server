@@ -59,7 +59,7 @@ export function updateTrigger(trigger) {
     let token = sc.auth.token;
     return request
       .put(API_URL + 'triggers')
-      .set('x-access-token', token)
+      .set('Authorization', 'Token ' + token)
       .send(trigger)
       .then(
         res => dispatch(loadTrigger(trigger.id, true)),
@@ -74,7 +74,7 @@ export function addTrigger(trigger) {
     let token = sc.auth.token;
     return request
       .post(API_URL + 'triggers')
-      .set('x-access-token', token)
+      .set('Authorization', 'Token ' + token)
       .send(trigger)
       .then(
         res => dispatch(loadTriggers()),
@@ -98,7 +98,7 @@ export function deleteTrigger(trigger) {
     let token = sc.auth.token;
     return request
       .delete(API_URL + 'triggers/' + trigger.id)
-      .set('x-access-token', token)
+      .set('Authorization', 'Token ' + token)
       .then(() => dispatch(push('/triggers')));
   };
 }
@@ -110,7 +110,7 @@ export function loadTrigger(triggerId, refresh=false) {
     let token = sc.auth.token;
     return request
       .get(API_URL + 'triggers/' + triggerId)
-      .set('x-access-token', token)
+      .set('Authorization', 'Token ' + token)
       .then(res => res.body.result)
       .then(data => dispatch(receiveTriggers([data])));
   }
@@ -122,7 +122,7 @@ export function loadTriggers() {
     let token = sc.auth.token;
     return request
       .get(API_URL + `triggers`)
-      .set('x-access-token', token)
+      .set('Authorization', 'Token ' + token)
       .then(res => res.body.result)
       .then(data => dispatch(receiveTriggers(data)));
   }

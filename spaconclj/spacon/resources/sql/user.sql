@@ -25,6 +25,16 @@ VALUES (:name,:email,:password)
 ON CONFLICT (email)
 DO UPDATE SET name = :name, password = :password;
 
+-- name: add-team<!
+-- Creates a new record in the user_team join table for a newly created user
+INSERT INTO user_team (user_id,team_id)
+VALUES (:user_id,:team_id);
+
+-- name: find-teams
+-- Gets the teams for a given user
+SELECT team_id FROM user_team
+WHERE user_id = :user_id;
+
 -- name: delete!
 -- Deletes a user
 UPDATE users SET deleted_at = NOW() WHERE id = :id;
