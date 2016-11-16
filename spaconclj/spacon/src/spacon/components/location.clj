@@ -2,7 +2,6 @@
   (:require [com.stuartsierra.component :as component]
             [spacon.http.intercept :as intercept]
             [clojure.data.json :as json]
-            [ring.util.response :as ring-resp]
             [spacon.db.conn :as db]
             [yesql.core :refer [defqueries]]
             [spacon.components.mqtt :as mqttcomp]
@@ -41,8 +40,8 @@
 
 (defn http-get [context]
   (let [fs (location->geojson (locations))]
-    (ring-resp/response {:response {:type     "FeatureCollection"
-                                    :features fs}})))
+    (intercept/ok {:type     "FeatureCollection"
+                                    :features fs})))
 
 (defn- routes [] #{["/api/location" :get
                     (conj intercept/common-interceptors `http-get)]})

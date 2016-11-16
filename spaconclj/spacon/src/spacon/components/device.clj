@@ -2,7 +2,6 @@
   (:require [com.stuartsierra.component :as component]
             [spacon.http.intercept :as intercept]
             [clojure.data.json :as json]
-            [ring.util.response :as ring-resp]
             [spacon.db.conn :as db]
             [yesql.core :refer [defqueries]]
             [clojure.spec :as s]))
@@ -62,28 +61,28 @@
 
 (defn http-get [context]
   (let [d (device-list)]
-    (ring-resp/response {:response d})))
+    (intercept/ok d)))
 
 (defn http-get-device [context]
   (if-let [id (get-in context [:path-params :id])]
-    (ring-resp/response {:response (find-device id)})
-    (ring-resp/response {:response nil})))
+    (intercept/ok (find-device id))
+    (intercept/error nil)))
 
 (defn http-post-device [context]
   (if-let [d (create-device (:json-params context))]
-    (ring-resp/response {:response d})
-    (ring-resp/response {:response "Error creating"})))
+    (intercept/ok d)
+    (intercept/error "Error creating")))
 
 (defn http-put-device [context]
   (if-let [d (update-device
                (get-in context [:path-params :id])
                (:json-params context))]
-    (ring-resp/response {:response d})
-    (ring-resp/response {:response "Error updating"})))
+    (intercept/ok d)
+    (intercept/error "Error updating")))
 
 (defn http-delete-device [context]
   (delete-device (get-in context [:path-params :id]))
-  (ring-resp/response {:response "success"}))
+  (intercept/ok "success"))
 
 (defn- routes [] #{["/api/devices" :get
                     (conj intercept/common-interceptors `http-get)]
