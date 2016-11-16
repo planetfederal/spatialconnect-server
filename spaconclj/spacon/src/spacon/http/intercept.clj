@@ -39,6 +39,7 @@
 (def ok (partial response 200))
 (def created (partial response 201))
 (def accepted (partial response 202))
+(def error (partial response 500))
 
 (def entity-render
   {:name :entity-render

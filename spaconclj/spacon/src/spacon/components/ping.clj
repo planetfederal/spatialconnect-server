@@ -1,12 +1,11 @@
 (ns spacon.components.ping
   (:require [com.stuartsierra.component :as component]
             [spacon.http.intercept :as intercept]
-            [clojure.data.json :as json]
-            [ring.util.response :as ring-resp]))
+            [clojure.data.json :as json]))
 
 (defn- pong
   [request]
-  (ring-resp/response {:response "pong"}))
+  (intercept/ok "pong"))
 
 (defn- routes [] #{["/api/ping" :get (conj intercept/common-interceptors `pong)]})
 
