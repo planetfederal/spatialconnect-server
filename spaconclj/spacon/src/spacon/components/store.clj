@@ -1,26 +1,32 @@
 (ns spacon.components.store
   (:require [com.stuartsierra.component :as component]
             [spacon.http.intercept :as intercept]
-            [ring.util.response :as ring-resp]
             [spacon.models.store :as store]))
 
 (defn http-get [context]
-  (let [d (store/store-list)]
-    (ring-resp/response {:response d})))
+  (if-let [d (store/store-list)]
+    (intercept/ok d)
+    (intercept/error "Error")))
 
 (defn http-get-store [context]
-  (ring-resp/response {:response (store/find-store (get-in context [:path-params :id]))}))
+  (if-let [d (store/find-store (get-in context [:path-params :id]))]
+    (intercept/ok d)
+    (intercept/error "Error retrieving store")))
 
 (defn http-put-store [context]
-  (ring-resp/response {:response (store/update-store (get-in context [:path-params :id])
-                                                 (:json-params context))}))
+  (if-let [d (store/update-store (get-in context [:path-params :id])
+                                  (:json-params context))]
+    (intercept/ok "success")
+    (intercept/error "Error updating")))
 
 (defn http-post-store [context]
-  (ring-resp/response {:response (store/create-store (:json-params context))}))
+  (if-let [d (store/create-store (:json-params context))]
+    (intercept/ok d)
+    (intercept/error "Error creating")))
 
 (defn http-delete-store [context]
   (store/delete-store (get-in context [:path-params :id]))
-  (ring-resp/response {:response "success"}))
+  (intercept/ok "success"))
 
 (defn- routes [] #{["/api/stores" :get
                     (conj intercept/common-interceptors `http-get)]
