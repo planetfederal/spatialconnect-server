@@ -8,7 +8,7 @@
             [clojure.spec :as s]))
 
 (defn get-all-users [context]
-  (response/success (map user/sanitize (user/find-all)) "Content-Type" "application/json"))
+  (response/success (map user/sanitize (user/find-all))))
 
 (defn create-user
   "Creates a new user"
