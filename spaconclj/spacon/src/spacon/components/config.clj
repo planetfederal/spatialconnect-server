@@ -2,6 +2,7 @@
   (:require [com.stuartsierra.component :as component]
             [spacon.util.protobuf :as pbf]
             [spacon.http.intercept :as intercept]
+            [spacon.http.response :as response]
             [spacon.components.mqtt :as mqtt]
             [spacon.models.store :as store]))
 
@@ -10,7 +11,7 @@
 
 (defn http-get [context]
   (let [d (create-config)]
-    (intercept/ok d)))
+    (response/success d)))
 
 (defn- routes [] #{["/api/config" :get
                     (conj intercept/common-interceptors `http-get)]

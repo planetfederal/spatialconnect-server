@@ -2,6 +2,7 @@
   (:require [io.pedestal.interceptor.helpers :refer [defbefore defhandler]]
             [io.pedestal.interceptor.chain :refer [terminate]]
             [spacon.http.intercept :as intercept]
+            [spacon.http.response :as response]
             [buddy.hashers :as hashers]
             [buddy.auth.protocols :as proto]
             [buddy.auth.backends :as backends]
@@ -26,7 +27,7 @@
                     :exp  (-> 2 weeks from-now)}
             ;; todo: encrypt the token
             token (jwt/sign claims secret)]
-        (intercept/ok {:token token})))))
+        (response/success {:token token})))))
 
 
 (defhandler authorize-user
