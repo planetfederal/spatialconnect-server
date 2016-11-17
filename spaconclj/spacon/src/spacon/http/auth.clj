@@ -27,7 +27,7 @@
                     :exp  (-> 2 weeks from-now)}
             ;; todo: encrypt the token
             token (jwt/sign claims secret)]
-        (response/success {:token token})))))
+        (response/ok {:token token})))))
 
 
 (defhandler authorize-user

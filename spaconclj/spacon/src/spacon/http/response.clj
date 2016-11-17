@@ -9,7 +9,7 @@
                     :error (if (is-error? status) body nil))]
     {:status status :body res-body :headers headers}))
 
-(def success (partial response 200))
+(def ok (partial response 200))
 (def created (partial response 201))
 (def accepted (partial response 202))
 (def bad-request (partial response 400))

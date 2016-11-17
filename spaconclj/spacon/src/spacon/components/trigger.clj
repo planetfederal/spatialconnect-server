@@ -60,27 +60,27 @@
   (delete-trigger! {:id (java.util.UUID/fromString id)}))
 
 (defn http-get [context]
-  (response/success (trigger-list)))
+  (response/ok (trigger-list)))
 
 (defn http-get-trigger [context]
   (if-let [d (find-trigger (get-in context [:path-params :id]))]
-    (response/success d)
+    (response/ok d)
     (response/error "Error retrieving")))
 
 (defn http-put-trigger [context]
   (if-let [d (update-trigger (get-in context [:path-params :id])
                              (:json-params context))]
-    (response/success d)
+    (response/ok d)
     (response/error "Error updating ")))
 
 (defn http-post-trigger [context]
   (if-let [d (create-trigger (:json-params context))]
-    (response/success d)
+    (response/ok d)
     (response/error "Error creating")))
 
 (defn http-delete-trigger [context]
   (delete-trigger (get-in context [:path-params :id]))
-  (response/success "success"))
+  (response/ok "success"))
 
 (defn- routes [] #{["/api/triggers" :get
                     (conj intercept/common-interceptors `http-get)]

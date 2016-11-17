@@ -62,28 +62,28 @@
 
 (defn http-get [context]
   (let [d (device-list)]
-    (response/success d)))
+    (response/ok d)))
 
 (defn http-get-device [context]
   (if-let [id (get-in context [:path-params :id])]
-    (response/success (find-device id))
+    (response/ok (find-device id))
     (response/error nil)))
 
 (defn http-post-device [context]
   (if-let [d (create-device (:json-params context))]
-    (response/success d)
+    (response/ok d)
     (response/error "Error creating")))
 
 (defn http-put-device [context]
   (if-let [d (update-device
                (get-in context [:path-params :id])
                (:json-params context))]
-    (response/success d)
+    (response/ok d)
     (response/error "Error updating")))
 
 (defn http-delete-device [context]
   (delete-device (get-in context [:path-params :id]))
-  (response/success "success"))
+  (response/ok "success"))
 
 (defn- routes [] #{["/api/devices" :get
                     (conj intercept/common-interceptors `http-get)]
