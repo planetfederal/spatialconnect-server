@@ -13,7 +13,8 @@
             [spacon.components.location :as location]
             [spacon.components.trigger :as trigger]
             [spacon.components.mqtt :as mqtt]
-            [spacon.components.notification :as notification]))
+            [spacon.components.notification :as notification]
+            [spacon.components.form :as form]))
 
 (defrecord Server [service]
   component/Lifecycle
@@ -49,9 +50,10 @@
       :location (component/using
                   (location/make-location-component)
                   [:mqtt :trigger])
+      :form (form/make-form-component)
       :service (component/using
                  (service/make-service http-config)
-                 [:ping :user :device :location :trigger :store :config])
+                 [:ping :user :device :location :trigger :store :config :form])
       :server (component/using
                 (new-server)
                 [:service]))))

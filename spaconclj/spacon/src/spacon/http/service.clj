@@ -5,26 +5,28 @@
     [com.stuartsierra.component :as component]
     [spacon.http.auth :as auth]))
 
-(defrecord Service [http-config ping user device location trigger store config]
+(defrecord Service [http-config ping user device location trigger store config form]
   component/Lifecycle
   (start [this]
-    (assoc this :service-def (merge http-config {:env                     :prod
-                                                 ::http/routes            #(route/expand-routes
-                                                                            (clojure.set/union #{}
-                                                                                               (auth/routes)
-                                                                                               (:routes ping)
-                                                                                               (:routes user)
-                                                                                               (:routes device)
-                                                                                               (:routes location)
-                                                                                               (:routes trigger)
-                                                                                               (:routes store)
-                                                                                               (:routes config)))
-                                                 ::http/resource-path     "/public"
-                                                 ::http/type              :jetty
-                                                 ::http/port              8080
-                                                 ::http/container-options {:h2c? true
-                                                                           :h2?  false
-                                                                           :ssl? false}})))
+    (let [routes #(route/expand-routes
+                    (clojure.set/union #{}
+                                       (auth/routes)
+                                       (:routes ping)
+                                       (:routes user)
+                                       (:routes device)
+                                       (:routes location)
+                                       (:routes trigger)
+                                       (:routes store)
+                                       (:routes config)
+                                       (:routes form)))]
+      (assoc this :service-def (merge http-config {:env                     :prod
+                                                   ::http/routes            routes
+                                                   ::http/resource-path     "/public"
+                                                   ::http/type              :jetty
+                                                   ::http/port              8085
+                                                   ::http/container-options {:h2c? true
+                                                                             :h2?  false
+                                                                             :ssl? false}}))))
   (stop [this]
     this))
 
