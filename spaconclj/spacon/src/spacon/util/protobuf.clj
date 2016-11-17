@@ -17,4 +17,4 @@
       (.build)))
 
 (defn map->protobuf [m]
-  (->protobuf (:correlationId m) (:replyTo m) (:action m) (:payload m)))
+  (->protobuf (get m :correlationId -1) (get m :replyTo "") (get m :action 100) (get m :payload "")))

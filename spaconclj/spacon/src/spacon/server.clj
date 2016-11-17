@@ -36,8 +36,10 @@
       :user (user/make-user-component)
       :mqtt (mqtt/make-mqtt-component {})
       :device (device/make-device-component)
-      :config (config/make-config-component)
       :store (store/make-store-component)
+      :config (component/using
+                (config/make-config-component)
+                [:mqtt])
       :notify (component/using
                       (notification/make-notification-component)
                       [:mqtt])
