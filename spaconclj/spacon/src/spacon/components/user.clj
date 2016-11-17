@@ -8,7 +8,7 @@
             [clojure.spec :as s]))
 
 (defn get-all-users [context]
-  (response/success (map user/sanitize (user/find-all))))
+  (response/ok (map user/sanitize (user/find-all))))
 
 (defn create-user
   "Creates a new user"
@@ -16,7 +16,7 @@
   (let [user (get-in context [:request :json-params])]
     (if (s/valid? :spacon.models.user/spec user)
       (if-let [new-user (user/add-user! user)]
-        (response/success (user/sanitize new-user)))
+        (response/ok (user/sanitize new-user)))
         (response/error (str "failed to crueate user:\n" (s/explain-str :spacon.models.user/spec user))))))
 
 (defn- routes []

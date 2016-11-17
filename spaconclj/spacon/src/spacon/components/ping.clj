@@ -6,7 +6,7 @@
 
 (defn- pong
   [request]
-  (response/success "pong"))
+  (response/ok "pong"))
 
 (defn- routes [] #{["/api/ping" :get (conj intercept/common-interceptors `pong)]})
 

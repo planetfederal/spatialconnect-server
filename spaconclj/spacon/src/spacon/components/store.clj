@@ -6,7 +6,7 @@
 
 (defn http-get [context]
   (if-let [d (store/store-list)]
-    (response/success d)
+    (response/ok d)
     (response/error "Error")))
 
 (defn http-get-error [context]
@@ -14,23 +14,23 @@
 
 (defn http-get-store [context]
   (if-let [d (store/find-store (get-in context [:path-params :id]))]
-    (response/success d)
+    (response/ok d)
     (response/error "Error retrieving store")))
 
 (defn http-put-store [context]
   (if-let [d (store/update-store (get-in context [:path-params :id])
                                   (:json-params context))]
-    (response/success "success")
+    (response/ok "success")
     (response/error "Error updating")))
 
 (defn http-post-store [context]
   (if-let [d (store/create-store (:json-params context))]
-    (response/success d)
+    (response/ok d)
     (response/error "Error creating")))
 
 (defn http-delete-store [context]
   (store/delete-store (get-in context [:path-params :id]))
-  (response/success "success"))
+  (response/ok "success"))
 
 (defn- routes [] #{["/api/stores" :get
                     (conj intercept/common-interceptors `http-get)]

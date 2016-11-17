@@ -11,7 +11,7 @@
 
 (defn http-get [context]
   (let [d (create-config)]
-    (response/success d)))
+    (response/ok d)))
 
 (defn- routes [] #{["/api/config" :get
                     (conj intercept/common-interceptors `http-get)]

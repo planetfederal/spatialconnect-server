@@ -41,7 +41,7 @@
 
 (defn http-get [context]
   (let [fs (location->geojson (locations))]
-    (response/success {:type     "FeatureCollection"
+    (response/ok {:type                       "FeatureCollection"
                                     :features fs})))
 
 (defn- routes [] #{["/api/location" :get
