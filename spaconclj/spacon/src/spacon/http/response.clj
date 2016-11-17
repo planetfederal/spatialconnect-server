@@ -4,7 +4,6 @@
   (< 300 status))
 
 (defn response [status body & {:as headers}]
-  (println "response" body headers)
   (let [res-body (assoc {}
                     :result (if (is-error? status) nil body)
                     :error (if (is-error? status) body nil))]

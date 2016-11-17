@@ -14,7 +14,6 @@
 
 (defn transform-content
   [body content-type]
-  (println "transform-content" content-type)
   (case content-type
     "text/html"        (json/write-str body)
     "text/plain"       (json/write-str body)
