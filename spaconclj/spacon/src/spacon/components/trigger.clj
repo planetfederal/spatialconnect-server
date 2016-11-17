@@ -3,84 +3,51 @@
             [spacon.db.conn :as db]
             [spacon.util.db :as dbutil]
             [yesql.core :refer [defqueries]]
-            [clojure.data.json :as json]
             [spacon.http.intercept :as intercept]
-            [spacon.http.response :as response])
-  (:import (org.postgresql.util PGobject)))
+            [ring.util.response :as ring-resp]
+            [spacon.models.triggers :as model]
+            [cljts.relation :as relation]))
 
-(defqueries "sql/trigger.sql"
-            {:connection db/db-spec})
+(def invalid-triggers (ref #{}))
+(def valid-triggers (ref #{}))
 
-(defn entity->map [t]
-  {:id (.toString (:id t))
-   :created_at (.toString (:created_at t))
-   :updated_at (.toString (:updated_at t))
-   :definition (if-let [v (:definition t)]
-                         (cond (string? v) (json/read-str (.getValue v))
-                               (instance? org.postgresql.util.PGobject v) (json/read-str (.getValue v))
-                                :else v))
-   :recipients (:recipients t)})
+(defn add-trigger [trigger]
+  (dosync
+    (commute invalid-triggers conj trigger)))
 
-(defn trigger-list []
+(defn remove-trigger [trigger]
+  (dosync
+    (commute invalid-triggers disj trigger)
+    (commute valid-triggers disj trigger)))
+
+(defn set-valid-trigger [trigger]
+  (dosync
+    (commute invalid-triggers disj trigger)
+    (commute valid-triggers conj trigger)))
+
+(defn check-value [pt]
   (map (fn [t]
-         (entity->map t)) (trigger-list-query {} dbutil/result->map)))
+          (if (relation/within? pt t)
+            (comp (set-valid-trigger t) (println "notify"))))
+       @invalid-triggers))
 
-(defn find-trigger [id]
-  (some-> (find-by-id-query {:id (java.util.UUID/fromString id)} dbutil/result->map)
-          (first)
-          entity->map))
-
-(defn map->entity [t]
-  (if (nil? (:definition t))
-    t
-    (assoc t :definition (json/write-str (:definition t)))))
-
-(deftype StringArray [items]
-  clojure.java.jdbc/ISQLParameter
-  (set-parameter [_ stmt ix]
-    (let [as-array (into-array Object items)
-          jdbc-array (.createArrayOf (.getConnection stmt) "text" as-array)]
-      (.setArray stmt ix jdbc-array))))
-
-(defn create-trigger [t]
-  (let [entity (map->entity t)
-        new-trigger (insert-trigger<! (assoc entity :recipients (->StringArray (:recipients t))))]
-    (entity->map (assoc t :id (:id new-trigger)
-                          :created_at (:created_at new-trigger)
-                          :updated_at (:updated_at new-trigger)))))
-
-(defn update-trigger [id t]
-  (let [entity (map->entity (assoc t :id (java.util.UUID/fromString id)))
-        updated-trigger (update-trigger<! (assoc entity :recipients (->StringArray (:recipients t))))]
-    (entity->map (assoc t :id (:id updated-trigger)
-                          :created_at (:created_at updated-trigger)
-                          :updated_at (:updated_at updated-trigger)))))
-
-(defn delete-trigger [id]
-  (delete-trigger! {:id (java.util.UUID/fromString id)}))
-
-(defn http-get [context]
-  (response/ok (trigger-list)))
+(defn http-get [_]
+  (ring-resp/response {:response (model/trigger-list)}))
 
 (defn http-get-trigger [context]
-  (if-let [d (find-trigger (get-in context [:path-params :id]))]
-    (response/ok d)
-    (response/error "Error retrieving")))
+  (ring-resp/response {:response (model/find-trigger (get-in context [:path-params :id]))}))
 
 (defn http-put-trigger [context]
-  (if-let [d (update-trigger (get-in context [:path-params :id])
-                             (:json-params context))]
-    (response/ok d)
-    (response/error "Error updating ")))
+  (ring-resp/response {:response (model/update-trigger (get-in context [:path-params :id])
+                                                 (:json-params context))}))
 
 (defn http-post-trigger [context]
-  (if-let [d (create-trigger (:json-params context))]
-    (response/ok d)
-    (response/error "Error creating")))
+  (ring-resp/response {:response (model/create-trigger (:json-params context))}))
 
 (defn http-delete-trigger [context]
-  (delete-trigger (get-in context [:path-params :id]))
-  (response/ok "success"))
+  (model/delete-trigger (get-in context [:path-params :id]))
+  (ring-resp/response {:response "success"}))
+>>>>>>> b98beb1... Adding notification and config async channels
 
 (defn- routes [] #{["/api/triggers" :get
                     (conj intercept/common-interceptors `http-get)]

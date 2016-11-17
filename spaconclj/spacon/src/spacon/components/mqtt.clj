@@ -1,7 +1,8 @@
 (ns spacon.components.mqtt
   (:require [com.stuartsierra.component :as component]
             [spacon.util.protobuf :as pbf]
-            [clojurewerkz.machine-head.client :as mh]))
+            [clojurewerkz.machine-head.client :as mh]
+            [clojure.data.json :as json]))
 
 (def id "spacon-server")
 
@@ -17,6 +18,12 @@
 (defn listenOnTopic [mqtt topic f]
   (subscribe mqtt topic f))
 
+(defn publishMapToTopic [mqtt topic message]
+  (let [m {:payload (json/write-str message)}
+        p (pbf/map->protobuf m)]
+    (mh/publish (:conn mqtt) topic
+                (.toByteArray p))))
+
 (defn publishToTopic [mqtt topic message]
       (mh/publish (:conn mqtt) topic (.toByteArray message)))
 
@@ -27,6 +34,7 @@
       (assoc this :conn m)))
 
   (stop [this]
+    (println "Disconnecting MQTT Client")
     (mh/disconnect (:conn this))
     this))
 

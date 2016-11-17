@@ -1,4 +1,4 @@
-(defproject spacon "0.0.1-SNAPSHOT"
+(defproject spacon "0.7.1-SNAPSHOT"
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
@@ -20,9 +20,12 @@
                  [com.stuartsierra/component "0.3.1"]
                  [clojurewerkz/machine_head "1.0.0-beta9"]
                  [com.boundlessgeo.spatialconnect/schema "0.7"]
-                 [buddy "1.1.0"]]
+                 [buddy "1.1.0"]
+                 [org.clojars.diogok/cljts "0.5.0"]]
 
-  :repositories {"project" "file:repo"}
+  :repositories  [["osgeo" "http://download.osgeo.org/webdav/geotools/"]
+                  ["clojars" {:sign-releases false}]
+                  ["project" "file:repo"]]
   :def-dependencies [[lein-reload "1.0.0"]]
 
   :plugins [[lein-environ "1.0.3"]

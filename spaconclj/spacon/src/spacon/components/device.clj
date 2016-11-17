@@ -4,8 +4,9 @@
             [spacon.http.response :as response]
             [clojure.data.json :as json]
             [spacon.db.conn :as db]
+            [ring.util.response :as ring-resp]
             [yesql.core :refer [defqueries]]
-            [clojure.spec :as s]))
+            [spacon.models.devices :as model]))
 
 ;;; specs about device data
 (s/def ::name string?)
@@ -75,7 +76,7 @@
     (response/error "Error creating")))
 
 (defn http-put-device [context]
-  (if-let [d (update-device
+  (if-let [d (model/update-device
                (get-in context [:path-params :id])
                (:json-params context))]
     (response/ok d)
@@ -105,10 +106,3 @@
 
 (defn make-device-component []
   (->DeviceComponent))
-
-(s/fdef create-device
-  :args (s/cat :device (s/spec ::device-spec)))
-
-(s/fdef update-device
-  :args (s/cat :id string?
-               :device (s/spec ::device-spec)))
