@@ -3,102 +3,119 @@
             [spacon.db.conn :as db]
             [spacon.util.db :as dbutil]
             [yesql.core :refer [defqueries]]
-            [clojure.data.json :as json]
             [spacon.http.intercept :as intercept]
-            [spacon.http.response :as response])
-  (:import (org.postgresql.util PGobject)))
+            [spacon.http.response :as response]
+            [spacon.models.triggers :as model]
+            [spacon.components.notification :as notification]
+            [cljts.relation :as relation]
+            [clojure.core.async :as async]
+            [spacon.util.geo :as geoutil]
+            [spacon.entity.notification :as ntf-entity]))
 
-(defqueries "sql/trigger.sql"
-            {:connection db/db-spec})
+(def invalid-triggers (ref #{}))
+(def valid-triggers (ref #{}))
 
-(defn entity->map [t]
-  {:id (.toString (:id t))
-   :created_at (.toString (:created_at t))
-   :updated_at (.toString (:updated_at t))
-   :definition (if-let [v (:definition t)]
-                         (cond (string? v) (json/read-str (.getValue v))
-                               (instance? org.postgresql.util.PGobject v) (json/read-str (.getValue v))
-                                :else v))
-   :recipients (:recipients t)})
+(defn add-trigger [trigger]
+  (dosync
+    (commute invalid-triggers conj
+             (geoutil/geojsonmap->filtermap trigger))))
 
-(defn trigger-list []
-  (map (fn [t]
-         (entity->map t)) (trigger-list-query {} dbutil/result->map)))
+(defn add-triggers [triggers]
+  (map add-trigger triggers))
 
-(defn find-trigger [id]
-  (some-> (find-by-id-query {:id (java.util.UUID/fromString id)} dbutil/result->map)
-          (first)
-          entity->map))
+(defn remove-trigger [trigger]
+  (dosync
+    (commute invalid-triggers disj trigger)
+    (commute valid-triggers disj trigger)))
 
-(defn map->entity [t]
-  (if (nil? (:definition t))
-    t
-    (assoc t :definition (json/write-str (:definition t)))))
+(defn set-valid-trigger [trigger]
+  (dosync
+    (commute invalid-triggers disj trigger)
+    (commute valid-triggers conj trigger)))
 
-(deftype StringArray [items]
-  clojure.java.jdbc/ISQLParameter
-  (set-parameter [_ stmt ix]
-    (let [as-array (into-array Object items)
-          jdbc-array (.createArrayOf (.getConnection stmt) "text" as-array)]
-      (.setArray stmt ix jdbc-array))))
+(defn set-invalid-trigger [trigger]
+  (dosync
+    (commute invalid-triggers conj trigger)
+    (commute valid-triggers disj trigger)))
 
-(defn create-trigger [t]
-  (let [entity (map->entity t)
-        new-trigger (insert-trigger<! (assoc entity :recipients (->StringArray (:recipients t))))]
-    (entity->map (assoc t :id (:id new-trigger)
-                          :created_at (:created_at new-trigger)
-                          :updated_at (:updated_at new-trigger)))))
+(defn- load-triggers []
+  (let [tl (doall (model/trigger-list))]
+    (add-triggers
+      (map
+        (fn [t] (:definition t))
+        tl))))
 
-(defn update-trigger [id t]
-  (let [entity (map->entity (assoc t :id (java.util.UUID/fromString id)))
-        updated-trigger (update-trigger<! (assoc entity :recipients (->StringArray (:recipients t))))]
-    (entity->map (assoc t :id (:id updated-trigger)
-                          :created_at (:created_at updated-trigger)
-                          :updated_at (:updated_at updated-trigger)))))
+(defn process-value [p notify]
+  (map
+    (fn [poly]
+          (if (relation/within? (:geometry p) (:geometry poly))
+            (notification/send->notification notify
+               (ntf-entity/make-mobile-notification
+                 {:to nil
+                  :priority "alert"
+                  :title "Alert"
+                  :body "Point is in Polygon"}))))
+       @invalid-triggers))
 
-(defn delete-trigger [id]
-  (delete-trigger! {:id (java.util.UUID/fromString id)}))
-
-(defn http-get [context]
-  (response/ok (trigger-list)))
+(defn http-get [_]
+  (response/ok (model/trigger-list)))
 
 (defn http-get-trigger [context]
-  (if-let [d (find-trigger (get-in context [:path-params :id]))]
-    (response/ok d)
-    (response/error "Error retrieving")))
+  (response/ok (model/find-trigger (get-in context [:path-params :id]))))
 
 (defn http-put-trigger [context]
-  (if-let [d (update-trigger (get-in context [:path-params :id])
-                             (:json-params context))]
-    (response/ok d)
-    (response/error "Error updating ")))
+  (let [t (:json-params context)
+        r (response/ok (model/update-trigger (get-in context [:path-params :id])
+                                                               t))]
+      (add-trigger (:definition t))
+      r))
 
 (defn http-post-trigger [context]
-  (if-let [d (create-trigger (:json-params context))]
-    (response/ok d)
-    (response/error "Error creating")))
+  (let [t (:json-params context)
+        r (response/ok (model/create-trigger t))]
+    (add-trigger (:definition t))
+    r))
 
 (defn http-delete-trigger [context]
-  (delete-trigger (get-in context [:path-params :id]))
+  (model/delete-trigger (get-in context [:path-params :id]))
   (response/ok "success"))
 
-(defn- routes [] #{["/api/triggers" :get
-                    (conj intercept/common-interceptors `http-get)]
-                   ["/api/triggers/:id" :get
-                    (conj intercept/common-interceptors `http-get-trigger)]
-                   ["/api/triggers/:id" :put
-                    (conj intercept/common-interceptors `http-put-trigger)]
-                   ["/api/triggers" :post
-                    (conj intercept/common-interceptors `http-post-trigger)]
-                   ["/api/triggers/:id" :delete
-                    (conj intercept/common-interceptors `http-delete-trigger)]})
+(defn- process-channel [notify input-channel]
+  (async/go (while true
+      (let [v (async/<!! input-channel)]
+        (process-value (geoutil/geojsonmap->filtermap v) notify)))))
 
-(defrecord TriggerComponent [notify]
+(defn check-value [triggercomp v]
+  (async/go (async/>!! (:source-channel triggercomp) v)))
+
+(defn http-test-trigger [triggercomp context]
+  (check-value triggercomp (:json-params context))
+  (response/ok "success"))
+
+(defn- routes [triggercomp]
+    #{["/api/triggers" :get
+       (conj intercept/common-interceptors `http-get)]
+      ["/api/triggers/:id" :get
+       (conj intercept/common-interceptors `http-get-trigger)]
+      ["/api/triggers/:id" :put
+       (conj intercept/common-interceptors `http-put-trigger)]
+      ["/api/triggers" :post
+       (conj intercept/common-interceptors `http-post-trigger)]
+      ["/api/triggers/:id" :delete
+       (conj intercept/common-interceptors `http-delete-trigger)]
+      ["/api/trigger/check" :post
+       (conj intercept/common-interceptors (partial http-test-trigger triggercomp)) :route-name :http-test-trigger]})
+
+(defrecord TriggerComponent [notify location]
   component/Lifecycle
   (start [this]
-    (assoc this :routes (routes)))
+    (let [c (async/chan)
+          comp (assoc this :source-channel c)]
+      (process-channel notify c)
+      (assoc comp :routes (routes comp))))
   (stop [this]
+    (async/close! (:source-channel this))
     this))
 
 (defn make-trigger-component []
-  (->TriggerComponent nil))
+  (map->TriggerComponent {}))
