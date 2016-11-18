@@ -10,7 +10,7 @@ FROM device_locations dl JOIN devices d ON d.id = dl.device_id;
 -- name: upsert-location!
 -- updates a devices location
 INSERT INTO device_locations(geog,updated_at,device_id) VALUES
-(ST_GeometryFromText(:geog),NOW(),(SELECT id FROM devices WHERE identifier = :device_id))
+(ST_GeometryFromText(:geog),NOW(),(SELECT id FROM devices WHERE identifier = :identifier))
 ON CONFLICT (device_id) DO UPDATE SET
 geog = ST_GeometryFromText(:geog), updated_at = NOW()
-WHERE device_locations.device_id = (SELECT id FROM devices WHERE identifier = :device_id);
+WHERE device_locations.device_id = (SELECT id FROM devices WHERE identifier = :identifier);

@@ -2,7 +2,7 @@
 CREATE TABLE IF NOT EXISTS public.notifications
 (
   id SERIAL PRIMARY KEY,
-  trigger_id integer,
+  trigger_id UUID,
   created_at timestamp DEFAULT NOW(),
   updated_at timestamp DEFAULT NOW(),
   deleted_at timestamp with time zone,
@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS public.notifications
 WITH (
   OIDS=FALSE
 );
-ALTER TABLE public.device_locations
+ALTER TABLE public.notifications
   OWNER TO spacon;
 
 CREATE TRIGGER update_updated_at_notifications
