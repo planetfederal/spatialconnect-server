@@ -123,7 +123,7 @@ CREATE TRIGGER update_updated_at_devices
 CREATE TABLE IF NOT EXISTS public.device_locations
 (
   id SERIAL PRIMARY KEY,
-  geog geometry,
+  geom geometry,
   created_at timestamp DEFAULT NOW(),
   updated_at timestamp DEFAULT NOW(),
   deleted_at timestamp with time zone,
@@ -267,4 +267,3 @@ ALTER TABLE public.users OWNER TO spacon;
 CREATE TRIGGER update_updated_at_triggers
     BEFORE UPDATE ON triggers FOR EACH ROW EXECUTE
     PROCEDURE update_updated_at_column();
-

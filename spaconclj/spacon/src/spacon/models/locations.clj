@@ -13,7 +13,7 @@
   (assoc c :device_info (if-let [v (:device_info c)]
                           (json/read-str (.getValue v))
                           nil)
-           :geometry (jio/read-wkt-str (:geog c))
+           :geometry (jio/read-wkt-str (:geom c))
            :updated_at (.toString (:updated_at c))))
 
 (defn locations []
@@ -21,7 +21,7 @@
          (entity->map d)) (device-locations)))
 
 (defn upsert-location [p client]
-  (upsert-location! {:geog (jio/write-wkt-str p) :device_id client}))
+  (upsert-location! {:geom (jio/write-wkt-str p) :device_id client}))
 
 (defn upsert-location-gj [loc]
   (let [x (get-in loc [:geometry :coordinates 0])
