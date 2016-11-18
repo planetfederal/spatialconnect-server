@@ -3,32 +3,33 @@
             [spacon.http.intercept :as intercept]
             [ring.util.response :as ring-resp]
             [yesql.core :refer [defqueries]]
-            [spacon.models.devices :as model]))
+            [spacon.models.devices :as model]
+            [spacon.http.response :as response]))
 
 (defn http-get [_]
   (let [d (model/device-list)]
-    (ring-resp/response {:response d})))
+    (response/ok d)))
 
 (defn http-get-device [context]
   (if-let [id (get-in context [:path-params :id])]
-    (ring-resp/response {:response (model/find-device id)})
-    (ring-resp/response {:response nil})))
+    (response/ok (model/find-device id))
+    (response/ok nil)))
 
 (defn http-post-device [context]
   (if-let [d (model/create-device (:json-params context))]
-    (ring-resp/response {:response d})
-    (ring-resp/response {:response "Error creating"})))
+    (response/ok d)
+    (response/error "Error creating")))
 
 (defn http-put-device [context]
   (if-let [d (model/update-device
                (get-in context [:path-params :id])
                (:json-params context))]
-    (ring-resp/response {:response d})
-    (ring-resp/response {:response "Error updating"})))
+    (response/ok d)
+    (response/error "Error updating")))
 
 (defn http-delete-device [context]
   (model/delete-device (get-in context [:path-params :id]))
-  (ring-resp/response {:response "success"}))
+  (response/ok "success"))
 
 (defn- routes [] #{["/api/devices" :get
                     (conj intercept/common-interceptors `http-get)]

@@ -4,7 +4,7 @@
             [spacon.util.db :as dbutil]
             [yesql.core :refer [defqueries]]
             [spacon.http.intercept :as intercept]
-            [ring.util.response :as ring-resp]
+            [spacon.http.response :as response]
             [spacon.models.triggers :as model]
             [spacon.components.notification :as notification]
             [cljts.relation :as relation]
@@ -58,27 +58,27 @@
        @invalid-triggers))
 
 (defn http-get [_]
-  (ring-resp/response {:response (model/trigger-list)}))
+  (response/ok (model/trigger-list)))
 
 (defn http-get-trigger [context]
-  (ring-resp/response {:response (model/find-trigger (get-in context [:path-params :id]))}))
+  (response/ok (model/find-trigger (get-in context [:path-params :id]))))
 
 (defn http-put-trigger [context]
   (let [t (:json-params context)
-        r (ring-resp/response {:response (model/update-trigger (get-in context [:path-params :id])
-                                                               t)})]
+        r (response/ok (model/update-trigger (get-in context [:path-params :id])
+                                                               t))]
       (add-trigger (:definition t))
       r))
 
 (defn http-post-trigger [context]
   (let [t (:json-params context)
-        r (ring-resp/response {:response (model/create-trigger t)})]
+        r (response/ok (model/create-trigger t))]
     (add-trigger (:definition t))
     r))
 
 (defn http-delete-trigger [context]
   (model/delete-trigger (get-in context [:path-params :id]))
-  (ring-resp/response {:response "success"}))
+  (response/ok "success"))
 
 (defn- process-channel [notify input-channel]
   (async/go (while true
@@ -90,7 +90,7 @@
 
 (defn http-test-trigger [triggercomp context]
   (check-value triggercomp (:json-params context))
-  (ring-resp/response {:response "success"}))
+  (response/ok "success"))
 
 (defn- routes [triggercomp]
     #{["/api/triggers" :get

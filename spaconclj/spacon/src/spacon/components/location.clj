@@ -8,8 +8,7 @@
             [yesql.core :refer [defqueries]]
             [spacon.components.mqtt :as mqttcomp]
             [spacon.util.protobuf :as pbf]
-            [spacon.models.locations :as model]
-            ))
+            [spacon.models.locations :as model]))
 
 (defn location->geojson [locations]
   (map (fn [l]
@@ -24,8 +23,8 @@
 
 (defn http-get [_]
   (let [fs (location->geojson (model/locations))]
-    (ring-resp/response {:response {:type     "FeatureCollection"
-                                    :features fs}})))
+    (response/ok {:type "FeatureCollection"
+                  :features fs})))
 
 (defn- routes [] #{["/api/location" :get
                     (conj intercept/common-interceptors `http-get)]})
