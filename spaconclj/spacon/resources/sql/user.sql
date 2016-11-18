@@ -32,8 +32,8 @@ VALUES (:user_id,:team_id);
 
 -- name: find-teams
 -- Gets the teams for a given user
-SELECT team_id FROM user_team
-WHERE user_id = :user_id;
+SELECT ut.team_id AS id, t.name FROM user_team ut INNER JOIN teams t ON ut.team_id = t.id
+WHERE ut.user_id = :user_id;
 
 -- name: delete!
 -- Deletes a user

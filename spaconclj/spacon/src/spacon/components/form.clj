@@ -5,7 +5,8 @@
             [io.pedestal.interceptor.helpers :refer [defhandler]]
             [spacon.http.auth :refer [check-auth]]
             [spacon.models.form :as form]
-            [clojure.spec :as s])
+            [clojure.spec :as s]
+            [clojure.data.json :as json])
   (:import java.net.URLDecoder))
 
 (defn get-form-fields
@@ -34,6 +35,16 @@
                    (map get-form-metadata))]
     (response/ok forms)))
 
+(defhandler get-form-by-form-key
+  [request]
+  ;; todo, we should check form_key and team_id in the query
+  (let [form-key (get-in request [:path-params :form-key])
+        forms    (->> (form/find-latest-version {:form_key form-key})
+                      first
+                      form/sanitize
+                      get-form-fields
+                      get-form-metadata)]
+    (response/ok forms)))
 
 (defhandler create-form
   "Creates a new form."
@@ -62,17 +73,18 @@
   (let [form-id   (get-in request [:path-params :form-id])
         form-data (get-in request [:json-params])
         device-id (:device-id form-data)] ;; todo: device-id is not sent yet so this will always be nil
-    (form/add-form-data<! {:val       form-data
+    (form/add-form-data<! {:val       (json/write-str form-data)
                            :form_id   (Integer/parseInt form-id)
                            :device_id device-id})
-    (response/ok)))
+    (response/ok "data submitted successfully")))
 
 (defn- routes []
-  #{["/api/forms"                 :get    (conj common-interceptors check-auth `get-all-forms)]
-    ["/api/forms"                 :post   (conj common-interceptors check-auth `create-form)]
+  #{["/api/forms"                :get    (conj common-interceptors check-auth `get-all-forms)]
+    ["/api/forms"                :post   (conj common-interceptors check-auth `create-form)]
     ["/api/forms/:form-key"      :delete (conj common-interceptors check-auth `delete-form-by-key)]
+    ["/api/forms/:form-key"      :get    (conj common-interceptors check-auth `get-form-by-form-key)]
     ;; todo: need to figure out why forms causes a route conflict
-    ["/api/form/:form-id/submit" :post   (conj common-interceptors check-auth `submit-form-data)  :constraints {:form-id #"[0-9]+"}]})
+    ["/api/form/:form-id/submit" :post   (conj common-interceptors check-auth `submit-form-data) :constraints {:form-id #"[0-9]+"}]})
 
 (defrecord FormComponent []
   component/Lifecycle

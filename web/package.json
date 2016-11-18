@@ -43,8 +43,7 @@
     "superagent-bluebird-promise": "^3.0.0",
     "tcomb-form": "^0.9.4",
     "tcomb-form-templates-bootstrap": "^0.2.1",
-    "tcomb-json-schema": "^0.3.0",
-    "webpack": "^1.13.0"
+    "tcomb-json-schema": "^0.3.0"
   },
   "devDependencies": {
     "babel-loader": "^6.2.0",
