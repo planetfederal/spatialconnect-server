@@ -85,7 +85,7 @@ CREATE TABLE IF NOT EXISTS public.forms
   created_at timestamp DEFAULT NOW(),
   updated_at timestamp DEFAULT NOW(),
   deleted_at timestamp with time zone,
-  CONSTRAINT key_version_c UNIQUE (form_key,version),
+  CONSTRAINT key_version_team_c UNIQUE (form_key,version,team_id),
   CONSTRAINT forms_team_fkey FOREIGN KEY (team_id)
         REFERENCES public.teams (id) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE CASCADE

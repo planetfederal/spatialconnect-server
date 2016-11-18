@@ -22,7 +22,7 @@
                        first)
         authn? (hashers/check pwd (:password user))]
     (if-not authn?
-      {:status 401 :body "not authenticated!"}
+      (response/unauthorized "Authentication failed")
       (let [claims {:user (user/sanitize user)
                     :exp  (-> 2 weeks from-now)}
             ;; todo: encrypt the token
@@ -35,7 +35,7 @@
   ;; Currently, this is used by the mqtt broker to ensure that only authenticated users are able to connect to the
   ;; broker.  Eventually we will want to use this handler to ensure that a user has permission to subscribe or publish
   ;; to a specific topic
-  {:status 204})
+  (response/ok))
 
 
 (def check-auth
@@ -50,8 +50,9 @@
                   (-> context
                       terminate
                       (assoc :response {:status 401
-                                        :body {:result {:success false
-                                                        :message "Request failed auth check."}}})))))})
+                                        :body {:result nil
+                                               :success false
+                                               :error "Request failed auth check."}})))))})
 
 
 (defn routes []

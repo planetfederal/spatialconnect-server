@@ -32,3 +32,8 @@
   {:result-set-fn doall
    :row-fn row-fn
    :identifiers clojure.string/lower-case})
+
+(extend-type java.sql.Timestamp
+  clojure.data.json/JSONWriter
+  (-write [date out]
+    (clojure.data.json/-write (str date) out)))
