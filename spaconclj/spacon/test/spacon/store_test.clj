@@ -1,9 +1,12 @@
-(ns spacon.tests.store
+(ns spacon.store-test
   (:require [clojure.test :refer :all]
-            [clojure.test.check.generators :as gen]
+            [spacon.models.store :refer :all]
             [clojure.spec.test :as stest]))
 
 (def spec-passed? (comp :result :clojure.spec.test.check/ret first stest/check))
 
-(deftest get-store-test
-  (stest/check `spacon.models.store/find-store))
+(deftest find-store-test
+  (is (true? (spec-passed? `find-store))))
+
+(deftest store-list-test
+  (is (true? (spec-passed? `store-list))))

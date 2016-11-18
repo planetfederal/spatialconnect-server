@@ -31,12 +31,13 @@
   :aliases {"migrate" ["run" "-m" "spacon.db.conn/migrate"]
             "rollback" ["run" "-m" "spacon.db.conn/rollback"]}
 
+  :monkeypatch-clojure-test false
   :min-lein-version "2.0.0"
   :resource-paths ["config", "resources"]
   ;; If you use HTTP/2 or ALPN, use the java-agent to pull in the correct alpn-boot dependency
   ;:java-agents [[org.mortbay.jetty.alpn/jetty-alpn-agent "2.0.3"]]
   :profiles {:dev {:aliases {"run-dev" ["trampoline" "run" "-m" "spacon.server/run-dev"]}
-                   :dependencies [[io.pedestal/pedestal.service-tools "0.5.1"]]}
+                   :dependencies [[io.pedestal/pedestal.service-tools "0.5.1"] [org.clojure/test.check "0.9.0"]]}
              :uberjar {:aot [spacon.server]}}
   :main ^{:skip-aot true} spacon.server)
 

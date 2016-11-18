@@ -2,18 +2,27 @@
   (:require [spacon.db.conn :as db]
             [spacon.util.db :as dbutil]
             [yesql.core :refer [defqueries]]
+            [clojure.spec.gen :as gen]
             [clojure.spec :as s]))
 
 ;; define sql queries as functions
 (defqueries "sql/store.sql" {:connection db/db-spec})
 
+(defn uuid-string-gen []
+  (->>
+    (gen/uuid)
+    (gen/fmap #(.toString %))))
+
 ;; define specs about store
 (def uuid-regex #"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+(s/def ::id (s/with-gen
+              (s/and string? #(re-matches uuid-regex %))
+              #(uuid-string-gen)))
 (s/def ::store_type string?)
 (s/def ::version string?)
 (s/def ::uri string?)
 (s/def ::name string?)
-(s/def ::team_id integer?)
+(s/def ::team_id (s/and int? pos?))
 (s/def ::default_layers (s/coll-of string?))
 (s/def ::store-spec (s/keys :req-un [::name ::store_type ::team_id ::version ::uri ::default_layers]))
 
@@ -32,13 +41,12 @@
             (first)
             (sanitize)
             map->StoreRecord)
-    false))
+    nil))
 
 (defn create-store [t]
-  (let [new-store (insert-store<! (assoc t :default_layers (dbutil/->StringArray (:default_layers t))))]
-    (map->StoreRecord (assoc t :id (:id new-store)
-                                     :created_at (:created_at new-store)
-                                     :updated_at (:updated_at new-store)))))
+  (if-let [new-store (insert-store<! (assoc t :default_layers (dbutil/->StringArray (:default_layers t))))]
+    (map->StoreRecord (sanitize (assoc t :id (.toString (:id new-store)))))
+  nil))
 
 (defn update-store [id t]
   (let [entity (assoc t :id (java.util.UUID/fromString id))
@@ -50,6 +58,14 @@
 (defn delete-store [id]
   (delete-store! {:id (java.util.UUID/fromString id)}))
 
+(s/fdef store-list
+        :args empty?
+        :ret (s/coll-of ::store-spec))
+
 (s/fdef find-store
-        :args (s/cat :id string?)
-        :ret (s/or ::store-spec false?))
+        :args (s/cat :id ::id)
+        :ret (s/or ::store-spec nil?))
+
+;(s/fdef create-store
+;        :args (s/cat :t ::store-spec)
+;        :ret (s/or ::store-spec nil?))
