@@ -268,7 +268,6 @@ export function loadForms() {
       .get(API_URL + 'forms')
       .set('Authorization', 'Token ' + token)
       .then(res => {
-        console.log('received forms ' + JSON.stringify(res.body.result))
         dispatch(receiveForms(res.body.result));
       })
       .catch(err => {
@@ -299,7 +298,8 @@ export function addForm(form) {
     const { sc } = getState();
     let token = sc.auth.token;
     form.version = form.version + 1;
-    let f = _.pick(form, ['form_key', 'form_label', 'version', 'fields']);
+    form.team_id = sc.auth.selectedTeamId;
+    let f = _.pick(form, ['form_key', 'form_label', 'version', 'fields', 'team_id']);
     return request
       .post(API_URL + 'forms')
       .set('Authorization', 'Token ' + token)
@@ -324,7 +324,8 @@ export function saveForm(form) {
     const { sc } = getState();
     let token = sc.auth.token;
     form.version = form.version + 1;
-    let f = _.pick(form, ['form_key', 'form_label', 'version', 'fields']);
+    form.team_id = sc.auth.selectedTeamId;
+    let f = _.pick(form, ['form_key', 'form_label', 'version', 'fields', 'team_id']);
     return request
       .post(API_URL + 'forms')
       .set('Authorization', 'Token ' + token)

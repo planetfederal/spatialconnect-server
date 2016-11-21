@@ -13,6 +13,8 @@ export const SIGNUP_USER_SUCCESS = 'sc/auth/SIGNUP_USER_SUCCESS';
 export const LOGOUT_USER = 'sc/auth/LOGOUT_USER';
 export const FETCH_PROTECTED_DATA_REQUEST = 'sc/auth/FETCH_PROTECTED_DATA_REQUEST';
 export const RECEIVE_PROTECTED_DATA = 'sc/auth/RECEIVE_PROTECTED_DATA';
+export const CHANGE_TEAM = 'sc/auth/CHANGE_TEAM';
+
 
 const initialState = {
   token: null,
@@ -22,7 +24,9 @@ const initialState = {
   statusText: null,
   isSigningUp: false,
   signUpError: null,
-  signUpSuccess: false
+  signUpSuccess: false,
+  selectedTeamId: null,
+  teams: [],
 };
 
 export default function reducer(state = initialState, action = {}) {
@@ -40,6 +44,8 @@ export default function reducer(state = initialState, action = {}) {
         isAuthenticated: true,
         token: action.token,
         userName: jwtDecode(action.token).user.name,
+        selectedTeamId: jwtDecode(action.token).user.teams[0].id, // select the first one by default
+        teams: jwtDecode(action.token).user.teams,
         statusText: null
       };
     case LOGIN_USER_FAILURE:
@@ -78,6 +84,11 @@ export default function reducer(state = initialState, action = {}) {
         token: null,
         userName: null,
         statusText: null
+      };
+    case CHANGE_TEAM:
+      return {
+        ...state,
+        selectedTeamId: action.payload.teamId
       };
     default: return state;
   }
@@ -146,7 +157,7 @@ export function loginUser(email, password, redirect="/") {
       .send({email: email, password: password})
       .then(response => {
         try {
-          if (response.body.result.success) {
+          if (response.body.result.token) {
             let decoded = jwtDecode(response.body.result.token);
             dispatch(loginUserSuccess(response.body.result.token));
             dispatch(push(redirect));
@@ -186,4 +197,13 @@ export function signUpUser(name, email, password) {
         }
       });
   }
+}
+
+export function changeTeam(teamId) {
+  return {
+    type: CHANGE_TEAM,
+    payload: {
+      teamId:  parseInt(teamId)
+    }
+  };
 }

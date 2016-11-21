@@ -7,7 +7,7 @@ const SideMenuItem = ({ path, name, onClick }) => (
   </div>
 );
 
-const SideMenu = ({ isAuthenticated, actions, userName, closeMenu, menuOpen }) => (
+const SideMenu = ({ isAuthenticated, actions, userName, closeMenu, menuOpen, changeTeam, teams}) => (
   <div className={'side-menu ' + (menuOpen ? 'open' : 'closed')}>
     {isAuthenticated ?
       <nav>
@@ -16,6 +16,11 @@ const SideMenu = ({ isAuthenticated, actions, userName, closeMenu, menuOpen }) =
         <SideMenuItem path={'/triggers'} name={'Triggers'} onClick={closeMenu} />
         <SideMenuItem path={'/data'} name={'Data'} onClick={closeMenu} />
         <div className="side-menu-separator"></div>
+        <select className="form-control" onChange={changeTeam}>
+        {teams.map((team,i) => (
+          <option value={team.id} key={team.id}>{team.name}</option>
+        ))}
+        </select>
         <SideMenuItem path={'/user'} name={userName} onClick={closeMenu} />
         <SideMenuItem path={'/login'} name={'Sign Out'} onClick={() => {
           actions.logoutAndRedirect();

@@ -39,6 +39,12 @@ class AppContainer extends Component {
   updateDimensions() {
     this.setState({width: getWindowWidth()});
   }
+
+  changeTeam(event) {
+    this.props.actions.changeTeam(event.target.value);
+  }
+
+
   componentDidMount() {
     window.addEventListener("resize", this.updateDimensions.bind(this));
     if (getWindowWidth() >= 600) {
@@ -55,7 +61,7 @@ class AppContainer extends Component {
       <div id="app">
         <Header {...this.props} toggleMenu={this.toggleMenu.bind(this)} />
         <div className="main-container">
-          <SideMenu {...this.props} closeMenu={this.closeMenu.bind(this)} menuOpen={this.props.menu.open} />
+          <SideMenu {...this.props} closeMenu={this.closeMenu.bind(this)} menuOpen={this.props.menu.open} changeTeam={this.changeTeam.bind(this)}/>
           {this.props.children}
         </div>
       </div>
@@ -67,6 +73,7 @@ const mapStateToProps = (state, ownProps) => {
   return {
     isAuthenticated: state.sc.auth.isAuthenticated,
     userName: state.sc.auth.userName,
+    teams: state.sc.auth.teams,
     id: ownProps.params.id,
     menu: state.sc.menu
   };

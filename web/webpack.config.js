@@ -11,7 +11,15 @@ module.exports = {
   output: {
     path: path.join(__dirname, 'dist'),
     filename: 'bundle.js',
-    publicPath: '/static/'
+    publicPath: '/dist/'
+  },
+  devServer: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        secure: false
+      }
+    }
   },
   plugins: [
     new webpack.optimize.OccurenceOrderPlugin(),

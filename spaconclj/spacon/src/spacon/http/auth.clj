@@ -23,8 +23,9 @@
         authn? (hashers/check pwd (:password user))]
     (if-not authn?
       (response/unauthorized "Authentication failed")
-      (let [claims {:user (user/sanitize user)
-                    :exp  (-> 2 weeks from-now)}
+      (let [teams   (user/find-teams {:user_id (:id user)})
+            claims  {:user (assoc (user/sanitize user) :teams teams)
+                     :exp  (-> 2 weeks from-now)}
             ;; todo: encrypt the token
             token (jwt/sign claims secret)]
         (response/ok {:token token})))))

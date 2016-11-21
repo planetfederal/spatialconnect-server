@@ -19,7 +19,8 @@
 (s/def ::form_data (s/keys :req-un [::device_id ::form_id]))
 
 (defn sanitize [form]
-  (dissoc form :created_at :updated_at :deleted_at :team_id :form_id))
+  (into {} (remove #(nil? (val %))
+                   (dissoc form :created_at :updated_at :deleted_at :team_id :form_id))))
 
 (defn add-form-with-fields!
   [form]

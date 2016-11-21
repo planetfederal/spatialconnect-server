@@ -25,8 +25,14 @@ WHERE form_key = :form_key AND deleted_at IS NULL;
 
 -- name: find-latest-version
 -- Gets the latest version for a specific form
-SELECT MAX(version) AS version FROM forms
-WHERE form_key = :form_key AND team_id = :team_id AND deleted_at IS NULL;
+WITH latest AS (
+	SELECT MAX(version) AS version
+	FROM forms
+	WHERE form_key = :form_key
+)
+SELECT f.* FROM forms f
+INNER JOIN latest l ON f.version = l.version
+WHERE form_key = :form_key;
 
 -- name: create<!
 -- Creates a new form
