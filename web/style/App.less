@@ -73,6 +73,9 @@ html, body {
       position: absolute;
       bottom: 0;
     }
+    .side-menu-item-inner {
+      padding: 0 0 0 20px;
+    }
   }
   nav {
     flex: 1;
@@ -80,10 +83,10 @@ html, body {
     position: relative;
   }
   .side-menu-title {
-    font-size: 12px;
+    font-size: 13px;
     display: inline-block;
     width: 100%;
-    padding: 10px 0 5px 10px;
+    padding: 10px 0 0 10px;
   }
   .side-menu-separator {
     height: 0px;
@@ -219,5 +222,23 @@ section.main.noPad {
   margin-bottom: 10px;
   button {
     margin-right: 10px;
+  }
+}
+
+.sc-dropdown {
+  padding: 0px;
+  background-color: @main_gray;
+  border: 0px solid black;
+  border-bottom: 1px solid #d5d5d5;
+  border-radius: 0px;
+  -webkit-appearance: none;
+  box-shadow: none;
+  background: url('/sc_dropdown.png') no-repeat right top @main_gray;
+  background-size: 20px 20px;
+  &:active, &:hover, &:focus {
+    outline: none;
+    box-shadow: none;
+    -webkit-appearance: none;
+    border-bottom: 1px solid #d5d5d5;
   }
 }
