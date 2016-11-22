@@ -42,8 +42,8 @@
 
 (defn- load-triggers []
   (let [tl (doall (model/trigger-list))]
-    (doall (map (fn [t]
-           (add-trigger t)) tl))))
+    (doall (map (fn [t]))
+           (add-trigger t)) tl))
 
 (defn geowithin [p poly]
   (relation/within? p poly))
@@ -73,8 +73,8 @@
                  "$geowithin" (if (geowithin p rhs)
                                 (handle-success trigger notify)
                                 (handle-failure trigger)))))
-           (:rules trigger)))
-       @invalid-triggers))
+           (:rules trigger)
+       @invalid-triggers))))
 
 (defn http-get [_]
   (response/ok (model/trigger-list)))
@@ -87,6 +87,7 @@
         r (response/ok (model/update-trigger (get-in context [:path-params :id]) t))]
       (add-trigger t)
       r))
+
 
 (defn http-post-trigger [context]
   (let [t (:json-params context)
@@ -101,9 +102,9 @@
     (response/ok "success")))
 
 (defn- process-channel [notify input-channel]
-  (async/go (while true
+  (async/go (while true)
       (let [v (async/<!! input-channel)]
-        (process-value (geojsonmap->filtermap v) notify)))))
+        (process-value (geojsonmap->filtermap v) notify))))
 
 (defn check-value [triggercomp v]
   (async/go (async/>!! (:source-channel triggercomp) v)))

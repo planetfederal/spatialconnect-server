@@ -1,0 +1,5 @@
+---
+applications:
+  - name: spacon
+    buildpack: java_buildpack
+    path: target/spacon-0.7.1-SNAPSHOT-standalone.jar

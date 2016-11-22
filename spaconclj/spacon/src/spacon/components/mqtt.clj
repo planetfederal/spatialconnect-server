@@ -10,7 +10,7 @@
 
 (def id "spacon-server")
 
-(def broker-url (str "tcp://localhost:1883"))
+(def broker-url (or (System/getenv "MQTT_BROKER_URL") "tcp://localhost:1883"))
 
 (def topics (ref {}))
 
@@ -23,7 +23,8 @@
     (commute topics dissoc (keyword topic))))
 
 (defn connectmqtt []
-  (mh/connect broker-url id))
+  (mh/connect broker-url id {:username (System/getenv "MQTT_BROKER_USERNAME")
+                             :password "notused"}))
 
 ; publishes message on the send channel
 (defn- publish [mqtt topic message]

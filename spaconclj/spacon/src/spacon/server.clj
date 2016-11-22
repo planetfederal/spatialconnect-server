@@ -1,10 +1,8 @@
 (ns spacon.server
   (:gen-class)                                              ; for -main method in uberjar
   (:require [io.pedestal.http :as server]
-            [io.pedestal.http.route :as route]
             [spacon.http.service :as service]
             [com.stuartsierra.component :as component]
-            [clojure.tools.namespace.repl :refer (refresh)]
             [spacon.components.ping :as ping]
             [spacon.components.user :as user]
             [spacon.components.device :as device]
@@ -30,7 +28,9 @@
 (defn new-server []
   (map->Server {}))
 
-(defn system [config-options]
+(defn system
+  "Returns a new instance of the system"
+  [config-options]
   (let [{:keys [http-config]} config-options]
     (component/system-map
       :user (user/make-user-component)
@@ -49,36 +49,6 @@
       :server (component/using
                 (new-server)
                 [:service]))))
-
-(defn init-dev []
-  (system
-    {:http-config
-     {:env                     :dev
-      ::server/join?           false
-      ::server/allowed-origins {:creds true :allowed-origins (constantly true)}}}))
-
-(defn stop-dev []
-  (component/stop-system system))
-
-(def system-val nil)
-
-(defn init []
-  (alter-var-root #'system-val (constantly (init-dev))))
-
-(defn start []
-  (alter-var-root #'system-val component/start-system))
-
-(defn stop []
-  (alter-var-root #'system-val
-                  (fn [s] (when s (component/stop-system s)))))
-
-(defn go []
-  (init)
-  (start))
-
-(defn reset []
-  (stop)
-  (go))
 
 (defn -main
   "The entry-point for 'lein run'"
