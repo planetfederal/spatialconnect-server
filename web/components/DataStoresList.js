@@ -7,7 +7,9 @@ import '../style/FormList.less';
 
 const DataStoresList = ({ dataStores }) => (
   <div className="form-list">
-    { dataStores.map(s => <DataStoreItem store={s} key={s.id} />) }
+    {Object.keys(dataStores).map(k =>
+      <DataStoreItem store={dataStores[k]} key={dataStores[k].id} />
+    )}
   </div>
 );
 

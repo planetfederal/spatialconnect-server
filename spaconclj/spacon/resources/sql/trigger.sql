@@ -19,7 +19,7 @@ name = :name,
 description = :description,
 recipients = :recipients,
 definition = :definition::json,
-updated_at = NOW(),
+updated_at = NOW()
 WHERE id = :id
 
 -- name: delete-trigger!

@@ -1,15 +1,16 @@
 import * as request from 'superagent-bluebird-promise'
-import { find, findIndex } from 'lodash';
+import { find, findIndex, keyBy, omit } from 'lodash';
 import { push } from 'react-router-redux';
 import { API_URL } from 'config';
 
 export const LOAD_SPATIAL_TRIGGERS = 'sc/triggers/LOAD_SPATIAL_TRIGGERS';
 export const ADD_TRIGGER = 'sc/triggers/ADD_TRIGGER';
 export const UPDATE_TRIGGER = 'sc/triggers/UPDATE_TRIGGER';
+export const DELETE_TRIGGER = 'sc/triggers/DELETE_TRIGGER';
 export const TRIGGER_ERRORS = 'sc/triggers/TRIGGER_ERRORS';
 
 const initialState = {
-  spatial_triggers: [],
+  spatial_triggers: {},
   errors: {}
 };
 
@@ -23,17 +24,23 @@ export default function reducer(state = initialState, action = {}) {
     case ADD_TRIGGER:
       return {
         ...state,
-        spatial_triggers: state.spatial_triggers.concat(action.payload.trigger)
+        spatial_triggers: {
+          ...state.spatial_triggers,
+          [action.payload.trigger.id]: action.payload.trigger
+        }
       };
     case UPDATE_TRIGGER:
-      const idx = findIndex(state.spatial_triggers, { id: action.payload.trigger.id });
       return {
         ...state,
-        spatial_triggers: [
-          ...state.spatial_triggers.slice(0, idx),
-          action.payload.trigger,
-          ...state.spatial_triggers.slice(idx + 1)
-        ]
+        spatial_triggers: {
+          ...state.spatial_triggers,
+          [action.payload.trigger.id]: action.payload.trigger
+        }
+      };
+    case DELETE_TRIGGER:
+      return {
+        ...state,
+        spatial_triggers: omit(state.spatial_triggers, action.payload.trigger.id)
       };
     case TRIGGER_ERRORS:
       return {
@@ -58,7 +65,7 @@ export function updateTrigger(trigger) {
     const { sc } = getState();
     let token = sc.auth.token;
     return request
-      .put(API_URL + 'triggers')
+      .put(API_URL + 'triggers/' + trigger.id)
       .set('Authorization', 'Token ' + token)
       .send(trigger)
       .then(
@@ -87,8 +94,15 @@ export function receiveTriggers(triggers) {
   return {
     type: LOAD_SPATIAL_TRIGGERS,
     payload: {
-      spatial_triggers: triggers
+      spatial_triggers: keyBy(triggers, 'id')
     }
+  };
+}
+
+export function receiveTrigger(trigger) {
+  return {
+    type: ADD_TRIGGER,
+    payload: { trigger }
   };
 }
 
@@ -99,7 +113,13 @@ export function deleteTrigger(trigger) {
     return request
       .delete(API_URL + 'triggers/' + trigger.id)
       .set('Authorization', 'Token ' + token)
-      .then(() => dispatch(push('/triggers')));
+      .then(() => {
+        dispatch({
+          type: DELETE_TRIGGER,
+          payload: { trigger }
+        });
+        dispatch(push('/triggers'));
+      });
   };
 }
 
@@ -112,7 +132,7 @@ export function loadTrigger(triggerId, refresh=false) {
       .get(API_URL + 'triggers/' + triggerId)
       .set('Authorization', 'Token ' + token)
       .then(res => res.body.result)
-      .then(data => dispatch(receiveTriggers([data])));
+      .then(data => dispatch(receiveTrigger(data)));
   }
 }
 

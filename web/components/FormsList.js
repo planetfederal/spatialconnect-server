@@ -10,6 +10,7 @@ const FormItem = ({ form }) => (
     <h4><Link to={`/forms/${form.get('form_key')}`}>{form.get('form_label')}</Link></h4>
     <div className="properties">
       <PropertyListItem name={'Version'} value={form.get('version')} />
+      <PropertyListItem name={'Team'} value={form.get('team_name')} />
       {form.get('metadata') ?
       <div>
         <PropertyListItem name={'Number of Records'} value={form.get('metadata').get('count')} />

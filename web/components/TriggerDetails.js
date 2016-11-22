@@ -1,7 +1,8 @@
 'use strict';
 import React, { Component, PropTypes } from 'react';
 import { Link, browserHistory } from 'react-router';
-import { isEqual } from 'lodash';
+import Dropzone from 'react-dropzone';
+import { isEqual, isEmpty } from 'lodash';
 import TriggerItem from './TriggerItem';
 import '../style/Triggers.less';
 
@@ -32,7 +33,10 @@ class TriggerDetails extends Component {
     super(props);
     this.state = {
       editing: false,
-      creating: false
+      creating: false,
+      uploading: false,
+      fileUploaded: false,
+      uploadErr: false,
     };
   }
 
@@ -73,10 +77,6 @@ class TriggerDetails extends Component {
       type: /** @type {ol.geom.GeometryType} */ ('Polygon')
     });
 
-    this.create.on('drawstart', e => {
-      this.triggerSource.clear();
-    });
-
     if (this.props.trigger.definition) {
       this.addTrigger(this.props.trigger);
     }
@@ -85,51 +85,87 @@ class TriggerDetails extends Component {
 
   addTrigger(trigger) {
     this.triggerSource.clear();
-    let feature = format.readFeature(trigger.definition);
-    feature.setId('spatial_trigger.'+trigger.id);
-    feature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
-    this.triggerSource.addFeature(feature);
-    this.select.getFeatures().clear();
-    this.select.getFeatures().push(feature);
+    if (isEmpty(trigger.definition)) return;
+    let features = format.readFeatures(trigger.definition);
+    features.forEach((feature, idx) => {
+      feature.setId('spatial_trigger.'+trigger.id+'.'+idx);
+      feature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
+      this.triggerSource.addFeature(feature);
+    });
     this.map.getView().fit(this.triggerSource.getExtent(), this.map.getSize());
   }
 
   onEdit() {
     this.setState({ editing: true });
     this.map.addInteraction(this.modify);
+    let fs = this.triggerSource.getFeatures();
+    fs.forEach(f => this.select.getFeatures().push(f));
   }
 
   onCancel() {
     this.map.removeInteraction(this.modify);
     this.map.removeInteraction(this.create);
+    this.select.getFeatures().clear();
     if (this.props.trigger.definition) {
       this.addTrigger(this.props.trigger);
     } else {
       this.triggerSource.clear();
     }
-    this.setState({ editing: false, creating: false });
+    this.setState({
+      editing: false,
+      creating: false,
+      uploading: false,
+      fileUploaded: false,
+      uploadErr: false,
+    });
   }
 
   onSave() {
-    this.setState({ editing: false, creating: false });
+    this.setState({ editing: false, creating: false, uploading: false });
     this.map.removeInteraction(this.modify);
     this.map.removeInteraction(this.create);
+    this.select.getFeatures().clear();
     let fs = this.triggerSource.getFeatures();
-    if (fs.length) {
-      let f = fs[0];
-      f.getGeometry().transform('EPSG:3857', 'EPSG:4326');
-      let gj = JSON.parse(format.writeFeature(f));
-      let newTrigger = {
-        ...this.props.trigger,
-        definition: gj
-      };
-      this.props.actions.updateTrigger(newTrigger);
-    }
+    let gj = format.writeFeatures(fs, {
+      dataProjection: 'EPSG:4326',
+      featureProjection: 'EPSG:3857'
+    });
+    let newTrigger = {
+      ...this.props.trigger,
+      definition: JSON.parse(gj)
+    };
+    this.props.actions.updateTrigger(newTrigger);
   }
 
   onCreate() {
     this.setState({ creating: true });
     this.map.addInteraction(this.create);
+  }
+
+  onUpload() {
+    this.setState({ uploading: true });
+  }
+
+  onDrop(acceptedFiles, rejectedFiles) {
+    if (acceptedFiles.length) {
+      let file = acceptedFiles[0];
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          let gj = JSON.parse(e.target.result);
+          this.setState({ uploadErr: false });
+          let newTrigger = {
+            ...this.props.trigger,
+            definition: gj
+          };
+          this.addTrigger(newTrigger);
+          this.setState({ fileUploaded: true });
+        } catch (err) {
+          this.setState({ uploadErr: 'Not valid GeoJSON' });
+        }
+      };
+      reader.readAsText(file);
+    }
   }
 
   onDelete() {
@@ -154,16 +190,19 @@ class TriggerDetails extends Component {
   }
 
   renderCreating() {
-    if (!this.props.trigger.definition) {
+    if (!this.props.trigger.definition && !this.state.uploading) {
       return this.state.creating ?
       <div className="btn-toolbar">
         <button className="btn btn-sc" onClick={this.onSave.bind(this)}>Save</button>
         <button className="btn btn-default" onClick={this.onCancel.bind(this)}>Cancel</button>
-      </div> :
+      </div> : <div>
       <div className="btn-toolbar">
         <button className="btn btn-sc" onClick={this.onCreate.bind(this)}>Draw</button>
-        <button className="btn btn-danger" onClick={this.onDelete.bind(this)}>Delete</button>
+        <button className="btn btn-sc" onClick={this.onUpload.bind(this)}>Upload</button>
       </div>
+      <div className="btn-toolbar">
+        <button className="btn btn-danger" onClick={this.onDelete.bind(this)}>Delete</button>
+      </div></div>
     } else return null;
   }
 
@@ -181,6 +220,25 @@ class TriggerDetails extends Component {
     } else return null;
   }
 
+  renderUploading() {
+    return !!this.state.uploading &&
+      <div>
+        {!this.state.fileUploaded &&
+          <Dropzone onDrop={this.onDrop.bind(this)} multiple={false}
+            className="drop-zone" activeClassName="drop-zone-active">
+            <div>Drop file here, or click to select file to upload.</div>
+          </Dropzone>
+        }
+        {!!this.state.uploadErr &&
+          <p>{this.state.uploadErr}</p>
+        }
+        <div className="btn-toolbar">
+          <button className="btn btn-sc" onClick={this.onSave.bind(this)}>Save</button>
+          <button className="btn btn-default" onClick={this.onCancel.bind(this)}>Cancel</button>
+        </div>
+      </div>
+  }
+
   render() {
     const { trigger } = this.props;
     return (
@@ -188,6 +246,7 @@ class TriggerDetails extends Component {
         <div className="trigger-props">
           <TriggerItem trigger={this.props.trigger} />
           {this.renderCreating()}
+          {this.renderUploading()}
           {this.renderEditing()}
         </div>
         <div className="trigger-map" ref="map">
