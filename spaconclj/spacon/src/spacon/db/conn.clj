@@ -3,13 +3,13 @@
   (:require [yesql.core :refer [defqueries]]
             [ragtime.jdbc :as jdbc]
             [ragtime.repl :as repl]
-            [cheshire.core :refer [parse-string]]
+            [clojure.data.json :as json]
             [jdbc.pool.c3p0 :as pool]))
 
 (defn get-db-uri-from-env
   []
   (or (some-> (System/getenv "VCAP_SERVICES")
-              (parse-string true)
+              (json/read-str :key-fn clojure.core/keyword)
               :elephantsql first :credentials :uri java.net.URI.)
       (some-> (System/getenv "DATABASE_URI") java.net.URI.)))
 
