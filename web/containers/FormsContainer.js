@@ -36,7 +36,7 @@ class FormsContainer extends Component {
   }
 
   render() {
-    const { children } = this.props;
+    const { forms, selectedTeamId, addFormError, children } = this.props;
     if (children) {
       return (
         <div className="wrapper">
@@ -49,21 +49,21 @@ class FormsContainer extends Component {
     return (
       <div className="wrapper">
         <section className="main">
-          {this.state.addingNewForm || this.props.addFormError ?
+          {this.state.addingNewForm || addFormError ?
             <FormCreate
               ref="newForm"
               onSubmit={this.submitNewForm.bind(this)}
               cancel={this.addNewFormCancel.bind(this)}
-              forms={this.props.forms}
-              addFormError={this.props.addFormError}
+              forms={forms}
+              addFormError={addFormError}
               /> :
             <div className="btn-toolbar">
               <button className="btn btn-sc" onClick={this.addNewForm.bind(this)}>Create Form</button>
             </div>
           }
-          <FormsList forms={this.props.forms} />
+          <FormsList forms={forms} selectedTeamId={selectedTeamId} />
         </section>
-        {this.props.children}
+        {children}
       </div>
     );
   }
@@ -72,7 +72,8 @@ class FormsContainer extends Component {
 const mapStateToProps = (state) => ({
   loading: state.sc.forms.get('loading'),
   forms: state.sc.forms.get('forms'),
-  addFormError: state.sc.forms.get('addFormError')
+  addFormError: state.sc.forms.get('addFormError'),
+  selectedTeamId: state.sc.auth.selectedTeamId,
 });
 
 const mapDispatchToProps = (dispatch) => ({

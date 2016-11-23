@@ -5,14 +5,18 @@ import DataStoreForm from './DataStoreForm';
 import '../style/FormList.less';
 
 
-const DataStoresList = ({ dataStores }) => (
+const DataStoresList = ({ dataStores, selectedTeamId }) => (
   <div className="form-list">
-    { dataStores.map(s => <DataStoreItem store={s} key={s.id} />) }
+    {Object.keys(dataStores).map(k => {
+      let s = dataStores[k];
+      return selectedTeamId === s.team_id ? <DataStoreItem store={s} key={s.id} /> : null;
+    })}
   </div>
 );
 
 DataStoresList.propTypes = {
-  dataStores: PropTypes.array.isRequired
+  dataStores: PropTypes.object.isRequired,
+  selectedTeamId: PropTypes.number.isRequired,
 };
 
 export default DataStoresList;

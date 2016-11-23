@@ -5,7 +5,7 @@ import Immutable from 'immutable';
 import { API_URL } from 'config';
 import uuid from 'node-uuid';
 import { push } from 'react-router-redux';
-import { pick } from 'lodash';
+import { pick, keyBy } from 'lodash';
 import { initForm } from '../utils';
 
 // define action types
@@ -16,6 +16,7 @@ export const LOAD_FAIL = 'sc/forms/LOAD_FAIL';
 export const UPDATE_FORM = 'sc/forms/UPDATE_FORM';
 export const UPDATE_FORM_NAME = 'sc/forms/UPDATE_FORM_NAME';
 export const ADD_FORM = 'sc/forms/ADD_FORM';
+export const DELETE_FORM = 'sc/forms/DELETE_FORM';
 export const ADD_FORM_ERROR = 'sc/forms/ADD_FORM_ERROR';
 export const ADD_FIELD = 'sc/forms/ADD_FIELD';
 export const CHANGE_REQUIRED_FIELD = 'sc/forms/CHANGE_REQUIRED_FIELD';
@@ -105,6 +106,9 @@ export default function reducer(state = initialState, action = {}) {
     case ADD_FORM:
       return state
         .setIn(['forms', action.form.id.toString()], Immutable.fromJS(action.form))
+    case DELETE_FORM:
+      return state
+        .deleteIn(['forms', state.get('forms').find(f => f.get('form_key') === action.form_key).get('id').toString()]);
     case ADD_FORM_ERROR:
       return state
         .set('addFormError', action.error)
@@ -129,7 +133,6 @@ export default function reducer(state = initialState, action = {}) {
     default: return state;
   }
 }
-
 
 // export the action creators (functions that return actions or functions)
 export function updateForm(formId, newForm) {
@@ -238,22 +241,23 @@ export function removeField(formId, fieldId) {
 }
 
 export function receiveForms(forms) {
-  let newForms = forms.map(initForm);
-  let formMap = {};
-  newForms.forEach(f => {
-    formMap[f.id.toString()] = f;
-  });
-  return {
-    type: LOAD_SUCCESS,
-    forms: formMap
-  };
+  return (dispatch, getState) => {
+    const { sc } = getState();
+    dispatch({
+      type: LOAD_SUCCESS,
+      forms: keyBy(forms.map(initForm(sc.auth.teams)), 'id')
+    });
+  }
 }
 
 export function receiveForm(form) {
-  return {
-    type: ADD_FORM,
-    form: initForm(form)
-  };
+  return (dispatch, getState) => {
+    const { sc } = getState();
+    dispatch({
+      type: ADD_FORM,
+      form: initForm(sc.auth.teams)(form)
+    });
+  }
 }
 
 export function loadForms() {
@@ -288,7 +292,7 @@ export function loadForm(form_key) {
         if (err) {
           throw new Error(res);
         }
-        dispatch(receiveForms([res.body.result]));
+        dispatch(receiveForm(res.body.result));
       });
   };
 }
@@ -310,10 +314,10 @@ export function addForm(form) {
         dispatch(addFormError(false));
       })
       .catch(error => {
-        if (error.body.result.error.errors) {
-          dispatch(addFormError(error.body.result.error.errors[0].message));
+        if (error.body.error.errors) {
+          dispatch(addFormError(error.body.error.errors[0].message));
         } else {
-          dispatch(addFormError(error.body.result.error));
+          dispatch(addFormError(error.body.error));
         }
       })
   };
@@ -332,7 +336,7 @@ export function saveForm(form) {
       .send(f)
       .then(function(res) {
         dispatch(updateSavedForm(res.body.result.id, res.body.result));
-        dispatch(receiveForms([res.body.result]));
+        dispatch(receiveForm(res.body.result));
       }, function(error) {
         throw new Error(res);
       });
@@ -347,6 +351,10 @@ export function deleteForm(form_key) {
       .delete(API_URL + 'forms/' + form_key)
       .set('Authorization', 'Token ' + token)
       .then(function(res) {
+        dispatch({
+          type: DELETE_FORM,
+          form_key: form_key
+        });
         dispatch(push('/forms'));
       }, function(error) {
         throw new Error(res);

@@ -11,19 +11,28 @@ export const validate = values => {
 };
 
 export class TriggerForm extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      repeat: false,
+    };
+  }
 
   save() {
     const newTrigger = {
-      name: this.refs.name.value
+      name: this.refs.name.value,
+      description: this.refs.description.value,
+      repeat: this.state.repeat,
     };
-    if (this.refs.description.value) {
-      newTrigger.description = this.refs.description.value;
-    }
     const errors = validate(newTrigger);
     this.props.actions.updateTriggerErrors(errors);
     if(!Object.keys(errors).length) {
       this.props.create(newTrigger);
     }
+  }
+
+  handleOptionChange(e) {
+    this.setState({ repeat: e.target.value === 'repeat_on' });
   }
 
   render() {
@@ -34,6 +43,24 @@ export class TriggerForm extends Component {
           <label>Name:</label>
           <input type="text" className="form-control" ref="name" defaultValue={trigger.name} />
           {errors.name ? <p className="text-danger">{errors.name}</p> : ''}
+        </div>
+        <div className="form-group">
+          <div className="radio">
+            <label>
+              <input type="radio" name="repeat" id="repeat_off" value="repeat_off"
+                defaultChecked={!this.state.repeat}
+                onChange={this.handleOptionChange.bind(this)} />
+              Alert Once
+            </label>
+          </div>
+          <div className="radio">
+            <label>
+              <input type="radio" name="repeat" id="repeat_on" value="repeat_on"
+              defaultChecked={this.state.repeat}
+              onChange={this.handleOptionChange.bind(this)} />
+              Alert Always
+            </label>
+          </div>
         </div>
         <div className="form-group">
           <label>Description:</label>

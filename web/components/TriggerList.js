@@ -7,8 +7,8 @@ import '../style/FormList.less';
 
 const TriggerList = ({ spatial_triggers }) => (
   <div className="form-list">
-    {spatial_triggers.map((t, i) => {
-      return <TriggerItem trigger={t} key={'trigger.'+i} />
+    {Object.keys(spatial_triggers).map(k => {
+      return <TriggerItem trigger={spatial_triggers[k]} key={spatial_triggers[k].id} />
     })}
   </div>
 );

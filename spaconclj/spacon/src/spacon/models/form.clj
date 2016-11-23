@@ -20,7 +20,7 @@
 
 (defn sanitize [form]
   (into {} (remove #(nil? (val %))
-                   (dissoc form :created_at :updated_at :deleted_at :team_id :form_id))))
+                   (dissoc form :created_at :updated_at :deleted_at :form_id))))
 
 (defn add-form-with-fields!
   [form]

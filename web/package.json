@@ -5,6 +5,7 @@
   "scripts": {
     "test": "./node_modules/.bin/karma start",
     "test:watch": "./node_modules/.bin/karma start --no-single-run",
+    "start:local": "NODE_ENV=local webpack-dev-server --progress --inline --hot",
     "build:local": "NODE_ENV=local webpack -w",
     "build:dev": "NODE_ENV=development webpack",
     "build:release": "NODE_ENV=release webpack",
@@ -29,6 +30,7 @@
     "react-dnd": "^2.1.4",
     "react-dnd-html5-backend": "^2.1.2",
     "react-dom": "^0.14.7",
+    "react-dropzone": "3.7.3",
     "react-modal": "1.4.0",
     "react-redux": "^4.4.5",
     "react-router": "^2.4.0",

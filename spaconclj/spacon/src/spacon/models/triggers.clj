@@ -15,14 +15,14 @@
 (s/def ::device-spec (s/keys :req-un [::name ::identifier ::device-info]))
 
 (defn entity->map [t]
-  {:id (.toString (:id t))
-   :created_at (.toString (:created_at t))
-   :updated_at (.toString (:updated_at t))
-   :definition (if-let [v (:definition t)]
+  (-> t
+      (assoc :id (.toString (:id t)))
+      (assoc :created_at (.toString (:created_at t)))
+      (assoc :updated_at (.toString (:updated_at t)))
+      (assoc :definition (if-let [v (:definition t)]
                  (cond (string? v) (json/read-str (.getValue v))
                        (instance? org.postgresql.util.PGobject v) (json/read-str (.getValue v))
-                       :else v))
-   :recipients (:recipients t)})
+                       :else v)))))
 
 (defn row-fn [row]
   (if-let [r (:recipients row)]
@@ -45,7 +45,7 @@
 
 (defn map->entity [t]
   (if (nil? (:definition t))
-    t
+    (assoc t :definition nil)
     (assoc t :definition (json/write-str (:definition t)))))
 
 (deftype StringArray [items]
