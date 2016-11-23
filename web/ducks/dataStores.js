@@ -84,18 +84,24 @@ export default function reducer(state = initialState, action = {}) {
 }
 
 // export the action creators (functions that return actions or functions)
-export function receiveStores(stores, auth) {
-  return {
-    type: LOAD_STORES,
-    payload: { stores: keyBy(stores.map(initStore(auth)), 'id') }
-  };
+export function receiveStores(stores) {
+  return (dispatch, getState) => {
+    const { sc } = getState();
+    dispatch({
+      type: LOAD_STORES,
+      payload: { stores: keyBy(stores.map(initStore(sc.auth.teams)), 'id') }
+    });
+  }
 }
 
-export function receiveStore(store, auth) {
-  return {
-    type: LOAD_STORE,
-    payload: { store: initStore(auth)(store) }
-  };
+export function receiveStore(store) {
+  return (dispatch, getState) => {
+    const { sc } = getState();
+    dispatch({
+      type: LOAD_STORE,
+      payload: { store: initStore(sc.auth.teams)(store) }
+    });
+  }
 }
 
 export function loadDataStore(storeId) {
@@ -107,7 +113,7 @@ export function loadDataStore(storeId) {
       .get(API_URL + 'stores/' + storeId)
       .set('Authorization', 'Token ' + token)
       .then(function(res) {
-        return dispatch(receiveStore(res.body.result, sc.auth));
+        return dispatch(receiveStore(res.body.result));
       }, function(error) {
         return dispatch({type: LOAD_FAIL, error: error});
       });
@@ -123,7 +129,7 @@ export function loadDataStores() {
       .get(API_URL + 'stores')
       .set('Authorization', 'Token ' + token)
       .then(function(res) {
-        return dispatch(receiveStores(res.body.result, sc.auth));
+        return dispatch(receiveStores(res.body.result));
       }, function(error) {
         return dispatch({type: LOAD_FAIL, error: error});
       });

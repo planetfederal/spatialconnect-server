@@ -32,9 +32,9 @@ export const toKey = (s) => {
   return key;
 };
 
-export const initForm = auth => {
+export const initForm = teams => {
   return form => {
-    let team = find(auth.teams, { id: form.team_id });
+    let team = find(teams, { id: form.team_id });
     let newForm = {
       ...form,
       team_name: team ? team.name : null,
@@ -50,9 +50,9 @@ export const initForm = auth => {
   }
 }
 
-export const initStore = auth => {
+export const initStore = teams => {
   return store => {
-    let team = find(auth.teams, { id: store.team_id });
+    let team = find(teams, { id: store.team_id });
     return {
       ...store,
       team_name: team ? team.name : null

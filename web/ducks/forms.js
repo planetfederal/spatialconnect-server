@@ -240,18 +240,24 @@ export function removeField(formId, fieldId) {
   };
 }
 
-export function receiveForms(forms, auth) {
-  return {
-    type: LOAD_SUCCESS,
-    forms: keyBy(forms.map(initForm(auth)), 'id')
-  };
+export function receiveForms(forms) {
+  return (dispatch, getState) => {
+    const { sc } = getState();
+    dispatch({
+      type: LOAD_SUCCESS,
+      forms: keyBy(forms.map(initForm(sc.auth.teams)), 'id')
+    });
+  }
 }
 
-export function receiveForm(form, auth) {
-  return {
-    type: ADD_FORM,
-    form: initForm(auth)(form)
-  };
+export function receiveForm(form) {
+  return (dispatch, getState) => {
+    const { sc } = getState();
+    dispatch({
+      type: ADD_FORM,
+      form: initForm(sc.auth.teams)(form)
+    });
+  }
 }
 
 export function loadForms() {
@@ -266,7 +272,7 @@ export function loadForms() {
       .get(API_URL + 'forms')
       .set('Authorization', 'Token ' + token)
       .then(res => {
-        dispatch(receiveForms(res.body.result, sc.auth));
+        dispatch(receiveForms(res.body.result));
       })
       .catch(err => {
         throw new Error(err);
@@ -286,7 +292,7 @@ export function loadForm(form_key) {
         if (err) {
           throw new Error(res);
         }
-        dispatch(receiveForm(res.body.result, sc.auth));
+        dispatch(receiveForm(res.body.result));
       });
   };
 }
@@ -304,7 +310,7 @@ export function addForm(form) {
       .send(f)
       .then(function(res) {
         dispatch(updateSavedForm(res.body.result.id, res.body.result));
-        dispatch(receiveForm(res.body.result, sc.auth));
+        dispatch(receiveForm(res.body.result));
         dispatch(addFormError(false));
       })
       .catch(error => {
@@ -330,7 +336,7 @@ export function saveForm(form) {
       .send(f)
       .then(function(res) {
         dispatch(updateSavedForm(res.body.result.id, res.body.result));
-        dispatch(receiveForm(res.body.result, sc.auth));
+        dispatch(receiveForm(res.body.result));
       }, function(error) {
         throw new Error(res);
       });

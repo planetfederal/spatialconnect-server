@@ -14,7 +14,7 @@ const DataStoresList = ({ dataStores }) => (
 );
 
 DataStoresList.propTypes = {
-  dataStores: PropTypes.array.isRequired
+  dataStores: PropTypes.object.isRequired
 };
 
 export default DataStoresList;
