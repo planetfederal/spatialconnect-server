@@ -12,6 +12,14 @@
 (defonce secret "spaconsecret")
 (def auth-backend (backends/jws {:secret secret}))
 
+(defn get-token
+  [user]
+  (let [teams  (user/find-teams {:user_id (:id user)})
+        claims {:user (assoc (user/sanitize user) :teams teams)
+                :exp  (-> 2 weeks from-now)}]
+    ;; todo: encrypt the token
+    (jwt/sign claims secret)))
+
 (defn authenticate-user
   "Authenticate user by email and password and return a signed JWT token"
   [req]
@@ -22,12 +30,7 @@
         authn? (hashers/check pwd (:password user))]
     (if-not authn?
       (response/unauthorized "Authentication failed")
-      (let [teams   (user/find-teams {:user_id (:id user)})
-            claims  {:user (assoc (user/sanitize user) :teams teams)
-                     :exp  (-> 2 weeks from-now)}
-            ;; todo: encrypt the token
-            token (jwt/sign claims secret)]
-        (response/ok {:token token})))))
+      (response/ok {:token (get-token user)}))))
 
 
 (defn authorize-user

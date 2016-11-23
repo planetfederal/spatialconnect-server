@@ -31,10 +31,10 @@
 (defn system
   "Returns a new instance of the system"
   [config-options]
-  (let [{:keys [http-config]} config-options]
+  (let [{:keys [http-config mqtt-config]} config-options]
     (component/system-map
       :user (user/make-user-component)
-      :mqtt (mqtt/make-mqtt-component {})
+      :mqtt (mqtt/make-mqtt-component mqtt-config)
       :ping (component/using (ping/make-ping-component) [:mqtt])
       :device (component/using (device/make-device-component) [:mqtt])
       :store (store/make-store-component)
@@ -54,4 +54,8 @@
   "The entry-point for 'lein run'"
   [& args]
   (println "\nCreating your server...")
-  (component/start-system (system {:http-config {}})))
+  (component/start-system (system {:http-config {}
+                                   :mqtt-config {:broker-url      (or (System/getenv "MQTT_BROKER_URL")
+                                                                      "tcp://localhost:1883")
+                                                 :broker-username (or (System/getenv "MQTT_BROKER_USERNAME")
+                                                                      "admin@something.com")}})))

@@ -24,8 +24,6 @@
                  [camel-snake-kebab "0.4.0"]
                  [org.clojars.diogok/cljts "0.5.0"]]
 
-
-
   :repositories  [["osgeo" "http://download.osgeo.org/webdav/geotools/"]
                   ["clojars" {:sign-releases false}]
                   ["project" "file:repo"]]

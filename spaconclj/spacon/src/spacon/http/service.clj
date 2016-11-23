@@ -27,11 +27,12 @@
                                                    ::http/port              (or (some-> (System/getenv "PORT")
                                                                                         Integer/parseInt)
                                                                                 8085)
-                                                   ;; all origins are allowed in dev mode
-                                                   ::http/allowed-origins {:creds true :allowed-origins (constantly true)}
+                                                   ::http/allowed-origins {:creds true
+                                                                           :allowed-origins (constantly true)}
                                                    ::http/container-options {:h2c? true
                                                                              :h2?  false
                                                                              :ssl? false}}))))
+
   (stop [this]
     this))
 

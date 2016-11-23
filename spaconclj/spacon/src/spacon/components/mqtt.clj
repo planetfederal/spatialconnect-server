@@ -6,11 +6,11 @@
             [camel-snake-kebab.extras :refer [transform-keys]]
             [spacon.http.intercept :as intercept]
             [spacon.http.response :as response]
-            [clojure.core.async :as async]))
+            [clojure.core.async :as async]
+            [clojure.data.json :as json]
+            [spacon.http.auth :refer [get-token]]))
 
 (def id "spacon-server")
-
-(def broker-url (or (System/getenv "MQTT_BROKER_URL") "tcp://localhost:1883"))
 
 (def topics (ref {}))
 
@@ -22,9 +22,11 @@
   (dosync
     (commute topics dissoc (keyword topic))))
 
-(defn connectmqtt []
-  (mh/connect broker-url id {:username (System/getenv "MQTT_BROKER_USERNAME")
-                             :password "notused"}))
+(defn connectmqtt
+  [url token]
+  (println "Connecting MQTT Client")
+  (mh/connect url id {:username token
+                      :password "notused"}))
 
 ; publishes message on the send channel
 (defn- publish [mqtt topic message]
@@ -45,14 +47,14 @@
 
 (defn- process-publish-channel [mqtt chan]
   (async/go (while true
-        (let [v (async/<!! chan)
-              t (:topic v)
-              m (:message v)]
-          (try
-            (mh/publish (:conn mqtt) t m)
-            (catch Exception e
-              (println (.getLocalizedMessage e))
-              (println e)))))))
+             (let [v (async/<!! chan)
+                   t (:topic v)
+                   m (:message v)]
+               (try
+                 (mh/publish (:conn mqtt) t m)
+                 (catch Exception e
+                   (println (.getLocalizedMessage e))
+                   (println e)))))))
 
 (defn- process-subscribe-channel [chan]
   (async/go (while true
@@ -60,7 +62,7 @@
                     t (:topic v)
                     m (:message v)
                     f ((keyword t) @topics)]
-                    (f m)))))
+                   (f m)))))
 
 (defn publish-scmessage [mqtt topic message]
   (publish mqtt topic message))
@@ -79,13 +81,19 @@
 (defrecord MqttComponent [mqtt-config]
   component/Lifecycle
   (start [this]
-    (let [m (connectmqtt)
+    (let [url    (:broker-url mqtt-config)
+          email  (:broker-username mqtt-config)
+          token  (some-> (spacon.models.user/find-by-email {:email email})
+                         first
+                         get-token)
+          m (connectmqtt url token)
           pub-chan (async/chan)
           sub-chan (async/chan)
           c (assoc this :conn m :publish-channel pub-chan :subscribe-channel sub-chan)]
       (process-publish-channel c pub-chan)
       (process-subscribe-channel sub-chan)
       (assoc c :routes (routes c))))
+
   (stop [this]
     (println "Disconnecting MQTT Client")
     (mh/disconnect (:conn this))

@@ -16,8 +16,8 @@
   (let [user (get-in context [:request :json-params])]
     (if (s/valid? :spacon.models.user/spec user)
       (if-let [new-user (user/add-user! user)]
-        (response/ok (user/sanitize new-user))
-        (response/error (str "failed to crueate user:\n" (s/explain-str :spacon.models.user/spec user)))))))
+        (response/ok (user/sanitize new-user)))
+      (response/error (str "failed to crueate user:\n" (s/explain-str :spacon.models.user/spec user))))))
 
 (defn- routes []
   #{["/api/users" :get  (conj intercept/common-interceptors `get-all-users)]
