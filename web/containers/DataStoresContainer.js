@@ -46,7 +46,7 @@ export class DataStoresContainer extends Component {
   }
 
   render() {
-    const {loading, stores, addingNewDataStore, newDataStoreId, storeErrors, layerList, children } = this.props;
+    const { loading, stores, addingNewDataStore, newDataStoreId, storeErrors, layerList, children, selectedTeamId } = this.props;
     if (children) {
       return (
         <div className="wrapper">
@@ -74,7 +74,7 @@ export class DataStoresContainer extends Component {
               <button className="btn btn-sc" onClick={this.addNewDataStore.bind(this)}>Create Store</button>
             </div>
           }
-          <DataStoresList dataStores={stores} />
+          <DataStoresList dataStores={stores} selectedTeamId={selectedTeamId} />
         </section>
       </div>
     );
@@ -85,7 +85,8 @@ const mapStateToProps = (state) => ({
   loading: state.sc.dataStores.loading,
   stores: state.sc.dataStores.stores,
   storeErrors: state.sc.dataStores.storeErrors,
-  layerList: state.sc.dataStores.layerList
+  layerList: state.sc.dataStores.layerList,
+  selectedTeamId: state.sc.auth.selectedTeamId,
 });
 
 const mapDispatchToProps = (dispatch) => ({
