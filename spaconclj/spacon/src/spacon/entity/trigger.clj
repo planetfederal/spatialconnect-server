@@ -4,4 +4,3 @@
 
 (defn make-trigger [t]
   (map->Trigger t))
-

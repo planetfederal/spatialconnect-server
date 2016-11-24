@@ -7,7 +7,6 @@
             [spacon.http.intercept :as intercept]
             [spacon.http.response :as response]
             [clojure.core.async :as async]
-            [clojure.data.json :as json]
             [spacon.http.auth :refer [get-token]]))
 
 (def id "spacon-server")
@@ -93,7 +92,6 @@
       (process-publish-channel c pub-chan)
       (process-subscribe-channel sub-chan)
       (assoc c :routes (routes c))))
-
   (stop [this]
     (println "Disconnecting MQTT Client")
     (mh/disconnect (:conn this))

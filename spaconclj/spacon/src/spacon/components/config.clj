@@ -3,7 +3,10 @@
             [spacon.http.intercept :as intercept]
             [spacon.http.response :as response]
             [spacon.models.store :as store]
+<<<<<<< f7df47a3dc94f42f43f77aa2623566ca70911357
             [spacon.models.devices :as devicemodel]
+=======
+>>>>>>> Adding MQTT Endpoint
             [spacon.components.mqtt :as mqttapi]))
 
 (defn create-config []
