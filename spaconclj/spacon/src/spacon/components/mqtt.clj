@@ -1,8 +1,11 @@
 (ns spacon.components.mqtt
   (:require [com.stuartsierra.component :as component]
-            [spacon.util.protobuf :as pbf]
             [clojurewerkz.machine-head.client :as mh]
-            [clojure.data.json :as json]))
+            [spacon.entity.scmessage :as scm]
+            [camel-snake-kebab.core :refer :all]
+            [camel-snake-kebab.extras :refer [transform-keys]]
+            [spacon.http.intercept :as intercept]
+            [spacon.http.response :as response]))
 
 (def id "spacon-server")
 
@@ -13,26 +16,32 @@
 
 (defn subscribe [mqtt topic f]
   (mh/subscribe (:conn mqtt) {topic 2} (fn [_ _ ^bytes payload]
-                                         (f (String. payload "UTF-8")))))
+                                         (f (scm/from-bytes payload)))))
 
-(defn listenOnTopic [mqtt topic f]
-  (subscribe mqtt topic f))
+(defn- publish [conn topic message]
+  (mh/publish conn topic (scm/message->bytes message)))
 
-(defn publishMapToTopic [mqtt topic message]
-  (let [m {:payload (json/write-str message)}
-        p (pbf/map->protobuf m)]
-    (mh/publish (:conn mqtt) topic
-                (.toByteArray p))))
+(defn publish-scmessage [mqtt topic message]
+  (publish (:conn mqtt) topic message))
 
-(defn publishToTopic [mqtt topic message]
-      (mh/publish (:conn mqtt) topic (.toByteArray message)))
+(defn publish-map [mqtt topic m]
+  (publish (:conn mqtt) topic (scm/map->SCMessage {:payload m})))
+
+(defn http-mq-post [mqtt context]
+  (let [m (:json-params context)
+        t (transform-keys ->kebab-case-keyword m)]
+    (publish-map mqtt (:topic m) t))
+  (response/ok "success"))
+
+(defn- routes [mqtt] #{["/api/mqtt" :post
+                            (conj intercept/common-interceptors (partial http-mq-post mqtt)) :route-name :http-mq-post]})
 
 (defrecord MqttComponent [mqtt-config]
   component/Lifecycle
   (start [this]
-    (let [m (connectmqtt)]
-      (assoc this :conn m)))
-
+    (let [m (connectmqtt)
+          c (assoc this :conn m)]
+      (assoc c :routes (routes c))))
   (stop [this]
     (println "Disconnecting MQTT Client")
     (mh/disconnect (:conn this))

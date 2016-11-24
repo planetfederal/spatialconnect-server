@@ -1,17 +1,17 @@
 (ns spacon.components.notification
   (:require [com.stuartsierra.component :as component]
-            [spacon.components.mqtt :as mq]
+            [spacon.components.mqtt :as mqttapi]
             [clojure.core.async :refer [chan <!! >!! close! go alt!]]))
 
 (defn- send->device [mqtt device-id message]
-  (mq/publishMapToTopic mqtt (str "/notify/" device-id) message))
+  (mqttapi/publish-map mqtt (str "/notify/" device-id) message))
 
 (defn- send->devices [mqtt devices message]
   (map (fn [device-id]
          (send->device mqtt device-id message)) devices))
 
 (defn- send->all [mqtt message]
-  (mq/publishMapToTopic mqtt "/notify" message))
+  (mqttapi/publish-map mqtt "/notify" message))
 
 (defn- send->mobile [mqtt message]
   (case (count (:to message))
@@ -25,9 +25,10 @@
 (defn- process-channel [mqtt input-channel]
   (go (while true
         (let [v (<!! input-channel)]
-          (case (:type v)
+          (case (:output-type v)
             :email (send->email)
-            :mobile (send->mobile mqtt v))))))
+            :mobile (send->mobile mqtt v)
+            "default")))))
 
 (defn send->notification [notifcomp message]
   (go (>!! (:send-channel notifcomp) message)))

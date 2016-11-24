@@ -21,6 +21,7 @@
                  [clojurewerkz/machine_head "1.0.0-beta9"]
                  [com.boundlessgeo.spatialconnect/schema "0.7"]
                  [buddy "1.1.0"]
+                 [camel-snake-kebab "0.4.0"]
                  [org.clojars.diogok/cljts "0.5.0"]]
 
   :repositories  [["osgeo" "http://download.osgeo.org/webdav/geotools/"]

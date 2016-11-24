@@ -1,10 +1,9 @@
 (ns spacon.components.config
   (:require [com.stuartsierra.component :as component]
-            [spacon.util.protobuf :as pbf]
             [spacon.http.intercept :as intercept]
             [spacon.http.response :as response]
             [spacon.models.store :as store]
-            [spacon.components.mqtt :as mqttcomponent]))
+            [spacon.components.mqtt :as mqttapi]))
 
 (defn create-config []
   {:stores (store/store-list)})
@@ -20,10 +19,9 @@
 (defrecord ConfigComponent [mqtt]
   component/Lifecycle
   (start [this]
-    (mqttcomponent/listenOnTopic mqtt "/config"
-      (fn [_ _ ^bytes payload]
-        (let [message (pbf/bytes->map payload)]
-          (mqttcomponent/publishToTopic mqtt (:replyTo message) (pbf/map->protobuf (assoc message :payload "New Config"))))))
+    (mqttapi/subscribe mqtt "/config"
+      (fn [message]
+        (mqttapi/publish-scmessage mqtt (:replyTo message) (assoc message :payload (create-config)))))
     this)
   (stop [this]
     this))

@@ -53,7 +53,7 @@
       :form (form/make-form-component)
       :service (component/using
                  (service/make-service http-config)
-                 [:ping :user :device :location :trigger :store :config :form])
+                 [:ping :user :device :location :trigger :store :config :form :mqtt])
       :server (component/using
                 (new-server)
                 [:service]))))
