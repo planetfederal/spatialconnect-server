@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { without } from 'lodash';
 
 export const validate = values => {
   const errors = {};
@@ -15,6 +16,7 @@ export class TriggerForm extends Component {
     super(props);
     this.state = {
       repeat: false,
+      sourceStores: [],
     };
   }
 
@@ -22,7 +24,8 @@ export class TriggerForm extends Component {
     const newTrigger = {
       name: this.refs.name.value,
       description: this.refs.description.value,
-      repeat: this.state.repeat,
+      repeated: this.state.repeat,
+      stores: this.state.sourceStores,
     };
     const errors = validate(newTrigger);
     this.props.actions.updateTriggerErrors(errors);
@@ -35,8 +38,20 @@ export class TriggerForm extends Component {
     this.setState({ repeat: e.target.value === 'repeat_on' });
   }
 
+  onSourceChange(e) {
+    if (e.target.checked) {
+      this.setState({
+        sourceStores: this.state.sourceStores.concat(e.target.value)
+      });
+    } else {
+      this.setState({
+        sourceStores: without(this.state.sourceStores, e.target.value)
+      });
+    }
+  }
+
   render() {
-    const { trigger, errors, cancel } = this.props;
+    const { trigger, errors, cancel, stores } = this.props;
     return (
       <div className="side-form">
         <div className="form-group">
@@ -45,6 +60,17 @@ export class TriggerForm extends Component {
           {errors.name ? <p className="text-danger">{errors.name}</p> : ''}
         </div>
         <div className="form-group">
+          <label>Source Store:</label>
+            {Object.keys(stores).map(id => (
+              <div class="checkbox">
+                  <input type="checkbox" defaultChecked={false}
+                  defaultValue={id}
+                  onChange={this.onSourceChange.bind(this)} /> {stores[id].name}
+              </div>
+            ))}
+        </div>
+        <div className="form-group">
+        <label>Repeated:</label>
           <div className="radio">
             <label>
               <input type="radio" name="repeat" id="repeat_off" value="repeat_off"

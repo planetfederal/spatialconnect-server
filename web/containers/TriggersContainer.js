@@ -2,13 +2,15 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as triggerActions from '../ducks/triggers';
+import * as storeActions from '../ducks/dataStores';
 import TriggerForm from '../components/TriggerForm';
 import TriggerList from '../components/TriggerList';
 
 const emptyTrigger = {
   name: '',
   description: '',
-  repeat: false
+  repeated: false,
+  recipients: [],
 };
 
 export class TriggersContainer extends Component {
@@ -22,6 +24,7 @@ export class TriggersContainer extends Component {
 
   componentDidMount() {
     this.props.actions.loadTriggers();
+    this.props.storeActions.loadDataStores();
   }
 
   add() {
@@ -46,6 +49,7 @@ export class TriggersContainer extends Component {
         </div>
       );
     }
+    console.log(this.props.stores);
     return (
       <div className="wrapper">
         <section className="main">
@@ -56,6 +60,7 @@ export class TriggersContainer extends Component {
             create={this.create.bind(this)}
             errors={this.props.errors}
             actions={this.props.actions}
+            stores={this.props.stores}
             /> :
           <div className="btn-toolbar">
             <button className="btn btn-sc" onClick={this.add.bind(this)}>Create Trigger</button>
@@ -69,11 +74,13 @@ export class TriggersContainer extends Component {
 
 const mapStateToProps = (state) => ({
   spatial_triggers: state.sc.triggers.spatial_triggers,
+  stores: state.sc.dataStores.stores,
   errors: state.sc.triggers.errors
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  actions: bindActionCreators(triggerActions, dispatch)
+  actions: bindActionCreators(triggerActions, dispatch),
+  storeActions: bindActionCreators(storeActions, dispatch)
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(TriggersContainer);
