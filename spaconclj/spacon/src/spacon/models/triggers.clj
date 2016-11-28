@@ -20,8 +20,8 @@
       (assoc :created_at (.toString (:created_at t)))
       (assoc :updated_at (.toString (:updated_at t)))
       (assoc :rules (if-let [v (:rules t)]
-                 (cond (string? v) (json/read-str (.getValue v))
-                       (instance? org.postgresql.util.PGobject v) (json/read-str (.getValue v))
+                 (cond (string? v) (json/read-str (.getValue v) :key-fn keyword)
+                       (instance? org.postgresql.util.PGobject v) (json/read-str (.getValue v) :key-fn keyword)
                        :else v)))
       (assoc :stores (if-let [v (:stores t)]
                        (cond (string? v) (json/read-str (.getValue v))
