@@ -24,7 +24,7 @@
     (response/ok {:type "FeatureCollection"
                   :features fs})))
 
-(defn- routes [] #{["/api/location" :get
+(defn- routes [] #{["/api/locations" :get
                     (conj intercept/common-interceptors `http-get)]})
 
 (defrecord LocationComponent [mqtt trigger]
