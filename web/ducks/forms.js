@@ -301,7 +301,6 @@ export function addForm(form) {
   return (dispatch, getState) => {
     const { sc } = getState();
     let token = sc.auth.token;
-    form.version = form.version + 1;
     form.team_id = sc.auth.selectedTeamId;
     let f = _.pick(form, ['form_key', 'form_label', 'version', 'fields', 'team_id']);
     return request
@@ -327,7 +326,6 @@ export function saveForm(form) {
   return (dispatch, getState) => {
     const { sc } = getState();
     let token = sc.auth.token;
-    form.version = form.version + 1;
     form.team_id = sc.auth.selectedTeamId;
     let f = _.pick(form, ['form_key', 'form_label', 'version', 'fields', 'team_id']);
     return request
