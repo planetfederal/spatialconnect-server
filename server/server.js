@@ -11,8 +11,8 @@ var dispatcher = require('./dispatcher');
 
 var mqttBrokerHost = process.env.MQTT_BROKER_HOST || 'localhost';
 var mqttBrokerPort = process.env.MQTT_BROKER_PORT || 1883;
-var mqttUsername   = process.env.MQTT_BROKER_USERNAME;
-var mqttPassword   = process.env.MQTT_BROKER_PASSWORD;
+var mqttUsername   = process.env.MQTT_BROKER_USERNAME || 'a';
+var mqttPassword   = process.env.MQTT_BROKER_PASSWORD || 'a';
 
 var dispatcher = require('./dispatcher');
 var TrackingCommands = require('./commands/tracking');
