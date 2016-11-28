@@ -95,8 +95,10 @@
     r))
 
 (defn http-delete-trigger [context]
-  (model/delete-trigger (get-in context [:path-params :id]))
-  (response/ok "success"))
+  (let [id (get-in context [:path-params :id])]
+    (model/delete-trigger id)
+    (remove-trigger {:id id})
+    (response/ok "success")))
 
 (defn- process-channel [notify input-channel]
   (async/go (while true

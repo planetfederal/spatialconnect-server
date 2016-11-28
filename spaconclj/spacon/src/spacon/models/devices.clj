@@ -39,7 +39,6 @@
   "takes a map representing a device and saves it to the database if it's valid.
    returns the device with the id or nil"
   [d]
-  (println (json/write-str d))
   (if-not (s/valid? ::device-spec d)
     (s/explain-str ::device-spec d)
     (entity->map

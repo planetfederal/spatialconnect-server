@@ -41,4 +41,4 @@
                   (or (get message :jwt) "")
                   (or (get message :reply-to) "")
                   (or (get message :action) -1)
-                  (json/write-str (or (get message :payload) "{}") :key-fn ->camelCaseString))))
+                  (json/write-str (or (get message :payload) "{}") :key-fn ->snake_case_string))))
