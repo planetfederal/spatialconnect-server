@@ -3,10 +3,7 @@
             [spacon.http.intercept :as intercept]
             [spacon.http.response :as response]
             [spacon.models.store :as store]
-<<<<<<< f7df47a3dc94f42f43f77aa2623566ca70911357
             [spacon.models.devices :as devicemodel]
-=======
->>>>>>> Adding MQTT Endpoint
             [spacon.components.mqtt :as mqttapi]))
 
 (defn create-config []
@@ -19,6 +16,15 @@
 (defn- routes [] #{["/api/config" :get
                     (conj intercept/common-interceptors `http-get)]})
 
+
+(defn mqtt->config [mqtt message]
+  (let [topic (:reply-to message)
+        cfg (create-config)]
+    (mqttapi/publish-scmessage mqtt topic (assoc message :payload cfg))))
+
+(defn mqtt->register [message]
+  (let [device (:payload message)]
+    (devicemodel/create-device device)))
 
 (defn mqtt->config [mqtt message]
   (let [topic (:reply-to message)

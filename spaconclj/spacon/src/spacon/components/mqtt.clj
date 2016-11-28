@@ -35,6 +35,14 @@
 (defn- receive [mqtt topic payload]
   (async/go (async/>!! (:subscribe-channel mqtt) {:topic topic :message (scm/from-bytes payload)})))
 
+; publishes message on the send channel
+(defn- publish [mqtt topic message]
+  (async/go (async/>!! (:publish-channel mqtt) {:topic topic :message (scm/message->bytes message)})))
+
+; receive message on subscribe channel
+(defn- receive [mqtt topic payload]
+  (async/go (async/>!! (:subscribe-channel mqtt) {:topic topic :message (scm/from-bytes payload)})))
+
 (defn subscribe [mqtt topic f]
   (add-topic topic f)
   (mh/subscribe (:conn mqtt) {topic 2} (fn [^String topic _ ^bytes payload]
@@ -46,14 +54,14 @@
 
 (defn- process-publish-channel [mqtt chan]
   (async/go (while true
-             (let [v (async/<!! chan)
-                   t (:topic v)
-                   m (:message v)]
-               (try
-                 (mh/publish (:conn mqtt) t m)
-                 (catch Exception e
-                   (println (.getLocalizedMessage e))
-                   (println e)))))))
+        (let [v (async/<!! chan)
+              t (:topic v)
+              m (:message v)]
+          (try
+            (mh/publish (:conn mqtt) t m)
+            (catch Exception e
+              (println (.getLocalizedMessage e))
+              (println e)))))))
 
 (defn- process-subscribe-channel [chan]
   (async/go (while true
@@ -61,7 +69,7 @@
                     t (:topic v)
                     m (:message v)
                     f ((keyword t) @topics)]
-                   (f m)))))
+                    (f m)))))
 
 (defn publish-scmessage [mqtt topic message]
   (publish mqtt topic message))
