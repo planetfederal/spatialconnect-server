@@ -1,8 +1,8 @@
 ---
 applications:
-  - name: spacon
-    buildpack: java_buildpack
+  - name: efc
+    buildpack: https://github.com/cloudfoundry/java-buildpack
     path: target/spacon-0.7.1-SNAPSHOT-standalone.jar
-  - name: spacon-web
+  - name: efc-web
     buildpack: https://github.com/cloudfoundry-community/staticfile-buildpack.git
     path: ../../web/dist
