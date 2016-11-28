@@ -26,6 +26,15 @@
   (let [device (:payload message)]
     (devicemodel/create-device device)))
 
+(defn mqtt->config [mqtt message]
+  (let [topic (:reply-to message)
+        cfg (create-config)]
+    (mqttapi/publish-scmessage mqtt topic (assoc message :payload cfg))))
+
+(defn mqtt->register [message]
+  (let [device (:payload message)]
+    (devicemodel/create-device device)))
+
 (defrecord ConfigComponent [mqtt]
   component/Lifecycle
   (start [this]

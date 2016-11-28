@@ -14,14 +14,14 @@
 (def invalid-triggers (ref {}))
 (def valid-triggers (ref {}))
 
-(defn geojsonmap->filtermap [f]
+(defn- rules->geometries [f]
   (assoc f :rules (map (fn [rule]
                          (let [nr (jtsio/read-feature-collection (json/write-str (:rhs rule)))]
                            (assoc rule :rhs nr)))
                        (:rules f))))
 
 (defn add-trigger [trigger]
-  (let [t (geojsonmap->filtermap trigger)]
+  (let [t (rules->geometries trigger)]
     (dosync
       (commute invalid-triggers assoc (keyword (:id t)) t))))
 
@@ -33,7 +33,7 @@
 (defn set-valid-trigger [trigger]
   (dosync
     (commute invalid-triggers dissoc (keyword (:id trigger)))
-    (commute valid-triggers assoc (keyword (:id trigger)))))
+    (commute valid-triggers assoc (keyword (:id trigger)) trigger)))
 
 (defn set-invalid-trigger [trigger]
   (dosync
@@ -44,9 +44,6 @@
   (let [tl (doall (model/trigger-list))]
     (doall (map (fn [t]
            (add-trigger t)) tl))))
-
-(defn geowithin [p poly]
-  (relation/within? p poly))
 
 (defn- handle-success [trigger notify]
   (if (:repeated trigger)
@@ -62,19 +59,21 @@
   (if (nil? ((keyword (:id trigger)) @valid-triggers))
     (set-invalid-trigger trigger)))
 
-(defn process-value [p notify]
-  (map
-    (fn [trigger]
-      (map (fn [rule]
-             (let [rhs (:rhs rule)
-                   lhs (:lhs rule)
-                   cmp (:comparator rule)]
-               (case cmp
-                 "$geowithin" (if (geowithin p rhs)
-                                (handle-success trigger notify)
-                                (handle-failure trigger)))))
-           (:rules trigger)))
-       @invalid-triggers))
+(defn process-value [v notify]
+  (map (fn [k]
+      (let [trigger (k @invalid-triggers)]
+        (doall (map
+          (fn [rule]
+               (let [rhs (:rhs rule)
+                     ;lhs (:lhs rule)
+                     cmp (:comparator rule)]
+                 (case cmp
+                   "$geowithin" (if (relation/within? v (-> rhs .features .next .getDefaultGeometry))
+                                  (handle-success trigger notify)
+                                  (handle-failure trigger))
+                   nil)))
+             (:rules trigger)))))
+    (keys @invalid-triggers)))
 
 (defn http-get [_]
   (response/ok (model/trigger-list)))
@@ -102,8 +101,8 @@
 
 (defn- process-channel [notify input-channel]
   (async/go (while true
-      (let [v (async/<!! input-channel)]
-        (process-value (geojsonmap->filtermap v) notify)))))
+      (let [v (async/<! input-channel)]
+        (doall (process-value (.getDefaultGeometry (jtsio/read-feature (json/write-str v))) notify))))))
 
 (defn check-value [triggercomp v]
   (async/go (async/>!! (:source-channel triggercomp) v)))

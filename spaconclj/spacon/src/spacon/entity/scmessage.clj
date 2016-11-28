@@ -17,9 +17,7 @@
        :action (.getAction scm)
        :payload payload}
       (catch Exception e
-        (println (.getLocalizedMessage e))
-        (println e)
-        ))))
+        (println (.getLocalizedMessage e))))))
 
 (defn- make-protobuf [correlation-id jwt reply-to action payload]
   (-> (SCMessageOuterClass$SCMessage/newBuilder)
