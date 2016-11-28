@@ -2,7 +2,6 @@
   (:require [com.stuartsierra.component :as component]
             [spacon.http.intercept :refer [common-interceptors]]
             [spacon.http.response :as response]
-            [io.pedestal.interceptor.helpers :refer [defhandler]]
             [spacon.http.auth :refer [check-auth]]
             [spacon.models.form :as form]
             [clojure.spec :as s]
@@ -22,7 +21,7 @@
     (assoc form :metadata {:count        (:count stats)
                            :lastActivity (:updated_at stats)})))
 
-(defhandler get-all-forms
+(defn get-all-forms
   ;; todo: get all the forms for all the teams that the calling user belongs to
   [request]
   ;; select the latest version of each form by the form_key
@@ -35,7 +34,7 @@
                    (map get-form-metadata))]
     (response/ok forms)))
 
-(defhandler get-form-by-form-key
+(defn get-form-by-form-key
   [request]
   ;; todo, we should check form_key and team_id in the query
   (let [form-key (get-in request [:path-params :form-key])
@@ -46,11 +45,12 @@
                       get-form-metadata)]
     (response/ok forms)))
 
-(defhandler create-form
+(defn create-form
   "Creates a new form."
   [request]
-  (let [team_id (get-in request [:json-params :team_id])
-        form    (assoc (:json-params request) :team_id team_id)]
+  (let [body    (get-in request [:json-params])
+        team-id (:team_id body)
+        form    (assoc  body :team_id team-id)]
       (if (s/valid? :spacon.models.form/spec form)
         (let [new-form (form/add-form-with-fields! form)]
              (response/ok (form/sanitize new-form)))
@@ -60,7 +60,7 @@
   [form]
   (form/delete! {:id (:id form)}))
 
-(defhandler delete-form-by-key
+(defn delete-form-by-key
   "Deletes all forms matching the form-key"
   [request]
   (let [form-key (URLDecoder/decode (get-in request [:path-params :form-key]))
@@ -68,7 +68,7 @@
     (doall (map delete-form-by-id forms))
     (response/ok (str "Deleted form " form-key))))
 
-(defhandler submit-form-data
+(defn submit-form-data
   [request]
   (let [form-id   (get-in request [:path-params :form-id])
         form-data (get-in request [:json-params])

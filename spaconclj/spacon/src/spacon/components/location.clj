@@ -15,8 +15,9 @@
                      :coordinates [(.getX (:geometry l)) (.getY (:geometry l))]}
 
           :metadata {:client     (:identifier l)
-                     :updated_at (:updated_at l)}
-          }) locations))
+                     :updated_at (:updated_at l)}})
+       locations))
+
 
 (defn http-get [_]
   (let [fs (location->geojson (model/locations))]

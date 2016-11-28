@@ -10,13 +10,13 @@
                  [ragtime "0.5.3"]
                  [yesql "0.5.2"]
                  [org.postgresql/postgresql "9.4-1201-jdbc4"]
+                 [clojure.jdbc/clojure.jdbc-c3p0 "0.3.1"]
                  [listora/uuid "0.1.2"]
                  [ch.qos.logback/logback-classic "1.1.7" :exclusions [org.slf4j/slf4j-api]]
                  [org.slf4j/jul-to-slf4j "1.7.21"]
                  [org.slf4j/jcl-over-slf4j "1.7.21"]
                  [org.slf4j/log4j-over-slf4j "1.7.21"]
-                 [pedestal-api "0.3.1-SNAPSHOT" :exclusions [prismatic/schema]]
-                 [prismatic/schema "1.1.3"]
+                 ;[pedestal-api "0.3.1-SNAPSHOT" :exclusions [prismatic/schema]]
                  [com.stuartsierra/component "0.3.1"]
                  [clojurewerkz/machine_head "1.0.0-beta9"]
                  [com.boundlessgeo.spatialconnect/schema "0.7"]
@@ -40,8 +40,10 @@
   :resource-paths ["config", "resources"]
   ;; If you use HTTP/2 or ALPN, use the java-agent to pull in the correct alpn-boot dependency
   ;:java-agents [[org.mortbay.jetty.alpn/jetty-alpn-agent "2.0.3"]]
-  :profiles {:dev {:aliases {"run-dev" ["trampoline" "run" "-m" "spacon.server/run-dev"]}
-                   :dependencies [[io.pedestal/pedestal.service-tools "0.5.1"] [org.clojure/test.check "0.9.0"]]}
-             :uberjar {:aot [spacon.server]}}
+  :profiles {:dev {:source-paths ["dev"]
+                   :aliases {"run-dev" ["trampoline" "run" "-m" "spacon.server/run-dev"]}
+                   :dependencies [[io.pedestal/pedestal.service-tools "0.5.1"]
+                                  [org.clojure/test.check "0.9.0"]]}
+             :uberjar {:aot :all}}
   :main ^{:skip-aot true} spacon.server)
 

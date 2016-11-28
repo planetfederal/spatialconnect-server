@@ -1,6 +1,5 @@
 (ns spacon.http.auth
-  (:require [io.pedestal.interceptor.helpers :refer [defbefore defhandler]]
-            [io.pedestal.interceptor.chain :refer [terminate]]
+  (:require [io.pedestal.interceptor.chain :refer [terminate]]
             [spacon.http.intercept :as intercept]
             [spacon.http.response :as response]
             [buddy.hashers :as hashers]
@@ -13,7 +12,15 @@
 (defonce secret "spaconsecret")
 (def auth-backend (backends/jws {:secret secret}))
 
-(defhandler authenticate-user
+(defn get-token
+  [user]
+  (let [teams  (user/find-teams {:user_id (:id user)})
+        claims {:user (assoc (user/sanitize user) :teams teams)
+                :exp  (-> 2 weeks from-now)}]
+    ;; todo: encrypt the token
+    (jwt/sign claims secret)))
+
+(defn authenticate-user
   "Authenticate user by email and password and return a signed JWT token"
   [req]
   (let [email  (get-in req [:json-params :email])
@@ -23,19 +30,14 @@
         authn? (hashers/check pwd (:password user))]
     (if-not authn?
       (response/unauthorized "Authentication failed")
-      (let [teams   (user/find-teams {:user_id (:id user)})
-            claims  {:user (assoc (user/sanitize user) :teams teams)
-                     :exp  (-> 2 weeks from-now)}
-            ;; todo: encrypt the token
-            token (jwt/sign claims secret)]
-        (response/ok {:token token})))))
+      (response/ok {:token (get-token user)}))))
 
 
-(defhandler authorize-user
-  [req]
+(defn authorize-user
   ;; Currently, this is used by the mqtt broker to ensure that only authenticated users are able to connect to the
   ;; broker.  Eventually we will want to use this handler to ensure that a user has permission to subscribe or publish
   ;; to a specific topic
+  [request]
   (response/ok))
 
 

@@ -14,8 +14,8 @@
     (response/ok d)))
 
 (defn- routes [] #{["/api/config" :get
-                    (conj intercept/common-interceptors `http-get)]
-                   })
+                    (conj intercept/common-interceptors `http-get)]})
+
 
 (defn mqtt->config [mqtt message]
   (let [topic (:reply-to message)

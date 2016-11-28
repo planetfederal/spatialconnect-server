@@ -8,7 +8,7 @@
     "start:local": "NODE_ENV=local webpack-dev-server --progress --inline --hot",
     "build:local": "NODE_ENV=local webpack -w",
     "build:dev": "NODE_ENV=development webpack",
-    "build:release": "NODE_ENV=release webpack",
+    "build:cf": "NODE_ENV=cf webpack && cp index.html dist/index.html",
     "build": "NODE_ENV=production webpack"
   },
   "dependencies": {

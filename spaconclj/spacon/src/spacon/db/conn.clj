@@ -1,18 +1,36 @@
 (ns spacon.db.conn
+  (:import com.mchange.v2.c3p0.ComboPooledDataSource)
   (:require [yesql.core :refer [defqueries]]
             [ragtime.jdbc :as jdbc]
             [ragtime.repl :as repl]
-            [com.stuartsierra.component :as component]))
+            [clojure.data.json :as json]
+            [jdbc.pool.c3p0 :as pool]))
 
-(def db-spec {:classname "org.postgresql.Driver"
-              :subprotocol "postgresql"
-              :subname "//localhost:5432/spacon"
-              :user "spacon"
-              :password "spacon"})
+(defn get-db-uri-from-env
+  []
+  (or (some-> (System/getenv "VCAP_SERVICES")
+              (json/read-str :key-fn clojure.core/keyword)
+              :elephantsql first :credentials :uri java.net.URI.)
+      (some-> (System/getenv "DATABASE_URI") java.net.URI.)))
+
+(def db-uri (or (get-db-uri-from-env)
+                (java.net.URI. "postgresql://spacon:spacon@localhost:5432/spacon")))
+
+(def user-pass (clojure.string/split (.getUserInfo db-uri) #":"))
+
+(def db-spec
+  (pool/make-datasource-spec
+    {:classname   "org.postgresql.Driver"
+     :subprotocol "postgresql"
+     :subname     (if (= -1 (.getPort db-uri))
+                      (format "//%s%s" (.getHost db-uri) (.getPath db-uri))
+                      (format "//%s:%s%s" (.getHost db-uri) (.getPort db-uri) (.getPath db-uri)))
+     :user         (first user-pass)
+     :password     (second user-pass)}))
+
 
 (defn loadconfig []
-  {:datastore (jdbc/sql-database
-                {:connection-uri "jdbc:postgresql://localhost:5432/spacon?user=spacon&password=spacon"})
+  {:datastore  (jdbc/sql-database db-spec)
    :migrations (jdbc/load-resources "migrations")})
 
 (defn migrate [] (repl/migrate (loadconfig)))

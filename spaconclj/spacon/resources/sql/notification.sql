@@ -1,4 +1,3 @@
-
 -- name: insert-notification!
 -- adds notifications to the queue
 INSERT INTO notifications (trigger_id,created_at) VALUES (:trigger_id,NOW());

@@ -24,10 +24,15 @@
                                                    ::http/routes            routes
                                                    ::http/resource-path     "/public"
                                                    ::http/type              :jetty
-                                                   ::http/port              8085
+                                                   ::http/port              (or (some-> (System/getenv "PORT")
+                                                                                        Integer/parseInt)
+                                                                                8085)
+                                                   ::http/allowed-origins {:creds true
+                                                                           :allowed-origins (constantly true)}
                                                    ::http/container-options {:h2c? true
                                                                              :h2?  false
                                                                              :ssl? false}}))))
+
   (stop [this]
     this))
 
