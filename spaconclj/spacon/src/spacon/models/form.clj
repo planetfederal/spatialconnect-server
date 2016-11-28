@@ -56,7 +56,7 @@
                                                          :exclusive_maximum (:exclusive_maximum %)}
                                                         tnx)
                                  fields))
-          sanitized-fields (map #(dissoc % :created_at :updated_at :deleted_at :form_id) new-fields)]
+          sanitized-fields (map #(sanitize %) new-fields)]
       (assoc new-form :fields sanitized-fields))))
 
 
