@@ -3,6 +3,7 @@
             [spacon.http.intercept :as intercept]
             [spacon.http.response :as response]
             [spacon.models.store :as store]
+            [spacon.models.devices :as devicemodel]
             [spacon.components.mqtt :as mqttapi]))
 
 (defn create-config []
@@ -16,12 +17,20 @@
                     (conj intercept/common-interceptors `http-get)]
                    })
 
+(defn mqtt->config [mqtt message]
+  (let [topic (:reply-to message)
+        cfg (create-config)]
+    (mqttapi/publish-scmessage mqtt topic (assoc message :payload cfg))))
+
+(defn mqtt->register [message]
+  (let [device (:payload message)]
+    (devicemodel/create-device device)))
+
 (defrecord ConfigComponent [mqtt]
   component/Lifecycle
   (start [this]
-    (mqttapi/subscribe mqtt "/config"
-      (fn [message]
-        (mqttapi/publish-scmessage mqtt (:replyTo message) (assoc message :payload (create-config)))))
+    (mqttapi/subscribe mqtt "/config/register" mqtt->register)
+    (mqttapi/subscribe mqtt "/config" (partial mqtt->config mqtt))
     this)
   (stop [this]
     this))

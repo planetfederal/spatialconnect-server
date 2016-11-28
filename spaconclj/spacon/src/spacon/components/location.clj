@@ -29,10 +29,10 @@
 (defrecord LocationComponent [mqtt trigger]
   component/Lifecycle
   (start [this]
-    (mqttcomp/subscribe mqtt "/store/tracking"
-      (fn [message]
-        (let [loc (json/read-str (:payload message))]
-          (model/upsert-location-gj loc))))
+  (mqttcomp/subscribe mqtt "/store/tracking"
+    (fn [message]
+      (let [loc (:payload message)]
+        (model/upsert-location-gj loc))))
     (assoc this :routes (routes)))
   (stop [this]
     this))
