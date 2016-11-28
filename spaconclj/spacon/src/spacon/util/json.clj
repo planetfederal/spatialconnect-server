@@ -7,7 +7,7 @@
   (->kebab-case-keyword (keyword key)))
 
 (defn key->camelkeyword [key]
-  (->camel-case-keyword (keyword key)))
+  (->camelCaseKeyword (keyword key)))
 
 (defn json->kebab [jsonstr]
   (json/read-str jsonstr :key-fn ->kebab-case-keyword))
