@@ -1,7 +1,5 @@
 (ns spacon.components.trigger
   (:require [com.stuartsierra.component :as component]
-            [spacon.db.conn :as db]
-            [spacon.util.db :as dbutil]
             [yesql.core :refer [defqueries]]
             [spacon.http.intercept :as intercept]
             [spacon.http.response :as response]
@@ -9,52 +7,73 @@
             [spacon.components.notification :as notification]
             [cljts.relation :as relation]
             [clojure.core.async :as async]
-            [spacon.util.geo :as geoutil]
-            [spacon.entity.notification :as ntf-entity]))
+            [spacon.entity.notification :as ntf-entity]
+            [cljts.io :as jtsio]
+            [clojure.data.json :as json]))
 
-(def invalid-triggers (ref #{}))
-(def valid-triggers (ref #{}))
+(def invalid-triggers (ref {}))
+(def valid-triggers (ref {}))
+
+(defn geojsonmap->filtermap [f]
+  (assoc f :rules (map (fn [rule]
+                         (let [nr (jtsio/read-feature-collection (json/write-str (:rhs rule)))]
+                           (assoc rule :rhs nr)))
+                       (:rules f))))
 
 (defn add-trigger [trigger]
-  (dosync
-    (commute invalid-triggers conj
-             (geoutil/geojsonmap->filtermap trigger))))
-
-(defn add-triggers [triggers]
-  (map add-trigger triggers))
+  (let [t (geojsonmap->filtermap trigger)]
+    (dosync
+      (commute invalid-triggers assoc (keyword (:id t)) t))))
 
 (defn remove-trigger [trigger]
   (dosync
-    (commute invalid-triggers disj trigger)
-    (commute valid-triggers disj trigger)))
+    (commute invalid-triggers dissoc (keyword (:id trigger)))
+    (commute valid-triggers dissoc (keyword (:id trigger)))))
 
 (defn set-valid-trigger [trigger]
   (dosync
-    (commute invalid-triggers disj trigger)
-    (commute valid-triggers conj trigger)))
+    (commute invalid-triggers dissoc (keyword (:id trigger)))
+    (commute valid-triggers assoc (keyword (:id trigger)))))
 
 (defn set-invalid-trigger [trigger]
   (dosync
-    (commute invalid-triggers conj trigger)
-    (commute valid-triggers disj trigger)))
+    (commute invalid-triggers assoc (keyword (:id trigger)) trigger)
+    (commute valid-triggers dissoc (keyword (:id trigger)))))
 
 (defn- load-triggers []
   (let [tl (doall (model/trigger-list))]
-    (add-triggers
-      (map
-        (fn [t] (:definition t))
-        tl))))
+    (doall (map (fn [t]
+           (add-trigger t)) tl))))
+
+(defn geowithin [p poly]
+  (relation/within? p poly))
+
+(defn- handle-success [trigger notify]
+  (if (:repeated trigger)
+    (set-valid-trigger trigger)
+    (remove-trigger trigger))
+  (notification/send->notification notify
+                                   (ntf-entity/make-mobile-notification
+                                     {:to nil
+                                      :priority "alert"
+                                      :title "Alert"
+                                      :body "Point is in Polygon"})))
+(defn- handle-failure [trigger]
+  (if (nil? ((keyword (:id trigger)) @valid-triggers))
+    (set-invalid-trigger trigger)))
 
 (defn process-value [p notify]
   (map
-    (fn [poly]
-          (if (relation/within? (:geometry p) (:geometry poly))
-            (notification/send->notification notify
-               (ntf-entity/make-mobile-notification
-                 {:to nil
-                  :priority "alert"
-                  :title "Alert"
-                  :body "Point is in Polygon"}))))
+    (fn [trigger]
+      (map (fn [rule]
+             (let [rhs (:rhs rule)
+                   lhs (:lhs rule)
+                   cmp (:comparator rule)]
+               (case cmp
+                 "$geowithin" (if (geowithin p rhs)
+                                (handle-success trigger notify)
+                                (handle-failure trigger)))))
+           (:rules trigger)))
        @invalid-triggers))
 
 (defn http-get [_]
@@ -65,25 +84,26 @@
 
 (defn http-put-trigger [context]
   (let [t (:json-params context)
-        r (response/ok (model/update-trigger (get-in context [:path-params :id])
-                                                               t))]
-      (add-trigger (:definition t))
+        r (response/ok (model/update-trigger (get-in context [:path-params :id]) t))]
+      (add-trigger t)
       r))
 
 (defn http-post-trigger [context]
   (let [t (:json-params context)
         r (response/ok (model/create-trigger t))]
-    (add-trigger (:definition t))
+    (add-trigger t)
     r))
 
 (defn http-delete-trigger [context]
-  (model/delete-trigger (get-in context [:path-params :id]))
-  (response/ok "success"))
+  (let [id (get-in context [:path-params :id])]
+    (model/delete-trigger id)
+    (remove-trigger {:id id})
+    (response/ok "success")))
 
 (defn- process-channel [notify input-channel]
   (async/go (while true
       (let [v (async/<!! input-channel)]
-        (process-value (geoutil/geojsonmap->filtermap v) notify)))))
+        (process-value (geojsonmap->filtermap v) notify)))))
 
 (defn check-value [triggercomp v]
   (async/go (async/>!! (:source-channel triggercomp) v)))
@@ -112,6 +132,7 @@
     (let [c (async/chan)
           comp (assoc this :source-channel c)]
       (process-channel notify c)
+      (load-triggers)
       (assoc comp :routes (routes comp))))
   (stop [this]
     (async/close! (:source-channel this))

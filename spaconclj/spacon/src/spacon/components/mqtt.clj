@@ -1,41 +1,94 @@
 (ns spacon.components.mqtt
   (:require [com.stuartsierra.component :as component]
-            [spacon.util.protobuf :as pbf]
             [clojurewerkz.machine-head.client :as mh]
-            [clojure.data.json :as json]))
+            [spacon.entity.scmessage :as scm]
+            [camel-snake-kebab.core :refer :all]
+            [camel-snake-kebab.extras :refer [transform-keys]]
+            [spacon.http.intercept :as intercept]
+            [spacon.http.response :as response]
+            [clojure.core.async :as async]))
 
 (def id "spacon-server")
 
 (def broker-url (str "tcp://localhost:1883"))
 
+(def topics (ref {}))
+
+(defn add-topic [topic fn]
+  (dosync
+    (commute topics assoc (keyword topic) fn)))
+
+(defn remove-topic [topic]
+  (dosync
+    (commute topics dissoc (keyword topic))))
+
 (defn connectmqtt []
   (mh/connect broker-url id))
 
+; publishes message on the send channel
+(defn- publish [mqtt topic message]
+  (async/go (async/>!! (:publish-channel mqtt) {:topic topic :message (scm/message->bytes message)})))
+
+; receive message on subscribe channel
+(defn- receive [mqtt topic payload]
+  (async/go (async/>!! (:subscribe-channel mqtt) {:topic topic :message (scm/from-bytes payload)})))
+
 (defn subscribe [mqtt topic f]
-  (mh/subscribe (:conn mqtt) {topic 2} (fn [_ _ ^bytes payload]
-                                         (f (String. payload "UTF-8")))))
+  (add-topic topic f)
+  (mh/subscribe (:conn mqtt) {topic 2} (fn [^String topic _ ^bytes payload]
+                                           (receive mqtt topic payload))))
 
-(defn listenOnTopic [mqtt topic f]
-  (subscribe mqtt topic f))
+(defn unsubscribe [mqtt topic]
+  (remove-topic topic)
+  (mh/unsubscribe (:conn mqtt) topic))
 
-(defn publishMapToTopic [mqtt topic message]
-  (let [m {:payload (json/write-str message)}
-        p (pbf/map->protobuf m)]
-    (mh/publish (:conn mqtt) topic
-                (.toByteArray p))))
+(defn- process-publish-channel [mqtt chan]
+  (async/go (while true
+        (let [v (async/<!! chan)
+              t (:topic v)
+              m (:message v)]
+          (try
+            (mh/publish (:conn mqtt) t m)
+            (catch Exception e
+              (println (.getLocalizedMessage e))
+              (println e)))))))
 
-(defn publishToTopic [mqtt topic message]
-      (mh/publish (:conn mqtt) topic (.toByteArray message)))
+(defn- process-subscribe-channel [chan]
+  (async/go (while true
+              (let [v (async/<!! chan)
+                    t (:topic v)
+                    m (:message v)
+                    f ((keyword t) @topics)]
+                    (f m)))))
+
+(defn publish-scmessage [mqtt topic message]
+  (publish mqtt topic message))
+
+(defn publish-map [mqtt topic m]
+  (publish mqtt topic (scm/map->SCMessage {:payload m})))
+
+(defn http-mq-post [mqtt context]
+  (let [m (:json-params context)]
+    (publish-map mqtt (:topic m) (:payload m)))
+  (response/ok "success"))
+
+(defn- routes [mqtt] #{["/api/mqtt" :post
+                            (conj intercept/common-interceptors (partial http-mq-post mqtt)) :route-name :http-mq-post]})
 
 (defrecord MqttComponent [mqtt-config]
   component/Lifecycle
   (start [this]
-    (let [m (connectmqtt)]
-      (assoc this :conn m)))
-
+    (let [m (connectmqtt)
+          pub-chan (async/chan)
+          sub-chan (async/chan)
+          c (assoc this :conn m :publish-channel pub-chan :subscribe-channel sub-chan)]
+      (process-publish-channel c pub-chan)
+      (process-subscribe-channel sub-chan)
+      (assoc c :routes (routes c))))
   (stop [this]
     (println "Disconnecting MQTT Client")
     (mh/disconnect (:conn this))
+    (async/close! (:publish-channel this))
     this))
 
 (defn make-mqtt-component [mqtt-config]

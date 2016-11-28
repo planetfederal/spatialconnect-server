@@ -5,7 +5,7 @@
     [com.stuartsierra.component :as component]
     [spacon.http.auth :as auth]))
 
-(defrecord Service [http-config ping user device location trigger store config form]
+(defrecord Service [http-config ping user device location trigger store config form mqtt]
   component/Lifecycle
   (start [this]
     (let [routes #(route/expand-routes
@@ -18,6 +18,7 @@
                                        (:routes trigger)
                                        (:routes store)
                                        (:routes config)
+                                       (:routes mqtt)
                                        (:routes form)))]
       (assoc this :service-def (merge http-config {:env                     :prod
                                                    ::http/routes            routes

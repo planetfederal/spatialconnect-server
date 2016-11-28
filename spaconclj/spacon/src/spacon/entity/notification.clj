@@ -1,9 +1,9 @@
 (ns spacon.entity.notification)
 
-(defrecord Notification [type to priority title body payload])
+(defrecord Notification [output-type to priority title body payload])
 
 (defn make-email-notification [n]
-  (map->Notification (assoc n :type :email)))
+  (map->Notification (assoc n :output-type :email)))
 
 (defn make-mobile-notification [n]
-  (map->Notification (assoc n :type :mobile)))
+  (map->Notification (assoc n :output-type :mobile)))

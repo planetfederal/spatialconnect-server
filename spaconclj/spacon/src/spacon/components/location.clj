@@ -3,11 +3,8 @@
             [spacon.http.intercept :as intercept]
             [spacon.http.response :as response]
             [clojure.data.json :as json]
-            [spacon.db.conn :as db]
-            [ring.util.response :as ring-resp]
             [yesql.core :refer [defqueries]]
             [spacon.components.mqtt :as mqttcomp]
-            [spacon.util.protobuf :as pbf]
             [spacon.models.locations :as model]))
 
 (defn location->geojson [locations]
@@ -32,9 +29,10 @@
 (defrecord LocationComponent [mqtt trigger]
   component/Lifecycle
   (start [this]
-    (mqttcomp/listenOnTopic mqtt "/store/tracking"
-      (fn [s]
-        (let [payload (:payload (pbf/bytes->map s))] (model/upsert-location-gj (json/read-str payload)))))
+  (mqttcomp/subscribe mqtt "/store/tracking"
+    (fn [message]
+      (let [loc (:payload message)]
+        (model/upsert-location-gj loc))))
     (assoc this :routes (routes)))
   (stop [this]
     this))

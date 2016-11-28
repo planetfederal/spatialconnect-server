@@ -21,7 +21,7 @@
          (entity->map d)) (device-locations)))
 
 (defn upsert-location [p client]
-  (upsert-location! {:geom (jio/write-wkt-str p) :device_id client}))
+  (upsert-location! {:geom (jio/write-wkt-str p) :identifier client}))
 
 (defn upsert-location-gj [loc]
   (let [x (get-in loc [:geometry :coordinates 0])

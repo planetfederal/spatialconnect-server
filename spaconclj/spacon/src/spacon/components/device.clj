@@ -1,7 +1,7 @@
 (ns spacon.components.device
   (:require [com.stuartsierra.component :as component]
             [spacon.http.intercept :as intercept]
-            [ring.util.response :as ring-resp]
+            [spacon.components.mqtt :as mqttapi]
             [yesql.core :refer [defqueries]]
             [spacon.models.devices :as model]
             [spacon.http.response :as response]))
@@ -42,12 +42,16 @@
                    ["/api/devices/:id" :delete
                     (conj intercept/common-interceptors `http-delete-device)]})
 
-(defrecord DeviceComponent []
+(defn mqtt-register [message]
+  (model/create-device (:payload message)))
+
+(defrecord DeviceComponent [mqtt]
   component/Lifecycle
   (start [this]
+    ;(mqttapi/subscribe mqtt "/config/register" (partial mqtt-register mqtt))
     (assoc this :routes (routes)))
   (stop [this]
     this))
 
 (defn make-device-component []
-  (->DeviceComponent))
+  (map->DeviceComponent {}))

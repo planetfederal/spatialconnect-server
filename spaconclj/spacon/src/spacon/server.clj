@@ -33,27 +33,19 @@
 (defn system [config-options]
   (let [{:keys [http-config]} config-options]
     (component/system-map
-      :ping (ping/make-ping-component)
       :user (user/make-user-component)
       :mqtt (mqtt/make-mqtt-component {})
-      :device (device/make-device-component)
+      :ping (component/using (ping/make-ping-component) [:mqtt])
+      :device (component/using (device/make-device-component) [:mqtt])
       :store (store/make-store-component)
-      :config (component/using
-                (config/make-config-component)
-                [:mqtt])
-      :notify (component/using
-                      (notification/make-notification-component)
-                      [:mqtt])
-      :trigger (component/using
-                 (trigger/make-trigger-component)
-                 [:notify])
-      :location (component/using
-                  (location/make-location-component)
-                  [:mqtt :trigger])
+      :config (component/using (config/make-config-component) [:mqtt])
+      :notify (component/using (notification/make-notification-component) [:mqtt])
+      :trigger (component/using (trigger/make-trigger-component) [:notify])
+      :location (component/using (location/make-location-component) [:mqtt :trigger])
       :form (form/make-form-component)
       :service (component/using
                  (service/make-service http-config)
-                 [:ping :user :device :location :trigger :store :config :form])
+                 [:ping :user :device :location :trigger :store :config :form :mqtt])
       :server (component/using
                 (new-server)
                 [:service]))))
