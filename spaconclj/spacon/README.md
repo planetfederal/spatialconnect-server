@@ -42,6 +42,14 @@ Once the image it built, it's cached.  To delete the image and build a new one:
 
 ### To run the migrations
 
+Before running the migration you'll need to create a db and add the
+extensions:
+```
+createdb spacon -O spacon
+psql -U postgres -d spacon -c "CREATE EXTENSION IF NOT EXISTS pgcrypto"
+psql -U postgres -d spacon -c "CREATE EXTENSION IF NOT EXISTS postgis"
+```
+
 `lein migrate`
 
 ### To run the tests
