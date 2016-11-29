@@ -112,9 +112,9 @@ export function loadFormDataAll() {
           .set('Authorization', 'Token ' + token)
           .then(res => res.body.result)
           .then(function(form, data) {
-            console.log(form, data);
             return data.map(f => {
               f.form_id = form.id;
+              f.form_key = form.form_key;
               return f;
             });
           }.bind(this, form))
