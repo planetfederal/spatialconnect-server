@@ -55,9 +55,9 @@ export class FormList extends Component {
         <FormListItem key={'spatial_triggers'}
           active={this.props.spatial_triggers_on}
           title={'Spatial Triggers'}
-          count={this.props.spatial_triggers.length}
+          count={Object.keys(this.props.spatial_triggers).length}
           onClick={this.toggleSpatialTriggers.bind(this)} />
-        
+
       </div>
     );
   }

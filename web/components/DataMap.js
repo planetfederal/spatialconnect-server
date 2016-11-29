@@ -196,7 +196,7 @@ class DataMap extends Component {
     }
   }
   makePopupTableFormSubmission(f) {
-    const form = this.props.forms[f.form_id];
+    const form = this.props.forms[f.form_key];
     let rows = form.fields.map(field => {
       let value = field.type === 'photo'
       return (<tr key={field.field_key}>
