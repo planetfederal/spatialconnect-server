@@ -13,7 +13,7 @@
   ;; todo: get all the forms for all the teams that the calling user belongs to
   [_]
   ;; select the latest version of each form by the form_key
-  (response/ok formmodel/forms-list))
+  (response/ok (formmodel/forms-list)))
 
 (defn http-get-form-by-form-key
   [request]
@@ -49,13 +49,19 @@
     (doall (map delete-form-by-id forms))
     (response/ok (str "Deleted form " form-key))))
 
-(defn submit-form-data
+(defn http-submit-form-data
   [request]
   (let [form-id   (get-in request [:path-params :form-id])
         form-data (get-in request [:json-params])
         device-id (:device-id form-data)] ;; todo: device-id is not sent yet so this will always be nil
     (formmodel/add-form-data form-data form-id device-id)
     (response/ok "data submitted successfully")))
+
+(defn http-get-form-data
+  [request]
+  (let [form-id (get-in request [:path-params :form-id])]
+    (response/ok (formmodel/get-form-data form-id))))
+
 
 (defn mqtt->form-submit [message]
   (let [p (:payload message)
@@ -70,7 +76,8 @@
     ["/api/forms/:form-key"      :delete (conj common-interceptors check-auth `http-delete-form-by-key)]
     ["/api/forms/:form-key"      :get    (conj common-interceptors check-auth `http-get-form-by-form-key)]
     ;; todo: need to figure out why forms causes a route conflict
-    ["/api/form/:form-id/submit" :post   (conj common-interceptors check-auth `submit-form-data) :constraints {:form-id #"[0-9]+"}]})
+    ["/api/form/:form-id/submit"   :post   (conj common-interceptors check-auth `http-submit-form-data) :constraints {:form-id #"[0-9]+"}]
+    ["/api/form/:form-id/results"  :get   (conj common-interceptors check-auth `http-get-form-data) :constraints {:form-id #"[0-9]+"}]})
 
 (defrecord FormComponent [mqtt]
   component/Lifecycle
