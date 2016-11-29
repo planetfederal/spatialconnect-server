@@ -67,9 +67,9 @@ function form(state = Immutable.Map(), action) {
           })
         );
     case REMOVE_FIELD:
-      var fieldsPath = ['forms', action.formId.toString(), 'fields'];
+      var fieldsPath = ['forms', action.form_key, 'fields'];
       var fieldPath = ['fields', state.get('fields').findIndex(f => f.get('id') === action.fieldId)];
-      var deletedFieldsPath = ['forms', action.formId.toString(), 'deletedFields'];
+      var deletedFieldsPath = ['forms', action.form_key, 'deletedFields'];
       let field = state.getIn(fieldPath);
       return state
         .set('fields', state.get('fields').update(fields => {
@@ -105,22 +105,22 @@ export default function reducer(state = initialState, action = {}) {
         .set('error', action.error);
     case ADD_FORM:
       return state
-        .setIn(['forms', action.form.id.toString()], Immutable.fromJS(action.form))
+        .setIn(['forms', action.form.form_key], Immutable.fromJS(action.form))
     case DELETE_FORM:
       return state
-        .deleteIn(['forms', state.get('forms').find(f => f.get('form_key') === action.form_key).get('id').toString()]);
+        .deleteIn(['forms', action.form_key]);
     case ADD_FORM_ERROR:
       return state
         .set('addFormError', action.error)
     case UPDATE_ACTIVE_FORM:
       return state
-        .set('activeForm', action.formId);
+        .set('activeForm', action.form_key);
     case UPDATE_SAVED_FORM:
       return state
-        .setIn(['saved_forms', action.formId.toString()], Immutable.fromJS(action.form));
+        .setIn(['saved_forms', action.form_key], Immutable.fromJS(action.form));
     case UPDATE_FORM:
       return state
-        .setIn(['forms', action.formId.toString()], Immutable.fromJS(action.newForm));
+        .setIn(['forms', action.form_key], Immutable.fromJS(action.newForm));
     case UPDATE_FORM_NAME:
     case UPDATE_FORM_VALUE:
     case UPDATE_FIELD_OPTION:
@@ -128,17 +128,17 @@ export default function reducer(state = initialState, action = {}) {
     case ADD_FIELD:
     case SWAP_FIELD_ORDER:
     case REMOVE_FIELD:
-      let formPath = ['forms', action.formId.toString()];
+      let formPath = ['forms', action.form_key];
       return state.setIn(formPath, form(state.getIn(formPath), action));
     default: return state;
   }
 }
 
 // export the action creators (functions that return actions or functions)
-export function updateForm(formId, newForm) {
+export function updateForm(form_key, newForm) {
   return {
     type: UPDATE_FORM,
-    formId: formId,
+    form_key: form_key,
     newForm: newForm
   };
 }
@@ -150,18 +150,18 @@ export function addFormError(error) {
   };
 }
 
-export function updateFormName(formId, newName) {
+export function updateFormName(form_key, newName) {
   return {
     type: UPDATE_FORM_NAME,
-    formId: formId,
+    form_key: form_key,
     newName: newName
   };
 }
 
-export function updateFormValue(formId, value) {
+export function updateFormValue(form_key, value) {
   return {
     type: UPDATE_FORM_VALUE,
-    formId: formId,
+    form_key: form_key,
     value: value
   };
 }
@@ -169,7 +169,7 @@ export function updateFormValue(formId, value) {
 export function addField(payload) {
   return (dispatch, getState) => {
     const { sc } = getState();
-    let position = sc.forms.getIn(['forms', payload.formId.toString(), 'fields']).size;
+    let position = sc.forms.getIn(['forms', payload.form_key, 'fields']).size;
     let field = _.merge({
       id: position + 1,
       position: position,
@@ -178,65 +178,65 @@ export function addField(payload) {
     }, payload.options);
     dispatch({
       type: ADD_FIELD,
-      formId: payload.formId,
+      form_key: payload.form_key,
       field: field
     });
   }
 }
 
-export function updateFieldOption(formId, fieldId, option, value) {
+export function updateFieldOption(form_key, fieldId, option, value) {
   return {
     type: UPDATE_FIELD_OPTION,
-    formId: formId,
+    form_key: form_key,
     fieldId: fieldId,
     option: option,
     value: value
   };
 }
 
-export function swapFieldOrder(formId, indexOne, indexTwo) {
+export function swapFieldOrder(form_key, indexOne, indexTwo) {
   return {
     type: SWAP_FIELD_ORDER,
-    formId: formId,
+    form_key: form_key,
     indexOne: indexOne,
     indexTwo: indexTwo
   };
 }
 
-export function updateActiveField(formId, fieldId) {
+export function updateActiveField(form_key, fieldId) {
   return (dispatch) => {
     dispatch(updateActiveForm(false));
     dispatch({
       type: UPDATE_ACTIVE_FIELD,
-      formId: formId,
+      form_key: form_key,
       fieldId: fieldId
     });
   }
 }
 
-export function updateActiveForm(formId) {
+export function updateActiveForm(form_key) {
   return {
     type: UPDATE_ACTIVE_FORM,
-    formId: formId
+    form_key: form_key
   };
 }
 
-export function updateSavedForm(formId, form) {
+export function updateSavedForm(form_key, form) {
   return {
     type: UPDATE_SAVED_FORM,
-    formId: formId,
+    form_key: form_key,
     form: form
   };
 }
 
-export function removeField(formId, fieldId) {
+export function removeField(form_key, fieldId) {
   return (dispatch) => {
     dispatch({
       type: REMOVE_FIELD,
-      formId: formId,
+      form_key: form_key,
       fieldId: fieldId
     });
-    dispatch(updateActiveField(formId, null));
+    dispatch(updateActiveField(form_key, null));
   };
 }
 
@@ -245,7 +245,7 @@ export function receiveForms(forms) {
     const { sc } = getState();
     dispatch({
       type: LOAD_SUCCESS,
-      forms: keyBy(forms.map(initForm(sc.auth.teams)), 'id')
+      forms: keyBy(forms.map(initForm(sc.auth.teams)), 'form_key')
     });
   }
 }
@@ -301,6 +301,7 @@ export function addForm(form) {
   return (dispatch, getState) => {
     const { sc } = getState();
     let token = sc.auth.token;
+    console.log(form);
     form.team_id = sc.auth.selectedTeamId;
     let f = _.pick(form, ['form_key', 'form_label', 'version', 'fields', 'team_id']);
     return request
@@ -308,7 +309,7 @@ export function addForm(form) {
       .set('Authorization', 'Token ' + token)
       .send(f)
       .then(function(res) {
-        dispatch(updateSavedForm(res.body.result.id, res.body.result));
+        dispatch(updateSavedForm(res.body.result.form_key, res.body.result));
         dispatch(receiveForm(res.body.result));
         dispatch(addFormError(false));
       })
@@ -333,7 +334,7 @@ export function saveForm(form) {
       .set('Authorization', 'Token ' + token)
       .send(f)
       .then(function(res) {
-        dispatch(updateSavedForm(res.body.result.id, res.body.result));
+        dispatch(updateSavedForm(res.body.result.form_key, res.body.result));
         dispatch(receiveForm(res.body.result));
       }, function(error) {
         throw new Error(res);

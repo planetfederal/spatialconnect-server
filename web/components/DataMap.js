@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import * as _ from 'lodash';
+import { flatten } from 'lodash';
 import { WS_URL } from 'config';
 import '../style/DataMap.less';
 import moment from 'moment';
@@ -165,20 +165,27 @@ class DataMap extends Component {
 
     this.spatialTriggersSource.clear();
     if (props.spatial_triggers_on) {
-      let spatialTriggerFeatures = props.spatial_triggers
-        .filter(t => t.definition)
-        .map(t => {
-          let gj = t.definition;
-          gj.id = t.id;
-          return gj;
+      let spatialTriggerFeatures = Object.keys(props.spatial_triggers)
+        .map(k => props.spatial_triggers[k])
+        .filter(t => t.rules.length)
+        .map((t, i) => {
+          return t.rules.map((r, j) => {
+            let gj = r.rhs;
+            gj.id = t.id + '.' + i + '.' + j
+            return gj;
+          })
+          .map(gj => {
+            let features = format.readFeatures(gj);
+            features.forEach((feature, idx) => {
+              feature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
+            });
+            return features;
+          });
         })
-        .map(f => {
-          let feature = format.readFeature(f);
-          feature.setId('spatial_trigger.'+f.id);
-          feature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
-          return feature;
-        });
-      this.spatialTriggersSource.addFeatures(spatialTriggerFeatures);
+        .reduce((features, all) => {
+          return all.concat(features);
+        }, []);
+      this.spatialTriggersSource.addFeatures(flatten(spatialTriggerFeatures));
     }
   }
   makeFieldValue(field, value) {

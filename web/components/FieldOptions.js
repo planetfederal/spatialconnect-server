@@ -41,7 +41,7 @@ class FieldOptions extends Component {
     } else if (option === 'field_label') {
       value = e.target.value;
       this.props.updateFieldOption(
-        this.props.form.get('id'),
+        this.props.form.get('form_key'),
         this.props.form.get('activeField'),
         'field_key',
         toKey(value)
@@ -50,7 +50,7 @@ class FieldOptions extends Component {
       value = e.target.value;
     }
     this.props.updateFieldOption(
-      this.props.form.get('id'),
+      this.props.form.get('form_key'),
       this.props.form.get('activeField'),
       option,
       value
@@ -59,7 +59,7 @@ class FieldOptions extends Component {
 
   removeField() {
     this.props.removeField(
-      this.props.form.get('id'),
+      this.props.form.get('form_key'),
       this.props.form.get('activeField')
     );
   }

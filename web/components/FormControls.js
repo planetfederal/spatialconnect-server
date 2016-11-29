@@ -9,7 +9,7 @@ class FormControls extends Component {
 
   addField(options) {
     this.props.addField({
-      formId: this.props.form.get('id'),
+      form_key: this.props.form.get('form_key'),
       field_key: '',
       field_label: '',
       options: options

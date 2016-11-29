@@ -85,7 +85,7 @@ class Field extends Component {
     return connectDragSource(connectDropTarget(
       <div
         className="field-wrap"
-        onClick={() => this.props.updateActiveField(this.props.form.get('id'), this.props.id)}
+        onClick={() => this.props.updateActiveField(this.props.form.get('form_key'), this.props.id)}
         >
         {this.props.input}
       </div>
