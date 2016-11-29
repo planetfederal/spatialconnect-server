@@ -42,7 +42,7 @@
       :notify (component/using (notification/make-notification-component) [:mqtt])
       :trigger (component/using (trigger/make-trigger-component) [:notify])
       :location (component/using (location/make-location-component) [:mqtt :trigger])
-      :form (component/using (form/make-form-component) [:mqtt])
+      :form (component/using (form/make-form-component) [:mqtt :trigger])
       :service (component/using
                  (service/make-service http-config)
                  [:ping :user :device :location :trigger :store :config :form :mqtt])
