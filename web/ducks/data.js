@@ -108,10 +108,11 @@ export function loadFormDataAll() {
       forms.map(form => {
         dispatch(addFormId(form.id));
         return request
-          .get(API_URL + `forms/${form.id}/results`)
+          .get(API_URL + `form/${form.id}/results`)
           .set('Authorization', 'Token ' + token)
           .then(res => res.body.result)
           .then(function(form, data) {
+            console.log(form, data);
             return data.map(f => {
               f.form_id = form.id;
               return f;

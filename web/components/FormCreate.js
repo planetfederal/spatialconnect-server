@@ -39,7 +39,7 @@ export class FormCreate extends Component {
     let form = {
       form_label: this.refs.form_label.value,
       form_key: this.refs.form_key.value,
-      version: 0,
+      version: 1,
       fields: []
     }
     let errors = validate(form, this.props.forms);

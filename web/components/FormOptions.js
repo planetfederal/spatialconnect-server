@@ -9,7 +9,7 @@ class FormOptions extends Component {
 
   changeLabel(e) {
     this.props.updateFormName(
-      this.props.form.get('id'),
+      this.props.form.get('form_key'),
       e.target.value
     );
   }

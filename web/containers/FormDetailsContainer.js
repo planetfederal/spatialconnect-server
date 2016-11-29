@@ -133,9 +133,9 @@ const mapStateToProps = (state, ownProps) => ({
   form_key: ownProps.params.form_key,
   loading: state.sc.forms.get('loading'),
   forms: state.sc.forms.get('forms'),
-  form: state.sc.forms.get('forms').findLast(f => f.get('form_key') === ownProps.params.form_key),
+  form: state.sc.forms.getIn(['forms', ownProps.params.form_key]),
   saved_forms: state.sc.forms.get('saved_forms'),
-  saved_form: state.sc.forms.get('saved_forms').findLast(f => f.get('form_key') === ownProps.params.form_key),
+  saved_form: state.sc.forms.getIn(['saved_forms', ownProps.params.form_key]),
   activeForm: state.sc.forms.get('activeForm')
 });
 
