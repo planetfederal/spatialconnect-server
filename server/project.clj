@@ -47,4 +47,5 @@
                    :dependencies [[io.pedestal/pedestal.service-tools "0.5.1"]
                                   [org.clojure/test.check "0.9.0"]]}
              :uberjar {:aot :all}}
+  :uberjar-name "spacon-server.jar"
   :main ^{:skip-aot true} spacon.server)

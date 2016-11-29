@@ -1,28 +1,9 @@
-FROM        node:latest
-MAINTAINER  mcenac@boundlessgeo.com
+FROM java:8-alpine
+MAINTAINER Marc Cenac <mcenac@boundlessgeo.com>
 
-# Copy web source to web dir
-RUN mkdir -p /usr/src/web/dist/
-WORKDIR /usr/src/web
-COPY web /usr/src/web
-RUN rm -rf /usr/src/web/node_modules
-RUN npm install --silent
-RUN npm install webpack -g --silent
-ENV NODE_ENV=development
-RUN webpack
+RUN mkdir /opt
+ADD server/target/spacon-server.jar /opt/spacon-server.jar
 
-# Copy server source to server dir
-RUN mkdir -p /usr/src/server
-WORKDIR /usr/src/server
-COPY schema /usr/src/schema
-COPY server /usr/src/server
-RUN rm -rf /usr/src/web/node_modules
-
-# Install server dependencies
-RUN npm install --silent
-RUN npm install nodemon -g --silent
-RUN npm install babel-cli -g --silent
-
-# Start the service
 EXPOSE 8085
-CMD ["npm", "run", "start:development"]
+
+CMD ["java", "-jar", "/opt/spacon-server.jar"]

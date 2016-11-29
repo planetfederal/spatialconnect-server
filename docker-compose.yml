@@ -51,21 +51,18 @@ mosquitto:
 
 spatialconnect-server:
   build: .
-  command: 'npm run start:development'
+  command: 'java -jar /opt/spacon-server.jar'
   ports:
     - '8085:8085'
   links:
     - postgres
     - nginx
   environment:
-    - PGHOST=postgres
-    - PGUSER=postgres
-    - PGDATABASE=postgres
-    - VIRTUAL_HOST=spatialconnect-server
-    - NODE_ENV=development
-    - MQTT_BROKER_HOST=mosquitto
+    - DATABASE_URI=postgresql://spacon:spacon@postgres:5432/spacon
+    - MQTT_BROKER_URL=tcp://mosquitto:1883
     - MQTT_BROKER_USERNAME=admin@something.com
     - MQTT_BROKER_PASSWORD=admin
+    - VIRTUAL_HOST=spatialconnect-server
 
 kafka-tools:
   image: confluent/tools:0.9.0.0-cp1
