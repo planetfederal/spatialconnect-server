@@ -7,13 +7,13 @@
             [spacon.http.auth :refer [check-auth]]
             [clojure.spec :as s]))
 
-(defn get-all-users [context]
+(defn get-all-users [request]
   (response/ok (map user/sanitize (user/find-all))))
 
 (defn create-user
   "Creates a new user"
-  [context]
-  (let [user (get-in context [:request :json-params])]
+  [request]
+  (let [user (:json-params request)]
     (if (s/valid? :spacon.models.user/spec user)
       (if-let [new-user (user/add-user! user)]
         (response/ok (user/sanitize new-user)))
