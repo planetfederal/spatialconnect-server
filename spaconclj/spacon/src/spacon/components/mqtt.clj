@@ -104,6 +104,7 @@
     (println "Disconnecting MQTT Client")
     (mh/disconnect (:conn this))
     (async/close! (:publish-channel this))
+    (async/close! (:subscribe-channel this))
     this))
 
 (defn make-mqtt-component [mqtt-config]

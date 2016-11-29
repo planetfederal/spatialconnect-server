@@ -3,68 +3,48 @@
             [spacon.http.intercept :refer [common-interceptors]]
             [spacon.http.response :as response]
             [spacon.http.auth :refer [check-auth]]
-            [spacon.models.form :as form]
+            [spacon.models.form :as formmodel]
             [clojure.spec :as s]
             [clojure.data.json :as json])
   (:import java.net.URLDecoder))
 
-(defn get-form-fields
-  "Gets the fields for a specific form"
-  [form]
-  (assoc form :fields (map form/sanitize (form/find-fields {:form_id (:id form)}))))
-
-(defn get-form-metadata
-  "Gets the metadata about the form data"
-  [form]
-  (let [stats (-> (form/get-form-data-stats {:form_id (:id form)})
-                  first)]
-    (assoc form :metadata {:count        (:count stats)
-                           :lastActivity (:updated_at stats)})))
-
-(defn get-all-forms
+(defn http-get-all-forms
   ;; todo: get all the forms for all the teams that the calling user belongs to
-  [request]
+  [_]
   ;; select the latest version of each form by the form_key
-  (let [forms (->> (form/find-all)
-                   (group-by :form_key)
-                   vals
-                   (map #(apply max-key :version %))
-                   (map form/sanitize)
-                   (map get-form-fields)
-                   (map get-form-metadata))]
-    (response/ok forms)))
+  (response/ok formmodel/forms-list))
 
-(defn get-form-by-form-key
+(defn http-get-form-by-form-key
   [request]
   ;; todo, we should check form_key and team_id in the query
   (let [form-key (get-in request [:path-params :form-key])
-        forms    (->> (form/find-latest-version {:form_key form-key})
+        forms    (->> (formmodel/find-latest-version form-key)
                       first
-                      form/sanitize
-                      get-form-fields
-                      get-form-metadata)]
+                      formmodel/sanitize
+                      formmodel/form-fields
+                      formmodel/form-metadata)]
     (response/ok forms)))
 
-(defn create-form
+(defn http-create-form
   "Creates a new form."
   [request]
   (let [body    (get-in request [:json-params])
         team-id (:team_id body)
         form    (assoc  body :team_id team-id)]
       (if (s/valid? :spacon.models.form/spec form)
-        (let [new-form (form/add-form-with-fields! form)]
-             (response/ok (form/sanitize new-form)))
+        (let [new-form (formmodel/add-form-with-fields! form)]
+             (response/ok (formmodel/sanitize new-form)))
         (response/bad-request (str "failed to create form:" (s/explain-str :spacon.models.form/spec form))))))
 
 (defn delete-form-by-id
   [form]
-  (form/delete! {:id (:id form)}))
+  (formmodel/delete (:id form)))
 
-(defn delete-form-by-key
+(defn http-delete-form-by-key
   "Deletes all forms matching the form-key"
   [request]
   (let [form-key (URLDecoder/decode (get-in request [:path-params :form-key]))
-        forms    (form/find-by-form-key {:form_key form-key})]
+        forms    (formmodel/find-by-form-key form-key)]
     (doall (map delete-form-by-id forms))
     (response/ok (str "Deleted form " form-key))))
 
@@ -73,16 +53,16 @@
   (let [form-id   (get-in request [:path-params :form-id])
         form-data (get-in request [:json-params])
         device-id (:device-id form-data)] ;; todo: device-id is not sent yet so this will always be nil
-    (form/add-form-data<! {:val       (json/write-str form-data)
-                           :form_id   (Integer/parseInt form-id)
-                           :device_id device-id})
+    (formmodel/add-form-data (json/write-str form-data)
+                             (Integer/parseInt form-id)
+                              device-id)
     (response/ok "data submitted successfully")))
 
 (defn- routes []
-  #{["/api/forms"                :get    (conj common-interceptors check-auth `get-all-forms)]
-    ["/api/forms"                :post   (conj common-interceptors check-auth `create-form)]
-    ["/api/forms/:form-key"      :delete (conj common-interceptors check-auth `delete-form-by-key)]
-    ["/api/forms/:form-key"      :get    (conj common-interceptors check-auth `get-form-by-form-key)]
+  #{["/api/forms"                :get    (conj common-interceptors `http-get-all-forms)]
+    ["/api/forms"                :post   (conj common-interceptors check-auth `http-create-form)]
+    ["/api/forms/:form-key"      :delete (conj common-interceptors check-auth `http-delete-form-by-key)]
+    ["/api/forms/:form-key"      :get    (conj common-interceptors check-auth `http-get-form-by-form-key)]
     ;; todo: need to figure out why forms causes a route conflict
     ["/api/form/:form-id/submit" :post   (conj common-interceptors check-auth `submit-form-data) :constraints {:form-id #"[0-9]+"}]})
 

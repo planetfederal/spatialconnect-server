@@ -2,12 +2,15 @@
   (:require [com.stuartsierra.component :as component]
             [spacon.http.intercept :as intercept]
             [spacon.http.response :as response]
-            [spacon.models.store :as store]
+            [spacon.models.store :as storemodel]
+            [spacon.models.form :as formmodel]
             [spacon.models.devices :as devicemodel]
-            [spacon.components.mqtt :as mqttapi]))
+            [spacon.components.mqtt :as mqttapi]
+            [spacon.models.form :as formmodel]))
 
 (defn create-config []
-  {:stores (store/store-list)})
+  {:stores (storemodel/store-list)
+   :forms  (formmodel/forms-list)})
 
 (defn http-get [context]
   (let [d (create-config)]
@@ -40,7 +43,7 @@
   (start [this]
     (mqttapi/subscribe mqtt "/config/register" mqtt->register)
     (mqttapi/subscribe mqtt "/config" (partial mqtt->config mqtt))
-    this)
+    (assoc this :routes (routes)))
   (stop [this]
     this))
 

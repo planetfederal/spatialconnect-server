@@ -1,4 +1,4 @@
--- name: find-all
+-- name: forms-list-query
 -- Gets all of the forms in the database
 SELECT * FROM forms
 WHERE deleted_at IS NULL;
@@ -8,22 +8,22 @@ WHERE deleted_at IS NULL;
 SELECT COUNT(*) FROM forms
 WHERE deleted_at IS NULL;
 
--- name: find-by-id
+-- name: find-by-id-query
 -- Gets a form by the id
 SELECT * FROM forms
 WHERE id = :id AND deleted_at IS NULL;
 
--- name: find-by-form-key-and-version
+-- name: find-by-form-key-and-version-query
 -- Gets a form by the form_key and version
 SELECT * FROM forms
 WHERE form_key = :form_key AND version = :version AND deleted_at IS NULL;
 
--- name: find-by-form-key
+-- name: find-by-form-key-query
 -- Gets a form by the form_key
 SELECT * FROM forms
 WHERE form_key = :form_key AND deleted_at IS NULL;
 
--- name: find-latest-version
+-- name: find-latest-version-query
 -- Gets the latest version for a specific form
 WITH latest AS (
 	SELECT MAX(version) AS version
@@ -136,7 +136,7 @@ DO UPDATE SET (
 INSERT INTO form_data (val,form_id,device_id)
 VALUES (:val::jsonb,:form_id,:device_id);
 
--- name: get-form-data-stats
+-- name: form-data-stats-query
 -- Gets some metadata about the submissions for a form
 SELECT COUNT(*), updated_at FROM form_data
 WHERE form_id = :form_id GROUP BY updated_at ORDER BY updated_at DESC LIMIT 1;
