@@ -4,6 +4,7 @@
             [spacon.http.response :as response]
             [spacon.http.auth :refer [check-auth]]
             [spacon.models.form :as formmodel]
+            [spacon.components.mqtt :as mqttapi]
             [clojure.spec :as s]
             [clojure.data.json :as json])
   (:import java.net.URLDecoder))
@@ -53,10 +54,15 @@
   (let [form-id   (get-in request [:path-params :form-id])
         form-data (get-in request [:json-params])
         device-id (:device-id form-data)] ;; todo: device-id is not sent yet so this will always be nil
-    (formmodel/add-form-data (json/write-str form-data)
-                             (Integer/parseInt form-id)
-                              device-id)
+    (formmodel/add-form-data form-data form-id device-id)
     (response/ok "data submitted successfully")))
+
+(defn mqtt->form-submit [message]
+  (let [p (:payload message)
+        form-id (:form-id p)
+        form-data (:feature p)
+        device-identifier (:client (:metadata form-data))]
+    (formmodel/add-form-data form-data form-id device-identifier)))
 
 (defn- routes []
   #{["/api/forms"                :get    (conj common-interceptors `http-get-all-forms)]
@@ -66,9 +72,10 @@
     ;; todo: need to figure out why forms causes a route conflict
     ["/api/form/:form-id/submit" :post   (conj common-interceptors check-auth `submit-form-data) :constraints {:form-id #"[0-9]+"}]})
 
-(defrecord FormComponent []
+(defrecord FormComponent [mqtt]
   component/Lifecycle
   (start [this]
+    (mqttapi/subscribe mqtt "/store/form" mqtt->form-submit)
     (assoc this :routes (routes)))
   (stop [this]
     this))

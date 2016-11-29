@@ -134,7 +134,7 @@ DO UPDATE SET (
 -- name: add-form-data<!
 -- Adds form data submitted from a device
 INSERT INTO form_data (val,form_id,device_id)
-VALUES (:val::jsonb,:form_id,:device_id);
+VALUES (:val::jsonb,:form_id,(SELECT id FROM devices WHERE identifier = :device_identifier));
 
 -- name: form-data-stats-query
 -- Gets some metadata about the submissions for a form

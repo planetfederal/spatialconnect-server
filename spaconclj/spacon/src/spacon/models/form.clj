@@ -2,7 +2,8 @@
   (:require [spacon.db.conn :as db]
             [yesql.core :refer [defqueries]]
             [clojure.spec :as s]
-            [clojure.java.jdbc :as jdbc]))
+            [clojure.java.jdbc :as jdbc]
+            [clojure.data.json :as json]))
 
 ;; define sql queries as functions
 (defqueries "sql/form.sql" {:connection db/db-spec})
@@ -25,10 +26,10 @@
 (defn find-by-form-key [form-key]
   (find-by-form-key-query {:form_key form-key}))
 
-(defn add-form-data [val form-id device-id]
-  (add-form-data<! {:val val
+(defn add-form-data [val form-id device-identifier]
+  (add-form-data<! {:val (json/write-str val)
                     :form_id form-id
-                    :device_id device-id}))
+                    :device_identifier device-identifier}))
 
 (defn form-fields
   "Gets the fields for a specific form"
