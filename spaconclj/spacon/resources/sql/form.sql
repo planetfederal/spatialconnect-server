@@ -140,3 +140,8 @@ VALUES (:val::jsonb,:form_id,(SELECT id FROM devices WHERE identifier = :device_
 -- Gets some metadata about the submissions for a form
 SELECT COUNT(*), updated_at FROM form_data
 WHERE form_id = :form_id GROUP BY updated_at ORDER BY updated_at DESC LIMIT 1;
+
+-- name: get-form-data-query
+-- Gets the data submissions for a form
+SELECT * FROM form_data
+WHERE form_id = :form_id;

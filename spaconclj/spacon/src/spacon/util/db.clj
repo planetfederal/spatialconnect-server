@@ -1,4 +1,8 @@
-(ns spacon.util.db)
+(ns spacon.util.db
+  (:require [clojure.data.json :as json]
+            [clojure.java.jdbc :as jdbc])
+  (:import [org.postgresql.util PGobject]))
+
 
 (deftype StringArray [items]
   clojure.java.jdbc/ISQLParameter
@@ -37,3 +41,11 @@
   clojure.data.json/JSONWriter
   (-write [date out]
     (clojure.data.json/-write (str date) out)))
+
+(extend-type org.postgresql.util.PGobject
+  jdbc/IResultSetReadColumn
+  (result-set-read-column [val rsmeta idx]
+    (let [colType (.getColumnTypeName rsmeta idx)]
+      (if (contains? #{"json" "jsonb"} colType)
+        (json/read-str (.getValue val) :key-fn clojure.core/keyword)
+        val))))

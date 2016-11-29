@@ -27,9 +27,12 @@
   (find-by-form-key-query {:form_key form-key}))
 
 (defn add-form-data [val form-id device-identifier]
-  (add-form-data<! {:val (json/write-str val)
-                    :form_id form-id
+  (add-form-data<! {:val     (json/write-str val)
+                    :form_id (Integer/parseInt form-id)
                     :device_identifier device-identifier}))
+
+(defn get-form-data [form-id]
+  (map sanitize (get-form-data-query {:form_id (Integer/parseInt form-id)})))
 
 (defn form-fields
   "Gets the fields for a specific form"
