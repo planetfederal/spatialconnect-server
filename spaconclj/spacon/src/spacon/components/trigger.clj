@@ -68,9 +68,12 @@
                      ;lhs (:lhs rule)
                      cmp (:comparator rule)]
                  (case cmp
-                   "$geowithin" (if (relation/within? v (-> rhs .features .next .getDefaultGeometry))
-                                  (handle-success trigger notify)
-                                  (handle-failure trigger))
+                   "$geowithin" (if-let [features (.features rhs)]
+                                  (if (.hasNext features)
+                                    (if (relation/within? v (-> features .next .getDefaultGeometry))
+                                      (handle-success trigger notify)
+                                      (handle-failure trigger))
+                                  (handle-failure trigger)))
                    nil)))
              (:rules trigger)))))
     (keys @invalid-triggers)))
@@ -101,8 +104,11 @@
 
 (defn- process-channel [notify input-channel]
   (async/go (while true
-      (let [v (async/<! input-channel)]
-        (doall (process-value (.getDefaultGeometry (jtsio/read-feature (json/write-str v))) notify))))))
+      (let [v (async/<! input-channel)
+            gj (json/write-str v)
+            f (jtsio/read-feature gj)
+            geom (.getDefaultGeometry f)]
+        (doall (process-value geom notify))))))
 
 (defn check-value [triggercomp v]
   (async/go (async/>!! (:source-channel triggercomp) v)))

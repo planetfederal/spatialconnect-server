@@ -7,6 +7,7 @@
             [spacon.components.mqtt :as mqttapi]
             [clojure.spec :as s]
             [spacon.components.mqtt :as mqttapi]
+            [spacon.components.trigger :as triggerapi]
             [clojure.data.json :as json]
             [spacon.entity.scmessage :as scm])
   (:import java.net.URLDecoder
@@ -57,7 +58,7 @@
 
 (defn http-submit-form-data
   [request]
-  (let [form-id   (get-in request [:path-params :form-id])
+  (let [form-id   (Integer/parseInt (get-in request [:path-params :form-id]))
         form-data (get-in request [:json-params])
         device-id (:device-id form-data)] ;; todo: device-id is not sent yet so this will always be nil
     (formmodel/add-form-data form-data form-id device-id)
@@ -69,11 +70,12 @@
     (response/ok (formmodel/get-form-data form-id))))
 
 
-(defn mqtt->form-submit [message]
+(defn mqtt->form-submit [trigger message]
   (let [p (:payload message)
         form-id (:form-id p)
         form-data (:feature p)
         device-identifier (:client (:metadata form-data))]
+    (triggerapi/check-value trigger form-data)
     (formmodel/add-form-data form-data form-id device-identifier)))
 
 (defn- routes [mqtt]
@@ -85,10 +87,10 @@
     ["/api/form/:form-id/submit"   :post   (conj common-interceptors check-auth `http-submit-form-data) :constraints {:form-id #"[0-9]+"}]
     ["/api/form/:form-id/results"  :get   (conj common-interceptors check-auth `http-get-form-data) :constraints {:form-id #"[0-9]+"}]})
 
-(defrecord FormComponent [mqtt]
+(defrecord FormComponent [mqtt trigger]
   component/Lifecycle
   (start [this]
-    (mqttapi/subscribe mqtt "/store/form" mqtt->form-submit)
+    (mqttapi/subscribe mqtt "/store/form" (partial mqtt->form-submit trigger))
     (assoc this :routes (routes mqtt)))
   (stop [this]
     this))
