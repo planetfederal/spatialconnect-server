@@ -1,0 +1,11 @@
+
+this could be useful for form_data
+https://github.com/cloud8421/crochet-api/blob/master/src/crochet_api/postgres_extensions.clj#L7
+
+-> get swagger integrated into routes
+http://oliyh.github.io/slacky-pres/#/12
+
+-> checkout (require [camel-snake-kebab.core :refer [->camelCase]]))
+
+
+
