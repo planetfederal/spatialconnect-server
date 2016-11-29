@@ -35,14 +35,6 @@
 (defn- receive [mqtt topic payload]
   (async/go (async/>!! (:subscribe-channel mqtt) {:topic topic :message (scm/from-bytes payload)})))
 
-; publishes message on the send channel
-(defn- publish [mqtt topic message]
-  (async/go (async/>!! (:publish-channel mqtt) {:topic topic :message (scm/message->bytes message)})))
-
-; receive message on subscribe channel
-(defn- receive [mqtt topic payload]
-  (async/go (async/>!! (:subscribe-channel mqtt) {:topic topic :message (scm/from-bytes payload)})))
-
 (defn subscribe [mqtt topic f]
   (add-topic topic f)
   (mh/subscribe (:conn mqtt) {topic 2} (fn [^String topic _ ^bytes payload]
@@ -104,6 +96,7 @@
     (println "Disconnecting MQTT Client")
     (mh/disconnect (:conn this))
     (async/close! (:publish-channel this))
+    (async/close! (:subscribe-channel this))
     this))
 
 (defn make-mqtt-component [mqtt-config]
