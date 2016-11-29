@@ -21,7 +21,7 @@
     {:id          (:id entity)
      :identifier  (:identifier entity)
      :name        (:name entity)
-     :device-info (json/read-str (.getValue (:device_info entity)))}))
+     :device-info (:device_info entity)}))
 
 (defn device-count []
   (count-devices-query))

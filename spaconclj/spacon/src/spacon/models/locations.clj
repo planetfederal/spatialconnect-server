@@ -10,9 +10,7 @@
             {:connection db/db-spec})
 
 (defn entity->map [c]
-  (assoc c :device_info (if-let [v (:device_info c)]
-                          (json/read-str (.getValue v))
-                          nil)
+  (assoc c :device_info (:device_info c)
            :geometry (jio/read-wkt-str (:geom c))
            :updated_at (.toString (:updated_at c))))
 
