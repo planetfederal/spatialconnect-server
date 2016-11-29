@@ -68,9 +68,12 @@
                      ;lhs (:lhs rule)
                      cmp (:comparator rule)]
                  (case cmp
-                   "$geowithin" (if (relation/within? v (-> rhs .features .next .getDefaultGeometry))
-                                  (handle-success trigger notify)
-                                  (handle-failure trigger))
+                   "$geowithin" (if-let [features (.features rhs)]
+                                  (if (.hasNext features)
+                                    (if (relation/within? v (-> features .next .getDefaultGeometry))
+                                      (handle-success trigger notify)
+                                      (handle-failure trigger))
+                                  (handle-failure trigger)))
                    nil)))
              (:rules trigger)))))
     (keys @invalid-triggers)))
