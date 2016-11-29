@@ -28,7 +28,7 @@
 
 (defn add-form-data [val form-id device-identifier]
   (add-form-data<! {:val     (json/write-str val)
-                    :form_id (Integer/parseInt form-id)
+                    :form_id form-id
                     :device_identifier device-identifier}))
 
 (defn get-form-data [form-id]

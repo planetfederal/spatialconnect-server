@@ -58,7 +58,7 @@
 
 (defn http-submit-form-data
   [request]
-  (let [form-id   (get-in request [:path-params :form-id])
+  (let [form-id   (Integer/parseInt (get-in request [:path-params :form-id]))
         form-data (get-in request [:json-params])
         device-id (:device-id form-data)] ;; todo: device-id is not sent yet so this will always be nil
     (formmodel/add-form-data form-data form-id device-id)
@@ -84,7 +84,7 @@
     ["/api/forms/:form-key"      :delete (conj common-interceptors check-auth (partial http-delete-form-by-key mqtt)) :route-name :delete-form]
     ["/api/forms/:form-key"      :get    (conj common-interceptors check-auth `http-get-form-by-form-key)]
     ;; todo: need to figure out why forms causes a route conflict
-    ["/api/form/:form-id/submit"   :post   (conj common-interceptors check-auth (partial http-submit-form-data mqtt)) :constraints {:form-id #"[0-9]+"}]
+    ["/api/form/:form-id/submit"   :post   (conj common-interceptors check-auth `http-submit-form-data) :constraints {:form-id #"[0-9]+"}]
     ["/api/form/:form-id/results"  :get   (conj common-interceptors check-auth `http-get-form-data) :constraints {:form-id #"[0-9]+"}]})
 
 (defrecord FormComponent [mqtt trigger]

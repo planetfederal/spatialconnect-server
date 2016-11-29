@@ -101,8 +101,11 @@
 
 (defn- process-channel [notify input-channel]
   (async/go (while true
-      (let [v (async/<! input-channel)]
-        (doall (process-value (.getDefaultGeometry (jtsio/read-feature (json/write-str v))) notify))))))
+      (let [v (async/<! input-channel)
+            gj (json/write-str v)
+            f (jtsio/read-feature gj)
+            geom (.getDefaultGeometry f)]
+        (doall (process-value geom notify))))))
 
 (defn check-value [triggercomp v]
   (async/go (async/>!! (:source-channel triggercomp) v)))
