@@ -7,34 +7,34 @@
             [cljts.geom :as jeom]))
 
 (defqueries "sql/location.sql"
-            {:connection db/db-spec})
+  {:connection db/db-spec})
 
-(defn entity->map [c]
+(defn- sanitize
+  [location]
+  (dissoc location :created_at :updated_at :deleted_at))
+
+(defn- entity->map [c]
   (assoc c :device_info (:device_info c)
-           :geometry (jio/read-wkt-str (:geom c))
-           :updated_at (.toString (:updated_at c))))
+         :geometry (jio/read-wkt-str (:geom c))
+         :updated_at (.toString (:updated_at c))))
 
-(defn locations []
+(defn all
+  "Gets all the device locations"
+  []
   (map (fn [d]
          (entity->map d)) (device-locations)))
 
-(defn upsert-location [p client]
+(defn upsert
+  "Upserts a JTS point geometry and a client identifier"
+  [p client]
   (upsert-location! {:geom (jio/write-wkt-str p) :identifier client}))
 
-(defn upsert-location-gj [loc]
+(defn upsert-gj
+  "Upserts a geojson structured map"
+  [loc]
   (let [x (get-in loc [:geometry :coordinates 0])
         y (get-in loc [:geometry :coordinates 1])
         z (get-in loc [:geometry :coordinates 2])
         p (jeom/point (jeom/c x y z))
         did (get-in loc [:metadata :client])]
-    (upsert-location p did)))
-
-;;; specs about device data
-(s/def ::x double?)
-(s/def ::y double?)
-(s/def ::z double?)
-(s/def ::device-id integer?)
-(s/def ::location-spec (s/keys :req-un [::x ::y ::z ::device-id]))
-
-(defn sanitize [location]
-  (dissoc location :created_at :updated_at :deleted_at))
+    (upsert p did)))

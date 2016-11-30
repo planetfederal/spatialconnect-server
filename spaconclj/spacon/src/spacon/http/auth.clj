@@ -7,15 +7,15 @@
             [buddy.auth.backends :as backends]
             [buddy.sign.jwt :as jwt]
             [clj-time.core :refer [weeks from-now]]
-            [spacon.models.user :as user]))
+            [spacon.models.user :as usermodel]))
 
 (defonce secret "spaconsecret")
 (def auth-backend (backends/jws {:secret secret}))
 
 (defn get-token
   [user]
-  (let [teams  (user/find-teams {:user_id (:id user)})
-        claims {:user (assoc (user/sanitize user) :teams teams)
+  (let [teams  (usermodel/find-teams {:user_id (:id user)})
+        claims {:user (assoc user :teams teams)
                 :exp  (-> 2 weeks from-now)}]
     ;; todo: encrypt the token
     (jwt/sign claims secret)))
@@ -25,13 +25,12 @@
   [req]
   (let [email  (get-in req [:json-params :email])
         pwd    (get-in req [:json-params :password])
-        user   (some-> (user/find-by-email {:email email})
+        user   (some-> (usermodel/find-by-email {:email email})
                        first)
         authn? (hashers/check pwd (:password user))]
     (if-not authn?
       (response/unauthorized "Authentication failed")
       (response/ok {:token (get-token user)}))))
-
 
 (defn authorize-user
   ;; Currently, this is used by the mqtt broker to ensure that only authenticated users are able to connect to the

@@ -11,5 +11,5 @@
 (deftest update-device-test
   (is (true? (spec-passed? `spacon.components.device/update-device))))
 
-;(deftest all-device-tests
-;  (is (true? (spec-passed? (stest/enumerate-namespace 'spacon.components.device)))))
+(deftest all-device-tests
+  (is (true? (spec-passed? (stest/enumerate-namespace 'spacon.components.device)))))

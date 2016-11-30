@@ -3,32 +3,32 @@
             [spacon.http.intercept :as intercept]
             [spacon.components.mqtt :as mqttapi]
             [yesql.core :refer [defqueries]]
-            [spacon.models.devices :as model]
+            [spacon.models.devices :as devicemodel]
             [spacon.http.response :as response]))
 
 (defn http-get [_]
-  (let [d (model/device-list)]
+  (let [d (devicemodel/all)]
     (response/ok d)))
 
 (defn http-get-device [context]
   (if-let [id (get-in context [:path-params :id])]
-    (response/ok (model/find-device id))
+    (response/ok (devicemodel/find-by-identifier id))
     (response/ok nil)))
 
 (defn http-post-device [context]
-  (if-let [d (model/create-device (:json-params context))]
+  (if-let [d (devicemodel/create (:json-params context))]
     (response/ok d)
     (response/error "Error creating")))
 
 (defn http-put-device [context]
-  (if-let [d (model/update-device
+  (if-let [d (devicemodel/update
                (get-in context [:path-params :id])
                (:json-params context))]
     (response/ok d)
     (response/error "Error updating")))
 
 (defn http-delete-device [context]
-  (model/delete-device (get-in context [:path-params :id]))
+  (devicemodel/delete (get-in context [:path-params :id]))
   (response/ok "success"))
 
 (defn- routes [] #{["/api/devices" :get
@@ -43,12 +43,11 @@
                     (conj intercept/common-interceptors `http-delete-device)]})
 
 (defn mqtt-register [message]
-  (model/create-device (:payload message)))
+  (devicemodel/create (:payload message)))
 
 (defrecord DeviceComponent [mqtt]
   component/Lifecycle
   (start [this]
-    ;(mqttapi/subscribe mqtt "/config/register" (partial mqtt-register mqtt))
     (assoc this :routes (routes)))
   (stop [this]
     this))

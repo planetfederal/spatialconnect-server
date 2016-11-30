@@ -11,8 +11,8 @@
 
 (defn uuid-string-gen []
   (->>
-    (gen/uuid)
-    (gen/fmap #(.toString %))))
+   (gen/uuid)
+   (gen/fmap #(.toString %))))
 
 ;; define specs about store
 (def uuid-regex #"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
@@ -29,7 +29,7 @@
 
 (defrecord StoreRecord [id store_type uri version name team_id default_layers])
 
-(defn sanitize [store]
+(defn- sanitize [store]
   (dissoc store :created_at :updated_at :deleted_at))
 
 (defn map->entity [t]
@@ -38,11 +38,15 @@
       (cond-> (some? (:options t)) (assoc :options (json/write-str (:options t))))
       (assoc :default_layers (dbutil/->StringArray (:default_layers t)))))
 
-(defn store-list[]
+(defn all
+  "Lists all the active stores"
+  []
   (map (fn [d]
          (map->StoreRecord (sanitize d))) (store-list-query {} dbutil/result->map)))
 
-(defn find-store [id]
+(defn find-by-id
+  "Gets store by store identifier"
+  [id]
   (if (re-matches uuid-regex id)
     (some-> (find-by-id-query {:id (java.util.UUID/fromString id)} dbutil/result->map)
             (first)
@@ -50,28 +54,34 @@
             map->StoreRecord)
     nil))
 
-(defn create-store [t]
+(defn create
+  "Creates a store"
+  [t]
   (if-let [new-store (insert-store<! (map->entity t))]
     (map->StoreRecord (sanitize (assoc t :id (.toString (:id new-store)))))
-  nil))
+    nil))
 
-(defn update-store [id t]
+(defn update
+  "Update a data store"
+  [id t]
   (let [updated-store (update-store<! (map->entity (assoc t :id (java.util.UUID/fromString id))))]
     (map->StoreRecord (assoc t :id (:id updated-store)
-                                     :created_at (:created_at updated-store)
-                                     :updated_at (:updated_at updated-store)))))
+                             :created_at (:created_at updated-store)
+                             :updated_at (:updated_at updated-store)))))
 
-(defn delete-store [id]
+(defn delete
+  "Deactivates a store"
+  [id]
   (delete-store! {:id (java.util.UUID/fromString id)}))
 
-(s/fdef store-list
+(s/fdef all
         :args empty?
         :ret (s/coll-of ::store-spec))
 
-(s/fdef find-store
+(s/fdef find-by-id
         :args (s/cat :id ::id)
         :ret (s/or ::store-spec nil?))
 
-;(s/fdef create-store
-;        :args (s/cat :t ::store-spec)
-;        :ret (s/or ::store-spec nil?))
+(s/fdef create-store
+        :args (s/cat :t ::store-spec)
+        :ret (s/or ::store-spec nil?))
