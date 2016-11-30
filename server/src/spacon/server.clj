@@ -54,7 +54,24 @@
   "The entry-point for 'lein run'"
   [& args]
   (println "\nCreating your server...")
+  (System/setProperty "javax.net.ssl.trustStore"
+                      (or (System/getenv "TRUST_STORE")
+                          "tls/test-cacerts.jks"))
+  (System/setProperty "javax.net.ssl.trustStoreType"
+                      (or (System/getenv "TRUST_STORE_TYPE")
+                          "JKS"))
+  (System/setProperty "javax.net.ssl.trustStorePassword"
+                      (or (System/getenv "TRUST_STORE_PASSWORD")
+                          "changeit"))
+  (System/setProperty "javax.net.ssl.keyStore"
+                      (or (System/getenv "KEY_STORE")
+                          "tls/test-keystore.p12"))
+  (System/setProperty "javax.net.ssl.keyStoreType"
+                      (or (System/getenv "KEY_STORE_TYPE")
+                          "pkcs12"))
+  (System/setProperty "javax.net.ssl.keyStorePassword"
+                      (or (System/getenv "KEY_STORE_PASSWORD")
+                          "somepass"))
   (component/start-system (system {:http-config {}
-                                   :mqtt-config
-                                     {:broker-url      (System/getenv "MQTT_BROKER_URL")
-                                      :broker-username (System/getenv "MQTT_BROKER_USERNAME")}})))
+                                   :mqtt-config {:broker-url (System/getenv "MQTT_BROKER_URL")}})))
+

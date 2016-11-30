@@ -9,8 +9,6 @@
             [clojure.core.async :as async]
             [spacon.http.auth :refer [get-token]]))
 
-(def id "spacon-server")
-
 (def topics (ref {}))
 
 (defn add-topic [topic fn]
@@ -22,10 +20,9 @@
     (commute topics dissoc (keyword topic))))
 
 (defn connectmqtt
-  [url token]
+  [url]
   (println "Connecting MQTT Client")
-  (mh/connect url id {:username token
-                      :password "notused"}))
+  (mh/connect url (mh/generate-id)))
 
 ; publishes message on the send channel
 (defn- publish [mqtt topic message]
@@ -46,14 +43,14 @@
 
 (defn- process-publish-channel [mqtt chan]
   (async/go (while true
-        (let [v (async/<!! chan)
-              t (:topic v)
-              m (:message v)]
-          (try
-            (mh/publish (:conn mqtt) t m)
-            (catch Exception e
-              (println (.getLocalizedMessage e))
-              (println e)))))))
+             (let [v (async/<!! chan)
+                   t (:topic v)
+                   m (:message v)]
+               (try
+                 (mh/publish (:conn mqtt) t m)
+                 (catch Exception e
+                   (println (.getLocalizedMessage e))
+                   (println e)))))))
 
 (defn- process-subscribe-channel [chan]
   (async/go (while true
@@ -61,7 +58,7 @@
                     t (:topic v)
                     m (:message v)
                     f ((keyword t) @topics)]
-                    (f m)))))
+                   (f m)))))
 
 (defn publish-scmessage [mqtt topic message]
   (publish mqtt topic message))
@@ -80,12 +77,8 @@
 (defrecord MqttComponent [mqtt-config]
   component/Lifecycle
   (start [this]
-    (let [url    (get mqtt-config :broker-url "tcp://localhost:1883")
-          email  (get mqtt-config :broker-username "admin@something.com")
-          token  (some-> (spacon.models.user/find-by-email {:email email})
-                         first
-                         get-token)
-          m (connectmqtt url token)
+    (let [url (or (:broker-url mqtt-config) "tcp://localhost:1883")
+          m (connectmqtt url)
           pub-chan (async/chan)
           sub-chan (async/chan)
           c (assoc this :conn m :publish-channel pub-chan :subscribe-channel sub-chan)]

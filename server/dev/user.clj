@@ -10,12 +10,30 @@
 
 
 (defn init-dev []
+  (System/setProperty "javax.net.ssl.trustStore"
+                      (or (System/getenv "TRUST_STORE")
+                          "tls/test-cacerts.jks"))
+  (System/setProperty "javax.net.ssl.trustStoreType"
+                      (or (System/getenv "TRUST_STORE_TYPE")
+                          "JKS"))
+  (System/setProperty "javax.net.ssl.trustStorePassword"
+                      (or (System/getenv "TRUST_STORE_PASSWORD")
+                          "changeit"))
+  (System/setProperty "javax.net.ssl.keyStore"
+                      (or (System/getenv "KEY_STORE")
+                          "tls/test-keystore.p12"))
+  (System/setProperty "javax.net.ssl.keyStoreType"
+                      (or (System/getenv "KEY_STORE_TYPE")
+                          "pkcs12"))
+  (System/setProperty "javax.net.ssl.keyStorePassword"
+                      (or (System/getenv "KEY_STORE_PASSWORD")
+                          "somepass"))
   (system {:http-config {:env                     :dev
                          ::server/join?           false
                          ::server/allowed-origins {:creds true
                                                    :allowed-origins (constantly true)}}
-           :mqtt-config {:broker-url      (or (System/getenv "MQTT_BROKER_URL") "tcp://localhost:1883")
-                         :broker-username (or (System/getenv "MQTT_BROKER_USERNAME") "admin@something.com")}}))
+           :mqtt-config {:broker-url (or (System/getenv "MQTT_BROKER_URL")
+                                         "ssl://localhost:8884")}}))
 
 
 
