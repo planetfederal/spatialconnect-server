@@ -252,7 +252,7 @@ CREATE TABLE IF NOT EXISTS public.triggers
   name TEXT,
   stores TEXT[],
   description TEXT,
-  recipients TEXT[],
+  recipients json,
   rules json,
   repeated BOOL,
   created_at timestamp DEFAULT NOW(),

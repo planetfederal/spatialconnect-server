@@ -10,7 +10,10 @@ const emptyTrigger = {
   name: '',
   description: '',
   repeated: false,
-  recipients: [],
+  recipients: {
+    devices: [],
+    emails: [],
+  },
 };
 
 export class TriggersContainer extends Component {
