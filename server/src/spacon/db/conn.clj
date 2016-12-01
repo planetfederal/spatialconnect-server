@@ -8,7 +8,7 @@
 
 (def db-creds (or (some->(System/getenv "VCAP_SERVICES")
                          (json/read-str :key-fn clojure.core/keyword) vals first first :credentials)
-                  {:db_host  "localhost"
+                  {:db_host  (or (System/getenv "DB_HOST") "localhost")
                    :db_name  "spacon"
                    :db_port  5432
                    :username "spacon"

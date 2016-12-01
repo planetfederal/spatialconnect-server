@@ -1,98 +1,91 @@
-zookeeper:
-  image: confluent/zookeeper:3.4.6-cp1
-  hostname: zookeeper
-  ports:
-    - '2181:2181'
+version: '2'
+services:
+  zookeeper:
+    image: confluent/zookeeper:3.4.6-cp1
+    ports:
+      - '2181:2181'
 
-kafka:
-  image: 'confluent/kafka:0.10.0.0-cp1'
-  hostname: kafka
-  ports:
-    - '9092:9092'
-  links:
-    - zookeeper
-  environment:
-    - KAFKA_ADVERTISED_HOST_NAME=
-    - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
-    - KAFKA_LOG_CLEANUP_POLICY=compact
 
-postgres:
-  image: confluent/postgres-bw:0.1
-  hostname: postgres
-  ports:
-    - '5432:5432'
+  kafka:
+    image: confluent/kafka:0.10.0.0-cp1
+    ports:
+      - '9092:9092'
+    environment:
+      - KAFKA_ADVERTISED_HOST_NAME=
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
+      - KAFKA_LOG_CLEANUP_POLICY=compact
 
-bottledwater:
-  image: boundlessgeo/bottledwater-json
-  hostname: bottledwater
-  command: --output-format=json --allow-unkeyed
-  links:
-    - postgres
-    - kafka
-  environment:
-    - DB_NAME=spacon
 
-nginx:
-  image: jwilder/nginx-proxy
-  ports:
-    - '80:80'
-  volumes:
-    - /var/run/docker.sock:/tmp/docker.sock:ro
+  postgres:
+    image: confluent/postgres-bw:0.1
+    ports:
+      - '54321:5432'
 
-mosquitto:
-  image: marcusthebrown/mosquitto
-  hostname: mosquitto
-  links:
-    - spatialconnect-server
-  ports:
-    - '1883:1883'
-    - '8883:8883'
-    - '9883:9883'
 
-spatialconnect-server:
-  build: .
-  command: 'java -jar /opt/spacon-server.jar'
-  ports:
-    - '8085:8085'
-  links:
-    - postgres
-    - nginx
-  environment:
-    - DATABASE_URI=postgresql://spacon:spacon@postgres:5432/spacon
-    - MQTT_BROKER_URL=tcp://mosquitto:1883
-    - MQTT_BROKER_USERNAME=admin@something.com
-    - MQTT_BROKER_PASSWORD=admin
-    - VIRTUAL_HOST=spatialconnect-server
+  bottledwater:
+    image: boundlessgeo/bottledwater-json
+    command: --output-format=json --allow-unkeyed
+    environment:
+      - DB_NAME=spacon
 
-kafka-tools:
-  image: confluent/tools:0.9.0.0-cp1
-  links:
-    - zookeeper
-    - kafka
 
-geoserver:
-  environment:
-    - VIRTUAL_HOST=geoserver
-    - JAVA_OPTS=-Xmx1536M -XX:MaxPermSize=756M
-  image: 'kartoza/geoserver:latest'
-  links:
-    - nginx
-    - postgis
-  ports:
-    - '8080:8080'
+  nginx:
+    image: jwilder/nginx-proxy
+    ports:
+      - '80:80'
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
 
-postgis:
-      image: 'mdillon/postgis'
-      environment:
-        - POSTGRES_USER=spacon
 
-spatialconnect-connectors:
-  image: boundlessgeo/spatialconnect-connectors:latest
-  links:
-    - kafka
-    - geoserver
-  environment:
-    - KAFKA_SERVERS=kafka:9092
-    - TOPICS_LIST=form_data
-    - GEOSERVER_URL=http://geoserver:8080/geoserver/
-    - ROOT_LOG_LEVEL=INFO
+  mosquitto:
+    image: boundlessgeo/mosquitto
+    ports:
+      - '1883:1883'
+      - '8883:8883'
+      - '8884:8884'
+      - '9883:9883'
+
+
+  postgis:
+    image: mdillon/postgis
+    ports:
+      - '5432:5432'
+
+  efc-server:
+    build: .
+    command: 'java -jar /opt/spacon-server.jar'
+    depends_on:
+      - mosquitto
+      - postgis
+    ports:
+      - '8085:8085'
+    volumes:
+      - './server/tls:/opt/tls:ro'
+    environment:
+      - DB_HOST=postgis
+      - MQTT_BROKER_URL=ssl://mosquitto:8884
+      - VIRTUAL_HOST=efc-server
+      - TRUST_STORE=/opt/tls/test-cacerts.jks
+      - KEY_STORE=/opt/tls/test-keystore.p12
+
+
+  kafka-tools:
+    image: confluent/tools:0.9.0.0-cp1
+
+
+  geoserver:
+    image: kartoza/geoserver:latest
+    environment:
+      - VIRTUAL_HOST=geoserver
+      - JAVA_OPTS=-Xmx1536M -XX:MaxPermSize=756M
+    ports:
+      - '8080:8080'
+
+
+  spatialconnect-connectors:
+    image: boundlessgeo/spatialconnect-connectors:latest
+    environment:
+      - KAFKA_SERVERS=kafka:9092
+      - TOPICS_LIST=form_data
+      - GEOSERVER_URL=http://geoserver:8080/geoserver/
+      - ROOT_LOG_LEVEL=INFO
