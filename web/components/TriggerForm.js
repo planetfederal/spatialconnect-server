@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { without } from 'lodash';
+import { isEmail } from '../utils';
 
 export const validate = values => {
   const errors = {};
@@ -7,6 +8,12 @@ export const validate = values => {
   if (!values.name) {
     errors.name = 'Required';
   }
+
+  values.recipients.emails.forEach(email => {
+    if (!isEmail(email)) {
+      errors.email = 'Invalid email address';
+    }
+  });
 
   return errors;
 };
@@ -17,6 +24,7 @@ export class TriggerForm extends Component {
     this.state = {
       repeat: false,
       sourceStores: [],
+      email_recipients: [],
     };
   }
 
@@ -26,6 +34,10 @@ export class TriggerForm extends Component {
       description: this.refs.description.value,
       repeated: this.state.repeat,
       stores: this.state.sourceStores,
+      recipients: {
+        emails: this.state.email_recipients,
+        devices: [],
+      },
     };
     const errors = validate(newTrigger);
     this.props.actions.updateTriggerErrors(errors);
@@ -50,6 +62,12 @@ export class TriggerForm extends Component {
     }
   }
 
+  onEmailChange(e) {
+    this.setState({
+      email_recipients: e.target.value.split('\n')
+    });
+  }
+
   render() {
     const { trigger, errors, cancel, stores } = this.props;
     return (
@@ -58,6 +76,14 @@ export class TriggerForm extends Component {
           <label>Name:</label>
           <input type="text" className="form-control" ref="name" defaultValue={trigger.name} />
           {errors.name ? <p className="text-danger">{errors.name}</p> : ''}
+        </div>
+        <div className="form-group">
+          <label>Description:</label>
+          <textarea className="form-control" rows="3"
+            ref="description"
+            defaultValue={trigger.description}
+            />
+          {errors.description ? <p className="text-danger">{errors.description}</p> : ''}
         </div>
         <div className="form-group">
           <label>Source Store:</label>
@@ -89,12 +115,12 @@ export class TriggerForm extends Component {
           </div>
         </div>
         <div className="form-group">
-          <label>Description:</label>
+          <label>Email Recipients</label>
           <textarea className="form-control" rows="3"
-            ref="description"
-            defaultValue={trigger.description}
+            onChange={this.onEmailChange.bind(this)}
+            defaultValue={this.state.email_recipients.join('\n')}
             />
-          {errors.description ? <p className="text-danger">{errors.description}</p> : ''}
+            {errors.email ? <p className="text-danger">{errors.email}</p> : ''}
         </div>
         <div className="btn-toolbar">
           <button className="btn btn-sc" onClick={this.save.bind(this)}>Create</button>

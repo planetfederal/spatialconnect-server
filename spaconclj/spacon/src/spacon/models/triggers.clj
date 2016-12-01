@@ -1,5 +1,6 @@
 (ns spacon.models.triggers
   (:require [spacon.db.conn :as db]
+            [spacon.util.db :as dbutil]
             [clojure.spec :as s]
             [yesql.core :refer [defqueries]]
             [clojure.data.json :as json])
@@ -20,6 +21,7 @@
       (assoc :created_at (.toString (:created_at t)))
       (assoc :updated_at (.toString (:updated_at t)))
       (assoc :rules (:rules t))
+      (assoc :recipients (:recipients t))
       (assoc :stores (if-let [v (:stores t)]
                        (cond (string? v) (json/read-str (.getValue v))
                              (instance? org.postgresql.util.PGobject v) (json/read-str (.getValue v))
@@ -27,7 +29,6 @@
 
 (defn row-fn [row]
     (-> row
-      (assoc :recipients (vec (.getArray (:recipients row))))
       (assoc :stores (vec (.getArray (:stores row))))))
 
 (def result->map
@@ -45,28 +46,21 @@
           entity->map))
 
 (defn map->entity [t]
-  (if (nil? (:rules t))
-    (assoc t :rules nil)
-    (assoc t :rules (json/write-str (:rules t)))))
-
-(deftype StringArray [items]
-  clojure.java.jdbc/ISQLParameter
-  (set-parameter [_ stmt ix]
-    (let [as-array (into-array Object items)
-          jdbc-array (.createArrayOf (.getConnection stmt) "text" as-array)]
-      (.setArray stmt ix jdbc-array))))
+  (-> t
+      (cond-> (nil? (:rules t)) (assoc :rules nil))
+      (cond-> (some? (:rules t)) (assoc :rules (json/write-str (:rules t))))
+      (cond-> (nil? (:recipients t)) (assoc :recipients nil))
+      (cond-> (some? (:recipients t)) (assoc :recipients (json/write-str (:recipients t))))
+      (assoc :stores (dbutil/->StringArray (:stores t)))))
 
 (defn create-trigger [t]
-  (let [entity (map->entity t)
-        new-trigger (insert-trigger<! (assoc entity :recipients (->StringArray (:recipients t)) :stores (->StringArray (:stores t))))]
+  (let [new-trigger (insert-trigger<! (map->entity t))]
     (entity->map (assoc t :id (:id new-trigger)
                           :created_at (:created_at new-trigger)
                           :updated_at (:updated_at new-trigger)))))
 
 (defn update-trigger [id t]
-  (let [entity (map->entity (assoc t :id (java.util.UUID/fromString id)))
-        updated-trigger (update-trigger<!
-                          (assoc entity :recipients (->StringArray (:recipients t)) :stores (->StringArray (:stores t))))]
+  (let [updated-trigger (update-trigger<! (map->entity (assoc t :id (java.util.UUID/fromString id))))]
     (entity->map (assoc t :id (:id updated-trigger)
                           :created_at (:created_at updated-trigger)
                           :updated_at (:updated_at updated-trigger)))))

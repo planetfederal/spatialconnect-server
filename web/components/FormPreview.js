@@ -37,11 +37,11 @@ class FormPreview extends Component {
   }
 
   moveField(dragIndex, hoverIndex) {
-    this.props.swapFieldOrder(this.props.form.get('id'), dragIndex, hoverIndex);
+    this.props.swapFieldOrder(this.props.form.get('form_key'), dragIndex, hoverIndex);
   }
 
   onFormChange(value) {
-    this.props.updateFormValue(this.props.form.get('id'), value);
+    this.props.updateFormValue(this.props.form.get('form_key'), value);
   }
 
   onSubmit(e) {
