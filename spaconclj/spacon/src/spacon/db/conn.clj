@@ -6,27 +6,22 @@
             [clojure.data.json :as json]
             [jdbc.pool.c3p0 :as pool]))
 
-(defn get-db-uri-from-env
-  []
-  (or (some-> (System/getenv "VCAP_SERVICES")
-              (json/read-str :key-fn clojure.core/keyword)
-              :elephantsql first :credentials :uri java.net.URI.)
-      (some-> (System/getenv "DATABASE_URI") java.net.URI.)))
+(def db-creds (or (some->(System/getenv "VCAP_SERVICES")
+                         (json/read-str :key-fn clojure.core/keyword) vals first first :credentials)
+                  {:db_host  "localhost"
+                   :db_name  "spacon"
+                   :db_port  5432
+                   :username "spacon"
+                   :password "spacon"}))
 
-(def db-uri (or (get-db-uri-from-env)
-                (java.net.URI. "postgresql://spacon:spacon@localhost:5432/spacon")))
-
-(def user-pass (clojure.string/split (.getUserInfo db-uri) #":"))
 
 (def db-spec
   (pool/make-datasource-spec
     {:classname   "org.postgresql.Driver"
      :subprotocol "postgresql"
-     :subname     (if (= -1 (.getPort db-uri))
-                      (format "//%s%s" (.getHost db-uri) (.getPath db-uri))
-                      (format "//%s:%s%s" (.getHost db-uri) (.getPort db-uri) (.getPath db-uri)))
-     :user         (first user-pass)
-     :password     (second user-pass)}))
+     :subname     (format "//%s:%s/%s" (:db_host db-creds) (:db_port db-creds) (:db_name db-creds))
+     :user        (:username db-creds)
+     :password    (:password db-creds)}))
 
 
 (defn loadconfig []
