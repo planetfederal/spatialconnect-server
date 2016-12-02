@@ -3,6 +3,7 @@
             [spacon.util.db :as dbutil]
             [yesql.core :refer [defqueries]]
             [clojure.spec.gen :as gen]
+            [clojure.data.json :as json]
             [clojure.spec :as s]))
 
 ;; define sql queries as functions
@@ -31,6 +32,12 @@
 (defn sanitize [store]
   (dissoc store :created_at :updated_at :deleted_at))
 
+(defn map->entity [t]
+  (-> t
+      (cond-> (nil? (:options t)) (assoc :options nil))
+      (cond-> (some? (:options t)) (assoc :options (json/write-str (:options t))))
+      (assoc :default_layers (dbutil/->StringArray (:default_layers t)))))
+
 (defn store-list[]
   (map (fn [d]
          (map->StoreRecord (sanitize d))) (store-list-query {} dbutil/result->map)))
@@ -44,13 +51,12 @@
     nil))
 
 (defn create-store [t]
-  (if-let [new-store (insert-store<! (assoc t :default_layers (dbutil/->StringArray (:default_layers t))))]
+  (if-let [new-store (insert-store<! (map->entity t))]
     (map->StoreRecord (sanitize (assoc t :id (.toString (:id new-store)))))
   nil))
 
 (defn update-store [id t]
-  (let [entity (assoc t :id (java.util.UUID/fromString id))
-        updated-store (update-store<! (assoc entity :default_layers (dbutil/->StringArray (:default_layers t))))]
+  (let [updated-store (update-store<! (map->entity (assoc t :id (java.util.UUID/fromString id))))]
     (map->StoreRecord (assoc t :id (:id updated-store)
                                      :created_at (:created_at updated-store)
                                      :updated_at (:updated_at updated-store)))))

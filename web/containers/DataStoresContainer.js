@@ -12,7 +12,8 @@ let emptyStore = {
   name: '',
   version: '1',
   uri: '',
-  store_type: ''
+  store_type: '',
+  options: {},
 };
 
 export class DataStoresContainer extends Component {

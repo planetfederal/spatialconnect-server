@@ -1,0 +1,2 @@
+ALTER TABLE stores DROP COLUMN options;
+ALTER TABLE forms DROP COLUMN options;
