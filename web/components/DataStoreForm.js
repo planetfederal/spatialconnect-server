@@ -23,6 +23,17 @@ export const validate = values => {
   if (values.store_type === 'wfs' && !values.default_layers.length) {
     errors.default_layers = 'Must choose at least one default layer.';
   }
+  if (values.options && values.options.polling) {
+    let msg = 'Must be a number of seconds between 1 and 600';
+    let p = parseFloat(values.options.polling);
+    if (!isNaN(p) && isFinite(values.options.polling)) {
+      if (p % 1 !== 0 || p < 1 || p > 600) {
+        errors.polling = msg;
+      }
+    } else {
+      errors.polling = msg;
+    }
+  }
   return errors;
 };
 
@@ -31,7 +42,9 @@ export class DataStoreForm extends Component {
     super(props);
     this.state = {
       store_type: null,
-      default_layers: props.store.default_layers || false
+      default_layers: props.store.default_layers || false,
+      polling: props.store.options && props.store.options.polling ? props.store.options.polling : null,
+      show_polling: props.store.store_type === 'geojson' || props.store.store_type === 'wfs',
     };
   }
 
@@ -40,10 +53,15 @@ export class DataStoreForm extends Component {
       name: this.refs.name.value,
       store_type: this.refs.store_type.value,
       version: this.refs.version.value.trim(),
-      uri: this.refs.uri.value.trim()
+      uri: this.refs.uri.value.trim(),
     }
     if (this.refs.default_layers) {
       store.default_layers = this.getChosenLayers();
+    }
+    if (this.refs.polling) {
+      store.options = {
+        polling: this.refs.polling.value.trim(),
+      };
     }
     let errors = validate(store);
     this.props.actions.updateStoreErrors(errors);
@@ -55,6 +73,13 @@ export class DataStoreForm extends Component {
   onStoreTypeChange() {
     this.setState({store_type: this.refs.store_type.value});
     this.shouldUpdateLayerList();
+    this.addPollingOption();
+  }
+
+  addPollingOption() {
+    this.setState({
+      show_polling: (this.refs.store_type.value === 'geojson' || this.refs.store_type.value === 'wfs')
+    });
   }
 
   shouldUpdateLayerList() {
@@ -126,6 +151,14 @@ export class DataStoreForm extends Component {
             ))}
             </select>
             {errors.default_layers ? <p className="text-danger">{errors.default_layers}</p> : ''}
+          </div> : ''
+        }
+        {this.state.show_polling ?
+          <div className="form-group">
+            <label>Polling:</label>
+            <p className="help-block">Number of seconds (0 - 600)</p>
+            <input type="text" className="form-control" defaultValue={this.state.polling} ref="polling" maxLength={5} />
+            {errors.polling ? <p className="text-danger">{errors.polling}</p> : ''}
           </div> : ''
         }
         <div className="btn-toolbar">

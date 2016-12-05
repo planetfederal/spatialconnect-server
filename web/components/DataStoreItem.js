@@ -13,6 +13,8 @@ const DataStoreItem = ({ store }) => (
       <PropertyListItem name={'URI'} value={store.uri} />
       <PropertyListItem name={'Version'} value={store.version} />
       <PropertyListItem name={'Team'} value={store.team_name} />
+      {(store.options && store.options.polling) &&
+      <PropertyListItem name={'Polling Interval'} value={store.options.polling} />}
       {store.default_layers.length ?
         <PropertyListItem name={'Default Layers'} value={store.default_layers.join(', ')} />
         : '' }
