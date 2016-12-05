@@ -156,6 +156,7 @@ export class DataStoreForm extends Component {
         {this.state.show_polling ?
           <div className="form-group">
             <label>Polling:</label>
+            <p className="help-block">Number of seconds (0 - 600)</p>
             <input type="text" className="form-control" defaultValue={this.state.polling} ref="polling" maxLength={5} />
             {errors.polling ? <p className="text-danger">{errors.polling}</p> : ''}
           </div> : ''
