@@ -3,25 +3,27 @@
             [io.pedestal.interceptor.helpers :refer [defhandler]]
             [spacon.http.intercept :as intercept]
             [spacon.http.response :as response]
-            [spacon.models.user :as user]
+            [spacon.models.user :as usermodel]
             [spacon.http.auth :refer [check-auth]]
-            [clojure.spec :as s]))
+            [clojure.spec :as s]
+            [spacon.spec :as specs]))
 
-(defn get-all-users [request]
-  (response/ok (map user/sanitize (user/find-all))))
+(defn http-get-all-users [request]
+   response/ok (usermodel/all))
 
-(defn create-user
+(defn http-create-user
   "Creates a new user"
   [request]
   (let [user (:json-params request)]
     (if (s/valid? :spacon.models.user/spec user)
-      (if-let [new-user (user/add-user! user)]
-        (response/ok (user/sanitize new-user)))
-      (response/error (str "failed to crueate user:\n" (s/explain-str :spacon.models.user/spec user))))))
+      (if-let [new-user (usermodel/create user)]
+        (response/ok new-user))
+      (response/error (str "failed to create user:\n"
+                           (s/explain-str :spacon.spec/user-spec user))))))
 
 (defn- routes []
-  #{["/api/users" :get  (conj intercept/common-interceptors `get-all-users)]
-    ["/api/users" :post (conj intercept/common-interceptors `create-user)]})
+  #{["/api/users" :get  (conj intercept/common-interceptors `http-get-all-users)]
+    ["/api/users" :post (conj intercept/common-interceptors `http-create-user)]})
 
 (defrecord UserComponent []
   component/Lifecycle

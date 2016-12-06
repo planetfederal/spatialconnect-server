@@ -8,18 +8,7 @@
 ;; define sql queries as functions
 (defqueries "sql/form.sql" {:connection db/db-spec})
 
-(s/def ::form_key string?)
-(s/def ::form_label string?)
-(s/def ::version pos-int?)
-(s/def ::team_id pos-int?)
-(s/def ::spec (s/keys :req-un [::form_key ::version ::team_id]
-                      :opt-un [::form_label]))
-
-(s/def ::device_id pos-int?)
-(s/def ::form_id pos-int?)
-(s/def ::form_data (s/keys :req-un [::device_id ::form_id]))
-
-(defn sanitize [form]
+(defn- sanitize [form]
   (into {} (remove #(nil? (val %))
                    (dissoc form :created_at :updated_at :deleted_at :form_id))))
 
@@ -50,10 +39,15 @@
     (assoc form :metadata {:count        (:count stats)
                            :lastActivity (:updated_at stats)})))
 
-(defn find-latest-version [form-key]
-  (find-latest-version-query {:form_key form-key}))
+(defn find-latest-version
+  [form-key]
+  (->> (find-latest-version-query {:form_key form-key})
+       first
+       sanitize
+       form-fields
+       form-metadata))
 
-(defn forms-list []
+(defn all []
   (->> (forms-list-query)
        (group-by :form_key)
        vals
@@ -62,7 +56,7 @@
        (map form-fields)
        (map form-metadata)))
 
-(defn add-form-with-fields!
+(defn add-form-with-fields
   [form]
   (jdbc/with-db-transaction [tx db/db-spec]
     (let [fields   (:fields form)
@@ -78,26 +72,25 @@
                               :version    (or version 1)
                               :team_id    team-id}
                              tnx)
-          new-fields (doall (map #(create-form-fields<! {:form_id           (:id new-form)
-                                                         :field_key         (:field_key %)
-                                                         :field_label       (:field_label %)
-                                                         :type              (:type %)
-                                                         :position          (:position %)
-                                                         :is_required       (:is_required %)
-                                                         :initial_value     (:initial_value %)
-                                                         :is_integer        (:is_integer %)
-                                                         :pattern           (:pattern %)
-                                                         :options           (:options %)
-                                                         :minimum           (:minimum %)
-                                                         :maximum           (:maximum %)
-                                                         :minimum_length    (:minimum_length %)
-                                                         :maximum_length    (:maximum_length %)
-                                                         :exclusive_minimum (:exclusive_minimum %)
-                                                         :exclusive_maximum (:exclusive_maximum %)}
-                                                        tnx)
-                                 fields))
+          new-fields (doall
+                      (map #(create-form-fields<!
+                             {:form_id           (:id new-form)
+                              :field_key         (:field_key %)
+                              :field_label       (:field_label %)
+                              :type              (:type %)
+                              :position          (:position %)
+                              :is_required       (:is_required %)
+                              :initial_value     (:initial_value %)
+                              :is_integer        (:is_integer %)
+                              :pattern           (:pattern %)
+                              :options           (:options %)
+                              :minimum           (:minimum %)
+                              :maximum           (:maximum %)
+                              :minimum_length    (:minimum_length %)
+                              :maximum_length    (:maximum_length %)
+                              :exclusive_minimum (:exclusive_minimum %)
+                              :exclusive_maximum (:exclusive_maximum %)}
+                             tnx)
+                           fields))
           sanitized-fields (map #(sanitize %) new-fields)]
       (assoc new-form :fields sanitized-fields))))
-
-
-

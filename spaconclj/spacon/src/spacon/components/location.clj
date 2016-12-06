@@ -5,7 +5,7 @@
             [clojure.data.json :as json]
             [yesql.core :refer [defqueries]]
             [spacon.components.mqtt :as mqttcomp]
-            [spacon.models.locations :as model]))
+            [spacon.models.locations :as locationmodel]))
 
 (defn location->geojson [locations]
   (map (fn [l]
@@ -13,14 +13,12 @@
           :id       (:identifier l)
           :geometry {:type        "Point"
                      :coordinates [(.getX (:geometry l)) (.getY (:geometry l))]}
-
           :metadata {:client     (:identifier l)
                      :updated_at (:updated_at l)}})
        locations))
 
-
 (defn http-get [_]
-  (let [fs (location->geojson (model/locations))]
+  (let [fs (location->geojson (locationmodel/all))]
     (response/ok {:type "FeatureCollection"
                   :features fs})))
 
@@ -33,7 +31,7 @@
   (mqttcomp/subscribe mqtt "/store/tracking"
     (fn [message]
       (let [loc (:payload message)]
-        (model/upsert-location-gj loc))))
+        (locationmodel/upsert-gj loc))))
     (assoc this :routes (routes)))
   (stop [this]
     this))

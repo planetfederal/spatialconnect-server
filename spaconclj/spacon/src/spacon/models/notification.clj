@@ -5,10 +5,14 @@
 
 (defqueries "sql/notification.sql" {:connection db/db-spec})
 
-(defn insert-notification [trigger-id]
+(defn create
+  "Adds a notification to the queue"
+  [trigger-id]
   (insert-notification! {:trigger_id trigger-id}))
 
-(defn notifications-list []
+(defn all
+  "List of all the unsent notifications"
+  []
   (unsent-notifications-list))
 
 (defn mark-as-sent [notif-id]
