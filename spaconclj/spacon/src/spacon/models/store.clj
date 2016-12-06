@@ -4,30 +4,13 @@
             [yesql.core :refer [defqueries]]
             [clojure.spec.gen :as gen]
             [clojure.data.json :as json]
-            [clojure.spec :as s]))
+            [clojure.spec :as s]
+            [spacon.entity.store :refer :all]))
 
 ;; define sql queries as functions
 (defqueries "sql/store.sql" {:connection db/db-spec})
 
-(defn uuid-string-gen []
-  (->>
-   (gen/uuid)
-   (gen/fmap #(.toString %))))
-
-;; define specs about store
 (def uuid-regex #"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
-(s/def ::id (s/with-gen
-              (s/and string? #(re-matches uuid-regex %))
-              #(uuid-string-gen)))
-(s/def ::store_type string?)
-(s/def ::version string?)
-(s/def ::uri string?)
-(s/def ::name string?)
-(s/def ::team_id (s/and int? pos?))
-(s/def ::default_layers (s/coll-of string?))
-(s/def ::store-spec (s/keys :req-un [::name ::store_type ::team_id ::version ::uri ::default_layers]))
-
-(defrecord StoreRecord [id store_type uri version name team_id default_layers])
 
 (defn- sanitize [store]
   (dissoc store :created_at :updated_at :deleted_at))

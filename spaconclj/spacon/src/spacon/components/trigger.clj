@@ -8,7 +8,7 @@
             [spacon.components.notification :as notification]
             [cljts.relation :as relation]
             [clojure.core.async :as async]
-            [spacon.entity.notification :as ntf-entity]
+            [spacon.entity.notification :refer [make-mobile-notification] ]
             [cljts.io :as jtsio]
             [clojure.data.json :as json]))
 
@@ -52,7 +52,7 @@
     (set-valid-trigger trigger)
     (remove-trigger trigger))
   (notification/send->notification notify
-                                   (ntf-entity/make-mobile-notification
+                                   (make-mobile-notification
                                     {:to nil
                                      :priority "alert"
                                      :title "Alert"

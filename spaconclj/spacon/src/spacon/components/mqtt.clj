@@ -80,8 +80,8 @@
 (defrecord MqttComponent [mqtt-config]
   component/Lifecycle
   (start [this]
-    (let [url    (:broker-url mqtt-config)
-          email  (:broker-username mqtt-config)
+    (let [url    (get mqtt-config :broker-url "tcp://localhost:1883")
+          email  (get mqtt-config :broker-username "admin@something.com")
           token  (some-> (spacon.models.user/find-by-email {:email email})
                          first
                          get-token)

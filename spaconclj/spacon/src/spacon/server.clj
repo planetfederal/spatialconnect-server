@@ -55,7 +55,6 @@
   [& args]
   (println "\nCreating your server...")
   (component/start-system (system {:http-config {}
-                                   :mqtt-config {:broker-url      (or (System/getenv "MQTT_BROKER_URL")
-                                                                      "tcp://localhost:1883")
-                                                 :broker-username (or (System/getenv "MQTT_BROKER_USERNAME")
-                                                                      "admin@something.com")}})))
+                                   :mqtt-config
+                                     {:broker-url      (System/getenv "MQTT_BROKER_URL")
+                                      :broker-username (System/getenv "MQTT_BROKER_USERNAME")}})))
