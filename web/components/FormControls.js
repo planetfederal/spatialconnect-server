@@ -5,14 +5,25 @@ const AddFieldControl = ({ text, onClick, options }) => (
   <button className="btn btn-sc" onClick={() => onClick(options)}>{text}</button>
 );
 
+AddFieldControl.propTypes = {
+  text: PropTypes.string.isRequired,
+  onClick: PropTypes.func.isRequired,
+  options: PropTypes.object.isRequired,
+};
+
 class FormControls extends Component {
+
+  constructor(props) {
+    super(props);
+    this.addField = this.addField.bind(this);
+  }
 
   addField(options) {
     this.props.addField({
       form_key: this.props.form.get('form_key'),
       field_key: '',
       field_label: '',
-      options: options
+      options,
     });
   }
 
@@ -23,44 +34,44 @@ class FormControls extends Component {
         <div className="form-pane-wrapper">
           <AddFieldControl
             text="Text"
-            onClick={this.addField.bind(this)}
-            options={{type: 'string', pattern: ''}}
-            />
+            onClick={this.addField}
+            options={{ type: 'string', pattern: '' }}
+          />
           <AddFieldControl
             text="Number"
-            onClick={this.addField.bind(this)}
-            options={{type: 'number', integer: false}}
-            />
+            onClick={this.addField}
+            options={{ type: 'number', integer: false }}
+          />
           <AddFieldControl
             text="Yes/No"
-            onClick={this.addField.bind(this)}
-            options={{type: 'boolean'}}
-            />
+            onClick={this.addField}
+            options={{ type: 'boolean' }}
+          />
           <AddFieldControl
             text="Date"
-            onClick={this.addField.bind(this)}
-            options={{type: 'date'}}
-            />
+            onClick={this.addField}
+            options={{ type: 'date' }}
+          />
           <AddFieldControl
             text="Slider"
-            onClick={this.addField.bind(this)}
-            options={{type: 'slider'}}
-            />
+            onClick={this.addField}
+            options={{ type: 'slider' }}
+          />
           <AddFieldControl
             text="Counter"
-            onClick={this.addField.bind(this)}
-            options={{type: 'counter'}}
-            />
+            onClick={this.addField}
+            options={{ type: 'counter' }}
+          />
           <AddFieldControl
             text="Select"
-            onClick={this.addField.bind(this)}
-            options={{type: 'select', options: []}}
-            />
+            onClick={this.addField}
+            options={{ type: 'select', options: [] }}
+          />
           <AddFieldControl
             text="Photo"
-            onClick={this.addField.bind(this)}
-            options={{type: 'photo', pattern: ''}}
-            />
+            onClick={this.addField}
+            options={{ type: 'photo', pattern: '' }}
+          />
         </div>
       </div>
     );
@@ -69,6 +80,7 @@ class FormControls extends Component {
 
 FormControls.propTypes = {
   form: PropTypes.object.isRequired,
+  addField: PropTypes.func.isRequired,
 };
 
 export default FormControls;

@@ -1,12 +1,9 @@
-'use strict';
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { find } from 'lodash';
-import { browserHistory } from 'react-router';
 import DataStoreDetails from '../components/DataStoreDetails';
-import DataStoreForm from '../components/DataStoreForm';
-import scformschema from 'spatialconnect-form-schema';
+import { DataStoreForm } from '../components/DataStoreForm';
 import * as storeActions from '../ducks/dataStores';
 
 class DataStoresDetailsContainer extends Component {
@@ -14,8 +11,13 @@ class DataStoresDetailsContainer extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      editingDataStore: false
+      editingDataStore: false,
     };
+
+    this.deleteStore = this.deleteStore.bind(this);
+    this.editStore = this.editStore.bind(this);
+    this.editStoreCancel = this.editStoreCancel.bind(this);
+    this.updateStore = this.updateStore.bind(this);
   }
 
   componentDidMount() {
@@ -29,21 +31,21 @@ class DataStoresDetailsContainer extends Component {
   }
 
   editStore() {
-    this.setState({editingDataStore: true});
+    this.setState({ editingDataStore: true });
   }
 
-  editStoreCancel(storeId, value) {
-    this.setState({editingDataStore: false});
+  editStoreCancel() {
+    this.setState({ editingDataStore: false });
   }
 
   updateStore(storeId, value) {
-    this.setState({editingDataStore: false});
+    this.setState({ editingDataStore: false });
     this.props.actions.updateDataStore(storeId, value);
   }
 
   render() {
-    const { stores, store, loading, loaded, error, storeErrors, layerList } = this.props;
-    let el = <div></div>;
+    const { store, loading, loaded, error, storeErrors, layerList } = this.props;
+    let el = <div />;
     if (loading) {
       el = <p>Fetching Store...</p>;
     } else {
@@ -53,20 +55,20 @@ class DataStoresDetailsContainer extends Component {
       if (loaded && store) {
         this.title = store.name;
         if (this.state.editingDataStore) {
-          el = <DataStoreForm
-                store={store}
-                errors={storeErrors}
-                layerList={layerList}
-                actions={this.props.actions}
-                onSubmit={this.updateStore.bind(this)}
-                cancel={this.editStoreCancel.bind(this)}
-                />;
+          el = (<DataStoreForm
+            store={store}
+            errors={storeErrors}
+            layerList={layerList}
+            actions={this.props.actions}
+            onSubmit={this.updateStore}
+            cancel={this.editStoreCancel}
+          />);
         } else {
-          el = <DataStoreDetails
-                store={store}
-                editStore={this.editStore.bind(this)}
-                deleteStore={this.deleteStore.bind(this)}
-                />;
+          el = (<DataStoreDetails
+            store={store}
+            editStore={this.editStore}
+            deleteStore={this.deleteStore}
+          />);
         }
       }
     }
@@ -78,6 +80,17 @@ class DataStoresDetailsContainer extends Component {
   }
 }
 
+DataStoresDetailsContainer.propTypes = {
+  actions: PropTypes.object.isRequired,
+  store: PropTypes.object.isRequired,
+  id: PropTypes.string.isRequired,
+  loading: PropTypes.bool.isRequired,
+  loaded: PropTypes.bool.isRequired,
+  storeErrors: PropTypes.object,
+  layerList: PropTypes.array,
+  error: PropTypes.string,
+};
+
 const mapStateToProps = (state, ownProps) => ({
   id: ownProps.params.id,
   stores: state.sc.dataStores.stores,
@@ -87,11 +100,11 @@ const mapStateToProps = (state, ownProps) => ({
   loaded: state.sc.dataStores.loaded,
   error: state.sc.dataStores.error,
   storeErrors: state.sc.dataStores.storeErrors,
-  layerList: state.sc.dataStores.layerList
+  layerList: state.sc.dataStores.layerList,
 });
 
-const mapDispatchToProps = (dispatch) => ({
-  actions: bindActionCreators(storeActions, dispatch)
+const mapDispatchToProps = dispatch => ({
+  actions: bindActionCreators(storeActions, dispatch),
 });
 
   // connect this "smart" container component to the redux store

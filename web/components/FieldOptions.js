@@ -1,20 +1,19 @@
 import React, { Component, PropTypes } from 'react';
-import _ from 'lodash';
 import { toKey } from '../utils';
 import '../style/FormDetails.less';
 
-let fieldOptions = {
+const fieldOptions = {
   string: ['field_label', 'field_key', 'is_required', 'initial_value', 'minimum_length', 'maximum_length', 'pattern'],
   select: ['field_label', 'field_key', 'is_required', 'options'],
   number: ['field_label', 'field_key', 'is_required', 'initial_value', 'minimum', 'maximum', 'is_integer', 'exclusive_minimum', 'exclusive_maximum'],
-  boolean: ['field_label', 'field_key', 'is_required' ],
-  date: ['field_label', 'field_key', 'is_required' ],
+  boolean: ['field_label', 'field_key', 'is_required'],
+  date: ['field_label', 'field_key', 'is_required'],
   slider: ['field_label', 'field_key', 'is_required', 'initial_value', 'minimum', 'maximum'],
   counter: ['field_label', 'field_key', 'is_required', 'initial_value', 'minimum', 'maximum'],
   photo: ['field_label', 'field_key', 'is_required'],
 };
 
-let fieldLabels = {
+const fieldLabels = {
   field_key: 'Field Key',
   field_label: 'Field Label',
   is_required: 'Required',
@@ -27,14 +26,19 @@ let fieldLabels = {
   minimum: 'Minimum',
   maximum: 'Maximum',
   exclusive_minimum: 'Exclusive Minimum',
-  exclusive_maximum: 'Exclusive Maximum'
+  exclusive_maximum: 'Exclusive Maximum',
 };
 
 class FieldOptions extends Component {
 
+  constructor(props) {
+    super(props);
+    this.removeField = this.removeField.bind(this);
+  }
+
   changeOption(option, e) {
     let value;
-    if (e.currentTarget.type == 'checkbox') {
+    if (e.currentTarget.type === 'checkbox') {
       value = e.target.checked;
     } else if (option === 'options') {
       value = e.target.value.split('\n');
@@ -44,7 +48,7 @@ class FieldOptions extends Component {
         this.props.form.get('form_key'),
         this.props.form.get('activeField'),
         'field_key',
-        toKey(value)
+        toKey(value),
       );
     } else {
       value = e.target.value;
@@ -53,14 +57,14 @@ class FieldOptions extends Component {
       this.props.form.get('form_key'),
       this.props.form.get('activeField'),
       option,
-      value
+      value,
     );
   }
 
   removeField() {
     this.props.removeField(
       this.props.form.get('form_key'),
-      this.props.form.get('activeField')
+      this.props.form.get('activeField'),
     );
   }
 
@@ -68,13 +72,15 @@ class FieldOptions extends Component {
     return fieldOptions[field.get('type')].map((o, i) => {
       if (o === 'is_integer' || o === 'is_required') {
         return (
-          <div className="checkbox" key={o+i}>
-            <label>
-              <input type="checkbox"
+          <div className="checkbox" key={o + i}>
+            <label htmlFor={field.get('field_key')}>
+              <input
+                type="checkbox"
+                id={field.get('field_key')}
                 checked={
-                  (field.get(o, null) !== null && field.get(o, null) === true) ? true : false
+                  (field.get(o, null) !== null && field.get(o, null) === true)
                 }
-                onChange={e => { this.changeOption(o, e)}}
+                onChange={(e) => { this.changeOption(o, e); }}
               /> {fieldLabels[o]}
             </label>
           </div>
@@ -82,24 +88,26 @@ class FieldOptions extends Component {
       }
       if (o === 'options') {
         return (
-          <div className="form-group" key={o+i}>
+          <div className="form-group" key={o + i}>
             <label htmlFor={o}>{fieldLabels[o]}</label>
-            <textarea className="form-control" rows="3"
+            <textarea
+              className="form-control" rows="3"
               id={o}
-              onChange={e => { this.changeOption(o, e)}}
+              onChange={(e) => { this.changeOption(o, e); }}
               value={field.get(o, null) !== null ? field.get(o).join('\n') : ''}
-              />
+            />
           </div>
         );
       }
       return (
-        <div className="form-group" key={o+i}>
+        <div className="form-group" key={o + i}>
           <label htmlFor={o}>{fieldLabels[o]}</label>
-          <input type="text" className="form-control"
+          <input
+            type="text" className="form-control"
             id={o}
             value={field.get(o, null) !== null ? field.get(o) : ''}
-            onChange={e => { this.changeOption(o, e)}}
-           />
+            onChange={(e) => { this.changeOption(o, e); }}
+          />
         </div>
       );
     });
@@ -107,7 +115,7 @@ class FieldOptions extends Component {
 
   render() {
     const { form } = this.props;
-    let activeField = form.get('activeField', null)
+    const activeField = form.get('activeField', null);
     if (activeField === null) {
       return (
         <div className="form-options form-pane">
@@ -118,14 +126,14 @@ class FieldOptions extends Component {
         </div>
       );
     }
-    let field = form.getIn(['fields', form.get('fields').findIndex(f => f.get('id') === activeField)]);
-    let optionInputs = this.makeOptionInput(field);
+    const field = form.getIn(['fields', form.get('fields').findIndex(f => f.get('id') === activeField)]);
+    const optionInputs = this.makeOptionInput(field);
     return (
       <div className="form-options form-pane">
         <div className="form-pane-title"><h5>Field Options</h5></div>
         <div className="form-pane-wrapper">
           {optionInputs}
-          <button className="btn btn-danger" onClick={this.removeField.bind(this)}>Delete Field</button>
+          <button className="btn btn-danger" onClick={this.removeField}>Delete Field</button>
         </div>
       </div>
     );
@@ -134,7 +142,8 @@ class FieldOptions extends Component {
 
 FieldOptions.propTypes = {
   form: PropTypes.object.isRequired,
-  activeField: PropTypes.string,
+  updateFieldOption: PropTypes.func.isRequired,
+  removeField: PropTypes.func.isRequired,
 };
 
 export default FieldOptions;

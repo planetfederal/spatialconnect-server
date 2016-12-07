@@ -1,6 +1,5 @@
-'use strict';
 import React, { PropTypes } from 'react';
-import { Link, browserHistory } from 'react-router';
+import { Link } from 'react-router';
 import moment from 'moment';
 import PropertyListItem from './PropertyListItem';
 import '../style/FormList.less';
@@ -12,24 +11,27 @@ const FormItem = ({ form }) => (
       <PropertyListItem name={'Version'} value={form.get('version')} />
       <PropertyListItem name={'Team'} value={form.get('team_name')} />
       {form.get('metadata') ?
-      <div>
-        <PropertyListItem name={'Number of Records'} value={form.get('metadata').get('count')} />
-        {form.get('metadata').get('lastActivity') ?
-          <PropertyListItem name={'Last Activity'} value={moment(form.get('metadata').get('lastActivity')).fromNow()} />
+        <div>
+          <PropertyListItem name={'Number of Records'} value={form.get('metadata').get('count')} />
+          {form.get('metadata').get('lastActivity') ?
+            <PropertyListItem name={'Last Activity'} value={moment(form.get('metadata').get('lastActivity')).fromNow()} />
         : null}
-      </div> : null }
+        </div> : null }
     </div>
   </div>
 );
 
 FormItem.propTypes = {
-  form: PropTypes.object.isRequired
+  form: PropTypes.object.isRequired,
 };
 
 const FormsList = ({ forms, selectedTeamId }) => (
   <div className="form-list">
-    {forms.valueSeq().map(f => {
-      return selectedTeamId === f.get('team_id') ? <FormItem form={f} key={f.get('id')} /> : null;
+    {forms.valueSeq().map((f) => {
+      if (selectedTeamId === f.get('team_id')) {
+        return <FormItem form={f} key={f.get('id')} />;
+      }
+      return null;
     })}
   </div>
 );

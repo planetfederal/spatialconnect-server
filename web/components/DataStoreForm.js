@@ -1,8 +1,7 @@
-'use strict';
 import React, { Component, PropTypes } from 'react';
 import { isUrl } from '../utils';
 
-export const validate = values => {
+export const validate = (values) => {
   const errors = {};
 
   if (!values.name) {
@@ -14,7 +13,7 @@ export const validate = values => {
   if (!values.version) {
     errors.version = 'Required';
   }
-  if(!values.uri) {
+  if (!values.uri) {
     errors.uri = 'Must be valid uri';
   }
   if (values.store_type === 'wfs' && !values.uri) {
@@ -24,8 +23,8 @@ export const validate = values => {
     errors.default_layers = 'Must choose at least one default layer.';
   }
   if (values.options && values.options.polling) {
-    let msg = 'Must be a number of seconds between 1 and 600';
-    let p = parseFloat(values.options.polling);
+    const msg = 'Must be a number of seconds between 1 and 600';
+    const p = parseFloat(values.options.polling);
     if (!isNaN(p) && isFinite(values.options.polling)) {
       if (p % 1 !== 0 || p < 1 || p > 600) {
         errors.polling = msg;
@@ -38,92 +37,119 @@ export const validate = values => {
 };
 
 export class DataStoreForm extends Component {
+
   constructor(props) {
     super(props);
     this.state = {
-      store_type: null,
+      name: props.store.name,
+      store_type: props.store.store_type,
+      version: props.store.version,
+      uri: props.store.uri,
       default_layers: props.store.default_layers || false,
-      polling: props.store.options && props.store.options.polling ? props.store.options.polling : null,
+      polling: props.store.options && props.store.options.polling ?
+        props.store.options.polling : null,
       show_polling: props.store.store_type === 'geojson' || props.store.store_type === 'wfs',
     };
+
+    this.onStoreTypeChange = this.onStoreTypeChange.bind(this);
+    this.onNameChange = this.onNameChange.bind(this);
+    this.onVersionChange = this.onVersionChange.bind(this);
+    this.onURIChange = this.onURIChange.bind(this);
+    this.onLayersChange = this.onLayersChange.bind(this);
+    this.onPollingChange = this.onPollingChange.bind(this);
+    this.save = this.save.bind(this);
   }
 
-  save() {
-    let store = {
-      name: this.refs.name.value,
-      store_type: this.refs.store_type.value,
-      version: this.refs.version.value.trim(),
-      uri: this.refs.uri.value.trim(),
-    }
-    if (this.refs.default_layers) {
-      store.default_layers = this.getChosenLayers();
-    }
-    if (this.refs.polling) {
-      store.options = {
-        polling: this.refs.polling.value.trim(),
-      };
-    }
-    let errors = validate(store);
-    this.props.actions.updateStoreErrors(errors);
-    if(!Object.keys(errors).length) {
-      this.props.onSubmit(this.props.store.id, store);
-    }
+  componentDidMount() {
+    this.onURIChange();
   }
 
-  onStoreTypeChange() {
-    this.setState({store_type: this.refs.store_type.value});
-    this.shouldUpdateLayerList();
+  onStoreTypeChange(e) {
+    this.setState({
+      store_type: e.target.value,
+      show_polling: (this.state.store_type === 'geojson' || this.state.store_type === 'wfs'),
+    });
+    this.onURIChange();
     this.addPollingOption();
   }
 
-  addPollingOption() {
-    this.setState({
-      show_polling: (this.refs.store_type.value === 'geojson' || this.refs.store_type.value === 'wfs')
-    });
-  }
-
-  shouldUpdateLayerList() {
-    if (this.refs.store_type.value === 'wfs') {
-      if (isUrl(this.refs.uri.value)) {
+  onURIChange(e) {
+    const uri = e ? e.target.value : this.state.uri;
+    if (this.state.store_type === 'wfs') {
+      if (isUrl(uri)) {
         this.props.actions.addStoreError('default_layers', 'Loading layers...');
-        this.props.actions.getWFSLayers(this.refs.uri.value);
+        this.props.actions.getWFSLayers(uri);
       } else {
         this.props.actions.addStoreError('default_layers', 'Enter a URI to load layer list.');
       }
     }
-    if (this.refs.store_type.value !== 'wfs') {
+    if (this.state.store_type !== 'wfs') {
       this.props.actions.addStoreError('default_layers', false);
       this.props.actions.updateWFSLayerList([]);
     }
+    this.setState({ uri });
   }
 
-  getChosenLayers() {
-    let options = Array.from(this.refs.default_layers.options);
-    return options
+  onLayersChange(e) {
+    const chosenLayers = Array.from(e.target.value.options)
       .filter(option => option.selected)
       .map(option => option.value);
+    this.setState({ default_layers: chosenLayers });
   }
 
-  onLayersChange() {
-    this.setState({default_layers: this.getChosenLayers()});
+  onNameChange(e) {
+    this.setState({ name: e.target.value });
   }
 
-  componentDidMount() {
-    this.shouldUpdateLayerList();
+  onVersionChange(e) {
+    this.setState({ version: e.target.value });
+  }
+
+  onPollingChange(e) {
+    this.setState({ polling: e.target.value });
+  }
+
+  save() {
+    const store = {
+      name: this.state.name,
+      store_type: this.state.store_type,
+      version: this.state.version.trim(),
+      uri: this.state.uri.trim(),
+    };
+    if (this.state.default_layers) {
+      store.default_layers = this.getChosenLayers();
+    }
+    if (this.state.polling) {
+      store.options = {
+        polling: this.state.polling.trim(),
+      };
+    }
+    const errors = validate(store);
+    this.props.actions.updateStoreErrors(errors);
+    if (!Object.keys(errors).length) {
+      this.props.onSubmit(this.props.store.id, store);
+    }
   }
 
   render() {
-    const { store, errors, layerList } = this.props;
+    const { store, errors } = this.props;
     return (
       <div className="side-form">
         <div className="form-group">
-          <label>Name:</label>
-          <input type="text" className="form-control" ref="name" defaultValue={store.name} />
+          <label htmlFor="store-name">Name:</label>
+          <input
+            type="text" id="store-name" className="form-control"
+            value={this.state.name}
+            onChange={this.onNameChange}
+          />
           {errors.name ? <p className="text-danger">{errors.name}</p> : ''}
         </div>
         <div className="form-group">
-          <label>Type:</label>
-          <select className="form-control" ref="store_type"  defaultValue={store.store_type} onChange={this.onStoreTypeChange.bind(this)}>
+          <label htmlFor="store-type">Type:</label>
+          <select
+            id="store-type" className="form-control" value={this.state.store_type}
+            onChange={this.onStoreTypeChange}
+          >
             <option value="">Select a type..</option>
             <option value="geojson">GeoJSON</option>
             <option value="gpkg">GeoPackage</option>
@@ -132,22 +158,32 @@ export class DataStoreForm extends Component {
           {errors.store_type ? <p className="text-danger">{errors.store_type}</p> : ''}
         </div>
         <div className="form-group">
-          <label>Version:</label>
-          <input type="text" className="form-control" defaultValue={store.version} ref="version" maxLength={15} />
+          <label htmlFor="store-version">Version:</label>
+          <input
+            id="store-version" type="text" className="form-control"
+            value={store.version} maxLength={15}
+            onChange={this.onStoreVersionChange}
+          />
           {errors.version ? <p className="text-danger">{errors.version}</p> : ''}
         </div>
         <div className="form-group">
-          <label>URI:</label>
-          <input type="text" className="form-control" ref="uri" defaultValue={store.uri} onChange={this.shouldUpdateLayerList.bind(this)}/>
+          <label htmlFor="store-uri">URI:</label>
+          <input
+            id="store-uri" type="text" className="form-control"
+            value={store.uri} onChange={this.onURIChange}
+          />
           {errors.uri ? <p className="text-danger">{errors.uri}</p> : ''}
         </div>
         {store.store_type === 'wfs' || this.state.store_type === 'wfs' ?
           <div className="form-group">
-            <label>Default Layers:</label>
-            <select multiple={true} className="form-control default_layers" ref="default_layers"  value={this.state.default_layers}
-              onChange={this.onLayersChange.bind(this)}>
-            {this.props.layerList.map((layer, i) => (
-              <option value={layer} key={layer+i}>{layer}</option>
+            <label htmlFor="default-layers">Default Layers:</label>
+            <select
+              id="default-layers"
+              multiple className="form-control default_layers" value={this.state.default_layers}
+              onChange={this.onLayersChange}
+            >
+              {this.props.layerList.map((layer, i) => (
+                <option value={layer} key={layer + i}>{layer}</option>
             ))}
             </select>
             {errors.default_layers ? <p className="text-danger">{errors.default_layers}</p> : ''}
@@ -155,20 +191,24 @@ export class DataStoreForm extends Component {
         }
         {this.state.show_polling ?
           <div className="form-group">
-            <label>Polling:</label>
+            <label htmlFor="store-polling">Polling:</label>
             <p className="help-block">Number of seconds (0 - 600)</p>
-            <input type="text" className="form-control" defaultValue={this.state.polling} ref="polling" maxLength={5} />
+            <input
+              id="store-polling" type="text" className="form-control"
+              value={this.state.polling} maxLength={5}
+              onChange={this.onPollingChange}
+            />
             {errors.polling ? <p className="text-danger">{errors.polling}</p> : ''}
           </div> : ''
         }
         <div className="btn-toolbar">
-          <button className="btn btn-sc" onClick={this.save.bind(this)}>Save</button>
+          <button className="btn btn-sc" onClick={this.save}>Save</button>
           <button className="btn btn-default" onClick={this.props.cancel}>Cancel</button>
         </div>
       </div>
     );
   }
-};
+}
 
 DataStoreForm.propTypes = {
   store: PropTypes.object.isRequired,
@@ -176,7 +216,7 @@ DataStoreForm.propTypes = {
   cancel: PropTypes.func.isRequired,
   errors: PropTypes.object.isRequired,
   layerList: PropTypes.array.isRequired,
-  actions: PropTypes.object.isRequired
+  actions: PropTypes.object.isRequired,
 };
 
 export default DataStoreForm;

@@ -1,4 +1,3 @@
-'use strict';
 var path = require('path');
 var webpack = require('webpack');
 var pkg = require('./package.json');
@@ -6,45 +5,46 @@ var pkg = require('./package.json');
 module.exports = {
   devtool: 'cheap-module-eval-source-map',
   entry: [
-    path.join(__dirname, 'index')
+    path.join(__dirname, 'index'),
   ],
   output: {
     path: path.join(__dirname, 'dist'),
-    filename: 'bundle.js'
+    filename: 'bundle.js',
   },
   devServer: {
     historyApiFallback: true,
     proxy: {
       '/api': {
         target: 'http://localhost:8080',
-        secure: false
-      }
-    }
+        secure: false,
+      },
+    },
   },
   plugins: [
     new webpack.optimize.OccurenceOrderPlugin(),
     new webpack.NoErrorsPlugin(),
-    new webpack.DefinePlugin({
-      VERSION: JSON.stringify(pkg.version)
-    })
+    new webpack.DefinePlugin({ VERSION: JSON.stringify(pkg.version) }),
   ],
   module: {
     loaders: [
       {
         test: /\.js$/,
-        loaders: [ 'babel' ],
+        loaders: ['babel'],
         exclude: /node_modules/,
-        include: __dirname
-      },
-      {
+        include: __dirname,
+      }, {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        loader: 'eslint-loader',
+      }, {
         test: /\.less$/,
-        loader: "style-loader!css-loader!less-loader"
-      }
-    ]
+        loader: 'style-loader!css-loader!less-loader',
+      },
+    ],
   },
   resolve: {
     alias: {
-      config: path.join(__dirname, 'config', process.env.NODE_ENV || 'local')
-    }
-  }
+      config: path.join(__dirname, 'config', process.env.NODE_ENV || 'local'),
+    },
+  },
 };

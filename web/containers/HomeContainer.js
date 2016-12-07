@@ -1,6 +1,4 @@
-'use strict';
-import React, { Component } from 'react';
-import { Link } from 'react-router';
+import React, { Component, PropTypes } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as dataActions from '../ducks/data';
@@ -23,16 +21,21 @@ class HomeContainer extends Component {
   }
 }
 
-const mapStateToProps = (state, ownProps) => {
-  return {
-    forms: state.sc.forms.get('forms').toJS(),
-    stores: state.sc.dataStores.stores,
-    device_locations: state.sc.data.device_locations,
-    spatial_triggers: state.sc.triggers.spatial_triggers
-  };
+HomeContainer.propTypes = {
+  dataActions: PropTypes.object.isRequired,
+  triggerActions: PropTypes.object.isRequired,
+  formActions: PropTypes.object.isRequired,
+  storeActions: PropTypes.object.isRequired,
 };
 
-const mapDispatchToProps = (dispatch) => ({
+const mapStateToProps = state => ({
+  forms: state.sc.forms.get('forms').toJS(),
+  stores: state.sc.dataStores.stores,
+  device_locations: state.sc.data.device_locations,
+  spatial_triggers: state.sc.triggers.spatial_triggers,
+});
+
+const mapDispatchToProps = dispatch => ({
   dataActions: bindActionCreators(dataActions, dispatch),
   formActions: bindActionCreators(formActions, dispatch),
   triggerActions: bindActionCreators(triggerActions, dispatch),

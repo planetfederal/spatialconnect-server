@@ -1,53 +1,44 @@
-'use strict';
-
+/* global describe, it, before, after */
 import React from 'react';
-import ReactDOM from 'react-dom';
 import expect from 'expect';
 import { shallow } from 'enzyme';
 import { DataStoresContainer } from '../../containers/DataStoresContainer';
 import DataStoresList from '../../components/DataStoresList';
-import DataStoreForm from '../../components/DataStoreForm';
 import mockDataStores from '../data/mockDataStores';
 
-let props = {
+const props = {
   loading: false,
   stores: mockDataStores,
   addingNewDataStore: false,
   newDataStoreId: 'new data store id',
-  forms: {}
+  forms: {},
 };
 
-describe('DataStoresContainer', function() {
-
+describe('DataStoresContainer', () => {
   function setup() {
-    const component = shallow(
-      <DataStoresContainer {...props} />
-    );
+    const component = shallow(<DataStoresContainer {...props} />);
 
-    return {
-      component: component
-    };
+    return { component };
   }
 
-  it('should exist', function(){
+  it('should exist', () => {
     const { component } = setup();
     expect(component.hasClass('wrapper')).toBe(true);
   });
 
   it('should not be loading', () => {
-    const { component } = setup()
+    const { component } = setup();
     expect(component.find('p').text()).toMatch(/^$/);
   });
 
   it('should be render loading message when loading is true', () => {
-    const { component } = setup()
-    component.setProps({loading: true});
+    const { component } = setup();
+    component.setProps({ loading: true });
     expect(component.find('p').text()).toMatch(/Fetching Data Stores.../);
   });
 
   it('should have DataStoreList', () => {
-    const { component } = setup()
+    const { component } = setup();
     expect(component.find(DataStoresList).length).toEqual(1);
   });
-
 });
