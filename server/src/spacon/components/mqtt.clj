@@ -9,6 +9,7 @@
             [clojure.core.async :as async]
             [spacon.http.auth :refer [get-token]]))
 
+(def client-id "spacon-server")
 (def topics (ref {}))
 
 (defn add-topic [topic fn]
@@ -22,7 +23,7 @@
 (defn connectmqtt
   [url]
   (println "Connecting MQTT Client")
-  (mh/connect url (mh/generate-id)))
+  (mh/connect url client-id))
 
 ; publishes message on the send channel
 (defn- publish [mqtt topic message]

@@ -38,7 +38,6 @@
   ;; broker.  Eventually we will want to use this handler to ensure that a user has permission to subscribe or publish
   ;; to a specific topic.
   [request]
-  (println request)
   (let [auth-data (try (some->> (proto/-parse oauth-backend request)
                                 (proto/-authenticate oauth-backend request))
                        (catch Exception _))]
