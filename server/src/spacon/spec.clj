@@ -79,7 +79,6 @@
                     #(s/gen #{"FeatureCollection"})))
 (s/def ::featurecollection-spec (s/keys :req-un [:fcgj/type :gj/features]))
 
-(gen/sample (s/gen ::featurecollection-spec))
 ;;; spec for trigger
 (s/def :trigger/name string?)
 (s/def :trigger/description string?)
