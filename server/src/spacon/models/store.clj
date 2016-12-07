@@ -59,12 +59,8 @@
 
 (s/fdef all
         :args empty?
-        :ret (s/coll-of ::store-spec))
+        :ret (s/coll-of :spacon.spec/store-spec))
 
-(s/fdef find-by-id
-        :args (s/cat :id ::id)
-        :ret (s/or ::store-spec nil?))
-
-(s/fdef create-store
-        :args (s/cat :t ::store-spec)
-        :ret (s/or ::store-spec nil?))
+(s/fdef create
+        :args (s/cat :t :spacon.spec/store-spec)
+        :ret (s/or :spacon.spec/store-spec nil?))

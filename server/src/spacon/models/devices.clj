@@ -6,7 +6,7 @@
             [spacon.spec :as specs]))
 
 (defqueries "sql/device.sql"
-            {:connection db/db-spec})
+  {:connection db/db-spec})
 
 (defn- entity->map
   "maps an entity returned from the database to a clojure map"
@@ -46,19 +46,19 @@
   (if-not (s/valid? :spacon.spec/device-spec d)
     (s/explain-str :spacon.spec/device-spec d)
     (entity->map
-      (insert-device<! {:identifier  (:identifier d)
-                        :name        (:name d)
-                        :device_info (json/write-str (:device-info d))}))))
+     (create-device<! {:identifier  (:identifier d)
+                       :name        (:name d)
+                       :device_info (json/write-str (:device-info d))}))))
 
 (defn update
   "Updates the device info by the unique id"
   [identifier d]
   (let [di (:device-info d)]
     (entity->map
-      (update-device<! {:identifier identifier
-                        :device_info (if (nil? di)
-                                       nil
-                                       (json/write-str di))}))))
+     (update-device<! {:identifier identifier
+                       :device_info (if (nil? di)
+                                      nil
+                                      (json/write-str di))}))))
 
 (defn delete
   "Deactivates the device"
