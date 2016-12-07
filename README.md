@@ -1,4 +1,4 @@
-# spatialconnect-server
+# efc-server
 
 This server is the interface used to communicate with mobile clients
 using the SpatialConnect libraries.  It's also the API that powers the
@@ -11,93 +11,67 @@ dashboard web application.
 
 First you have to install [Docker](https://docs.docker.com/engine/installation/) for your local workstation.
 
-#### On OS X
 
-If you are developing on OS X, make sure that your Docker host vm is started `docker-machine ls` and that your shell is configured to use it `eval $(docker-machine env)`.
+### Local development environment setup
 
-
-### Running all the images for local development
-
-To setup all of the spatialconnect infrastructure for the first time, use docker-compose to
-setup the dependent services.
+First startup the database container:
 
 ```
-docker-compose up -d zookeeper kafka postgres
+docker-compose up -d postgis
 ```
 
-Then create the database and database user:
+Then create the database and database user.  (You may need to wait a few seconds for the db container to fully start)
 
 ```
-docker-compose run -e PGHOST=postgres -e PGUSER=postgres --rm postgres createuser spacon
-docker-compose run -e PGHOST=postgres -e PGUSER=postgres --rm postgres createdb spacon -O spacon
+docker-compose run -e PGHOST=postgis -e PGUSER=postgres --rm postgis createuser spacon
+docker-compose run -e PGHOST=postgis -e PGUSER=postgres --rm postgis createdb spacon -O spacon
 ```
 
-Then add the bottledwater extension to the postgres server.
+Then add the required extensions to our database.
 
 ```
-docker-compose run -e PGHOST=postgres -e PGUSER=spacon --rm postgres psql -U postgres -d spacon -c "CREATE EXTENSION bottledwater;"
+docker-compose run -e PGHOST=postgis -e PGUSER=postgres --rm postgis psql -d spacon -c "CREATE EXTENSION postgis;"
+docker-compose run -e PGHOST=postgis -e PGUSER=postgres --rm postgis psql -d spacon -c "CREATE EXTENSION pgcrypto;"
 ```
 
-Start the spatialconnect-server container
+Now run the migration.
+
+> You will need to install [leiningen](http://leiningen.org/) to run the migration, if you haven't installed it yet.  On OSX, run `brew install leiningen`.
 
 ```
-docker-compose up -d spatialconnect-server
+cd server/
+lein migrate
 ```
 
-> If this is the initial setup, you'll also need to run the migration with `docker-compose run --rm spatialconnect-server node_modules/db-migrate/bin/db-migrate up --env=development`
-
-
-You may also want to run the spatialconnect-server locally when developing
-instead of in the container.  This will allow you to have the hot reloading
-without having to rebuild the container each time or deal with syncing the
-container filesystem with your workstation.  
-
-You can still use the postgres container as the
-database even when running the code outside of the container but you have to
-setup a few things first:
-```
-# build the js bundle using NODE_ENV=container so it gets the correct API_URL
-cd web/
-NODE_ENV=container webpack
-# run the server with NODE_ENV=container so it connects to the container db
-cd ../server/
-NODE_ENV=container npm start
-```
-
-Start the bottledwater client by running
+Build the latest version of the efc-server container.
 
 ```
-docker-compose up -d bottledwater
+# assuming you're still in the server directory, build the uberjar
+lein uberjar
+
+# now build the container to run the uberjar
+cd /path/to/spatialconnect-server/
+docker-compose build efc-server
 ```
 
-To see all the topics that were created by the bottledwater client
-```
-docker-compose run --rm kafka-tools kafka-topics --zookeeper zookeeper --list
-```
-
-To see messages published to a topic, run the kafka console consumer for the
-topic you're interested in.  Below we look at the `stores` topic:
-```
-docker-compose run --rm kafka-tools kafka-console-consumer --zookeeper zookeeper --topic stores --from-beginning
-```
-
-To see the dashboard, you'll need to add an entry to your `/etc/hosts` file mapping
-the IP of your docker machine to the virtual host like so:
-```
-192.168.99.100 spatialconnect-server
-```
-
-Then you can visit http://spatialconnect-server to see everything running on
-your docker machine.
-
-
-To run the connectors,
+Start the efc-server container (which also starts the mosquitto container)
 
 ```
-dc up -d spatialconnect-connectors
+docker-compose up -d efc-server
+# you can tail the logs to ensure everything worked as expected
+docker-compose logs -f efc-server
 ```
 
-When you're done, don't forget to shut it down with
+
+To run the webapp for local development,
+
+```
+cd /path/to/spatialconnect-server/web
+npm install
+npm run start:local
+```
+
+When you're done, you can shut all the containers down with
 
 ```
 docker-compose stop
@@ -109,14 +83,10 @@ And if you want to remove all the containers, you can run
 docker-compose rm -vf
 ```
 
-To start the mosquitto container:
-```
-docker-compose up -d mosquitto
-```
 
 To test the TLS configuration, you can use the `mosquitto_pub` command line
 client.  Make sure you obtain a valid token by authenticating to the
-spatialconnect-server container api first.  Also note that the password is
+efc-server container api first.  Also note that the password is
 required even though it is not used.
 ```
 mosquitto_pub -h <container hostname or ip> -p 8883 -t "test" -m "sample pub"  -u "valid jwt" -P "anypass" --cafile path/to/ca.crt --insecure -d
