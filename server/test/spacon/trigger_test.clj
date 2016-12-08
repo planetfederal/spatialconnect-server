@@ -6,10 +6,13 @@
 (defn spec-passed?
   [s]
   (-> (stest/check s
-      {:clojure.spec.test.check/opts {:num-tests 25}})
+                   {:clojure.spec.test.check/opts {:num-tests 25}})
       first
       :clojure.spec.test.check/ret
       :result))
 
 (deftest create-trigger-test
   (is (true? (spec-passed? `trigger/create))))
+
+(deftest all-trigger-test
+  (is (true? (spec-passed? `trigger/all))))

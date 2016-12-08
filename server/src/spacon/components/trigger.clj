@@ -8,7 +8,7 @@
             [spacon.components.notification :as notification]
             [cljts.relation :as relation]
             [clojure.core.async :as async]
-            [spacon.entity.notification :refer [make-mobile-notification] ]
+            [spacon.entity.notification :refer [make-mobile-notification]]
             [cljts.io :as jtsio]
             [clojure.data.json :as json]))
 
@@ -88,14 +88,14 @@
 
 (defn http-put-trigger [context]
   (let [t (:json-params context)
-        r (response/ok (triggermodel/update (get-in context [:path-params :id]) t))]
+        r (response/ok (triggermodel/modify (get-in context [:path-params :id]) t))]
     (add-trigger t)
     r))
 
 (defn http-put-trigger [context]
   (let [t (:json-params context)]
     (if (s/valid? :spacon.spec/trigger-spec t)
-      (let [r (response/ok (triggermodel/update
+      (let [r (response/ok (triggermodel/modify
                             (get-in context [:path-params :id]) t))]
         (add-trigger t)
         r)
