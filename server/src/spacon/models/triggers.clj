@@ -90,5 +90,21 @@
   [id]
   (delete-trigger! {:id (java.util.UUID/fromString id)}))
 
+(s/fdef find-by-id
+        :args (s/cat :id (s/and int? pos?))
+        :ret (s/spec :spacon.spec/trigger-spec))
+
+(s/fdef all
+        :ret (s/spec :spacon.spec/trigger-spec))
+
 (s/fdef create
-        :args (s/cat :trigger (s/spec :spacon.spec/trigger-spec)))
+        :args (s/cat :trigger (s/spec :spacon.spec/trigger-spec))
+        :ret (s/spec :spacon.spec/trigger-spec))
+
+(s/fdef update
+        :args (s/cat :id (s/and int? pos?)
+                     :t (s/spec :spacon.spec/trigger-spec))
+        :ret (s/spec :spacon.spec/trigger-spec))
+
+(s/fdef delete
+        :args (s/cat :id (s/and int? pos?)))
