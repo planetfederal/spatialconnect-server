@@ -24,7 +24,8 @@
                  [camel-snake-kebab "0.4.0"]
                  [org.clojars.diogok/cljts "0.5.0"]
                  [org.clojure/tools.nrepl "0.2.12"]
-                 [jonase/eastwood "0.2.3" :exclusions [org.clojure/clojure]]]
+                 [jonase/eastwood "0.2.3" :exclusions [org.clojure/clojure]]
+                 [com.draines/postal "2.0.2"]]
 
   :repositories  [["osgeo" "http://download.osgeo.org/webdav/geotools/"]
                   ["clojars" {:sign-releases false}]
