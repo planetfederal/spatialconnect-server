@@ -8,7 +8,6 @@
             [io.pedestal.http :as server]
             [spacon.server :refer [system]]))
 
-
 (defn init-dev []
   (System/setProperty "javax.net.ssl.trustStore"
                       (or (System/getenv "TRUST_STORE")
@@ -34,8 +33,6 @@
                                                    :allowed-origins (constantly true)}}
            :mqtt-config {:broker-url (or (System/getenv "MQTT_BROKER_URL")
                                          "tcp://localhost:1883")}}))
-
-
 
 (def system-val nil)
 

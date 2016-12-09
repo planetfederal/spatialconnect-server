@@ -22,8 +22,8 @@
 
 (defn http-put-device [context]
   (if-let [d (devicemodel/update
-               (get-in context [:path-params :id])
-               (:json-params context))]
+              (get-in context [:path-params :id])
+              (:json-params context))]
     (response/ok d)
     (response/error "Error updating")))
 

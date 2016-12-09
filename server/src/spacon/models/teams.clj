@@ -28,7 +28,7 @@
   (if-not (s/valid? ::team-spec team)
     (s/explain-str ::team-spec team)
     (sanitize (insert-team<! {:name (:name team)
-                     :organizationid (:organization-id team)}))))
+                              :organizationid (:organization-id team)}))))
 
 (defn modify [id team]
   (if-not (s/valid? ::team-spec team)

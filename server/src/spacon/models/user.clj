@@ -36,4 +36,4 @@
   (let [user-info {:name     (:name u)
                    :email    (:email u)
                    :password (hashers/derive (:password u))}]
-    (sanitize (create<! user-info))) )
+    (sanitize (create<! user-info))))

@@ -3,7 +3,6 @@
             [clojure.java.jdbc :as jdbc])
   (:import [org.postgresql.util PGobject]))
 
-
 (deftype StringArray [items]
   clojure.java.jdbc/ISQLParameter
   (set-parameter [_ stmt ix]

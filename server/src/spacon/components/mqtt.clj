@@ -14,11 +14,11 @@
 
 (defn add-topic [topic fn]
   (dosync
-    (commute topics assoc (keyword topic) fn)))
+   (commute topics assoc (keyword topic) fn)))
 
 (defn remove-topic [topic]
   (dosync
-    (commute topics dissoc (keyword topic))))
+   (commute topics dissoc (keyword topic))))
 
 (defn connectmqtt
   [url]
@@ -36,7 +36,7 @@
 (defn subscribe [mqtt topic f]
   (add-topic topic f)
   (mh/subscribe (:conn mqtt) {topic 2} (fn [^String topic _ ^bytes payload]
-                                           (receive mqtt topic payload))))
+                                         (receive mqtt topic payload))))
 
 (defn unsubscribe [mqtt topic]
   (remove-topic topic)
@@ -44,14 +44,14 @@
 
 (defn- process-publish-channel [mqtt chan]
   (async/go (while true
-             (let [v (async/<!! chan)
-                   t (:topic v)
-                   m (:message v)]
-               (try
-                 (mh/publish (:conn mqtt) t m)
-                 (catch Exception e
-                   (println (.getLocalizedMessage e))
-                   (println e)))))))
+              (let [v (async/<!! chan)
+                    t (:topic v)
+                    m (:message v)]
+                (try
+                  (mh/publish (:conn mqtt) t m)
+                  (catch Exception e
+                    (println (.getLocalizedMessage e))
+                    (println e)))))))
 
 (defn- process-subscribe-channel [chan]
   (async/go (while true
@@ -59,7 +59,7 @@
                     t (:topic v)
                     m (:message v)
                     f ((keyword t) @topics)]
-                   (f m)))))
+                (f m)))))
 
 (defn publish-scmessage [mqtt topic message]
   (publish mqtt topic message))
@@ -73,7 +73,7 @@
   (response/ok "success"))
 
 (defn- routes [mqtt] #{["/api/mqtt" :post
-                            (conj intercept/common-interceptors (partial http-mq-post mqtt)) :route-name :http-mq-post]})
+                        (conj intercept/common-interceptors (partial http-mq-post mqtt)) :route-name :http-mq-post]})
 
 (defrecord MqttComponent [mqtt-config]
   component/Lifecycle

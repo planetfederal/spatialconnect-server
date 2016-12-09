@@ -89,7 +89,7 @@
                               :minimum_length    (:minimum_length %)
                               :maximum_length    (:maximum_length %)
                               :exclusive_minimum (:exclusive_minimum %)
-                             :exclusive_maximum (:exclusive_maximum %)}
+                              :exclusive_maximum (:exclusive_maximum %)}
                              tnx)
                            fields))
           sanitized-fields (map #(sanitize %) new-fields)]

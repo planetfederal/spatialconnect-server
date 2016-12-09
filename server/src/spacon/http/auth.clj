@@ -42,9 +42,8 @@
                                 (proto/-authenticate oauth-backend request))
                        (catch Exception _))]
     (if (:user auth-data)
-        (response/ok "User authorized!")
-        (response/unauthorized "User not authorized!"))))
-
+      (response/ok "User authorized!")
+      (response/unauthorized "User not authorized!"))))
 
 (def check-auth
   ;; interceptor to check for Authorization: Token <a token created from get-token>
@@ -55,14 +54,13 @@
                                           (proto/-authenticate auth-backend request))
                                  (catch Exception _))]
               (if (:user auth-data)
-                  (assoc-in context [:request :identity] auth-data)
-                  (-> context
-                      terminate
-                      (assoc :response {:status 401
-                                        :body {:result nil
-                                               :success false
-                                               :error "Request failed auth check."}})))))})
-
+                (assoc-in context [:request :identity] auth-data)
+                (-> context
+                    terminate
+                    (assoc :response {:status 401
+                                      :body {:result nil
+                                             :success false
+                                             :error "Request failed auth check."}})))))})
 
 (defn routes []
   #{["/api/authenticate" :post (conj intercept/common-interceptors `authenticate-user)]
