@@ -1,8 +1,7 @@
 import * as request from 'superagent-bluebird-promise';
-import Immutable from 'immutable';
 import { API_URL } from 'config';
 import { push } from 'react-router-redux';
-import { merge, keyBy, pick } from 'lodash';
+import { find, merge, keyBy, pick, omit } from 'lodash';
 import { initForm } from '../utils';
 
 // define action types
@@ -27,51 +26,82 @@ export const UPDATE_SAVED_FORM = 'sc/forms/UPDATE_SAVED_FORM';
 export const REMOVE_FIELD = 'sc/forms/REMOVE_FIELD';
 
 // define an initialState
-const initialState = Immutable.fromJS({
+const initialState = {
   loading: false,
   loaded: false,
   forms: {},
   saved_forms: {},
   activeForm: false, // field id
   addFormError: false,
-});
+};
 
-const formReducer = (state = Immutable.Map(), action) => {
+const formReducer = (state = {}, action) => {
   switch (action.type) {
     case UPDATE_FORM_NAME:
-      return state.set('form_label', action.newName);
+      return {
+        ...state,
+        form_label: action.newName,
+      };
     case UPDATE_FORM_VALUE:
-      return state.set('value', Immutable.fromJS(action.value));
+      return {
+        ...state,
+        value: action.value,
+      };
     case UPDATE_FIELD_OPTION:
-      return state.set('fields', state.get('fields').update(
-          state.get('fields').findIndex(f => f.get('id') === action.fieldId),
-          f => f.set(action.option, action.value),
-        ),
-      );
+      return {
+        ...state,
+        fields: state.fields.map((field) => {
+          if (field.id === action.fieldId) {
+            return {
+              ...field,
+              [action.option]: action.value,
+            };
+          }
+          return field;
+        }),
+      };
     case UPDATE_ACTIVE_FIELD:
-      return state.set('activeField', action.fieldId);
+      return {
+        ...state,
+        activeField: action.fieldId,
+      };
     case ADD_FIELD:
-      return state.set('fields', state.get('fields').push(Immutable.fromJS(action.field)));
+      return {
+        ...state,
+        fields: state.fields.concat(action.field),
+      };
     case SWAP_FIELD_ORDER:
-      return state
-        .set('fields', state.get('fields')
-          .update(state.get('fields').findIndex(f => f.get('position') === action.indexOne), f => f.set('position', action.indexTwo))
-          .update(state.get('fields').findIndex(f => f.get('position') === action.indexTwo), f => f.set('position', action.indexOne)),
-        );
+      return {
+        ...state,
+        fields: state.fields.map((field) => {
+          if (field.position === action.indexOne) {
+            return {
+              ...field,
+              position: action.indexTwo,
+            };
+          }
+          if (field.position === action.indexTwo) {
+            return {
+              ...field,
+              position: action.indexOne,
+            };
+          }
+          return field;
+        }),
+      };
     case REMOVE_FIELD: {
-      const fieldPath = ['fields', state.get('fields').findIndex(f => f.get('id') === action.fieldId)];
-      const field = state.getIn(fieldPath);
-      return state
-        .set('fields', state.get('fields').update(fields =>
-          // filter fields to remove fieldId
-           fields.filter(f => f.get('id') !== action.fieldId).map((f) => {
-            // update field orders to reflect removal
-             if (f.get('position') > field.get('position')) {
-               return f.set('position', f.get('position') - 1);
-             }
-             return f;
-           })))
-        .set('deletedFields', state.get('deletedFields').push(action.fieldId));
+      const fieldToRemove = find(state.fields, { id: action.fieldId });
+      return {
+        ...state,
+        fields: state.fields.filter(field => field.id !== action.fieldId)
+          .map((field) => {
+            if (field.position > fieldToRemove.position) {
+              return { ...field, position: field.posiiton - 1 };
+            }
+            return field;
+          }),
+        deletedFields: state.deletedFields.concat(action.fieldId),
+      };
     }
     default:
       return state;
@@ -81,36 +111,64 @@ const formReducer = (state = Immutable.Map(), action) => {
 export default function reducer(state = initialState, action = {}) {
   switch (action.type) {
     case LOAD:
-      return state.set('loading', true);
+      return {
+        ...state,
+        loading: true,
+      };
     case LOAD_SUCCESS:
-      return state
-        .set('loading', false)
-        .set('loaded', true)
-        .set('forms', Immutable.fromJS(action.forms))
-        .set('saved_forms', Immutable.fromJS(action.forms));
+      return {
+        ...state,
+        loading: false,
+        loaded: true,
+        forms: action.forms,
+        saved_forms: action.forms,
+      };
     case LOAD_FAIL:
-      return state
-        .set('loading', false)
-        .set('loaded', false)
-        .set('error', action.error);
+      return {
+        ...state,
+        loading: false,
+        loaded: false,
+        error: action.error,
+      };
     case ADD_FORM:
-      return state
-        .setIn(['forms', action.form.form_key], Immutable.fromJS(action.form));
+      return {
+        ...state,
+        forms: {
+          ...state.forms,
+          [action.form.form_key]: action.form,
+        },
+      };
     case DELETE_FORM:
-      return state
-        .deleteIn(['forms', action.form_key]);
+      return {
+        ...state,
+        forms: omit(state.forms, action.form_key),
+      };
     case ADD_FORM_ERROR:
-      return state
-        .set('addFormError', action.error);
+      return {
+        ...state,
+        addFormError: action.error,
+      };
     case UPDATE_ACTIVE_FORM:
-      return state
-        .set('activeForm', action.form_key);
+      return {
+        ...state,
+        activeForm: action.form_key,
+      };
     case UPDATE_SAVED_FORM:
-      return state
-        .setIn(['saved_forms', action.form_key], Immutable.fromJS(action.form));
+      return {
+        ...state,
+        saved_forms: {
+          ...state.saved_forms,
+          [action.form_key]: action.form,
+        },
+      };
     case UPDATE_FORM:
-      return state
-        .setIn(['forms', action.form_key], Immutable.fromJS(action.newForm));
+      return {
+        ...state,
+        forms: {
+          ...state.forms,
+          [action.form_key]: action.newForm,
+        },
+      };
     case UPDATE_FORM_NAME:
     case UPDATE_FORM_VALUE:
     case UPDATE_FIELD_OPTION:
@@ -118,8 +176,14 @@ export default function reducer(state = initialState, action = {}) {
     case ADD_FIELD:
     case SWAP_FIELD_ORDER:
     case REMOVE_FIELD: {
-      const formPath = ['forms', action.form_key];
-      return state.setIn(formPath, formReducer(state.getIn(formPath), action));
+      const formToUpdate = state.forms[action.form_key];
+      return {
+        ...state,
+        forms: {
+          ...state.forms,
+          [action.form_key]: formReducer(formToUpdate, action),
+        },
+      };
     }
     default: return state;
   }
@@ -160,7 +224,7 @@ export function updateFormValue(form_key, value) {
 export function addField(payload) {
   return (dispatch, getState) => {
     const { sc } = getState();
-    const position = sc.forms.getIn(['forms', payload.form_key, 'fields']).size;
+    const position = sc.forms.forms[payload.form_key].fields.length;
     const field = merge({
       id: position + 1,
       position,

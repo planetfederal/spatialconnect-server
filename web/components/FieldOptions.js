@@ -1,11 +1,14 @@
 import React, { Component, PropTypes } from 'react';
+import { find } from 'lodash';
 import { toKey } from '../utils';
 import '../style/FormDetails.less';
 
 const fieldOptions = {
-  string: ['field_label', 'field_key', 'is_required', 'initial_value', 'minimum_length', 'maximum_length', 'pattern'],
+  string: ['field_label', 'field_key', 'is_required', 'initial_value',
+    'minimum_length', 'maximum_length', 'pattern'],
   select: ['field_label', 'field_key', 'is_required', 'options'],
-  number: ['field_label', 'field_key', 'is_required', 'initial_value', 'minimum', 'maximum', 'is_integer', 'exclusive_minimum', 'exclusive_maximum'],
+  number: ['field_label', 'field_key', 'is_required', 'initial_value',
+    'minimum', 'maximum', 'is_integer', 'exclusive_minimum', 'exclusive_maximum'],
   boolean: ['field_label', 'field_key', 'is_required'],
   date: ['field_label', 'field_key', 'is_required'],
   slider: ['field_label', 'field_key', 'is_required', 'initial_value', 'minimum', 'maximum'],
@@ -45,8 +48,8 @@ class FieldOptions extends Component {
     } else if (option === 'field_label') {
       value = e.target.value;
       this.props.updateFieldOption(
-        this.props.form.get('form_key'),
-        this.props.form.get('activeField'),
+        this.props.form.form_key,
+        this.props.form.activeField,
         'field_key',
         toKey(value),
       );
@@ -54,8 +57,8 @@ class FieldOptions extends Component {
       value = e.target.value;
     }
     this.props.updateFieldOption(
-      this.props.form.get('form_key'),
-      this.props.form.get('activeField'),
+      this.props.form.form_key,
+      this.props.form.activeField,
       option,
       value,
     );
@@ -63,23 +66,21 @@ class FieldOptions extends Component {
 
   removeField() {
     this.props.removeField(
-      this.props.form.get('form_key'),
-      this.props.form.get('activeField'),
+      this.props.form.form_key,
+      this.props.form.activeField,
     );
   }
 
   makeOptionInput(field) {
-    return fieldOptions[field.get('type')].map((o, i) => {
+    return fieldOptions[field.type].map((o, i) => {
       if (o === 'is_integer' || o === 'is_required') {
         return (
           <div className="checkbox" key={o + i}>
-            <label htmlFor={field.get('field_key')}>
+            <label htmlFor={field.field_key}>
               <input
                 type="checkbox"
-                id={field.get('field_key')}
-                checked={
-                  (field.get(o, null) !== null && field.get(o, null) === true)
-                }
+                id={field.field_key}
+                checked={field[o] && field[o] === true}
                 onChange={(e) => { this.changeOption(o, e); }}
               /> {fieldLabels[o]}
             </label>
@@ -94,7 +95,7 @@ class FieldOptions extends Component {
               className="form-control" rows="3"
               id={o}
               onChange={(e) => { this.changeOption(o, e); }}
-              value={field.get(o, null) !== null ? field.get(o).join('\n') : ''}
+              value={field[o] ? field[o].join('\n') : ''}
             />
           </div>
         );
@@ -105,7 +106,7 @@ class FieldOptions extends Component {
           <input
             type="text" className="form-control"
             id={o}
-            value={field.get(o, null) !== null ? field.get(o) : ''}
+            value={field[o] ? field[o] : ''}
             onChange={(e) => { this.changeOption(o, e); }}
           />
         </div>
@@ -115,25 +116,25 @@ class FieldOptions extends Component {
 
   render() {
     const { form } = this.props;
-    const activeField = form.get('activeField', null);
-    if (activeField === null) {
+    const activeField = form.activeField;
+    const field = find(form.fields, { id: activeField });
+    if (activeField && field) {
+      const optionInputs = this.makeOptionInput(field);
       return (
         <div className="form-options form-pane">
           <div className="form-pane-title"><h5>Field Options</h5></div>
           <div className="form-pane-wrapper">
-            <p className="warning-message">Select field.</p>
+            {optionInputs}
+            <button className="btn btn-danger" onClick={this.removeField}>Delete Field</button>
           </div>
         </div>
       );
     }
-    const field = form.getIn(['fields', form.get('fields').findIndex(f => f.get('id') === activeField)]);
-    const optionInputs = this.makeOptionInput(field);
     return (
       <div className="form-options form-pane">
         <div className="form-pane-title"><h5>Field Options</h5></div>
         <div className="form-pane-wrapper">
-          {optionInputs}
-          <button className="btn btn-danger" onClick={this.removeField}>Delete Field</button>
+          <p className="warning-message">Select field.</p>
         </div>
       </div>
     );

@@ -11,13 +11,13 @@ class FormOptions extends Component {
   }
   changeLabel(e) {
     this.props.updateFormName(
-      this.props.form.get('form_key'),
+      this.props.form.form_key,
       e.target.value,
     );
   }
 
   deleteForm() {
-    this.props.deleteForm(this.props.form.get('form_key'));
+    this.props.deleteForm(this.props.form.form_key);
   }
 
   render() {
@@ -30,7 +30,7 @@ class FormOptions extends Component {
             <label htmlFor="exampleInputEmail1">Form name</label>
             <input
               type="text" className="form-control"
-              value={form.get('form_label')}
+              value={form.form_label}
               onChange={this.changeLabel}
             />
           </div>

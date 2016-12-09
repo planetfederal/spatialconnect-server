@@ -6,15 +6,17 @@ import '../style/FormList.less';
 
 const FormItem = ({ form }) => (
   <div className="form-item">
-    <h4><Link to={`/forms/${form.get('form_key')}`}>{form.get('form_label')}</Link></h4>
+    <h4><Link to={`/forms/${form.form_key}`}>{form.form_label}</Link></h4>
     <div className="properties">
-      <PropertyListItem name={'Version'} value={form.get('version')} />
-      <PropertyListItem name={'Team'} value={form.get('team_name')} />
-      {form.get('metadata') ?
+      <PropertyListItem name={'Version'} value={form.version} />
+      <PropertyListItem name={'Team'} value={form.team_name} />
+      {form.metadata ?
         <div>
-          <PropertyListItem name={'Number of Records'} value={form.get('metadata').get('count')} />
-          {form.get('metadata').get('lastActivity') ?
-            <PropertyListItem name={'Last Activity'} value={moment(form.get('metadata').get('lastActivity')).fromNow()} />
+          <PropertyListItem name={'Number of Records'} value={form.metadata.count} />
+          {form.metadata.lastActivity ?
+            <PropertyListItem
+              name={'Last Activity'} value={moment(form.metadata.lastActivity).fromNow()}
+            />
         : null}
         </div> : null }
     </div>
@@ -27,9 +29,10 @@ FormItem.propTypes = {
 
 const FormsList = ({ forms, selectedTeamId }) => (
   <div className="form-list">
-    {forms.valueSeq().map((f) => {
-      if (selectedTeamId === f.get('team_id')) {
-        return <FormItem form={f} key={f.get('id')} />;
+    {Object.keys(forms).map((key) => {
+      const form = forms[key];
+      if (selectedTeamId === form.team_id) {
+        return <FormItem form={form} key={form.id} />;
       }
       return null;
     })}

@@ -37,7 +37,7 @@ DataContainer.propTypes = {
 const mapStateToProps = state => ({
   formData: state.sc.data.formData,
   form_ids: state.sc.data.form_ids,
-  forms: state.sc.forms.get('forms').toJS(),
+  forms: state.sc.forms.forms,
   device_locations: state.sc.data.device_locations,
   deviceLocationsOn: state.sc.data.deviceLocationsOn,
   spatialTriggersOn: state.sc.data.spatialTriggersOn,

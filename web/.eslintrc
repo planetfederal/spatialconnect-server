@@ -4,6 +4,7 @@
     "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
     "react/forbid-prop-types": [1, { "forbid": ["any"] }],
     "react/no-find-dom-node": "off",
+    "max-len": ["error", 100, { "ignoreComments": true, "ignoreRegExpLiterals": true }],
     "jsx-a11y/no-static-element-interactions": "off",
     "no-underscore-dangle": "off",
     "camelcase": "off",

@@ -2,7 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Modal from 'react-modal';
-import { last } from 'lodash';
+import { isEqual, last } from 'lodash';
 import scformschema from 'spatialconnect-form-schema';
 import * as formActions from '../ducks/forms';
 import FormInfoBar from '../components/FormInfoBar';
@@ -27,10 +27,10 @@ class FormDetailsContainer extends Component {
   static checkEditStatus(props) {
     let edited = false;
     if (props.saved_form && props.form) {
-      if ((props.saved_form.get('form_label') === props.form.get('form_label')) === false) {
+      if (!(props.saved_form.form_label === props.form.form_label)) {
         edited = true;
       }
-      if (props.saved_form.get('fields').equals(props.form.get('fields')) === false) {
+      if (!isEqual(props.saved_form.fields, props.form.fields)) {
         edited = true;
       }
     }
@@ -60,7 +60,7 @@ class FormDetailsContainer extends Component {
   }
 
   saveForm() {
-    const form = this.props.form.toJS();
+    const form = this.props.form;
     const validationErrors = scformschema.validate(form);
     if (validationErrors.length) {
       this.setState({
@@ -144,12 +144,12 @@ FormDetailsContainer.propTypes = {
 
 const mapStateToProps = (state, ownProps) => ({
   form_key: ownProps.params.form_key,
-  loading: state.sc.forms.get('loading'),
-  forms: state.sc.forms.get('forms'),
-  form: state.sc.forms.getIn(['forms', ownProps.params.form_key]),
-  saved_forms: state.sc.forms.get('saved_forms'),
-  savedForm: state.sc.forms.getIn(['saved_forms', ownProps.params.form_key]),
-  activeForm: state.sc.forms.get('activeForm'),
+  loading: state.sc.forms.loading,
+  forms: state.sc.forms.forms,
+  form: state.sc.forms.forms[ownProps.params.form_key],
+  saved_forms: state.sc.forms.saved_forms,
+  savedForm: state.sc.forms.saved_forms[ownProps.params.form_key],
+  activeForm: state.sc.forms.activeForm,
 });
 
 const mapDispatchToProps = dispatch => ({

@@ -75,7 +75,10 @@ class DataMap extends Component {
         {typeof f.metadata.device_info.os === 'string' ?
           <tr><td>OS:</td><td>{f.metadata.device_info.os}</td></tr> : null}
         {typeof f.metadata.updated_at === 'string' ?
-          <tr><td>Time Recorded:</td><td>{moment(f.metadata.updated_at).format('dddd, MMMM Do YYYY, h:mm:ss a')}</td></tr> : null}
+          <tr>
+            <td>Time Recorded:</td>
+            <td>{moment(f.metadata.updated_at).format('dddd, MMMM Do YYYY, h:mm:ss a')}</td>
+          </tr> : null}
       </tbody></table>
     </div>);
     return table;
@@ -159,11 +162,13 @@ class DataMap extends Component {
         this.map.addOverlay(popup);
         popup.setPosition(c);
         if (gj.id.indexOf('form_submission') > -1) {
-          const data = this.props.formData.filter(fd => fd.id === +gj.id.replace('form_submission.', ''));
+          const data = this.props.formData
+            .filter(fd => fd.id === +gj.id.replace('form_submission.', ''));
           this.setState({ activeFeature: data[0] });
         }
         if (gj.id.indexOf('device_location') > -1) {
-          const data = this.props.device_locations.filter(fd => fd.id === +gj.id.replace('device_location.', ''));
+          const data = this.props.device_locations
+            .filter(fd => fd.id === +gj.id.replace('device_location.', ''));
           this.setState({ deviceLocationActive: data[0] });
         }
       } else {

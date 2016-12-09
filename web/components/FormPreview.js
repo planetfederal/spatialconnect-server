@@ -25,15 +25,15 @@ class FormPreview extends Component {
   }
 
   onFormChange(value) {
-    this.props.updateFormValue(this.props.form.get('form_key'), value);
+    this.props.updateFormValue(this.props.form.form_key, value);
   }
 
   moveField(dragIndex, hoverIndex) {
-    this.props.swapFieldOrder(this.props.form.get('form_key'), dragIndex, hoverIndex);
+    this.props.swapFieldOrder(this.props.form.form_key, dragIndex, hoverIndex);
   }
 
   template(locals) {
-    const inputs = _.sortBy(this.props.form.get('fields').toJS(), 'position').map((field, idx) => (
+    const inputs = _.sortBy(this.props.form.fields, 'position').map((field, idx) => (
       <Field
         updateActiveField={this.props.updateActiveField}
         form={this.props.form}
@@ -55,17 +55,17 @@ class FormPreview extends Component {
   render() {
     const { form } = this.props;
     let formEl;
-    if (form.get('fields').size === 0) {
+    if (form.fields.length === 0) {
       formEl = <div><p className="warning-message">Add fields.</p></div>;
     } else {
-      const { schema, options } = scformschema.translate(form.toJS());
+      const { schema, options } = scformschema.translate(form);
       options.template = locals => this.template(locals);
       formEl = (
         <form onSubmit={FormPreview.onSubmit}>
           <t.form.Form
             type={transform(schema)}
             options={options}
-            value={form.get('value').toJS()}
+            value={form.value}
             onChange={this.onFormChange}
           />
         </form>

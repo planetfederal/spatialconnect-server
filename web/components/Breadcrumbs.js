@@ -16,9 +16,9 @@ class Breadcrumbs extends Component {
         }
       }
       if (route.path === '/forms/:form_key') {
-        const form = sc.forms.get('forms').find(f => f.get('form_key') === params.form_key);
+        const form = sc.forms.forms[params.form_key];
         if (form) {
-          route.name = form.get('form_label');
+          route.name = form.form_label;
         }
       }
       if (route.path === '/triggers/:id') {

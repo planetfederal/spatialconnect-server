@@ -33,7 +33,8 @@ class SignIn extends Component {
     return (
       <section className="main">
         <div className="side-form">
-          {this.props.statusText ? <div className="alert alert-danger">{this.props.statusText}</div> : ''}
+          {this.props.statusText ?
+            <div className="alert alert-danger">{this.props.statusText}</div> : ''}
           <form role="form">
             <div className="form-group">
               <label htmlFor="email">Email</label>

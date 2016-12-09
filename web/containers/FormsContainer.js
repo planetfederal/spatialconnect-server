@@ -78,9 +78,9 @@ FormsContainer.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  loading: state.sc.forms.get('loading'),
-  forms: state.sc.forms.get('forms'),
-  addFormError: state.sc.forms.get('addFormError'),
+  loading: state.sc.forms.loading,
+  forms: state.sc.forms.forms,
+  addFormError: state.sc.forms.addFormError,
   selectedTeamId: state.sc.auth.selectedTeamId,
 });
 

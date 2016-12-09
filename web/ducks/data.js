@@ -101,7 +101,7 @@ export function loadFormDataAll() {
   return (dispatch, getState) => {
     const state = getState();
     const token = state.sc.auth.token;
-    const forms = values(state.sc.forms.get('forms').toJS());
+    const forms = values(state.sc.forms.forms);
     return Promise.all(
       forms.map((form) => {
         dispatch(addFormId(form.id));
