@@ -1,52 +1,36 @@
-'use strict';
-import React, { Component } from 'react';
-import { Link } from 'react-router';
+import React, { Component, PropTypes } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { delay } from 'lodash';
 import Header from '../components/Header';
 import SideMenu from '../components/SideMenu';
 import * as authActions from '../ducks/auth';
 import * as menuActions from '../ducks/menu';
-
 import '../style/App.less';
 
 const getWindowWidth = () => {
-  let w = window,
-      d = document,
-      documentElement = d.documentElement,
-      body = d.getElementsByTagName('body')[0],
-      width = w.innerWidth || documentElement.clientWidth || body.clientWidth;
+  const w = window;
+  const d = document;
+  const documentElement = d.documentElement;
+  const body = d.getElementsByTagName('body')[0];
+  const width = w.innerWidth || documentElement.clientWidth || body.clientWidth;
 
   return width;
-}
+};
 
 class AppContainer extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      width: getWindowWidth()
+      width: getWindowWidth(),
     };
-  }
-  toggleMenu() {
-    this.props.menuActions.toggleMenu();
-  }
-  closeMenu() {
-    if (this.state.width < 600) {
-      this.props.menuActions.closeMenu();
-    }
-  }
-  updateDimensions() {
-    this.setState({width: getWindowWidth()});
-  }
 
-  changeTeam(event) {
-    this.props.actions.changeTeam(event.target.value);
+    this.toggleMenu = this.toggleMenu.bind(this);
+    this.closeMenu = this.closeMenu.bind(this);
+    this.changeTeam = this.changeTeam.bind(this);
   }
-
 
   componentDidMount() {
-    window.addEventListener("resize", this.updateDimensions.bind(this));
+    window.addEventListener('resize', this.updateDimensions.bind(this));
     if (getWindowWidth() >= 600) {
       this.props.menuActions.openMenu();
     } else {
@@ -54,14 +38,38 @@ class AppContainer extends Component {
     }
   }
   componentWillUnmount() {
-    window.removeEventListener("resize", this.updateDimensions.bind(this));
+    window.removeEventListener('resize', this.updateDimensions.bind(this));
   }
+
+  toggleMenu() {
+    this.props.menuActions.toggleMenu();
+  }
+
+  closeMenu() {
+    if (this.state.width < 600) {
+      this.props.menuActions.closeMenu();
+    }
+  }
+
+  updateDimensions() {
+    this.setState({ width: getWindowWidth() });
+  }
+
+  changeTeam(event) {
+    this.props.actions.changeTeam(event.target.value);
+  }
+
   render() {
     return (
       <div id="app">
-        <Header {...this.props} toggleMenu={this.toggleMenu.bind(this)} />
+        <Header {...this.props} toggleMenu={this.toggleMenu} />
         <div className="main-container">
-          <SideMenu {...this.props} closeMenu={this.closeMenu.bind(this)} menuOpen={this.props.menu.open} changeTeam={this.changeTeam.bind(this)}/>
+          <SideMenu
+            {...this.props}
+            closeMenu={this.closeMenu}
+            menuOpen={this.props.menu.open}
+            changeTeam={this.changeTeam}
+          />
           {this.props.children}
         </div>
       </div>
@@ -69,19 +77,24 @@ class AppContainer extends Component {
   }
 }
 
-const mapStateToProps = (state, ownProps) => {
-  return {
-    isAuthenticated: state.sc.auth.isAuthenticated,
-    userName: state.sc.auth.userName,
-    teams: state.sc.auth.teams,
-    id: ownProps.params.id,
-    menu: state.sc.menu
-  };
+AppContainer.propTypes = {
+  children: PropTypes.object,
+  menu: PropTypes.object.isRequired,
+  menuActions: PropTypes.object.isRequired,
+  actions: PropTypes.object.isRequired,
 };
 
-const mapDispatchToProps = (dispatch) => ({
+const mapStateToProps = (state, ownProps) => ({
+  isAuthenticated: state.sc.auth.isAuthenticated,
+  userName: state.sc.auth.userName,
+  teams: state.sc.auth.teams,
+  id: ownProps.params.id,
+  menu: state.sc.menu,
+});
+
+const mapDispatchToProps = dispatch => ({
   actions: bindActionCreators(authActions, dispatch),
-  menuActions: bindActionCreators(menuActions, dispatch)
+  menuActions: bindActionCreators(menuActions, dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppContainer);

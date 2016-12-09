@@ -1,35 +1,24 @@
-'use strict';
-
+/* global describe, it, before, after */
 import React from 'react';
-import ReactDOM from 'react-dom';
-import TestUtils, { createRenderer } from 'react-addons-test-utils';
 import expect from 'expect';
 import { shallow } from 'enzyme';
 import DataStoreItem from '../../components/DataStoreItem';
-import DataStoreForm from '../../components/DataStoreForm';
-import mockDataStores from '../data/mockDataStores';
 
-describe('DataStoreItem', function() {
-
-  function setup(props={}) {
-    let defaultProps = {
+describe('DataStoreItem', () => {
+  function setup(props = {}) {
+    const defaultProps = {
       store: {},
-      onSubmit: () => {}
+      onSubmit: () => {},
     };
-    props = Object.assign(defaultProps, props);
+    const newProps = Object.assign(defaultProps, props);
 
-    const component = shallow(
-      <DataStoreItem {...props} />
-    );
+    const component = shallow(<DataStoreItem {...newProps} />);
 
-    return {
-      component: component
-    };
+    return { component };
   }
 
-  it('should exist', function(){
+  it('should exist', () => {
     const { component } = setup();
-    expect(component.type()).toBe('div')
+    expect(component.type()).toBe('div');
   });
-
 });

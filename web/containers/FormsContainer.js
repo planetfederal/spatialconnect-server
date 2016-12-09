@@ -1,20 +1,25 @@
-'use strict';
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as formActions from '../ducks/forms';
 import FormsList from '../components/FormsList';
-import FormCreate from '../components/FormCreate';
-import FormDetailsContainer from './FormDetailsContainer';
-import { Link, browserHistory } from 'react-router';
+import { FormCreate } from '../components/FormCreate';
 
 class FormsContainer extends Component {
 
   constructor(props) {
     super(props);
     this.state = {
-      addingNewForm: false
+      addingNewForm: false,
     };
+
+    this.addNewForm = this.addNewForm.bind(this);
+    this.addNewFormCancel = this.addNewFormCancel.bind(this);
+    this.submitNewForm = this.submitNewForm.bind(this);
+  }
+
+  componentDidMount() {
+    this.props.actions.loadForms();
   }
 
   addNewForm() {
@@ -29,10 +34,6 @@ class FormsContainer extends Component {
   submitNewForm(form) {
     this.setState({ addingNewForm: false });
     this.props.actions.addForm(form);
-  }
-
-  componentDidMount() {
-    this.props.actions.loadForms();
   }
 
   render() {
@@ -51,14 +52,13 @@ class FormsContainer extends Component {
         <section className="main">
           {this.state.addingNewForm || addFormError ?
             <FormCreate
-              ref="newForm"
-              onSubmit={this.submitNewForm.bind(this)}
-              cancel={this.addNewFormCancel.bind(this)}
+              onSubmit={this.submitNewForm}
+              cancel={this.addNewFormCancel}
               forms={forms}
               addFormError={addFormError}
-              /> :
+            /> :
             <div className="btn-toolbar">
-              <button className="btn btn-sc" onClick={this.addNewForm.bind(this)}>Create Form</button>
+              <button className="btn btn-sc" onClick={this.addNewForm}>Create Form</button>
             </div>
           }
           <FormsList forms={forms} selectedTeamId={selectedTeamId} />
@@ -69,15 +69,23 @@ class FormsContainer extends Component {
   }
 }
 
-const mapStateToProps = (state) => ({
-  loading: state.sc.forms.get('loading'),
-  forms: state.sc.forms.get('forms'),
-  addFormError: state.sc.forms.get('addFormError'),
+FormsContainer.propTypes = {
+  actions: PropTypes.object.isRequired,
+  forms: PropTypes.object.isRequired,
+  selectedTeamId: PropTypes.string,
+  addFormError: PropTypes.string,
+  children: PropTypes.object,
+};
+
+const mapStateToProps = state => ({
+  loading: state.sc.forms.loading,
+  forms: state.sc.forms.forms,
+  addFormError: state.sc.forms.addFormError,
   selectedTeamId: state.sc.auth.selectedTeamId,
 });
 
-const mapDispatchToProps = (dispatch) => ({
-  actions: bindActionCreators(formActions, dispatch)
+const mapDispatchToProps = dispatch => ({
+  actions: bindActionCreators(formActions, dispatch),
 });
 
   // connect this "smart" container component to the redux store

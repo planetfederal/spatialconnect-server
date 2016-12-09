@@ -1,30 +1,24 @@
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
 import Breadcrumbs from './Breadcrumbs';
 
-class Header extends Component {
-  render() {
-    const { isAuthenticated, toggleMenu } = this.props;
-    return (
-      <header>
-        <div className="header-title">
-          <span className="menu" onClick={toggleMenu}>&#9776;</span>
-          <Link to="/">spatialconnect</Link>
-        </div>
-        {isAuthenticated &&
-          <nav>
-            <Breadcrumbs {...this.props} />
-          </nav>
-        }
-      </header>
-    );
-  }
-}
+const Header = props => (
+  <header>
+    <div className="header-title">
+      <span className="menu" onClick={props.toggleMenu}>&#9776;</span>
+      <Link to="/">spatialconnect</Link>
+    </div>
+    {props.isAuthenticated &&
+      <nav>
+        <Breadcrumbs {...props} />
+      </nav>
+    }
+  </header>
+);
 
 Header.propTypes = {
   isAuthenticated: PropTypes.bool.isRequired,
-  logout: PropTypes.func.isRequired,
-  userName: PropTypes.string
+  toggleMenu: PropTypes.func.isRequired,
 };
 
 export default Header;

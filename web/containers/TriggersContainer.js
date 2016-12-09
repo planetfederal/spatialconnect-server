@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as triggerActions from '../ducks/triggers';
 import * as storeActions from '../ducks/dataStores';
-import TriggerForm from '../components/TriggerForm';
+import { TriggerForm } from '../components/TriggerForm';
 import TriggerList from '../components/TriggerList';
 
 const emptyTrigger = {
@@ -16,13 +16,17 @@ const emptyTrigger = {
   },
 };
 
-export class TriggersContainer extends Component {
+class TriggersContainer extends Component {
 
   constructor(props) {
     super(props);
     this.state = {
-      adding: false
+      adding: false,
     };
+
+    this.add = this.add.bind(this);
+    this.cancel = this.cancel.bind(this);
+    this.create = this.create.bind(this);
   }
 
   componentDidMount() {
@@ -31,19 +35,19 @@ export class TriggersContainer extends Component {
   }
 
   add() {
-    this.setState({adding: !this.state.adding});
+    this.setState({ adding: !this.state.adding });
   }
 
   cancel() {
-    this.setState({adding: false});
+    this.setState({ adding: false });
   }
 
   create(trigger) {
-    this.setState({adding: false});
+    this.setState({ adding: false });
     this.props.actions.addTrigger(trigger);
   }
 
-  render () {
+  render() {
     const { children } = this.props;
     if (children) {
       return (
@@ -52,22 +56,21 @@ export class TriggersContainer extends Component {
         </div>
       );
     }
-    console.log(this.props.stores);
     return (
       <div className="wrapper">
         <section className="main">
-        {this.state.adding ?
-          <TriggerForm
-            trigger={emptyTrigger}
-            cancel={this.cancel.bind(this)}
-            create={this.create.bind(this)}
-            errors={this.props.errors}
-            actions={this.props.actions}
-            stores={this.props.stores}
+          {this.state.adding ?
+            <TriggerForm
+              trigger={emptyTrigger}
+              cancel={this.cancel}
+              create={this.create}
+              errors={this.props.errors}
+              actions={this.props.actions}
+              stores={this.props.stores}
             /> :
-          <div className="btn-toolbar">
-            <button className="btn btn-sc" onClick={this.add.bind(this)}>Create Trigger</button>
-          </div>}
+            <div className="btn-toolbar">
+              <button className="btn btn-sc" onClick={this.add}>Create Trigger</button>
+            </div>}
           <TriggerList {...this.props} />
         </section>
       </div>
@@ -75,15 +78,23 @@ export class TriggersContainer extends Component {
   }
 }
 
-const mapStateToProps = (state) => ({
+TriggersContainer.propTypes = {
+  stores: PropTypes.object.isRequired,
+  errors: PropTypes.object.isRequired,
+  actions: PropTypes.object.isRequired,
+  storeActions: PropTypes.object.isRequired,
+  children: PropTypes.object,
+};
+
+const mapStateToProps = state => ({
   spatial_triggers: state.sc.triggers.spatial_triggers,
   stores: state.sc.dataStores.stores,
-  errors: state.sc.triggers.errors
+  errors: state.sc.triggers.errors,
 });
 
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = dispatch => ({
   actions: bindActionCreators(triggerActions, dispatch),
-  storeActions: bindActionCreators(storeActions, dispatch)
+  storeActions: bindActionCreators(storeActions, dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(TriggersContainer);

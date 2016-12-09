@@ -3,19 +3,17 @@ import { findDOMNode } from 'react-dom';
 import { DragSource, DropTarget } from 'react-dnd';
 import flow from 'lodash/flow';
 
-
-let ItemTypes = {
-  FIELD: 'field'
+const ItemTypes = {
+  FIELD: 'field',
 };
-
 
 const fieldSource = {
   beginDrag(props) {
     return {
       id: props.id,
-      index: props.index
+      index: props.index,
     };
-  }
+  },
 };
 
 const fieldTarget = {
@@ -61,39 +59,48 @@ const fieldTarget = {
     // but it's good here for the sake of performance
     // to avoid expensive index searches.
     monitor.getItem().index = hoverIndex;
-  }
+  },
 };
 
 function collectSource(connect, monitor) {
   return {
     connectDragSource: connect.dragSource(),
-    isDragging: monitor.isDragging()
+    isDragging: monitor.isDragging(),
   };
 }
 
 function collectTarget(connect) {
   return {
-    connectDropTarget: connect.dropTarget()
+    connectDropTarget: connect.dropTarget(),
   };
 }
 
 class Field extends Component {
 
   render() {
-    const { text, isDragging, connectDragSource, connectDropTarget } = this.props;
-    const opacity = isDragging ? 0 : 1;
+    const { input, connectDragSource, connectDropTarget } = this.props;
     return connectDragSource(connectDropTarget(
       <div
         className="field-wrap"
-        onClick={() => this.props.updateActiveField(this.props.form.get('form_key'), this.props.id)}
-        >
-        {this.props.input}
-      </div>
+        onClick={() => this.props.updateActiveField(this.props.form.form_key, this.props.id)}
+      >
+        {input}
+      </div>,
     ));
   }
 }
 
+Field.propTypes = {
+  input: PropTypes.string.isRequired,
+  connectDragSource: PropTypes.func.isRequired,
+  connectDropTarget: PropTypes.func.isRequired,
+  updateActiveField: PropTypes.func.isRequired,
+  form: PropTypes.object.isRequired,
+  id: PropTypes.string.isRequired,
+};
+
+
 export default flow(
   DragSource(ItemTypes.FIELD, fieldSource, collectSource),
-  DropTarget(ItemTypes.FIELD, fieldTarget, collectTarget)
+  DropTarget(ItemTypes.FIELD, fieldTarget, collectTarget),
 )(Field);

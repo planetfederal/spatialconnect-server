@@ -7,51 +7,63 @@ const SideMenuItem = ({ path, name, onClick }) => (
   </div>
 );
 
-const SideMenu = ({ isAuthenticated, actions, userName, closeMenu, menuOpen, changeTeam, teams}) => (
-  <div className={'side-menu ' + (menuOpen ? 'open' : 'closed')}>
-    {isAuthenticated ?
-      <nav>
-        <SideMenuItem path={'/stores'} name={'Stores'} onClick={closeMenu} />
-        <SideMenuItem path={'/forms'} name={'Forms'} onClick={closeMenu} />
-        <SideMenuItem path={'/triggers'} name={'Triggers'} onClick={closeMenu} />
-        <SideMenuItem path={'/data'} name={'Data'} onClick={closeMenu} />
-        <div className="side-menu-separator"></div>
-        <div className="side-menu-item">
-        <div className="side-menu-title">
-          <p>Team</p>
-        </div>
-          <div className="side-menu-item-inner">
-            <select className="form-control sc-dropdown" onChange={changeTeam}>
-            {teams.map((team,i) => (
-              <option value={team.id} key={team.id}>{team.name}</option>
-            ))}
-            </select>
+SideMenuItem.propTypes = {
+  path: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  onClick: PropTypes.func.isRequired,
+};
+
+const SideMenu = ({ isAuthenticated, actions, userName,
+  closeMenu, menuOpen, changeTeam, teams }) => (
+    <div className={`side-menu ${menuOpen ? 'open' : 'closed'}`}>
+      {isAuthenticated ?
+        <nav>
+          <SideMenuItem path={'/stores'} name={'Stores'} onClick={closeMenu} />
+          <SideMenuItem path={'/forms'} name={'Forms'} onClick={closeMenu} />
+          <SideMenuItem path={'/triggers'} name={'Triggers'} onClick={closeMenu} />
+          <SideMenuItem path={'/data'} name={'Data'} onClick={closeMenu} />
+          <div className="side-menu-separator" />
+          <div className="side-menu-item">
+            <div className="side-menu-title">
+              <p>Team</p>
+            </div>
+            <div className="side-menu-item-inner">
+              <select className="form-control sc-dropdown" onChange={changeTeam}>
+                {teams.map(team => (
+                  <option value={team.id} key={team.id}>{team.name}</option>
+              ))}
+              </select>
+            </div>
           </div>
-        </div>
-        <SideMenuItem path={'/user'} name={userName} onClick={closeMenu} />
-        <SideMenuItem path={'/login'} name={'Sign Out'} onClick={() => {
-          actions.logoutAndRedirect();
-          closeMenu();
-        }} />
-        <div className="side-menu-separator"></div>
-        <div className="side-menu-spacer"></div>
-        <div className="side-menu-item bottom">
-          <span>{'v'+VERSION}</span>
-        </div>
-      </nav>
-      : <nav>
+          <SideMenuItem path={'/user'} name={userName} onClick={closeMenu} />
+          <SideMenuItem
+            path={'/login'} name={'Sign Out'} onClick={() => {
+              actions.logoutAndRedirect();
+              closeMenu();
+            }}
+          />
+          <div className="side-menu-separator" />
+          <div className="side-menu-spacer" />
+          <div className="side-menu-item bottom">
+            <span>{`v${VERSION}`}</span>
+          </div>
+        </nav>
+        : <nav>
           <SideMenuItem path={'/login'} name={'Sign In'} onClick={closeMenu} />
           <SideMenuItem path={'/signup'} name={'Sign Up'} onClick={closeMenu} />
         </nav>
-    }
-
-  </div>
+      }
+    </div>
 );
 
 SideMenu.propTypes = {
   isAuthenticated: PropTypes.bool.isRequired,
-  logout: PropTypes.func.isRequired,
-  userName: PropTypes.string
+  userName: PropTypes.string,
+  actions: PropTypes.object.isRequired,
+  closeMenu: PropTypes.func.isRequired,
+  menuOpen: PropTypes.bool.isRequired,
+  changeTeam: PropTypes.func.isRequired,
+  teams: PropTypes.array.isRequired,
 };
 
 export default SideMenu;

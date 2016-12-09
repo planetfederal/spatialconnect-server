@@ -1,13 +1,13 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as dataActions from '../ducks/data';
 import * as formActions from '../ducks/forms';
 import * as triggerActions from '../ducks/triggers';
-import FormList from '../components/DataMapFormList';
+import { FormList } from '../components/DataMapFormList';
 import DataMap from '../components/DataMap';
 
-export class DataContainer extends Component {
+class DataContainer extends Component {
 
   componentDidMount() {
     this.props.dataActions.loadDeviceLocations();
@@ -15,10 +15,10 @@ export class DataContainer extends Component {
     this.props.formActions.loadForms()
       .then(() => {
         this.props.dataActions.loadFormDataAll();
-      })
+      });
   }
 
-  render () {
+  render() {
     return (
       <div className="data-map">
         <FormList {...this.props} />
@@ -28,21 +28,27 @@ export class DataContainer extends Component {
   }
 }
 
-const mapStateToProps = (state) => ({
-  form_data: state.sc.data.form_data,
+DataContainer.propTypes = {
+  dataActions: PropTypes.object.isRequired,
+  formActions: PropTypes.object.isRequired,
+  triggerActions: PropTypes.object.isRequired,
+};
+
+const mapStateToProps = state => ({
+  formData: state.sc.data.formData,
   form_ids: state.sc.data.form_ids,
-  forms: state.sc.forms.get('forms').toJS(),
+  forms: state.sc.forms.forms,
   device_locations: state.sc.data.device_locations,
-  device_locations_on: state.sc.data.device_locations_on,
-  spatial_triggers_on: state.sc.data.spatial_triggers_on,
+  deviceLocationsOn: state.sc.data.deviceLocationsOn,
+  spatialTriggersOn: state.sc.data.spatialTriggersOn,
   spatial_triggers: state.sc.triggers.spatial_triggers,
-  menu: state.sc.menu
+  menu: state.sc.menu,
 });
 
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = dispatch => ({
   dataActions: bindActionCreators(dataActions, dispatch),
   formActions: bindActionCreators(formActions, dispatch),
-  triggerActions: bindActionCreators(triggerActions, dispatch)
+  triggerActions: bindActionCreators(triggerActions, dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(DataContainer);

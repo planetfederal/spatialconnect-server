@@ -1,4 +1,3 @@
-'use strict';
 import React, { Component, PropTypes } from 'react';
 import { find, values } from 'lodash';
 import { toKey } from '../utils';
@@ -12,11 +11,11 @@ export const validate = (form, forms) => {
   if (!form.form_key) {
     errors.form_key = 'Required';
   }
-  var regex = /^[a-z_]*$/
+  const regex = /^[a-z_]*$/;
   if (!regex.test(form.form_key)) {
     errors.form_key = 'Must only contain letters and underscores.';
   }
-  let dupe = find(values(forms.toJS()), { form_key: form.form_key});
+  const dupe = find(values(forms), { form_key: form.form_key });
   if (dupe) {
     errors.form_key = 'Form Key must be unique.';
   }
@@ -24,82 +23,85 @@ export const validate = (form, forms) => {
 };
 
 export class FormCreate extends Component {
+
   constructor(props) {
     super(props);
     this.state = {
       errors: {},
-      value: {
-        form_label: '',
-        form_key: ''
-      }
+      form_label: '',
+      form_key: '',
     };
+
+    this.onFormLabelChange = this.onFormLabelChange.bind(this);
+    this.onFormKeyChange = this.onFormKeyChange.bind(this);
+    this.save = this.save.bind(this);
+  }
+
+  onFormLabelChange(e) {
+    const label = e.target.value;
+    this.setState({
+      form_label: label,
+      form_key: toKey(label),
+    });
+  }
+
+  onFormKeyChange(e) {
+    this.setState({ form_key: e.target.value });
   }
 
   save() {
-    let form = {
-      form_label: this.refs.form_label.value,
-      form_key: this.refs.form_key.value,
+    const form = {
+      form_label: this.state.form_label,
+      form_key: this.state.form_key,
       version: 1,
-      fields: []
-    }
-    let errors = validate(form, this.props.forms);
-    this.setState({errors: errors});
-    if(!Object.keys(errors).length) {
+      fields: [],
+    };
+    const errors = validate(form, this.props.forms);
+    this.setState({ errors });
+    if (!Object.keys(errors).length) {
       this.props.onSubmit(form);
     }
-  }
-
-  onFormLabelChange() {
-    let label = this.refs.form_label.value;
-    let key = toKey(label);
-    this.setState({
-      value: {
-        ...this.state.value,
-        form_key: key
-      }
-    });
-  }
-
-  onFormKeyChange() {
-    let key = this.refs.form_key.value;
-    this.setState({
-      value: {
-        ...this.state.value,
-        form_key: key
-      }
-    });
   }
 
   render() {
     return (
       <div className="side-form">
         <div className="form-group">
-          <label>Form Name:</label>
-          <input type="text" className="form-control" ref="form_label" defaultValue={this.state.value.form_label}
-            onChange={this.onFormLabelChange.bind(this)} />
-          {this.state.errors.form_label ? <p className="text-danger">{this.state.errors.form_label}</p> : ''}
+          <label htmlFor="form-name">Form Name:</label>
+          <input
+            id="form-name" type="text" className="form-control"
+            value={this.state.form_label}
+            onChange={this.onFormLabelChange}
+          />
+          {this.state.errors.form_label ?
+            <p className="text-danger">{this.state.errors.form_label}</p> : ''}
         </div>
         <div className="form-group">
-          <label>Form Key:</label>
-          <input type="text" className="form-control" ref="form_key" value={this.state.value.form_key}
-            onChange={this.onFormKeyChange.bind(this)}/>
-          {this.state.errors.form_key ? <p className="text-danger">{this.state.errors.form_key}</p> : ''}
+          <label htmlFor="form-key">Form Key:</label>
+          <input
+            id="form-key" type="text" className="form-control"
+            value={this.state.form_key}
+            onChange={this.onFormKeyChange}
+          />
+          {this.state.errors.form_key ?
+            <p className="text-danger">{this.state.errors.form_key}</p> : ''}
         </div>
-        {(this.props.addFormError && !Object.keys(this.state.errors).length) ? <p className="text-danger">{this.props.addFormError}</p> : ''}
+        {(this.props.addFormError && !Object.keys(this.state.errors).length) ?
+          <p className="text-danger">{this.props.addFormError}</p> : ''}
         <div className="btn-toolbar">
-          <button className="btn btn-sc" onClick={this.save.bind(this)}>Create</button>
+          <button className="btn btn-sc" onClick={this.save}>Create</button>
           <button className="btn btn-default" onClick={this.props.cancel}>Cancel</button>
         </div>
       </div>
     );
   }
-};
+}
 
 FormCreate.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   cancel: PropTypes.func.isRequired,
   forms: PropTypes.object.isRequired,
-  addFormError: PropTypes.string.isRequired
+  addFormError: PropTypes.string.isRequired,
 };
 
 export default FormCreate;

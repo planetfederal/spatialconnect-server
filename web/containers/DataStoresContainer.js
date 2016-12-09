@@ -1,13 +1,11 @@
-'use strict';
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as dataStoresActions from '../ducks/dataStores';
 import DataStoresList from '../components/DataStoresList';
-import DataStoreForm from '../components/DataStoreForm';
-import DataStoresDetailsContainer from './DataStoresDetailsContainer';
+import { DataStoreForm } from '../components/DataStoreForm';
 
-let emptyStore = {
+const emptyStore = {
   id: false,
   name: '',
   version: '1',
@@ -16,21 +14,21 @@ let emptyStore = {
   options: {},
 };
 
-export class DataStoresContainer extends Component {
+class DataStoresContainer extends Component {
 
   constructor(props) {
     super(props);
     this.state = {
-      addingNewDataStore: false
+      addingNewDataStore: false,
     };
-  }
 
-  loadDataStores() {
-    this.props.actions.loadDataStores();
+    this.addNewDataStore = this.addNewDataStore.bind(this);
+    this.addNewDataStoreCancel = this.addNewDataStoreCancel.bind(this);
+    this.submitNewDataStore = this.submitNewDataStore.bind(this);
   }
 
   componentDidMount() {
-    this.loadDataStores();
+    this.props.actions.loadDataStores();
   }
 
   addNewDataStore() {
@@ -46,8 +44,23 @@ export class DataStoresContainer extends Component {
     this.props.actions.submitNewDataStore(data);
   }
 
+  renderStoreForm() {
+    return this.state.addingNewDataStore ?
+      <DataStoreForm
+        onSubmit={this.submitNewDataStore}
+        cancel={this.addNewDataStoreCancel}
+        actions={this.props.actions}
+        errors={this.props.storeErrors}
+        layerList={this.props.layerList}
+        store={emptyStore}
+      /> :
+      <div className="btn-toolbar">
+        <button className="btn btn-sc" onClick={this.addNewDataStore}>Create Store</button>
+      </div>;
+  }
+
   render() {
-    const { loading, stores, addingNewDataStore, newDataStoreId, storeErrors, layerList, children, selectedTeamId } = this.props;
+    const { loading, stores, children, selectedTeamId } = this.props;
     if (children) {
       return (
         <div className="wrapper">
@@ -60,21 +73,7 @@ export class DataStoresContainer extends Component {
     return (
       <div className="wrapper">
         <section className="main">
-          {loading ? <p>Fetching Data Stores...</p> :
-            this.state.addingNewDataStore ?
-            <DataStoreForm
-              ref="newDataStoreForm"
-              onSubmit={this.submitNewDataStore.bind(this)}
-              cancel={this.addNewDataStoreCancel.bind(this)}
-              actions={this.props.actions}
-              errors={storeErrors}
-              layerList={layerList}
-              store={emptyStore}
-              /> :
-            <div className="btn-toolbar">
-              <button className="btn btn-sc" onClick={this.addNewDataStore.bind(this)}>Create Store</button>
-            </div>
-          }
+          {loading ? <p>Fetching Data Stores...</p> : this.renderStoreForm() }
           <DataStoresList dataStores={stores} selectedTeamId={selectedTeamId} />
         </section>
       </div>
@@ -82,7 +81,17 @@ export class DataStoresContainer extends Component {
   }
 }
 
-const mapStateToProps = (state) => ({
+DataStoresContainer.propTypes = {
+  actions: PropTypes.object.isRequired,
+  loading: PropTypes.bool.isRequired,
+  stores: PropTypes.object.isRequired,
+  children: PropTypes.object,
+  selectedTeamId: PropTypes.string,
+  storeErrors: PropTypes.object,
+  layerList: PropTypes.array,
+};
+
+const mapStateToProps = state => ({
   loading: state.sc.dataStores.loading,
   stores: state.sc.dataStores.stores,
   storeErrors: state.sc.dataStores.storeErrors,
@@ -90,8 +99,8 @@ const mapStateToProps = (state) => ({
   selectedTeamId: state.sc.auth.selectedTeamId,
 });
 
-const mapDispatchToProps = (dispatch) => ({
-  actions: bindActionCreators(dataStoresActions, dispatch)
+const mapDispatchToProps = dispatch => ({
+  actions: bindActionCreators(dataStoresActions, dispatch),
 });
 
   // connect this "smart" container component to the redux store

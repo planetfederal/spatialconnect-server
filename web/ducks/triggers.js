@@ -1,5 +1,5 @@
-import * as request from 'superagent-bluebird-promise'
-import { find, findIndex, keyBy, omit } from 'lodash';
+import * as request from 'superagent-bluebird-promise';
+import { keyBy, omit } from 'lodash';
 import { push } from 'react-router-redux';
 import { API_URL } from 'config';
 
@@ -11,7 +11,7 @@ export const TRIGGER_ERRORS = 'sc/triggers/TRIGGER_ERRORS';
 
 const initialState = {
   spatial_triggers: {},
-  errors: {}
+  errors: {},
 };
 
 export default function reducer(state = initialState, action = {}) {
@@ -19,33 +19,33 @@ export default function reducer(state = initialState, action = {}) {
     case LOAD_SPATIAL_TRIGGERS:
       return {
         ...state,
-        spatial_triggers: action.payload.spatial_triggers
+        spatial_triggers: action.payload.spatial_triggers,
       };
     case ADD_TRIGGER:
       return {
         ...state,
         spatial_triggers: {
           ...state.spatial_triggers,
-          [action.payload.trigger.id]: action.payload.trigger
-        }
+          [action.payload.trigger.id]: action.payload.trigger,
+        },
       };
     case UPDATE_TRIGGER:
       return {
         ...state,
         spatial_triggers: {
           ...state.spatial_triggers,
-          [action.payload.trigger.id]: action.payload.trigger
-        }
+          [action.payload.trigger.id]: action.payload.trigger,
+        },
       };
     case DELETE_TRIGGER:
       return {
         ...state,
-        spatial_triggers: omit(state.spatial_triggers, action.payload.trigger.id)
+        spatial_triggers: omit(state.spatial_triggers, action.payload.trigger.id),
       };
     case TRIGGER_ERRORS:
       return {
         ...state,
-        errors: action.payload.errors
+        errors: action.payload.errors,
       };
     default: return state;
   }
@@ -55,22 +55,22 @@ export function updateTriggerErrors(errors) {
   return {
     type: TRIGGER_ERRORS,
     payload: {
-      errors: errors
-    }
+      errors,
+    },
   };
 }
 
 export function updateTrigger(trigger) {
   return (dispatch, getState) => {
     const { sc } = getState();
-    let token = sc.auth.token;
+    const token = sc.auth.token;
     return request
-      .put(API_URL + 'triggers/' + trigger.id)
-      .set('Authorization', 'Token ' + token)
+      .put(`${API_URL}triggers/${trigger.id}`)
+      .set('Authorization', `Token ${token}`)
       .send(trigger)
       .then(
-        res => dispatch(loadTrigger(trigger.id, true)),
-        err => dispatch(updateTriggerErrors(err))
+        () => dispatch(loadTrigger(trigger.id, true)),
+        err => dispatch(updateTriggerErrors(err)),
       );
   };
 }
@@ -78,14 +78,14 @@ export function updateTrigger(trigger) {
 export function addTrigger(trigger) {
   return (dispatch, getState) => {
     const { sc } = getState();
-    let token = sc.auth.token;
+    const token = sc.auth.token;
     return request
-      .post(API_URL + 'triggers')
-      .set('Authorization', 'Token ' + token)
+      .post(`${API_URL}triggers`)
+      .set('Authorization', `Token ${token}`)
       .send(trigger)
       .then(
-        res => dispatch(loadTriggers()),
-        err => dispatch(updateTriggerErrors(err))
+        () => dispatch(loadTriggers()),
+        err => dispatch(updateTriggerErrors(err)),
       );
   };
 }
@@ -94,29 +94,29 @@ export function receiveTriggers(triggers) {
   return {
     type: LOAD_SPATIAL_TRIGGERS,
     payload: {
-      spatial_triggers: keyBy(triggers, 'id')
-    }
+      spatial_triggers: keyBy(triggers, 'id'),
+    },
   };
 }
 
 export function receiveTrigger(trigger) {
   return {
     type: ADD_TRIGGER,
-    payload: { trigger }
+    payload: { trigger },
   };
 }
 
 export function deleteTrigger(trigger) {
   return (dispatch, getState) => {
     const { sc } = getState();
-    let token = sc.auth.token;
+    const token = sc.auth.token;
     return request
-      .delete(API_URL + 'triggers/' + trigger.id)
-      .set('Authorization', 'Token ' + token)
+      .delete(`${API_URL}triggers/${trigger.id}`)
+      .set('Authorization', `Token ${token}`)
       .then(() => {
         dispatch({
           type: DELETE_TRIGGER,
-          payload: { trigger }
+          payload: { trigger },
         });
         dispatch(push('/triggers'));
       });
@@ -124,26 +124,26 @@ export function deleteTrigger(trigger) {
 }
 
 
-export function loadTrigger(triggerId, refresh=false) {
+export function loadTrigger(triggerId) {
   return (dispatch, getState) => {
     const { sc } = getState();
-    let token = sc.auth.token;
+    const token = sc.auth.token;
     return request
-      .get(API_URL + 'triggers/' + triggerId)
-      .set('Authorization', 'Token ' + token)
+      .get(`${API_URL}triggers/${triggerId}`)
+      .set('Authorization', `Token ${token}`)
       .then(res => res.body.result)
       .then(data => dispatch(receiveTrigger(data)));
-  }
+  };
 }
 
 export function loadTriggers() {
   return (dispatch, getState) => {
     const { sc } = getState();
-    let token = sc.auth.token;
+    const token = sc.auth.token;
     return request
-      .get(API_URL + `triggers`)
-      .set('Authorization', 'Token ' + token)
+      .get(`${API_URL}triggers`)
+      .set('Authorization', `Token ${token}`)
       .then(res => res.body.result)
       .then(data => dispatch(receiveTriggers(data)));
-  }
+  };
 }

@@ -1,6 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
-import PropertyListItem from './PropertyListItem';
 
 const TriggerItem = ({ trigger }) => (
   <div className="form-item">
@@ -14,7 +13,7 @@ const TriggerItem = ({ trigger }) => (
 );
 
 TriggerItem.propTypes = {
-  trigger: PropTypes.object.isRequired
+  trigger: PropTypes.object.isRequired,
 };
 
 export default TriggerItem;

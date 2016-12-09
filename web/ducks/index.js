@@ -1,4 +1,3 @@
-'use strict';
 import { combineReducers } from 'redux';
 import dataStores from './dataStores';
 import forms from './forms';
@@ -14,7 +13,7 @@ const appReducer = combineReducers({
   auth,
   data,
   triggers,
-  menu
+  menu,
 });
 
 export default appReducer;

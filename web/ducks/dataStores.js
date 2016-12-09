@@ -1,11 +1,8 @@
-'use strict';
-import { reset } from 'redux-form';
 import * as request from 'superagent-bluebird-promise';
 import Promise from 'bluebird';
 import { API_URL } from 'config';
 import { push } from 'react-router-redux';
-import uuid from 'node-uuid';
-import { find, keyBy, omit } from 'lodash';
+import { keyBy } from 'lodash';
 import { initStore } from '../utils';
 
 // define action types
@@ -25,7 +22,7 @@ const initialState = {
   addingNewDataStore: false,
   newDataStoreId: null,
   storeErrors: {},
-  layerList: []
+  layerList: [],
 };
 
 // export the reducer function, (previousState, action) => newState
@@ -35,14 +32,14 @@ export default function reducer(state = initialState, action = {}) {
       return {
         ...state,
         loading: true,
-        addingNewDataStore: false
+        addingNewDataStore: false,
       };
     case LOAD_STORES:
       return {
         ...state,
         loading: false,
         loaded: true,
-        stores: action.payload.stores
+        stores: action.payload.stores,
       };
     case LOAD_STORE:
       return {
@@ -51,33 +48,33 @@ export default function reducer(state = initialState, action = {}) {
         loaded: true,
         stores: {
           ...state.stores,
-          [action.payload.store.id]: action.payload.stores
-        }
+          [action.payload.store.id]: action.payload.stores,
+        },
       };
     case LOAD_FAIL:
       return {
         ...state,
         loading: false,
         loaded: false,
-        error: action.payload.error
+        error: action.payload.error,
       };
     case STORE_ERRORS:
       return {
         ...state,
-        storeErrors: action.payload.errors
+        storeErrors: action.payload.errors,
       };
     case STORE_ERROR:
       return {
         ...state,
         storeErrors: {
           ...state.storeErrors,
-          [action.payload.field]: action.payload.error
-        }
+          [action.payload.field]: action.payload.error,
+        },
       };
     case WFS_LAYER_LIST:
       return {
         ...state,
-        layerList: action.payload.layerList
+        layerList: action.payload.layerList,
       };
     default: return state;
   }
@@ -89,9 +86,9 @@ export function receiveStores(stores) {
     const { sc } = getState();
     dispatch({
       type: LOAD_STORES,
-      payload: { stores: keyBy(stores.map(initStore(sc.auth.teams)), 'id') }
+      payload: { stores: keyBy(stores.map(initStore(sc.auth.teams)), 'id') },
     });
-  }
+  };
 }
 
 export function receiveStore(store) {
@@ -99,111 +96,96 @@ export function receiveStore(store) {
     const { sc } = getState();
     dispatch({
       type: LOAD_STORE,
-      payload: { store: initStore(sc.auth.teams)(store) }
+      payload: { store: initStore(sc.auth.teams)(store) },
     });
-  }
+  };
 }
 
 export function loadDataStore(storeId) {
   return (dispatch, getState) => {
     const { sc } = getState();
-    let token = sc.auth.token;
+    const token = sc.auth.token;
     dispatch({ type: LOAD });
     return request
-      .get(API_URL + 'stores/' + storeId)
-      .set('Authorization', 'Token ' + token)
-      .then(function(res) {
-        return dispatch(receiveStore(res.body.result));
-      }, function(error) {
-        return dispatch({type: LOAD_FAIL, error: error});
-      });
-  }
+      .get(`${API_URL}stores/${storeId}`)
+      .set('Authorization', `Token ${token}`)
+      .then(
+        res => dispatch(receiveStore(res.body.result)),
+        error => dispatch({ type: LOAD_FAIL, error }),
+      );
+  };
 }
 
 export function loadDataStores() {
   return (dispatch, getState) => {
     const { sc } = getState();
-    let token = sc.auth.token;
+    const token = sc.auth.token;
     dispatch({ type: LOAD });
     return request
-      .get(API_URL + 'stores')
-      .set('Authorization', 'Token ' + token)
-      .then(function(res) {
-        return dispatch(receiveStores(res.body.result));
-      }, function(error) {
-        return dispatch({type: LOAD_FAIL, error: error});
-      });
-  }
+      .get(`${API_URL}stores`)
+      .set('Authorization', `Token ${token}`)
+      .then(
+        res => dispatch(receiveStores(res.body.result)),
+        error => dispatch({ type: LOAD_FAIL, error }),
+      );
+  };
 }
 
 export function submitNewDataStore(store) {
   return (dispatch, getState) => {
     const { sc } = getState();
-    let token = sc.auth.token;
-    store.team_id = sc.auth.selectedTeamId;
+    const token = sc.auth.token;
+    const newStore = {
+      ...store,
+      team_id: sc.auth.selectedTeamId,
+    };
     return request
-      .post(API_URL + 'stores')
-      .set('Authorization', 'Token ' + token)
-      .send(store)
-      .then(function(res) {
-        return dispatch(loadDataStores());
-      }, function(error) {
-        throw new Error(res);
-      });
+      .post(`${API_URL}stores`)
+      .set('Authorization', `Token ${token}`)
+      .send(newStore)
+      .then(() => dispatch(loadDataStores()));
   };
 }
 
 export function updateDataStore(id, store) {
   return (dispatch, getState) => {
     const { sc } = getState();
-    let token = sc.auth.token;
-    store.team_id = sc.auth.selectedTeamId;
+    const token = sc.auth.token;
+    const newStore = {
+      ...store,
+      team_id: sc.auth.selectedTeamId,
+    };
     return request
-      .put(API_URL + 'stores/' + id)
-      .set('Authorization', 'Token ' + token)
-      .send(store)
-      .then(function(res) {
-        return dispatch(loadDataStores());
-      }, function(error) {
-        throw new Error(res);
-      });
-
-    // clear the form values
-    dispatch(reset('dataStore'));
+      .put(`${API_URL}stores/${id}`)
+      .set('Authorization', `Token ${token}`)
+      .send(newStore)
+      .then(() => dispatch(loadDataStores()));
   };
 }
 
 export function updateDataStores(values) {
   return (dispatch, getState) => {
     const { sc } = getState();
-    let token = sc.auth.token;
-    return Promise.map(values, (value) => {
-      return request
-        .put(API_URL + 'stores/' + value.id)
-        .set('Authorization', 'Token ' + token)
+    const token = sc.auth.token;
+    return Promise.map(values, value => request
+        .put(`${API_URL}stores/${value.id}`)
+        .set('Authorization', `Token ${token}`)
         .send(value)
-        .promise()
-    }).then(() => {
-      return dispatch(loadDataStores());
-    }).catch((e) => {
-      throw new Error(e);
-    });
-    dispatch(reset('dataStore'));
+        .promise())
+        .then(() => dispatch(loadDataStores()));
   };
 }
 
 export function deleteStore(storeId) {
   return (dispatch, getState) => {
     const { sc } = getState();
-    let token = sc.auth.token;
+    const token = sc.auth.token;
     return request
-      .delete(API_URL + 'stores/' + storeId)
-      .set('Authorization', 'Token ' + token)
+      .delete(`${API_URL}stores/${storeId}`)
+      .set('Authorization', `Token ${token}`)
       .then(() => {
         dispatch(loadDataStores());
         return dispatch(push('/stores'));
-      }, e => {
-        throw new Error(e);
       });
   };
 }
@@ -211,35 +193,35 @@ export function deleteStore(storeId) {
 export function updateStoreErrors(errors) {
   return {
     type: STORE_ERRORS,
-    payload: { errors }
+    payload: { errors },
   };
 }
 
 export function addStoreError(field, error) {
   return {
     type: STORE_ERROR,
-    payload: { field, error }
+    payload: { field, error },
   };
 }
 
 export function updateWFSLayerList(layerList) {
   return {
     type: WFS_LAYER_LIST,
-    payload: { layerList }
+    payload: { layerList },
   };
 }
 
 export function getWFSLayers(uri) {
   return (dispatch, getState) => {
     const { sc } = getState();
-    let token = sc.auth.token;
+    const token = sc.auth.token;
     return request
-      .get(API_URL + 'wfs/getCapabilities?url=' + encodeURIComponent(uri))
-      .set('Authorization', 'Token ' + token)
-      .then(res => {
+      .get(`${API_URL}wfs/getCapabilities?url=${encodeURIComponent(uri)}`)
+      .set('Authorization', `Token ${token}`)
+      .then((res) => {
         dispatch(updateWFSLayerList(res.body.result));
         dispatch(addStoreError('default_layers', false));
-      }, err => {
+      }, () => {
         dispatch(updateWFSLayerList([]));
         dispatch(addStoreError('default_layers', 'Could Not Find Layers'));
       });

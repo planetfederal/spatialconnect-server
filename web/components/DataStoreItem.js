@@ -1,6 +1,5 @@
-'use strict';
 import React, { PropTypes } from 'react';
-import { Link, browserHistory } from 'react-router';
+import { Link } from 'react-router';
 import PropertyListItem from './PropertyListItem';
 import '../style/FormList.less';
 
@@ -23,7 +22,7 @@ const DataStoreItem = ({ store }) => (
 );
 
 DataStoreItem.propTypes = {
-  store: PropTypes.object.isRequired
+  store: PropTypes.object.isRequired,
 };
 
 export default DataStoreItem;

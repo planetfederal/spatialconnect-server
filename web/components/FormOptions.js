@@ -3,19 +3,21 @@ import '../style/FormDetails.less';
 
 class FormOptions extends Component {
 
-  componentWillReceiveProps(nextProps) {
+  constructor(props) {
+    super(props);
 
+    this.deleteForm = this.deleteForm.bind(this);
+    this.changeLabel = this.changeLabel.bind(this);
   }
-
   changeLabel(e) {
     this.props.updateFormName(
-      this.props.form.get('form_key'),
-      e.target.value
+      this.props.form.form_key,
+      e.target.value,
     );
   }
 
   deleteForm() {
-    this.props.deleteForm(this.props.form.get('form_key'));
+    this.props.deleteForm(this.props.form.form_key);
   }
 
   render() {
@@ -26,12 +28,13 @@ class FormOptions extends Component {
         <div className="form-pane-wrapper">
           <div className="form-group">
             <label htmlFor="exampleInputEmail1">Form name</label>
-            <input type="text" className="form-control"
-              value={form.get('form_label')}
-              onChange={this.changeLabel.bind(this)}
-             />
+            <input
+              type="text" className="form-control"
+              value={form.form_label}
+              onChange={this.changeLabel}
+            />
           </div>
-          <button className="btn btn-danger" onClick={this.deleteForm.bind(this)}>Delete Form</button>
+          <button className="btn btn-danger" onClick={this.deleteForm}>Delete Form</button>
         </div>
       </div>
     );
@@ -39,7 +42,9 @@ class FormOptions extends Component {
 }
 
 FormOptions.propTypes = {
-  form: PropTypes.object.isRequired
+  form: PropTypes.object.isRequired,
+  updateFormName: PropTypes.func.isRequired,
+  deleteForm: PropTypes.func.isRequired,
 };
 
 export default FormOptions;
