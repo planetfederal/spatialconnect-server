@@ -31,7 +31,6 @@
   PG ResultSet is open"
   [row]
   (-> row
-      (assoc :recipients (vec (.getArray (:recipients row))))
       (assoc :stores (vec (.getArray (:stores row))))))
 
 (def result->map
@@ -52,12 +51,14 @@
           (first)
           entity->map))
 
-(defn- map->entity
+(defn map->entity
   "Converts input map to prepare for database insertion"
   [t]
-  (if (nil? (:rules t))
-    (assoc t :rules nil)
-    (assoc t :rules (json/write-str (:rules t)))))
+  (cond-> t
+    (some? (:rules t))
+    (assoc :rules (json/write-str (:rules t)))
+    (some? (:recipients t))
+    (assoc :recipients (json/write-str (:recipients t)))))
 
 (defn create
   "Creates a trigger definition"
@@ -66,13 +67,12 @@
   (let [entity (map->entity t)
         new-trigger (insert-trigger<!
                      (assoc entity
-                            :recipients (dbutil/->StringArray (:recipients t))
                             :stores (dbutil/->StringArray (:stores t))))]
     (entity->map (assoc t :id (:id new-trigger)
                         :created_at (:created_at new-trigger)
                         :updated_at (:updated_at new-trigger)))))
 
-(defn update
+(defn modify
   "Update trigger"
   [id t]
   (let [entity (map->entity (assoc t :id (java.util.UUID/fromString id)))
@@ -90,5 +90,22 @@
   [id]
   (delete-trigger! {:id (java.util.UUID/fromString id)}))
 
+(s/fdef find-by-id
+        :args (s/cat :id (s/and int? pos?))
+        :ret (s/spec :spacon.spec/trigger-spec))
+
+(s/fdef all
+        :args empty?
+        :ret (s/coll-of :spacon.spec/trigger-spec))
+
 (s/fdef create
-        :args (s/cat :trigger (s/spec :spacon.spec/trigger-spec)))
+        :args (s/cat :trigger (s/spec :spacon.spec/trigger-spec))
+        :ret (s/spec :spacon.spec/trigger-spec))
+
+(s/fdef modify
+        :args (s/cat :id (s/and int? pos?)
+                     :t (s/spec :spacon.spec/trigger-spec))
+        :ret (s/spec :spacon.spec/trigger-spec))
+
+(s/fdef delete
+        :args (s/cat :id (s/and int? pos?)))

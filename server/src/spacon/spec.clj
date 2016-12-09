@@ -18,30 +18,53 @@
 (s/def ::user-spec (s/keys :req-un [:user/email :user/password]
                            :opt-un [:user/name]))
 
+;;; specs for organization
+(s/def :organization/name string?)
+(s/def ::organization-spec (s/keys :req-un [:organization/name]))
+
 ;;; specs for forms
 (s/def :form/form_key string?)
 (s/def :form/form_label string?)
 (s/def :form/version pos-int?)
-(s/def :form/team_id pos-int?)
-(s/def ::form-spec (s/keys :req-un [:form/form_key :form/version :form/team_id]
+(s/def :form/team-id pos-int?)
+(s/def ::form-spec (s/keys :req-un [:form/form_key :form/version :form/team-id]
                            :opt-un [:form/form_label]))
 ;;; spec for form-data
-(s/def :formdata/device_id pos-int?)
-(s/def :formdata/form_id pos-int?)
+(s/def :formdata/device-id pos-int?)
+(s/def :formdata/form-id pos-int?)
 (s/def ::form-data-spec (s/keys :req-un
-                                [:formdata/device_id :formdata/form_id]))
+                                [:formdata/device-id :formdata/form-id]))
+
+(defn circle-gen [x y]
+  (let [vertices (+ (rand-int 8) 4)
+        radius (rand 3) ;2 dec degrees radius length
+        rads (/ (* 2.0 Math/PI) vertices)
+        pts (map (fn [r]
+                   [(+ x (* radius (Math/cos (* r rads))))
+                    (+ y (* radius (Math/sin (* rads r))))])
+                 (range vertices))]
+    (conj pts (last pts))))
 
 ;;; geojson
-(s/def :gj/coordinates (s/coll-of number? :count 3))
+(s/def :gj/x (s/double-in :min -175.0 :max 175.0 :NaN? false :infinite? false))
+(s/def :gj/y (s/double-in :min -85.0 :max 85.0 :NaN? false :infinite? false))
+(def xypair (gen/tuple (s/gen :gj/x) (s/gen :gj/y)))
+(s/def :gj/coordinates (s/with-gen
+                         coll?
+                         #(gen/fmap (fn [[lon lat]] (list lon lat))
+                                    (gen/tuple (s/gen :gj/x) (s/gen :gj/y)))))
 (s/def :gjpt/type (s/with-gen string? #(s/gen #{"Point"})))
-(s/def :gjls/coordinates (s/coll-of :gj/coordinates))
-(s/def :gjls/type (s/with-gen string? #(s/gen #{"Linestring"})))
-(s/def :gjpl/coordinates (s/coll-of :gjls/coordinates))
+(s/def :gjls/coordinates (s/coll-of :gj/coordinates :min-count 3))
+(s/def :gjls/type (s/with-gen string? #(s/gen #{"LineString"})))
+(s/def :gjpl/coordinates (s/with-gen
+                           coll?
+                           #(gen/fmap (fn [[lon lat]] (list (circle-gen lon lat)))
+                                      (gen/tuple (s/gen :gj/x) (s/gen :gj/y)))))
 (s/def :gjpl/type (s/with-gen string? #(s/gen #{"Polygon"})))
 (s/def :gjmpt/coordinates (s/coll-of :gj/coordinates))
 (s/def :gjmpt/type (s/with-gen string? #(s/gen #{"MultiPoint"})))
 (s/def :gjmls/coordinates (s/coll-of :gjls/coordinates))
-(s/def :gjmls/type (s/with-gen string? #(s/gen #{"MultiLinestring"})))
+(s/def :gjmls/type (s/with-gen string? #(s/gen #{"MultiLineString"})))
 (s/def :gjmpl/coordinates (s/coll-of :gjpl/coordinates))
 (s/def :gjmpl/type (s/with-gen string? #(s/gen #{"MultiPolygon"})))
 
@@ -63,30 +86,55 @@
                                :multipoint :gj/multipoint
                                :multilinestring :gj/multilinestring
                                :multipolygon :gj/multipolygon))
-
+(s/def :gjpt/geometry :gj/point)
+(s/def :gjpl/geometry :gj/polygon)
+(s/def :gjls/geometry :gj/linestring)
 (s/def :gj/geometry :gj/geometrytypes)
 (s/def :gfeature/id string?)
-(s/def :gfeature/properties map?)
+(s/def :gfeature/properties (s/with-gen
+                              map?
+                              #(s/gen #{{:foo "goo"} {:boo "too"}})))
 (s/def :gfeature/type (s/with-gen
                         (s/and string? #(contains? #{"Feature"} %))
                         #(s/gen #{"Feature"})))
+; Single geojson point feature
+(s/def ::pointfeature-spec (s/keys :req-un
+                                   [:gfeature/id :gfeature/type
+                                    :gfeature/properties :gjpt/geometry]))
+; Single geojson polygon feature
+(s/def ::polygonfeature-spec (s/keys :req-un
+                                     [:gfeature/id :gfeature/type
+                                      :gfeature/properties :gjpl/geometry]))
+; Single geojson linestring feature
+(s/def ::linestringfeature-spec (s/keys :req-un
+                                        [:gfeature/id :gfeature/type
+                                         :gfeature/properties :gjls/geometry]))
+; Single geojson feature
 (s/def ::feature-spec (s/keys :req-un
                               [:gfeature/id :gfeature/type
                                :gj/geometry :gfeature/properties])) ;;;TODO Add properties
 (s/def :gj/features (s/coll-of ::feature-spec))
+(s/def :gjpoly/features (s/coll-of ::polygonfeature-spec :min-count 1))
 (s/def :fcgj/type (s/with-gen
                     (s/and string? #(contains? #{"FeatureCollection"} %))
                     #(s/gen #{"FeatureCollection"})))
 (s/def ::featurecollection-spec (s/keys :req-un [:fcgj/type :gj/features]))
+(s/def ::featurecollectionpolygon-spec (s/keys :req-un
+                                               [:fcgj/type :gjpoly/features]))
+(s/def :trigger/comparator-spec (s/with-gen
+                                  (s/and string? #(contains? #{"$geowithin"} %))
+                                  #(s/gen #{"$geowithin"})))
 
 ;;; spec for trigger
 (s/def :trigger/name string?)
 (s/def :trigger/description string?)
 (s/def :trigger/stores (s/coll-of string?))
-(s/def :trigger/recipients (s/coll-of string?))
+(s/def :trigger/email (s/coll-of string?))
+(s/def :trigger/device (s/coll-of string?))
+(s/def :trigger/recipients (s/keys :req-un [:trigger/email :trigger/device]))
 (s/def :trigger/lhs (s/coll-of string?))
-(s/def :trigger/comparator string?)
-(s/def :trigger/rhs ::featurecollection-spec)
+(s/def :trigger/comparator :trigger/comparator-spec)
+(s/def :trigger/rhs ::featurecollectionpolygon-spec)
 (s/def :trigger/rule (s/keys :req-un [:trigger/lhs :trigger/comparator :trigger/rhs]))
 (s/def :trigger/rules (s/coll-of :trigger/rule))
 (s/def :trigger/repeated boolean?)
@@ -109,8 +157,9 @@
 (s/def :store/version string?)
 (s/def :store/uri string?)
 (s/def :store/name string?)
-(s/def :store/team_id (s/and int? pos?))
+(s/def :store/team-id (s/with-gen (s/and int? pos?)
+                        #(gen/fmap  (fn [] 1))))
 (s/def :store/default_layers (s/coll-of string?))
 (s/def ::store-spec (s/keys :req-un [:store/name :store/store_type
-                                     :store/team_id :store/version :store/uri
+                                     :store/team-id :store/version :store/uri
                                      :store/default_layers]))

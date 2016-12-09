@@ -4,7 +4,7 @@
             [camel-snake-kebab.core :refer :all]
             [camel-snake-kebab.extras :refer [transform-keys]])
   (:import (com.boundlessgeo.spatialconnect.schema
-           SCMessageOuterClass$SCMessage)))
+            SCMessageOuterClass$SCMessage)))
 
 (defn- bytes->map [proto]
   (let [scm (SCMessageOuterClass$SCMessage/parseFrom proto)
@@ -35,8 +35,8 @@
 
 (defn message->bytes [message]
   (.toByteArray (make-protobuf
-                  (or (get message :correlation-id) -1)
-                  (or (get message :jwt) "")
-                  (or (get message :reply-to) "")
-                  (or (get message :action) -1)
-                  (json/write-str (or (get message :payload) "{}") :key-fn ->snake_case_string))))
+                 (or (get message :correlation-id) -1)
+                 (or (get message :jwt) "")
+                 (or (get message :reply-to) "")
+                 (or (get message :action) -1)
+                 (json/write-str (or (get message :payload) "{}") :key-fn ->snake_case_string))))

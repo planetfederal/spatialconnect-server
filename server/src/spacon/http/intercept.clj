@@ -30,9 +30,9 @@
 (def coerce-body
   {:name ::coerce-body
    :leave
-         (fn [context]
-           (cond-> context
-                   (nil? (get-in context [:response :body :headers "Content-Type"]))
-                   (update-in [:response] coerce-to (accepted-type context))))})
+   (fn [context]
+     (cond-> context
+       (nil? (get-in context [:response :body :headers "Content-Type"]))
+       (update-in [:response] coerce-to (accepted-type context))))})
 
 (def common-interceptors [coerce-body content-neg-intc (body-params/body-params)])

@@ -10,7 +10,7 @@
     (response/error "Error")))
 
 (defn http-get-error [context]
-    (response/error "Error"))
+  (response/error "Error"))
 
 (defn http-get-store [context]
   (if-let [d (storemodel/find-by-id (get-in context [:path-params :id]))]
@@ -19,7 +19,7 @@
 
 (defn http-put-store [context]
   (if-let [d (storemodel/update (get-in context [:path-params :id])
-                                  (:json-params context))]
+                                (:json-params context))]
     (response/ok "success")
     (response/error "Error updating")))
 

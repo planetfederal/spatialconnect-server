@@ -32,6 +32,7 @@
   :dev-dependencies [[lein-reload "1.0.0"]]
 
   :plugins [[lein-environ "1.0.3"]
+            [lein-cljfmt "0.5.6"]
             [ragtime/ragtime.lein "0.3.6"]
             [jonase/eastwood "0.2.3"]]
 

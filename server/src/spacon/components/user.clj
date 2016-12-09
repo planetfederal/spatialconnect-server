@@ -9,7 +9,7 @@
             [spacon.spec :as specs]))
 
 (defn http-get-all-users [request]
-   response/ok (usermodel/all))
+  response/ok (usermodel/all))
 
 (defn http-create-user
   "Creates a new user"

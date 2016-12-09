@@ -11,7 +11,7 @@ SELECT id,identifier,device_info::json
 FROM devices
 WHERE deleted_at IS NULL;
 
--- name: insert-device<!
+-- name: create-device<!
 -- registers a new device
 INSERT INTO devices (name,identifier,device_info,created_at,updated_at)
 SELECT :name,:identifier,:device_info::json, NOW(), NOW()
