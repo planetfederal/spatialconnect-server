@@ -96,7 +96,7 @@ const formReducer = (state = {}, action) => {
         fields: state.fields.filter(field => field.id !== action.fieldId)
           .map((field) => {
             if (field.position > fieldToRemove.position) {
-              return { ...field, position: field.posiiton - 1 };
+              return { ...field, position: field.position - 1 };
             }
             return field;
           }),
