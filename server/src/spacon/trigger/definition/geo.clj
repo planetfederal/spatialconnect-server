@@ -23,7 +23,7 @@
     false)); has no features, false
 
 (def clause-case-map {org.geotools.feature.DefaultFeatureCollection check-feature-collection,
-               org.geotools.feature.simple.SimpleFeatureImpl check-simple-feature})
+                      org.geotools.feature.simple.SimpleFeatureImpl check-simple-feature})
 
 (defrecord WithinClause [trigger-id clause]
   proto/IClause
