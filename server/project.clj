@@ -13,7 +13,8 @@
                  [org.postgresql/postgresql "9.4-1201-jdbc4"]
                  [clojure.jdbc/clojure.jdbc-c3p0 "0.3.1"]
                  [listora/uuid "0.1.2"]
-                 [ch.qos.logback/logback-classic "1.1.7" :exclusions [org.slf4j/slf4j-api]]
+                 [ch.qos.logback/logback-classic "1.1.7"
+                  :exclusions [org.slf4j/slf4j-api]]
                  [org.slf4j/jul-to-slf4j "1.7.21"]
                  [org.slf4j/jcl-over-slf4j "1.7.21"]
                  [org.slf4j/log4j-over-slf4j "1.7.21"]

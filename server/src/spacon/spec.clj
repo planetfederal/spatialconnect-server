@@ -90,10 +90,10 @@
 (s/def :gjpl/geometry :gj/polygon)
 (s/def :gjls/geometry :gj/linestring)
 (s/def :gj/geometry :gj/geometrytypes)
-(s/def :gfeature/id string?)
+(s/def :gfeature/id (s/and string? #(> (count %) 0)))
 (s/def :gfeature/properties (s/with-gen
                               map?
-                              #(s/gen #{{:foo "goo"} {:boo "too"}})))
+                              #(s/gen #{{}})))
 (s/def :gfeature/type (s/with-gen
                         (s/and string? #(contains? #{"Feature"} %))
                         #(s/gen #{"Feature"})))
@@ -136,7 +136,7 @@
 (s/def :trigger/comparator :trigger/comparator-spec)
 (s/def :trigger/rhs ::featurecollectionpolygon-spec)
 (s/def :trigger/rule (s/keys :req-un [:trigger/lhs :trigger/comparator :trigger/rhs]))
-(s/def :trigger/rules (s/coll-of :trigger/rule))
+(s/def :trigger/rules (s/coll-of :trigger/rule :min-count 1))
 (s/def :trigger/repeated boolean?)
 (s/def ::trigger-spec (s/keys :req-un
                               [:trigger/name :trigger/description
