@@ -91,12 +91,12 @@ class Field extends Component {
 }
 
 Field.propTypes = {
-  input: PropTypes.string.isRequired,
+  input: PropTypes.object.isRequired,
   connectDragSource: PropTypes.func.isRequired,
   connectDropTarget: PropTypes.func.isRequired,
   updateActiveField: PropTypes.func.isRequired,
   form: PropTypes.object.isRequired,
-  id: PropTypes.string.isRequired,
+  id: PropTypes.number.isRequired,
 };
 
 

@@ -72,8 +72,8 @@ class FormsContainer extends Component {
 FormsContainer.propTypes = {
   actions: PropTypes.object.isRequired,
   forms: PropTypes.object.isRequired,
-  selectedTeamId: PropTypes.string,
-  addFormError: PropTypes.string,
+  selectedTeamId: PropTypes.number,
+  addFormError: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
   children: PropTypes.object,
 };
 
