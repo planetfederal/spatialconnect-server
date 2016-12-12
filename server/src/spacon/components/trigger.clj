@@ -8,24 +8,27 @@
             [spacon.components.notification :as notification]
             [cljts.relation :as relation]
             [clojure.core.async :as async]
-            [spacon.entity.notification :refer [make-mobile-notification]]
+            [spacon.entity.notification
+             :refer [make-mobile-notification]]
             [cljts.io :as jtsio]
-            [clojure.data.json :as json]))
+            [spacon.trigger.protocol :as proto-clause]
+            [clojure.data.json :as json]
+            [spacon.trigger.definition.geo
+             :refer [make-within-clause]]))
 
 (def invalid-triggers (ref {}))
 (def valid-triggers (ref {}))
 
-(defn- rules->geometries [f]
-  (assoc f :rules (map (fn [rule]
-                         (let [nr (jtsio/read-feature-collection
-                                   (json/write-str (:rhs rule)))]
-                           (assoc rule :rhs nr)))
-                       (:rules f))))
-
 (defn add-trigger [trigger]
-  (let [t (rules->geometries trigger)]
+  (let [t (assoc trigger :rules
+                 (map (fn [rule]
+                        (case (:comparator rule)
+                          "$geowithin" (make-within-clause
+                                        (:id trigger) (:rhs rule))
+                          nil)) (:rules trigger)))]
     (dosync
-     (commute invalid-triggers assoc (keyword (:id t)) t))))
+     (commute invalid-triggers assoc
+              (keyword (:id t)) t))))
 
 (defn remove-trigger [trigger]
   (dosync
@@ -42,10 +45,9 @@
    (commute invalid-triggers assoc (keyword (:id trigger)) trigger)
    (commute valid-triggers dissoc (keyword (:id trigger)))))
 
-(defn- load-triggers []
+(defn load-triggers []
   (let [tl (doall (triggermodel/all))]
-    (doall (map (fn [t]
-                  (add-trigger t)) tl))))
+    (doall (map add-trigger tl))))
 
 (defn- handle-success [trigger notify]
   (if (:repeated trigger)
@@ -62,33 +64,30 @@
     (set-invalid-trigger trigger)))
 
 (defn process-value [v notify]
-  (map (fn [k]
-         (let [trigger (k @invalid-triggers)]
-           (doall (map
-                   (fn [rule]
-                     (let [rhs (:rhs rule)
-                     ;lhs (:lhs rule)
-                           cmp (:comparator rule)]
-                       (case cmp
-                         "$geowithin" (if-let [features (.features rhs)]
-                                        (if (.hasNext features)
-                                          (if (relation/within? v (-> features .next .getDefaultGeometry))
-                                            (handle-success trigger notify)
-                                            (handle-failure trigger))
-                                          (handle-failure trigger)))
-                         nil)))
-                   (:rules trigger)))))
-       (keys @invalid-triggers)))
+  (doall (map (fn [k]
+                (let [trigger (k @invalid-triggers)]
+                  (if-not (empty? (:rules trigger))
+                    (loop [rules (:rules trigger)]
+                      (if (empty? rules)
+                        (handle-success trigger notify)
+                        (let [rule (first rules)]
+                          (if (proto-clause/check rule v)
+                            (recur (rest rules))
+                            (handle-failure trigger))))))))
+              (keys @invalid-triggers))))
 
 (defn http-get [_]
   (response/ok (triggermodel/all)))
 
 (defn http-get-trigger [context]
-  (response/ok (triggermodel/find-by-id (get-in context [:path-params :id]))))
+  (response/ok
+   (triggermodel/find-by-id
+    (get-in context [:path-params :id]))))
 
 (defn http-put-trigger [context]
   (let [t (:json-params context)
-        r (response/ok (triggermodel/modify (get-in context [:path-params :id]) t))]
+        r (response/ok (triggermodel/modify
+                        (get-in context [:path-params :id]) t))]
     (add-trigger t)
     r))
 
@@ -99,8 +98,9 @@
                             (get-in context [:path-params :id]) t))]
         (add-trigger t)
         r)
-      (response/error (str "Failed to update trigger:\n"
-                           (s/explain-str :spacon.spec/trigger-spec t))))))
+      (response/error
+       (str "Failed to update trigger:\n"
+            (s/explain-str :spacon.spec/trigger-spec t))))))
 
 (defn http-post-trigger [context]
   (let [t (:json-params context)]
@@ -125,11 +125,11 @@
                     geom (.getDefaultGeometry f)]
                 (doall (process-value geom notify))))))
 
-(defn check-value [triggercomp v]
+(defn test-value [triggercomp v]
   (async/go (async/>!! (:source-channel triggercomp) v)))
 
 (defn http-test-trigger [triggercomp context]
-  (check-value triggercomp (:json-params context))
+  (test-value triggercomp (:json-params context))
   (response/ok "success"))
 
 (defn- routes [triggercomp]

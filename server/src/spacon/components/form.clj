@@ -70,7 +70,7 @@
         form-id (:form-id p)
         form-data (:feature p)
         device-identifier (:client (:metadata form-data))]
-    (triggerapi/check-value trigger form-data)
+    (triggerapi/test-value trigger form-data)
     (formmodel/add-form-data form-data form-id device-identifier)))
 
 (defn- routes [mqtt]
