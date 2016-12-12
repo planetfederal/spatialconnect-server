@@ -26,11 +26,11 @@ class FormDetailsContainer extends Component {
 
   static checkEditStatus(props) {
     let edited = false;
-    if (props.saved_form && props.form) {
-      if (!(props.saved_form.form_label === props.form.form_label)) {
+    if (props.savedForm && props.form) {
+      if (!(props.savedForm.form_label === props.form.form_label)) {
         edited = true;
       }
-      if (!isEqual(props.saved_form.fields, props.form.fields)) {
+      if (!isEqual(props.savedForm.fields, props.form.fields)) {
         edited = true;
       }
     }
@@ -56,7 +56,7 @@ class FormDetailsContainer extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState({ edited: this.checkEditStatus(nextProps) });
+    this.setState({ edited: FormDetailsContainer.checkEditStatus(nextProps) });
   }
 
   saveForm() {

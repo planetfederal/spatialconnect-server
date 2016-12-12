@@ -86,7 +86,7 @@ DataStoresContainer.propTypes = {
   loading: PropTypes.bool.isRequired,
   stores: PropTypes.object.isRequired,
   children: PropTypes.object,
-  selectedTeamId: PropTypes.string,
+  selectedTeamId: PropTypes.number,
   storeErrors: PropTypes.object,
   layerList: PropTypes.array,
 };
