@@ -5,6 +5,7 @@
             [clojure.data.json :as json]
             [yesql.core :refer [defqueries]]
             [spacon.components.mqtt :as mqttcomp]
+            [spacon.components.trigger :as triggerapi]
             [spacon.models.locations :as locationmodel]))
 
 (defn location->geojson [locations]
@@ -31,7 +32,8 @@
     (mqttcomp/subscribe mqtt "/store/tracking"
                         (fn [message]
                           (let [loc (:payload message)]
-                            (locationmodel/upsert-gj loc))))
+                            (locationmodel/upsert-gj loc)
+                            (triggerapi/test-value trigger "location" loc))))
     (assoc this :routes (routes)))
   (stop [this]
     this))

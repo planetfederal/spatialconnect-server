@@ -49,7 +49,7 @@
   (let [tl (doall (triggermodel/all))]
     (doall (map add-trigger tl))))
 
-(defn- handle-success [trigger notify]
+(defn- handle-success [value trigger notify]
   (if (:repeated trigger)
     (set-valid-trigger trigger)
     (remove-trigger trigger))
@@ -58,20 +58,23 @@
                                     {:to nil
                                      :priority "alert"
                                      :title "Alert"
-                                     :body "Point is in Polygon"})))
+                                     :body "Point is in Polygon"
+                                     :payload {:time (str (new java.util.Date))
+                                               :value (json/read-str (jtsio/write-geojson value))
+                                               :trigger (triggermodel/find-by-id (:id trigger))}})))
 (defn- handle-failure [trigger]
   (if (nil? ((keyword (:id trigger)) @valid-triggers))
     (set-invalid-trigger trigger)))
 
-(defn process-value [v notify]
+(defn process-value [store value notify]
   (doall (map (fn [k]
                 (let [trigger (k @invalid-triggers)]
                   (if-not (empty? (:rules trigger))
                     (loop [rules (:rules trigger)]
                       (if (empty? rules)
-                        (handle-success trigger notify)
+                        (handle-success value trigger notify)
                         (let [rule (first rules)]
-                          (if (proto-clause/check rule v)
+                          (if (proto-clause/check rule value)
                             (recur (rest rules))
                             (handle-failure trigger))))))))
               (keys @invalid-triggers))))
@@ -83,13 +86,6 @@
   (response/ok
    (triggermodel/find-by-id
     (get-in context [:path-params :id]))))
-
-(defn http-put-trigger [context]
-  (let [t (:json-params context)
-        r (response/ok (triggermodel/modify
-                        (get-in context [:path-params :id]) t))]
-    (add-trigger t)
-    r))
 
 (defn http-put-trigger [context]
   (let [t (:json-params context)]
@@ -119,17 +115,20 @@
 
 (defn- process-channel [notify input-channel]
   (async/go (while true
-              (let [v (async/<! input-channel)
+              (let [value (async/<! input-channel)
+                    v (:value value)
                     gj (json/write-str v)
                     f (jtsio/read-feature gj)
                     geom (.getDefaultGeometry f)]
-                (doall (process-value geom notify))))))
+                (doall (process-value (:store value) geom notify))))))
 
-(defn test-value [triggercomp v]
-  (async/go (async/>!! (:source-channel triggercomp) v)))
+(defn test-value [triggercomp store value]
+  ; trigger component, source store string, value to test
+  (async/go (async/>!! (:source-channel triggercomp)
+                       {:store store :value value})))
 
 (defn http-test-trigger [triggercomp context]
-  (test-value triggercomp (:json-params context))
+  (test-value triggercomp "http-api" (:json-params context))
   (response/ok "success"))
 
 (defn- routes [triggercomp]
@@ -160,3 +159,4 @@
 
 (defn make-trigger-component []
   (map->TriggerComponent {}))
+
