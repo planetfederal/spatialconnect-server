@@ -66,14 +66,15 @@
 (defn process-value [v notify]
   (doall (map (fn [k]
                 (let [trigger (k @invalid-triggers)]
-                  (loop [rules (:rules trigger)]
-                    (if (empty? rules)
-                      (handle-success trigger notify)
-                      (let [rule (first rules)]
-                        (if (proto-clause/check rule v)
-                          (recur (rest rules))
-                          (handle-failure trigger)))))))
-              (keys @invalid-triggers))))
+                  (if-not (empty? rules)
+                    (loop [rules (:rules trigger)]
+                      (if (empty? rules)
+                        (handle-success trigger notify)
+                        (let [rule (first rules)]
+                          (if (proto-clause/check rule v)
+                            (recur (rest rules))
+                            (handle-failure trigger))))))))
+              (keys @invalid-triggers)))
 
 (defn http-get [_]
   (response/ok (triggermodel/all)))
