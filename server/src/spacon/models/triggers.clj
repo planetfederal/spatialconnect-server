@@ -4,7 +4,8 @@
             [clojure.spec :as s]
             [yesql.core :refer [defqueries]]
             [clojure.data.json :as json]
-            [spacon.util.db :as dbutil])
+            [spacon.util.db :as dbutil]
+            [cljts.io :as jtsio])
   (:import (org.postgresql.util PGobject)))
 
 (defqueries "sql/trigger.sql"
