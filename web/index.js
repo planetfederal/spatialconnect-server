@@ -21,6 +21,7 @@ import DataStoresDetailsContainer from './containers/DataStoresDetailsContainer'
 import DataContainer from './containers/DataContainer';
 import TriggersContainer from './containers/TriggersContainer';
 import TriggerDetailsContainer from './containers/TriggerDetailsContainer';
+import TeamsContainer from './containers/TeamsContainer';
 
 import './style/Globals.less';
 
@@ -77,6 +78,7 @@ render(
           />
         </Route>
         <Route path="/data" name="Data" component={requireAuthentication(DataContainer)} />
+        <Route path="/teams" name="User" component={requireAuthentication(TeamsContainer)} />
       </Route>
     </Router>
   </Provider>,

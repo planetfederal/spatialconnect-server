@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS public.teams
     created_at timestamp DEFAULT NOW(),
     updated_at timestamp DEFAULT NOW(),
     deleted_at timestamp with time zone,
+    CONSTRAINT team_org_name_c UNIQUE (name,organization_id),
     CONSTRAINT team_org_id_fkey FOREIGN KEY (organization_id)
         REFERENCES public.organizations (id) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE CASCADE

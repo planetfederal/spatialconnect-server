@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { Link } from 'react-router';
 import * as dataStoresActions from '../ducks/dataStores';
 import DataStoresList from '../components/DataStoresList';
 import { DataStoreForm } from '../components/DataStoreForm';
@@ -73,8 +74,10 @@ class DataStoresContainer extends Component {
     return (
       <div className="wrapper">
         <section className="main">
-          {loading ? <p>Fetching Data Stores...</p> : this.renderStoreForm() }
-          <DataStoresList dataStores={stores} selectedTeamId={selectedTeamId} />
+          {selectedTeamId ? <div>
+            {loading ? <p>Fetching Data Stores...</p> : this.renderStoreForm() }
+            <DataStoresList dataStores={stores} selectedTeamId={selectedTeamId} />
+          </div> : <p><Link to="/teams">Join</Link> a team to view Stores.</p>}
         </section>
       </div>
     );

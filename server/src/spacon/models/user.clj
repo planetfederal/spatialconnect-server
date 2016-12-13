@@ -37,3 +37,13 @@
                    :email    (:email u)
                    :password (hashers/derive (:password u))}]
     (sanitize (create<! user-info))))
+
+(defn add-user-team [user-team]
+  (if-let [new-user-team (add-team<! {:user_id (:userId user-team) :team_id (:teamId user-team)})]
+    (sanitize new-user-team)
+    nil))
+
+(defn remove-user-team [user-team]
+  (if-let [new-user-team (remove-team<! {:user_id (:userId user-team) :team_id (:teamId user-team)})]
+    (sanitize new-user-team)
+    nil))

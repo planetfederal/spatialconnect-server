@@ -18,17 +18,16 @@
   {:connection db/db-spec})
 
 (defn- sanitize [team]
-  (let [mteam (rename-keys team {:organization_id :organization-id})]
+  (let [mteam (rename-keys team {:organization-id :organization_id})]
     (dissoc mteam :created_at :updated_at :deleted_at)))
 
 (defn all []
   (map sanitize (team-list-query)))
 
 (defn create [team]
-  (if-not (s/valid? ::team-spec team)
-    (s/explain-str ::team-spec team)
-    (sanitize (insert-team<! {:name (:name team)
-                              :organizationid (:organization-id team)}))))
+  (if-let [new-team (insert-team<! team)]
+    (sanitize new-team)
+    nil))
 
 (defn modify [id team]
   (if-not (s/valid? ::team-spec team)

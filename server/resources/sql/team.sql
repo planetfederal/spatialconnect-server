@@ -8,7 +8,7 @@ WHERE deleted_at IS NULL;
 -- name: insert-team<!
 -- registers a new team
 INSERT INTO teams (name,organization_id)
-VALUES (:name,:organizationid)
+VALUES (:name,:organization_id)
 
 -- name: find-by-id-query
 -- gets team by id

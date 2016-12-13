@@ -13,6 +13,7 @@ export const LOGOUT_USER = 'sc/auth/LOGOUT_USER';
 export const FETCH_PROTECTED_DATA_REQUEST = 'sc/auth/FETCH_PROTECTED_DATA_REQUEST';
 export const RECEIVE_PROTECTED_DATA = 'sc/auth/RECEIVE_PROTECTED_DATA';
 export const CHANGE_TEAM = 'sc/auth/CHANGE_TEAM';
+export const LOAD_TEAMS = 'sc/auth/LOAD_TEAMS';
 
 const initialState = {
   token: null,
@@ -25,6 +26,7 @@ const initialState = {
   signUpSuccess: false,
   selectedTeamId: null,
   teams: [],
+  addTeamError: false,
 };
 
 export default function reducer(state = initialState, action = {}) {
@@ -41,9 +43,12 @@ export default function reducer(state = initialState, action = {}) {
         isAuthenticating: false,
         isAuthenticated: true,
         token: action.token,
-        userName: jwtDecode(action.token).user.name,
-        selectedTeamId: jwtDecode(action.token).user.teams[0].id, // select the first one by default
-        teams: jwtDecode(action.token).user.teams,
+        userName: action.user.name,
+        userID: action.user.id,
+        userEmail: action.user.email,
+        selectedTeamId: action.user.teams && action.user.teams.length ?
+          action.user.teams[0].id : null,
+        teams: action.user.teams || [],
         statusText: null,
       };
     case LOGIN_USER_FAILURE:
@@ -97,6 +102,7 @@ export function loginUserSuccess(token) {
   return {
     type: LOGIN_USER_SUCCESS,
     token,
+    user: jwtDecode(token).user,
   };
 }
 

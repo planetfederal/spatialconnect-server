@@ -21,9 +21,22 @@
       (response/error (str "failed to create user:\n"
                            (s/explain-str :spacon.spec/user-spec user))))))
 
+(defn http-create-user-team [request]
+  (if-let [new-user-team (usermodel/add-user-team (:json-params request))]
+    (response/ok new-user-team)
+    (response/error "Failed to add user to team")))
+
+(defn http-remove-user-team [request]
+  (if-let [new-user-team (usermodel/remove-user-team (:json-params request))]
+              (response/ok new-user-team)
+              (response/error "Failed to remove user from team")))
+
+
 (defn- routes []
   #{["/api/users" :get  (conj intercept/common-interceptors `http-get-all-users)]
-    ["/api/users" :post (conj intercept/common-interceptors `http-create-user)]})
+    ["/api/users" :post (conj intercept/common-interceptors `http-create-user)]
+    ["/api/user-team" :post (conj intercept/common-interceptors `http-create-user-team)]
+    ["/api/user-team" :delete (conj intercept/common-interceptors `http-remove-user-team)]})
 
 (defrecord UserComponent []
   component/Lifecycle

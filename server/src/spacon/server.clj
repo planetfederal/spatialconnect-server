@@ -5,6 +5,7 @@
             [com.stuartsierra.component :as component]
             [spacon.components.ping :as ping]
             [spacon.components.user :as user]
+            [spacon.components.team :as team]
             [spacon.components.device :as device]
             [spacon.components.config :as config]
             [spacon.components.store :as store]
@@ -34,6 +35,8 @@
   (let [{:keys [http-config mqtt-config]} config-options]
     (component/system-map
      :user (user/make-user-component)
+     :team (team/make-team-component)
+     :store (store/make-store-component)
      :mqtt (mqtt/make-mqtt-component mqtt-config)
      :ping (component/using (ping/make-ping-component) [:mqtt])
      :device (component/using (device/make-device-component) [:mqtt])
@@ -45,7 +48,7 @@
      :form (component/using (form/make-form-component) [:mqtt :trigger])
      :service (component/using
                (service/make-service http-config)
-               [:ping :user :device :location :trigger :store :config :form :mqtt])
+               [:ping :user :team :device :location :trigger :store :config :form :mqtt])
      :server (component/using
               (new-server)
               [:service]))))
