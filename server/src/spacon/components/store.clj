@@ -6,8 +6,11 @@
             [spacon.components.trigger :as triggerapi]
             [clj-http.client :as client]
             [cljts.io :as jtsio]
+            [spacon.components.mqtt :as mqttapi]
+            [spacon.entity.scmessage :as scm]
             [clojure.data.json :as json]
-            [overtone.at-at :refer [every,mk-pool]]))
+            [overtone.at-at :refer [every,mk-pool]])
+  (:import (com.boundlessgeo.spatialconnect.schema SCCommand)))
 
 (defn http-get [context]
   (if-let [d (storemodel/all)]
@@ -22,20 +25,30 @@
     (response/ok d)
     (response/error "Error retrieving store")))
 
-(defn http-put-store [context]
-  (if-let [d (storemodel/update (get-in context [:path-params :id])
-                                (:json-params context))]
-    (response/ok "success")
+(defn http-put-store [mqtt context]
+  (if-let [d (storemodel/update (get-in context [:path-params :id]) (:json-params context))]
+    (do (mqttapi/publish-scmessage mqtt "/config/update"
+                                (scm/map->SCMessage
+                                  {:action (.value SCCommand/CONFIG_UPDATE_STORE)
+                                   :payload d}))
+     (response/ok "success"))
     (response/error "Error updating")))
 
-(defn http-post-store [context]
+(defn http-post-store [mqtt context]
   (if-let [d (storemodel/create (:json-params context))]
-    (response/ok d)
+    (do (mqttapi/publish-scmessage mqtt "/config/update"
+                                (scm/map->SCMessage {:action (.value SCCommand/CONFIG_ADD_STORE)
+                                                     :payload d}))
+     (response/ok d))
     (response/error "Error creating")))
 
-(defn http-delete-store [context]
-  (storemodel/delete (get-in context [:path-params :id]))
-  (response/ok "success"))
+(defn http-delete-store [mqtt context]
+  (let [id (get-in context [:path-params :id])]
+    (storemodel/delete (get-in context [:path-params :id]))
+    (mqttapi/publish-scmessage mqtt "/config/update"
+                               (scm/map->SCMessage {:action (.value SCCommand/CONFIG_REMOVE_STORE)
+                                                    :payload id}))
+    (response/ok "success")))
 
 (def polling-stores (ref {}))
 (def sched-pool (mk-pool))
@@ -86,25 +99,25 @@
 (defn load-polling-stores []
   (doall (map add-polling-store (storemodel/all))))
 
-(defn- routes [] #{["/api/stores" :get
-                    (conj intercept/common-interceptors `http-get)]
-                   ["/api/stores-error" :get
-                    (conj intercept/common-interceptors `http-get-error)]
-                   ["/api/stores/:id" :get
-                    (conj intercept/common-interceptors `http-get-store)]
-                   ["/api/stores/:id" :put
-                    (conj intercept/common-interceptors `http-put-store)]
-                   ["/api/stores" :post
-                    (conj intercept/common-interceptors `http-post-store)]
-                   ["/api/stores/:id" :delete
-                    (conj intercept/common-interceptors `http-delete-store)]})
+(defn- routes [mqtt] #{["/api/stores" :get
+                        (conj intercept/common-interceptors `http-get)]
+                       ["/api/stores-error" :get
+                        (conj intercept/common-interceptors `http-get-error)]
+                       ["/api/stores/:id" :get
+                        (conj intercept/common-interceptors `http-get-store)]
+                       ["/api/stores/:id" :put
+                        (conj intercept/common-interceptors (partial http-put-store mqtt) :route-name :http-put-store)]
+                       ["/api/stores" :post
+                        (conj intercept/common-interceptors (partial http-post-store) :route-name :http-post-store)]
+                       ["/api/stores/:id" :delete
+                        (conj intercept/common-interceptors `http-delete-store)]})
 
-(defrecord StoreComponent [trigger]
+(defrecord StoreComponent [mqtt trigger]
   component/Lifecycle
   (start [this]
     (load-polling-stores)
     (start-polling trigger)
-    (assoc this :routes (routes)))
+    (assoc this :routes (routes mqtt)))
   (stop [this]
     this))
 

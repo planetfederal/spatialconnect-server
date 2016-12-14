@@ -28,9 +28,8 @@
 
 (defn http-remove-user-team [request]
   (if-let [new-user-team (usermodel/remove-user-team (:json-params request))]
-              (response/ok new-user-team)
-              (response/error "Failed to remove user from team")))
-
+    (response/ok new-user-team)
+    (response/error "Failed to remove user from team")))
 
 (defn- routes []
   #{["/api/users" :get  (conj intercept/common-interceptors `http-get-all-users)]
