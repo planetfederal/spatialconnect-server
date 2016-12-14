@@ -61,18 +61,18 @@
                       jtsio/read-feature-collection
                       feature-collection->geoms)]
         (doall (map (fn [g]
-              (triggerapi/test-value trigger "STORE" g)) geoms)))
+                      (triggerapi/test-value trigger "STORE" g)) geoms)))
       (println "Error "))))
 
 (defn start-polling [trigger]
   (doall
-    (map
-      (fn [k]
-        (let [s (k @polling-stores)
-              seconds (get-in s [:options :polling])]
-          (every (* 1000 (Integer/parseInt seconds))
-            #(fetch-url trigger (:uri s)) sched-pool :initial-delay 5000)))
-      (keys @polling-stores))))
+   (map
+    (fn [k]
+      (let [s (k @polling-stores)
+            seconds (get-in s [:options :polling])]
+        (every (* 1000 (Integer/parseInt seconds))
+               #(fetch-url trigger (:uri s)) sched-pool :initial-delay 5000)))
+    (keys @polling-stores))))
 
 (defn add-polling-store [s]
   (if (not-empty (get-in s [:options :polling]))
