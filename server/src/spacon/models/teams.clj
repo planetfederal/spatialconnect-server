@@ -35,10 +35,10 @@
     (sanitize (update-team<! {:id id :name (:name team)}))))
 
 (defn find-by-id [id]
-  (sanitize (find-by-id-query {:id id})))
+  (sanitize (first (find-by-id-query {:id (Integer/parseInt id)}))))
 
 (defn delete [id]
-  (delete-team! {:id id}))
+  (delete-team! {:id (Integer/parseInt id)}))
 
 (s/fdef all
         :args empty?

@@ -1,8 +1,10 @@
 import * as request from 'superagent-bluebird-promise';
 import { API_URL } from 'config';
+import { push } from 'react-router-redux';
 
 export const LOAD = 'sc/auth/LOAD';
 export const LOAD_TEAMS = 'sc/auth/LOAD_TEAMS';
+export const LOAD_TEAM = 'sc/auth/LOAD_TEAM';
 export const LOAD_FAIL = 'sc/auth/LOAD_FAIL';
 export const CREATE_FAIL = 'sc/auth/CREATE_FAIL';
 export const TOGGLE_ADDING_TEAM = 'sc/auth/TOGGLE_ADDING_TEAM';
@@ -38,6 +40,11 @@ export default function reducer(state = initialState, action = {}) {
         error: null,
         teams: action.payload.teams,
       };
+    case LOAD_TEAM:
+      return {
+        ...state,
+        teams: state.teams.concat(action.payload.team),
+      };
     case CREATE_FAIL:
       return {
         ...state,
@@ -69,6 +76,21 @@ export function loadTeams() {
       .set('Authorization', `Token ${token}`)
       .then(
         res => dispatch({ type: LOAD_TEAMS, payload: { teams: res.body.result } }),
+        error => dispatch({ type: LOAD_FAIL, error }),
+      );
+  };
+}
+
+export function loadTeam(id) {
+  return (dispatch, getState) => {
+    const { sc } = getState();
+    const token = sc.auth.token;
+    dispatch({ type: LOAD });
+    return request
+      .get(`${API_URL}teams/${id}`)
+      .set('Authorization', `Token ${token}`)
+      .then(
+        res => dispatch({ type: LOAD_TEAM, payload: { team: res.body.result } }),
         error => dispatch({ type: LOAD_FAIL, error }),
       );
   };
@@ -124,6 +146,21 @@ export function removeUserTeam(teamId) {
       .then(
         () => {
           dispatch(loadTeams());
+        });
+  };
+}
+
+export function deleteTeam(teamId) {
+  return (dispatch, getState) => {
+    const { sc } = getState();
+    const token = sc.auth.token;
+    return request
+      .delete(`${API_URL}teams/${teamId}`)
+      .set('Authorization', `Token ${token}`)
+      .then(
+        () => {
+          dispatch(loadTeams());
+          return dispatch(push('/teams'));
         });
   };
 }

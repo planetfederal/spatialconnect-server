@@ -12,6 +12,15 @@ class TeamsContainer extends Component {
   }
 
   render() {
+    if (this.props.children) {
+      return (
+        <div className="wrapper">
+          <section className="main">
+            {this.props.children}
+          </section>
+        </div>
+      );
+    }
     return (
       <div className="wrapper">
         <section className="main">
@@ -39,6 +48,7 @@ class TeamsContainer extends Component {
 }
 
 TeamsContainer.propTypes = {
+  children: PropTypes.object,
   teamActions: PropTypes.object.isRequired,
   auth: PropTypes.object.isRequired,
   teams: PropTypes.array.isRequired,

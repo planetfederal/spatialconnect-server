@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react';
+import { Link } from 'react-router';
 import { find } from 'lodash';
 
 class Team extends Component {
@@ -13,7 +14,7 @@ class Team extends Component {
   render() {
     return (
       <div className="form-item">
-        <h4>{this.props.team.name}</h4>
+        <h4><Link to={`/teams/${this.props.team.id}`}>{this.props.team.name}</Link></h4>
         {this.belongs() ?
           <a onClick={() => this.props.teamActions.removeUserTeam(this.props.team.id)}>Leave</a> :
           <a onClick={() => this.props.teamActions.addUserTeam(this.props.team.id)}>

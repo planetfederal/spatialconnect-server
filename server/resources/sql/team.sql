@@ -23,4 +23,6 @@ name = :name WHERE id = :id;
 
 -- name: delete-team!
 -- deletes the team
-UPDATE teams SET deleted_at = NOW() WHERE id = :id
+UPDATE teams SET deleted_at = NOW() WHERE id = :id;
+DELETE FROM user_team
+WHERE team_id = :id;
