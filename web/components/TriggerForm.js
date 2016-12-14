@@ -77,6 +77,7 @@ export class TriggerForm extends Component {
         emails: this.state.email_recipients,
         devices: [],
       },
+      rules: [],
     };
     const errors = validate(newTrigger);
     this.props.actions.updateTriggerErrors(errors);
@@ -156,6 +157,8 @@ export class TriggerForm extends Component {
           />
           {errors.email ? <p className="text-danger">{errors.email}</p> : ''}
         </div>
+        {!!this.props.errors.lengt &&
+          <p className="text-danger">{this.props.errors}</p>}
         <div className="btn-toolbar">
           <button className="btn btn-sc" onClick={this.save}>Create</button>
           <button className="btn btn-default" onClick={cancel}>Cancel</button>

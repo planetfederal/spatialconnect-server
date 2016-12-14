@@ -107,15 +107,20 @@ class TriggerDetails extends Component {
     this.map.removeInteraction(this.modify);
     this.map.removeInteraction(this.create);
     this.select.getFeatures().clear();
-    const fs = this.newRuleSource.getFeatures();
-    const gj = format.writeFeatures(fs, {
+    const fcId = `${this.props.trigger.id}.${this.props.trigger.rules.length + 1}`;
+    const fs = this.newRuleSource.getFeatures().map((f, i) => {
+      f.setId(`${fcId}.${i}`);
+      return f;
+    });
+    const gj = JSON.parse(format.writeFeatures(fs, {
       dataProjection: 'EPSG:4326',
       featureProjection: 'EPSG:3857',
-    });
+    }));
+    gj.id = fcId;
     const newRule = {
-      lhs: 'geometry',
+      lhs: ['geometry'],
       comparator: this.state.rule_comparator,
-      rhs: JSON.parse(gj),
+      rhs: gj,
     };
     const newTrigger = {
       ...this.props.trigger,

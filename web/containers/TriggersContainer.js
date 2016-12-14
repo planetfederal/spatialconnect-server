@@ -14,6 +14,7 @@ const emptyTrigger = {
     devices: [],
     emails: [],
   },
+  rules: [],
 };
 
 class TriggersContainer extends Component {

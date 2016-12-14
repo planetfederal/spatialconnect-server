@@ -70,7 +70,7 @@ export function updateTrigger(trigger) {
       .send(trigger)
       .then(
         () => dispatch(loadTrigger(trigger.id, true)),
-        err => dispatch(updateTriggerErrors(err)),
+        err => dispatch(updateTriggerErrors(err.body.error)),
       );
   };
 }
@@ -85,7 +85,7 @@ export function addTrigger(trigger) {
       .send(trigger)
       .then(
         () => dispatch(loadTriggers()),
-        err => dispatch(updateTriggerErrors(err)),
+        err => dispatch(updateTriggerErrors(err.body.error)),
       );
   };
 }
