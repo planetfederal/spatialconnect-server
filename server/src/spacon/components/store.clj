@@ -47,7 +47,7 @@
              result []]
         (if (.hasNext features)
           (recur (-> features .next .getDefaultGeometry) (conj result feature))
-          result))
+          (conj result feature)))
       [])
     []))
 
