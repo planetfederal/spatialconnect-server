@@ -19,7 +19,7 @@ const TeamDetailsContainer = props => (
             className="btn btn-danger"
             onClick={() => { props.teamActions.deleteTeam(props.team.id); }}
           >
-            Delete Store
+            Delete Team
           </button>
         </div>
       </div>
