@@ -67,10 +67,9 @@ export class DataStoreForm extends Component {
   onStoreTypeChange(e) {
     this.setState({
       store_type: e.target.value,
-      show_polling: (this.state.store_type === 'geojson' || this.state.store_type === 'wfs'),
+      show_polling: (e.target.value === 'geojson' || e.target.value === 'wfs'),
     });
     this.onURIChange();
-    this.addPollingOption();
   }
 
   onURIChange(e) {
@@ -161,7 +160,7 @@ export class DataStoreForm extends Component {
           <label htmlFor="store-version">Version:</label>
           <input
             id="store-version" type="text" className="form-control"
-            value={store.version} maxLength={15}
+            value={this.state.version} maxLength={15}
             onChange={this.onStoreVersionChange}
           />
           {errors.version ? <p className="text-danger">{errors.version}</p> : ''}
@@ -170,7 +169,7 @@ export class DataStoreForm extends Component {
           <label htmlFor="store-uri">URI:</label>
           <input
             id="store-uri" type="text" className="form-control"
-            value={store.uri} onChange={this.onURIChange}
+            value={this.state.uri} onChange={this.onURIChange}
           />
           {errors.uri ? <p className="text-danger">{errors.uri}</p> : ''}
         </div>

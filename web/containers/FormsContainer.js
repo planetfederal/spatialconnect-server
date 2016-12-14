@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { Link } from 'react-router';
 import * as formActions from '../ducks/forms';
 import FormsList from '../components/FormsList';
 import { FormCreate } from '../components/FormCreate';
@@ -50,18 +51,20 @@ class FormsContainer extends Component {
     return (
       <div className="wrapper">
         <section className="main">
-          {this.state.addingNewForm || addFormError ?
-            <FormCreate
-              onSubmit={this.submitNewForm}
-              cancel={this.addNewFormCancel}
-              forms={forms}
-              addFormError={addFormError}
-            /> :
-            <div className="btn-toolbar">
-              <button className="btn btn-sc" onClick={this.addNewForm}>Create Form</button>
-            </div>
-          }
-          <FormsList forms={forms} selectedTeamId={selectedTeamId} />
+          {selectedTeamId ? <div>
+            {this.state.addingNewForm || addFormError ?
+              <FormCreate
+                onSubmit={this.submitNewForm}
+                cancel={this.addNewFormCancel}
+                forms={forms}
+                addFormError={addFormError}
+              /> :
+              <div className="btn-toolbar">
+                <button className="btn btn-sc" onClick={this.addNewForm}>Create Form</button>
+              </div>
+            }
+            <FormsList forms={forms} selectedTeamId={selectedTeamId} />
+          </div> : <p><Link to="/teams">Join</Link> a team to view Forms.</p>}
         </section>
         {children}
       </div>

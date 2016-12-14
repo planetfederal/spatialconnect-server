@@ -27,6 +27,12 @@ class Breadcrumbs extends Component {
           route.name = trigger.name;
         }
       }
+      if (route.path === '/teams/:id') {
+        const team = find(sc.teams.teams, { id: +params.id });
+        if (team) {
+          route.name = team.name;
+        }
+      }
       return route;
     });
 

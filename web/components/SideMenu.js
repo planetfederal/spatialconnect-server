@@ -24,15 +24,14 @@ const SideMenu = ({ isAuthenticated, actions, userName,
           <SideMenuItem path={'/data'} name={'Data'} onClick={closeMenu} />
           <div className="side-menu-separator" />
           <div className="side-menu-item">
-            <div className="side-menu-title">
-              <p>Team</p>
-            </div>
+            <SideMenuItem path={'/teams'} name={'Teams'} onClick={closeMenu} />
             <div className="side-menu-item-inner">
-              <select className="form-control sc-dropdown" onChange={changeTeam}>
-                {teams.map(team => (
-                  <option value={team.id} key={team.id}>{team.name}</option>
-              ))}
-              </select>
+              {!!teams.length &&
+                <select className="form-control sc-dropdown" onChange={changeTeam}>
+                  {teams.map(team => (
+                    <option value={team.id} key={team.id}>{team.name}</option>
+                ))}
+                </select>}
             </div>
           </div>
           <SideMenuItem path={'/user'} name={userName} onClick={closeMenu} />
