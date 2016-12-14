@@ -36,14 +36,13 @@
     (component/system-map
      :user (user/make-user-component)
      :team (team/make-team-component)
-     :store (store/make-store-component)
      :mqtt (mqtt/make-mqtt-component mqtt-config)
      :ping (component/using (ping/make-ping-component) [:mqtt])
      :device (component/using (device/make-device-component) [:mqtt])
      :config (component/using (config/make-config-component) [:mqtt])
      :notify (component/using (notification/make-notification-component) [:mqtt])
      :trigger (component/using (trigger/make-trigger-component) [:notify])
-     :store (component/using (store/make-store-component) [:trigger])
+     :store (component/using (store/make-store-component) [:mqtt :trigger])
      :location (component/using (location/make-location-component) [:mqtt :trigger])
      :form (component/using (form/make-form-component) [:mqtt :trigger])
      :service (component/using

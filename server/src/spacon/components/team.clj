@@ -31,8 +31,8 @@
                     (conj intercept/common-interceptors `http-get-team)]
                    ["/api/teams" :post
                     (conj intercept/common-interceptors `http-post-team)]
-                    ["/api/teams/:id" :delete
-                     (conj intercept/common-interceptors `http-delete-team)]})
+                   ["/api/teams/:id" :delete
+                    (conj intercept/common-interceptors `http-delete-team)]})
 
 (defrecord TeamComponent []
   component/Lifecycle
