@@ -5,11 +5,17 @@
             [spacon.models.store :as storemodel]
             [spacon.models.devices :as devicemodel]
             [spacon.components.mqtt :as mqttapi]
+            [spacon.http.auth :refer [token->user]]
             [spacon.models.form :as formmodel]))
 
-(defn create-config []
-  {:stores (storemodel/all)
-   :forms  (formmodel/all)})
+(defn create-config [user]
+  (let [teams (map :id (:teams user))]
+    {:stores (filter (fn [s]
+                       (> (.indexOf teams (:team_id s)) -1))
+                     (storemodel/all))
+     :forms  (filter (fn [f]
+                       (> (.indexOf teams (:team_id f)) -1))
+                     (formmodel/all))}))
 
 (defn http-get [context]
   (let [d (create-config)]
@@ -20,7 +26,9 @@
 
 (defn mqtt->config [mqtt message]
   (let [topic (:reply-to message)
-        cfg (create-config)]
+        jwt (:jwt message)
+        user (token->user jwt)
+        cfg (create-config user)]
     (mqttapi/publish-scmessage mqtt topic (assoc message :payload cfg))))
 
 (defn mqtt->register [message]

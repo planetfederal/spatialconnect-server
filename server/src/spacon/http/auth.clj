@@ -21,6 +21,13 @@
     ;; todo: encrypt the token
     (jwt/sign claims secret)))
 
+(defn hydrate-token
+  [token]
+  (jwt/unsign token secret))
+
+(defn token->user [token]
+  (:user (hydrate-token token)))
+
 (defn authenticate-user
   "Authenticate user by email and password and return a signed JWT token"
   [req]
