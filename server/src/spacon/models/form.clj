@@ -21,7 +21,8 @@
                     :device_identifier device-identifier}))
 
 (defn get-form-data [form-id]
-  (map sanitize (get-form-data-query {:form_id (Integer/parseInt form-id)})))
+  (map sanitize (get-form-data-query
+                 {:form_id (Integer/parseInt form-id)})))
 
 (defn form-fields
   "Gets the fields for a specific form"

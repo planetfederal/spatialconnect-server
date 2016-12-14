@@ -115,12 +115,9 @@
 
 (defn- process-channel [notify input-channel]
   (async/go (while true
-              (let [value (async/<! input-channel)
-                    v (:value value)
-                    gj (json/write-str v)
-                    f (jtsio/read-feature gj)
-                    geom (.getDefaultGeometry f)]
-                (doall (process-value (:store value) geom notify))))))
+              (let [v (async/<! input-channel)
+                    pt (:value v)]
+                (doall (process-value (:store v) pt notify))))))
 
 (defn test-value [triggercomp store value]
   ; trigger component, source store string, value to test
@@ -128,7 +125,7 @@
                        {:store store :value value})))
 
 (defn http-test-trigger [triggercomp context]
-  (test-value triggercomp "http-api" (:json-params context))
+  (test-value triggercomp "http-api" (jtsio/read-feature (:json-params context)))
   (response/ok "success"))
 
 (defn- routes [triggercomp]

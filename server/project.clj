@@ -25,6 +25,8 @@
                  [camel-snake-kebab "0.4.0"]
                  [org.clojars.diogok/cljts "0.5.0"]
                  [org.clojure/tools.nrepl "0.2.12"]
+                 [overtone/at-at "1.2.0"]
+                 [clj-http "2.3.0"]
                  [jonase/eastwood "0.2.3" :exclusions [org.clojure/clojure]]
                  [com.draines/postal "2.0.2"]]
 
