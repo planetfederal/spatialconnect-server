@@ -116,7 +116,7 @@ export class DataStoreForm extends Component {
       uri: this.state.uri.trim(),
     };
     if (this.state.default_layers) {
-      store.default_layers = this.getChosenLayers();
+      store.default_layers = this.state.default_layers;
     }
     if (this.state.polling) {
       store.options = {
@@ -161,7 +161,7 @@ export class DataStoreForm extends Component {
           <input
             id="store-version" type="text" className="form-control"
             value={this.state.version} maxLength={15}
-            onChange={this.onStoreVersionChange}
+            onChange={this.onVersionChange}
           />
           {errors.version ? <p className="text-danger">{errors.version}</p> : ''}
         </div>
