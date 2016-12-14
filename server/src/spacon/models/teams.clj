@@ -38,7 +38,8 @@
   (sanitize (first (find-by-id-query {:id (Integer/parseInt id)}))))
 
 (defn delete [id]
-  (delete-team! {:id (Integer/parseInt id)}))
+  (delete-team! {:id (Integer/parseInt id)})
+  (delete-user-team! {:id (Integer/parseInt id)}))
 
 (s/fdef all
         :args empty?
