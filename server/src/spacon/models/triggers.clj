@@ -79,8 +79,6 @@
   (let [entity (map->entity (assoc t :id (java.util.UUID/fromString id)))
         updated-trigger (update-trigger<!
                          (assoc entity
-                                :recipients
-                                (dbutil/->StringArray (:recipients t))
                                 :stores
                                 (dbutil/->StringArray (:stores t))))]
     (entity->map (assoc t :id (:id updated-trigger)
