@@ -113,10 +113,10 @@ export class TriggerForm extends Component {
           <label htmlFor="trigger-source">Source Store:</label>
           {Object.keys(stores).map(id => (
             <div className="checkbox">
-              <label htmlFor={stores[id]}>
+              <label htmlFor={id}>
                 <input
-                  id={stores[id]}
-                  type="checkbox" checked={this.state.sourceStores.indexOf(stores[id]) >= 0}
+                  id={id}
+                  type="checkbox" checked={this.state.sourceStores.indexOf(id) >= 0}
                   value={id}
                   onChange={this.onSourceChange}
                 /> {stores[id].name}
