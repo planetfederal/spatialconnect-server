@@ -45,7 +45,7 @@ export class DataStoreForm extends Component {
       store_type: props.store.store_type,
       version: props.store.version,
       uri: props.store.uri,
-      default_layers: props.store.default_layers || false,
+      default_layers: props.store.default_layers || [],
       polling: props.store.options && props.store.options.polling ?
         props.store.options.polling : null,
       show_polling: props.store.store_type === 'geojson' || props.store.store_type === 'wfs',
@@ -90,7 +90,7 @@ export class DataStoreForm extends Component {
   }
 
   onLayersChange(e) {
-    const chosenLayers = Array.from(e.target.value.options)
+    const chosenLayers = Array.from(e.target.options)
       .filter(option => option.selected)
       .map(option => option.value);
     this.setState({ default_layers: chosenLayers });
