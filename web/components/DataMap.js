@@ -113,8 +113,8 @@ class DataMap extends Component {
   }
 
   createMap() {
-    while (this.map.firstChild) {
-      this.map.removeChild(this.map.firstChild);
+    while (this.mapRef.firstChild) {
+      this.mapRef.removeChild(this.mapRef.firstChild);
     }
     this.vectorSource = new ol.source.Vector();
     this.deviceLocationsSource = new ol.source.Vector();
@@ -130,7 +130,7 @@ class DataMap extends Component {
       style: triggerStyle,
     });
     this.map = new ol.Map({
-      target: this.map,
+      target: this.mapRef,
       layers: [
         new ol.layer.Tile({
           source: new ol.source.OSM(),
@@ -187,6 +187,7 @@ class DataMap extends Component {
   }
 
   makePopupTableFormSubmission(f) {
+    console.log(f);
     const form = this.props.forms[f.form_key];
     const rows = form.fields.map(field => (
       <tr key={field.field_key}>
@@ -279,7 +280,7 @@ class DataMap extends Component {
       table = <table />;
     }
     return (
-      <div className="map" ref={(c) => { this.map = c; }} style={style.map}>
+      <div className="map" ref={(c) => { this.mapRef = c; }} style={style.map}>
         <div className="popup" ref={(c) => { this.popup = c; }} style={style.popup}>{table}</div>
       </div>
     );
