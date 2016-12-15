@@ -9,7 +9,8 @@
             [spacon.components.mqtt :as mqttapi]
             [spacon.entity.scmessage :as scm]
             [clojure.data.json :as json]
-            [overtone.at-at :refer [every,mk-pool]])
+            [overtone.at-at :refer [every,mk-pool]]
+            [clojure.xml :as xml])
   (:import (com.boundlessgeo.spatialconnect.schema SCCommand)))
 
 (defn http-get [context]
@@ -28,18 +29,18 @@
 (defn http-put-store [mqtt context]
   (if-let [d (storemodel/update (get-in context [:path-params :id]) (:json-params context))]
     (do (mqttapi/publish-scmessage mqtt "/config/update"
-                                (scm/map->SCMessage
-                                  {:action (.value SCCommand/CONFIG_UPDATE_STORE)
-                                   :payload d}))
-     (response/ok "success"))
+                                   (scm/map->SCMessage
+                                    {:action (.value SCCommand/CONFIG_UPDATE_STORE)
+                                     :payload d}))
+        (response/ok "success"))
     (response/error "Error updating")))
 
 (defn http-post-store [mqtt context]
   (if-let [d (storemodel/create (:json-params context))]
     (do (mqttapi/publish-scmessage mqtt "/config/update"
-                                (scm/map->SCMessage {:action (.value SCCommand/CONFIG_ADD_STORE)
-                                                     :payload d}))
-     (response/ok d))
+                                   (scm/map->SCMessage {:action (.value SCCommand/CONFIG_ADD_STORE)
+                                                        :payload d}))
+        (response/ok d))
     (response/error "Error creating")))
 
 (defn http-delete-store [mqtt context]
@@ -99,6 +100,28 @@
 (defn load-polling-stores []
   (doall (map add-polling-store (storemodel/all))))
 
+(defn get-capabilities->layer-names [caps]
+  (let [layer-names (->> caps
+                         .getBytes
+                         java.io.ByteArrayInputStream.
+                         xml/parse
+                         :content
+                         (filter #(= :FeatureTypeList (:tag %)))
+                         first
+                         :content
+                         (filter #(= :FeatureType (:tag %)))
+                         (map #(first (:content (first (:content %))))))]
+    layer-names))
+
+(defn http-get-capabilities [context]
+  (let [url (get-in context [:query-params :url])
+        res (client/get (str url "?service=WFS&version=1.1.0&request=GetCapabilities"))
+        status (:status res)
+        body (:body res)]
+    (if (= status 200)
+      (response/ok (get-capabilities->layer-names body))
+      (response/error (str "Could not get capabilities from " url)))))
+
 (defn- routes [mqtt] #{["/api/stores" :get
                         (conj intercept/common-interceptors `http-get)]
                        ["/api/stores-error" :get
@@ -110,7 +133,9 @@
                        ["/api/stores" :post
                         (conj intercept/common-interceptors (partial http-post-store mqtt)) :route-name :http-post-store]
                        ["/api/stores/:id" :delete
-                        (conj intercept/common-interceptors (partial http-delete-store mqtt)) :route-name :http-delete-store]})
+                        (conj intercept/common-interceptors (partial http-delete-store mqtt)) :route-name :http-delete-store]
+                       ["/api/wfs/getCapabilities" :get
+                        (conj intercept/common-interceptors `http-get-capabilities)]})
 
 (defrecord StoreComponent [mqtt trigger]
   component/Lifecycle
