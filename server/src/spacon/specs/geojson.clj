@@ -18,7 +18,6 @@
 ;;; geojson
 (s/def :gj/x (s/double-in :min -175.0 :max 175.0 :NaN? false :infinite? false))
 (s/def :gj/y (s/double-in :min -85.0 :max 85.0 :NaN? false :infinite? false))
-(def xypair (gen/tuple (s/gen :gj/x) (s/gen :gj/y)))
 (s/def :gj/coordinates (s/with-gen
                          coll?
                          #(gen/fmap (fn [[lon lat]] (list lon lat))
