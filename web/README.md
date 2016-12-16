@@ -11,3 +11,13 @@ To run the tests
 ```
 npm test
 ```
+
+
+### build the data volume container for nginx
+```
+# first build the static assests for the environment
+NODE_ENV=development webpack
+
+# then build a data volume container for the environment
+docker build -t boundlessgeo/nginx-config:development -f Dockerfile.nginx-config .
+```

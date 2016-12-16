@@ -14,19 +14,21 @@ services:
       - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
       - KAFKA_LOG_CLEANUP_POLICY=compact
 
-  postgres:
-    image: confluent/postgres-bw:0.1
-    ports:
-      - '54321:5432'
-
   nginx:
     image: nginx
+    depends_on:
+      - nginx-config
     ports:
       - '80:80'
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
-      - ./web/dist:/usr/share/nginx/html:ro
-      - ./web/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    volumes_from:
+      - nginx-config
+
+  nginx-config:
+    image: mrcnc/nginx-config
+    mem_limit: 64m
+    command: "/bin/true"
 
   mosquitto:
     image: boundlessgeo/mosquitto

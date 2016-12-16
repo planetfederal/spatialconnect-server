@@ -2,8 +2,8 @@
   "presets": ["es2015", "react"],
   "plugins": ["transform-object-rest-spread", "transform-class-properties"],
   "env": {
-    // only enable it when process.env.NODE_ENV is 'development' or undefined
-    "development": {
+    // only enable it when process.env.NODE_ENV is 'local' or undefined
+    "local": {
       "plugins": [["react-transform", {
         "transforms": [{
           "transform": "react-transform-hmr",
