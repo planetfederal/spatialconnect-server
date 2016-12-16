@@ -3,6 +3,7 @@ MAINTAINER Marc Cenac <mcenac@boundlessgeo.com>
 
 RUN mkdir /opt
 ADD server/target/spacon-server.jar /opt/spacon-server.jar
+ADD server/tls /opt/tls/
 
 EXPOSE 8085
 
