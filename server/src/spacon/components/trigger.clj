@@ -50,9 +50,9 @@
     (doall (map add-trigger tl))))
 
 (defn- handle-success [value trigger notify]
-  (if (:repeated trigger)
-    (set-valid-trigger trigger)
-    (remove-trigger trigger))
+  ;(if-not (:repeated trigger)
+  ;  (remove-trigger trigger)
+  ;  (set-valid-trigger trigger))
   (notification/send->notification notify
                                    (make-mobile-notification
                                     {:to nil
@@ -113,19 +113,25 @@
     (remove-trigger {:id id})
     (response/ok "success")))
 
-(defn- process-channel [notify input-channel]
+(defn process-channel [notify input-channel]
   (async/go (while true
               (let [v (async/<! input-channel)
                     pt (:value v)]
-                (doall (process-value (:store v) pt notify))))))
+                (do (process-value (:store v) pt notify))))))
 
+;(defn test-value [triggercomp store value]
+;  (process-value store value (:notify triggercomp)))
 (defn test-value [triggercomp store value]
-  ; trigger component, source store string, value to test
-  (async/go (async/>!! (:source-channel triggercomp)
-                       {:store store :value value})))
+   ;trigger component, source store string, value to test
+  (async/go (async/>! (:source-channel triggercomp)
+                      {:store store :value value})))
 
 (defn http-test-trigger [triggercomp context]
-  (test-value triggercomp "http-api" (jtsio/read-feature (:json-params context)))
+  (test-value triggercomp "http-api"
+              (-> (:json-params context)
+                  json/write-str
+                  jtsio/read-feature
+                  .getDefaultGeometry))
   (response/ok "success"))
 
 (defn- routes [triggercomp]
@@ -146,8 +152,8 @@
   component/Lifecycle
   (start [this]
     (let [c (async/chan)
-          comp (assoc this :source-channel c)]
-      (process-channel notify c)
+          comp (assoc this :source-channel c :notify notify)]
+      (process-channel (:notify comp) (:source-channel comp))
       (load-triggers)
       (assoc comp :routes (routes comp))))
   (stop [this]
