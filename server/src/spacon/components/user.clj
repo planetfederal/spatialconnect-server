@@ -15,7 +15,7 @@
   "Creates a new user"
   [request]
   (let [user (:json-params request)]
-    (if (s/valid? :spacon.models.user/spec user)
+    (if (s/valid? :spacon.spec/user-spec user)
       (if-let [new-user (usermodel/create user)]
         (response/ok new-user))
       (response/error (str "failed to create user:\n"
