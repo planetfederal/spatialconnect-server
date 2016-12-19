@@ -1,6 +1,6 @@
 (ns spacon.team-test
   (:require [clojure.test :refer :all]
-            [spacon.models.teams :as teams]
+            [spacon.components.team.db :as teams]
             [clojure.spec.test :as stest]))
 
 (defn spec-passed? [s]

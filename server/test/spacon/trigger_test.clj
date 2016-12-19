@@ -1,6 +1,6 @@
 (ns spacon.trigger-test
   (:require [clojure.test :refer :all]
-            [spacon.models.triggers :as trigger]
+            [spacon.components.trigger.db :as trigger]
             [clojure.spec.test :as stest]))
 
 (defn spec-passed?

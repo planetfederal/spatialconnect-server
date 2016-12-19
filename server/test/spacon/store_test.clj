@@ -1,6 +1,6 @@
 (ns spacon.store-test
   (:require [clojure.test :refer :all]
-            [spacon.models.store :as store]
+            [spacon.components.store.db :as store]
             [clojure.spec.test :as stest]))
 
 (defn spec-passed? [s] (-> (stest/check s {:clojure.spec.test.check/opts {:num-tests 25}})
