@@ -1,4 +1,4 @@
-# efc-server
+# spatialconnect-server
 
 This server is the interface used to communicate with mobile clients
 using the SpatialConnect libraries.  It's also the API that powers the
@@ -11,6 +11,25 @@ dashboard web application.
 
 First you have to install [Docker](https://docs.docker.com/engine/installation/) for your local workstation.
 
+### Building the spatialconnect-server container
+
+You can build the spatialconnect-server conainter by:
+
+```
+# building the uberjar for the server
+cd server/
+lein uberjar
+
+# build a container with the jar
+cd ..
+docker build -t boundlessgeo/spatialconnect-server .
+```
+
+Once you've built the container, you can push it to the docker registry to trigger a redeployment:
+
+```
+docker push boundlessgeo/spatialconnect-server
+```
 
 ### Local development environment setup
 
@@ -43,7 +62,7 @@ cd server/
 lein migrate
 ```
 
-Build the latest version of the efc-server container.
+Build the latest version of the spatialconnect-server container.
 
 ```
 # assuming you're still in the server directory, build the uberjar
@@ -51,15 +70,15 @@ lein uberjar
 
 # now build the container to run the uberjar
 cd /path/to/spatialconnect-server/
-docker-compose build efc-server
+docker-compose build spatialconnect-server
 ```
 
-Start the efc-server container (which also starts the mosquitto container)
+Start the spatialconnect-server container (which also starts the mosquitto container)
 
 ```
-docker-compose up -d efc-server
+docker-compose up -d spatialconnect-server
 # you can tail the logs to ensure everything worked as expected
-docker-compose logs -f efc-server
+docker-compose logs -f spatialconnect-server
 ```
 
 
@@ -86,7 +105,7 @@ docker-compose rm -vf
 
 To test the TLS configuration, you can use the `mosquitto_pub` command line
 client.  Make sure you obtain a valid token by authenticating to the
-efc-server container api first.  Also note that the password is
+spatialconnect-server container api first.  Also note that the password is
 required even though it is not used.
 ```
 mosquitto_pub -h <container hostname or ip> -p 8883 -t "test" -m "sample pub"  -u "valid jwt" -P "anypass" --cafile path/to/ca.crt --insecure -d
