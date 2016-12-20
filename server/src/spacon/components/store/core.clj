@@ -141,7 +141,9 @@
     ["/api/stores" :post
      (conj intercept/common-interceptors (partial http-post-store mqtt trigger)) :route-name :http-post-store]
     ["/api/stores/:id" :delete
-     (conj intercept/common-interceptors (partial http-delete-store mqtt)) :route-name :http-delete-store]})
+     (conj intercept/common-interceptors (partial http-delete-store mqtt)) :route-name :http-delete-store]
+    ["/api/wfs/getCapabilities" :get
+     (conj intercept/common-interceptors `http-get-capabilities)]})
 
 (defrecord StoreComponent [mqtt trigger]
   component/Lifecycle

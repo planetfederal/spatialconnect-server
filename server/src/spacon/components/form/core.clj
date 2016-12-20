@@ -33,17 +33,14 @@
   (let [body    (get-in request [:json-params])
         team-id (:team_id body)
         form    (assoc body :team-id team-id)]
-    (if (s/valid? :spacon.spec/form-spec form)
-      (let [new-form (formmodel/add-form-with-fields form)]
-        (mqttapi/publish-scmessage mqtt
+      (if-let [new-form (formmodel/add-form-with-fields form)]
+        (do (mqttapi/publish-scmessage mqtt
                                    "/config/update"
                                    (scm/map->SCMessage
                                     {:action (.value SCCommand/CONFIG_ADD_FORM)
                                      :payload new-form}))
         (response/ok new-form))
-      (response/bad-request
-       (str "failed to create form:"
-            (s/explain-str :spacon.spec/form-spec form))))))
+      (response/error "Error creating"))))
 
 (defn delete-form-by-id
   [form]
