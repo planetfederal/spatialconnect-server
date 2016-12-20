@@ -99,8 +99,9 @@
         border-radius: 5px;
         border: 1px solid @main_border;
         .field-wrap {
-          &:hover {
-            background: lighten(@main, 10%);
+          &.active, &:hover {
+            background: @main;
+            color: white;
             cursor: pointer;
           }
         }

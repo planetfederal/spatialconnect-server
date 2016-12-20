@@ -9,6 +9,8 @@
             [spacon.components.mqtt.core :as mqttapi]
             [spacon.components.trigger.core :as triggerapi]
             [clojure.data.json :as json]
+            [camel-snake-kebab.core :refer :all]
+            [camel-snake-kebab.extras :refer [transform-keys]]
             [spacon.entity.scmessage :as scm])
   (:import java.net.URLDecoder
            (com.boundlessgeo.spatialconnect.schema SCCommand)))
@@ -74,7 +76,7 @@
 (defn http-get-form-results
   [request]
   (let [form-id (get-in request [:path-params :form-id])]
-    (response/ok (formmodel/get-form-data form-id))))
+    (response/ok (transform-keys ->snake_case_keyword (formmodel/get-form-data form-id)))))
 
 (defn mqtt->form-submit [trigger message]
   (let [p (:payload message)
