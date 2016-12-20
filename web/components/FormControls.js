@@ -11,6 +11,17 @@ AddFieldControl.propTypes = {
   options: PropTypes.object.isRequired,
 };
 
+const fieldDefaults = {
+  string: { type: 'string', pattern: '' },
+  number: { type: 'number', integer: false },
+  boolean: { type: 'boolean' },
+  date: { type: 'date' },
+  slider: { type: 'slider', minimum: '0', maximum: '100', initial_value: '0' },
+  counter: { type: 'counter', minimum: '0', maximum: '100', initial_value: '0' },
+  select: { type: 'select', options: [] },
+  photo: { type: 'photo' },
+};
+
 class FormControls extends Component {
 
   constructor(props) {
@@ -35,42 +46,42 @@ class FormControls extends Component {
           <AddFieldControl
             text="Text"
             onClick={this.addField}
-            options={{ type: 'string', pattern: '' }}
+            options={fieldDefaults.string}
           />
           <AddFieldControl
             text="Number"
             onClick={this.addField}
-            options={{ type: 'number', integer: false }}
+            options={fieldDefaults.number}
           />
           <AddFieldControl
             text="Yes/No"
             onClick={this.addField}
-            options={{ type: 'boolean' }}
+            options={fieldDefaults.boolean}
           />
           <AddFieldControl
             text="Date"
             onClick={this.addField}
-            options={{ type: 'date' }}
+            options={fieldDefaults.date}
           />
           <AddFieldControl
             text="Slider"
             onClick={this.addField}
-            options={{ type: 'slider' }}
+            options={fieldDefaults.slider}
           />
           <AddFieldControl
             text="Counter"
             onClick={this.addField}
-            options={{ type: 'counter' }}
+            options={fieldDefaults.counter}
           />
           <AddFieldControl
             text="Select"
             onClick={this.addField}
-            options={{ type: 'select', options: [] }}
+            options={fieldDefaults.select}
           />
           <AddFieldControl
             text="Photo"
             onClick={this.addField}
-            options={{ type: 'photo', pattern: '' }}
+            options={fieldDefaults.photo}
           />
         </div>
       </div>

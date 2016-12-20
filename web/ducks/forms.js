@@ -228,13 +228,18 @@ export function addField(payload) {
     const field = merge({
       id: position + 1,
       position,
-      field_key: position + 1,
+      field_key: `field_${position + 1}`,
       field_label: payload.field_label,
     }, payload.options);
     dispatch({
       type: ADD_FIELD,
       form_key: payload.form_key,
       field,
+    });
+    dispatch({
+      type: UPDATE_ACTIVE_FIELD,
+      form_key: payload.form_key,
+      fieldId: field.id,
     });
   };
 }

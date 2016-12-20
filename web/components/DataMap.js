@@ -187,7 +187,6 @@ class DataMap extends Component {
   }
 
   makePopupTableFormSubmission(f) {
-    console.log(f);
     const form = this.props.forms[f.form_key];
     const rows = form.fields.map(field => (
       <tr key={field.field_key}>

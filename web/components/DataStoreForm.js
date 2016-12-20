@@ -16,11 +16,17 @@ export const validate = (values) => {
   if (!values.uri) {
     errors.uri = 'Must be valid uri';
   }
-  if (values.store_type === 'wfs' && !values.uri) {
-    errors.uri = 'Required';
-  }
-  if (values.store_type === 'wfs' && !values.default_layers.length) {
-    errors.default_layers = 'Must choose at least one default layer.';
+  if (values.store_type === 'wfs') {
+    const validVersions = ['2.0.0', '1.1.0', '1.0.0'];
+    if (validVersions.indexOf(values.version) < 0) {
+      errors.version = `Valid WFS versions are: ${validVersions.join(', ')}`;
+    }
+    if (!values.uri) {
+      errors.uri = 'Required';
+    }
+    if (!values.default_layers.length) {
+      errors.default_layers = 'Must choose at least one default layer.';
+    }
   }
   if (values.options && values.options.polling) {
     const msg = 'Must be a number of seconds between 1 and 600';

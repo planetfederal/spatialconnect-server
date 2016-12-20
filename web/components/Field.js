@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { findDOMNode } from 'react-dom';
 import { DragSource, DropTarget } from 'react-dnd';
+import classNames from 'classnames';
 import flow from 'lodash/flow';
 
 const ItemTypes = {
@@ -78,11 +79,11 @@ function collectTarget(connect) {
 class Field extends Component {
 
   render() {
-    const { input, connectDragSource, connectDropTarget } = this.props;
+    const { form, id, input, connectDragSource, connectDropTarget } = this.props;
     return connectDragSource(connectDropTarget(
       <div
-        className="field-wrap"
-        onClick={() => this.props.updateActiveField(this.props.form.form_key, this.props.id)}
+        className={classNames('field-wrap', { active: id === form.activeField })}
+        onClick={() => this.props.updateActiveField(form.form_key, id)}
       >
         {input}
       </div>,
