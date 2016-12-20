@@ -5,7 +5,7 @@
             [spacon.components.store.db :as storemodel]
             [spacon.components.device.db :as devicemodel]
             [spacon.components.mqtt.core :as mqttapi]
-            [spacon.http.auth :refer [token->user]]
+            [spacon.http.auth :refer [token->user check-auth]]
             [spacon.components.form.db :as formmodel]))
 
 (defn create-config [user]
@@ -17,12 +17,12 @@
                        (> (.indexOf teams (:team_id f)) -1))
                      (formmodel/all))}))
 
-(defn http-get [context]
-  (let [d (create-config (get-in context [:request :identity]))]
+(defn http-get [request]
+  (let [d (create-config (get-in request [:identity :user]))]
     (response/ok d)))
 
 (defn- routes [] #{["/api/config" :get
-                    (conj intercept/common-interceptors `http-get)]})
+                    (conj intercept/common-interceptors check-auth `http-get)]})
 
 (defn mqtt->config [mqtt message]
   (let [topic (:reply-to message)
