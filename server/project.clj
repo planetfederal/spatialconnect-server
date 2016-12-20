@@ -51,6 +51,7 @@
   :profiles {:dev {:source-paths ["dev"]
                    :dependencies [[io.pedestal/pedestal.service-tools "0.5.1"]
                                   [org.clojure/test.check "0.9.0"]]}
-             :uberjar {:aot :all}}
+             :uberjar {:aot :all
+                       :dependencies [[org.clojure/test.check "0.9.0"]]}}
   :uberjar-name "spacon-server.jar"
   :main ^{:skip-aot true} spacon.server)
