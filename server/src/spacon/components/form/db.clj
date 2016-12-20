@@ -1,7 +1,6 @@
 (ns spacon.components.form.db
   (:require [spacon.db.conn :as db]
             [yesql.core :refer [defqueries]]
-            [spacon.util.db :as dbutil]
             [clojure.spec :as s]
             [clojure.java.jdbc :as jdbc]
             [clojure.data.json :as json]))
@@ -28,7 +27,7 @@
 (defn form-fields
   "Gets the fields for a specific form"
   [form]
-  (assoc form :fields (map sanitize (find-fields {:form_id (:id form)} dbutil/result->map))))
+  (assoc form :fields (map sanitize (find-fields {:form_id (:id form)}))))
 
 (defn delete [form-id]
   (delete! {:id form-id}))
@@ -43,7 +42,7 @@
 
 (defn find-latest-version
   [form-key]
-  (->> (find-latest-version-query {:form_key form-key} dbutil/result->map)
+  (->> (find-latest-version-query {:form_key form-key})
        first
        sanitize
        form-fields

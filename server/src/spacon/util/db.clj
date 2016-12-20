@@ -20,11 +20,6 @@
     (assoc row :recipients (vec (.getArray r)))
     row))
 
-(defn format-field-options [row]
-  (if-let [r (:options row)]
-    (assoc row :options (vec (.getArray r)))
-    row))
-
 (defn format-uuid [row]
   (if-let [r (:id row)]
     (assoc row :id (if (instance? java.util.UUID r) (.toString r) r))
@@ -34,7 +29,6 @@
   (-> row
       format-default-layers
       format-recipients
-      format-field-options
       format-uuid))
 
 (def result->map
