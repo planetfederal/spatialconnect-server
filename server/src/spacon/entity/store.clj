@@ -1,3 +1,3 @@
 (ns spacon.entity.store)
 
-(defrecord StoreRecord [id store_type uri version name team_id default_layers])
+(defrecord StoreRecord [id store-type uri version name team-id default-layers])

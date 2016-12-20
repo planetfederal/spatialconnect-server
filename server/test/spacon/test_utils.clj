@@ -3,10 +3,7 @@
 
 (defn spec-passed? [s] (-> (stest/check s
                                         {:clojure.spec.test.check/opts
-                                         {:num-tests 25}})
+                                         {:num-tests 50}})
                            first
                            :clojure.spec.test.check/ret
                            :result))
-
-(defn cleanup-data []
-  (println "Cleaning up"))

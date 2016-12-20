@@ -7,7 +7,7 @@ FROM devices WHERE deleted_at IS NULL
 
 -- name: device-list-query
 -- gets all the devices
-SELECT id,identifier,device_info::json
+SELECT id,identifier,name,device_info::json
 FROM devices
 WHERE deleted_at IS NULL;
 

@@ -59,16 +59,7 @@ INSERT INTO form_fields (
   field_key,
   is_required,
   "position",
-  initial_value,
-  minimum,
-  maximum,
-  exclusive_minimum,
-  exclusive_maximum,
-  is_integer,
-  minimum_length,
-  maximum_length,
-  pattern,
-  options,
+  "constraints",
   updated_at
 )
 VALUES (
@@ -78,16 +69,7 @@ VALUES (
   :field_key,
   :is_required,
   :position,
-  :initial_value,
-  :minimum,
-  :maximum,
-  :exclusive_minimum,
-  :exclusive_maximum,
-  :is_integer,
-  :minimum_length,
-  :maximum_length,
-  :pattern,
-  :options,
+  :constraints::json,
   NOW()
 )
 ON CONFLICT (field_key, form_id)
@@ -98,16 +80,7 @@ DO UPDATE SET (
   field_key,
   is_required,
   "position",
-  initial_value,
-  minimum,
-  maximum,
-  exclusive_minimum,
-  exclusive_maximum,
-  is_integer,
-  minimum_length,
-  maximum_length,
-  pattern,
-  options,
+  "constraints",
   updated_at
 )
 = (
@@ -117,16 +90,7 @@ DO UPDATE SET (
   :field_key,
   :is_required,
   :position,
-  :initial_value,
-  :minimum,
-  :maximum,
-  :exclusive_minimum,
-  :exclusive_maximum,
-  :is_integer,
-  :minimum_length,
-  :maximum_length,
-  :pattern,
-  :options,
+  :constraints::json,
   NOW()
 )
 ;

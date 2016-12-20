@@ -30,11 +30,10 @@
 (defn http-create-form
   "Creates a new form."
   [mqtt request]
-  (let [body    (get-in request [:json-params])
-        team-id (:team_id body)
-        form    (assoc body :team-id team-id)]
-      (if-let [new-form (formmodel/add-form-with-fields form)]
-        (do (mqttapi/publish-scmessage mqtt
+  (let [form    (get-in request [:json-params])]
+    (if (s/valid? :spacon.spec/form-spec form)
+      (let [new-form (formmodel/add-form-with-fields form)]
+        (mqttapi/publish-scmessage mqtt
                                    "/config/update"
                                    (scm/map->SCMessage
                                     {:action (.value SCCommand/CONFIG_ADD_FORM)
