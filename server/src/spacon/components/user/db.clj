@@ -20,14 +20,14 @@
    Returns the user with id."
   [u team-id]
   (jdbc/with-db-transaction [tx db/db-spec]
-                            (let [user-info {:name     (:name u)
-                                             :email    (:email u)
-                                             :password (hashers/derive (:password u))}
-                                  tnx       {:connection tx}
-                                  new-user  (create<! user-info tnx)
-                                  user-id   (:id new-user)]
-                              (add-team<! {:user_id user-id :team_id team-id} tnx)
-                              new-user)))
+    (let [user-info {:name     (:name u)
+                     :email    (:email u)
+                     :password (hashers/derive (:password u))}
+          tnx       {:connection tx}
+          new-user  (create<! user-info tnx)
+          user-id   (:id new-user)]
+      (add-team<! {:user_id user-id :team_id team-id} tnx)
+      new-user)))
 
 (defn create
   "Adds a new user to the database.

@@ -3,6 +3,7 @@
             [io.pedestal.interceptor.helpers :refer [defhandler]]
             [spacon.http.intercept :as intercept]
             [spacon.http.response :as response]
+            [spacon.specs.user :as user-spec]
             [spacon.components.user.db :as usermodel]
             [spacon.http.auth :refer [check-auth]]
             [clojure.spec :as s]))
@@ -14,11 +15,11 @@
   "Creates a new user"
   [request]
   (let [user (:json-params request)]
-    (if (s/valid? :spacon.specs.user/spec user)
+    (if (s/valid? :spacon.specs.user/user-spec user)
       (if-let [new-user (usermodel/create user)]
         (response/ok new-user))
       (response/error (str "failed to create user:\n"
-                           (s/explain-str :spacon.spec/user-spec user))))))
+                           (s/explain-str :spacon.specs.user/user-spec user))))))
 
 (defn http-create-user-team [request]
   (if-let [new-user-team (usermodel/add-user-team (:json-params request))]

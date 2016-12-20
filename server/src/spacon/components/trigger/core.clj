@@ -53,14 +53,14 @@
   ;  (remove-trigger trigger)
   ;  (set-valid-trigger trigger))
   (notificationapi/send->notification notify
-                                   (make-mobile-notification
-                                    {:to nil
-                                     :priority "alert"
-                                     :title "Alert"
-                                     :body "Point is in Polygon"
-                                     :payload {:time (str (new java.util.Date))
-                                               :value (json/read-str (jtsio/write-geojson value))
-                                               :trigger (triggermodel/find-by-id (:id trigger))}})))
+                                      (make-mobile-notification
+                                       {:to nil
+                                        :priority "alert"
+                                        :title "Alert"
+                                        :body "Point is in Polygon"
+                                        :payload {:time (str (new java.util.Date))
+                                                  :value (json/read-str (jtsio/write-geojson value))
+                                                  :trigger (triggermodel/find-by-id (:id trigger))}})))
 (defn- handle-failure [trigger]
   (if (nil? ((keyword (:id trigger)) @valid-triggers))
     (set-invalid-trigger trigger)))

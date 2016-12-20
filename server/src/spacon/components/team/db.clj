@@ -11,11 +11,11 @@
 (s/def :team/name string?)
 (s/def :team/organization-id
   (s/with-gen (s/and int? pos?)
-              #(s/gen (set (map :id (orgsmodel/all))))))
+    #(s/gen (set (map :id (orgsmodel/all))))))
 (s/def ::team-spec (s/keys :req-un
                            [:team/name :team/organization-id]))
 (defqueries "sql/team.sql"
-            {:connection db/db-spec})
+  {:connection db/db-spec})
 
 (defn- sanitize [team]
   (let [mteam (rename-keys team {:organization-id :organization_id})]

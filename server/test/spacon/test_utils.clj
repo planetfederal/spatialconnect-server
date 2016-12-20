@@ -8,3 +8,5 @@
                            :clojure.spec.test.check/ret
                            :result))
 
+(defn cleanup-data []
+  (println "Cleaning up"))

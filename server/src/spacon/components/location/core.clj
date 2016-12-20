@@ -30,10 +30,10 @@
   component/Lifecycle
   (start [this]
     (mqttapi/subscribe mqtt "/store/tracking"
-                        (fn [message]
-                          (let [loc (:payload message)]
-                            (locationmodel/upsert-gj loc)
-                            (triggerapi/test-value trigger "location" loc))))
+                       (fn [message]
+                         (let [loc (:payload message)]
+                           (locationmodel/upsert-gj loc)
+                           (triggerapi/test-value trigger "location" loc))))
     (assoc this :routes (routes)))
   (stop [this]
     this))

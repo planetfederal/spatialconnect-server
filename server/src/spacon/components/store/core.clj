@@ -131,17 +131,17 @@
 
 (defn- routes [mqtt trigger]
   #{["/api/stores" :get
-                                (conj intercept/common-interceptors `http-get)]
-                               ["/api/stores-error" :get
-                                (conj intercept/common-interceptors `http-get-error)]
-                               ["/api/stores/:id" :get
-                                (conj intercept/common-interceptors `http-get-store)]
-                               ["/api/stores/:id" :put
-                                (conj intercept/common-interceptors (partial http-put-store mqtt trigger)) :route-name :http-put-store]
-                               ["/api/stores" :post
-                                (conj intercept/common-interceptors (partial http-post-store mqtt trigger)) :route-name :http-post-store]
-                               ["/api/stores/:id" :delete
-                                (conj intercept/common-interceptors (partial http-delete-store mqtt)) :route-name :http-delete-store]})
+     (conj intercept/common-interceptors `http-get)]
+    ["/api/stores-error" :get
+     (conj intercept/common-interceptors `http-get-error)]
+    ["/api/stores/:id" :get
+     (conj intercept/common-interceptors `http-get-store)]
+    ["/api/stores/:id" :put
+     (conj intercept/common-interceptors (partial http-put-store mqtt trigger)) :route-name :http-put-store]
+    ["/api/stores" :post
+     (conj intercept/common-interceptors (partial http-post-store mqtt trigger)) :route-name :http-post-store]
+    ["/api/stores/:id" :delete
+     (conj intercept/common-interceptors (partial http-delete-store mqtt)) :route-name :http-delete-store]})
 
 (defrecord StoreComponent [mqtt trigger]
   component/Lifecycle

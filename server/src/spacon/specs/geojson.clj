@@ -26,11 +26,11 @@
 (s/def :gjpt/type (s/with-gen string? #(s/gen #{"Point"})))
 (s/def :gjls/coordinates
   (s/with-gen
-                           coll?
-                           #(gen/fmap (fn
-                                        [[lon lat]]
-                                        (list (line-gen lon lat)))
-                                      (gen/tuple (s/gen :gj/x) (s/gen :gj/y)))))
+    coll?
+    #(gen/fmap (fn
+                 [[lon lat]]
+                 (list (line-gen lon lat)))
+               (gen/tuple (s/gen :gj/x) (s/gen :gj/y)))))
 (s/def :gjls/type (s/with-gen string? #(s/gen #{"LineString"})))
 (s/def :gjpl/coordinates (s/with-gen
                            coll?

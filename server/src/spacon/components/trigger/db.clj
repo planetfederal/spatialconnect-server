@@ -9,7 +9,7 @@
   (:import (org.postgresql.util PGobject)))
 
 (defqueries "sql/trigger.sql"
-            {:connection db/db-spec})
+  {:connection db/db-spec})
 
 (defn- sanitize [trigger]
   (dissoc trigger :created_at :updated_at :deleted_at))
@@ -56,10 +56,10 @@
   "Converts input map to prepare for database insertion"
   [t]
   (cond-> t
-          (some? (:rules t))
-          (assoc :rules (json/write-str (:rules t)))
-          (some? (:recipients t))
-          (assoc :recipients (json/write-str (:recipients t)))))
+    (some? (:rules t))
+    (assoc :rules (json/write-str (:rules t)))
+    (some? (:recipients t))
+    (assoc :recipients (json/write-str (:recipients t)))))
 
 (defn create
   "Creates a trigger definition"
@@ -67,23 +67,23 @@
   {:pre [(s/valid? :spacon.specs.trigger/trigger-spec t)]}
   (let [entity (map->entity t)
         new-trigger (insert-trigger<!
-                      (assoc entity
-                        :stores (dbutil/->StringArray (:stores t))))]
+                     (assoc entity
+                            :stores (dbutil/->StringArray (:stores t))))]
     (entity->map (assoc t :id (:id new-trigger)
-                          :created_at (:created_at new-trigger)
-                          :updated_at (:updated_at new-trigger)))))
+                        :created_at (:created_at new-trigger)
+                        :updated_at (:updated_at new-trigger)))))
 
 (defn modify
   "Update trigger"
   [id t]
   (let [entity (map->entity (assoc t :id (java.util.UUID/fromString id)))
         updated-trigger (update-trigger<!
-                          (assoc entity
-                            :stores
-                            (dbutil/->StringArray (:stores t))))]
+                         (assoc entity
+                                :stores
+                                (dbutil/->StringArray (:stores t))))]
     (entity->map (assoc t :id (:id updated-trigger)
-                          :created_at (:created_at updated-trigger)
-                          :updated_at (:updated_at updated-trigger)))))
+                        :created_at (:created_at updated-trigger)
+                        :updated_at (:updated_at updated-trigger)))))
 (defn delete
   "Delete trigger"
   [id]

@@ -5,8 +5,8 @@
 
 (defn uuid-string-gen []
   (->>
-    (gen/uuid)
-    (gen/fmap #(.toString %))))
+   (gen/uuid)
+   (gen/fmap #(.toString %))))
 
 ;; define specs about store
 (def uuid-regex #"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
@@ -18,7 +18,7 @@
 (s/def :store/uri string?)
 (s/def :store/name string?)
 (s/def :store/team-id (s/with-gen (s/and int? pos?)
-                                  #(gen/fmap :id (storemodel/all))))
+                        #(gen/fmap :id (storemodel/all))))
 (s/def :store/default_layers (s/coll-of string?))
 (s/def ::store-spec (s/keys :req-un [:store/name :store/store_type
                                      :store/team-id :store/version :store/uri

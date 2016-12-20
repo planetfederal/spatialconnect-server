@@ -49,8 +49,8 @@
   [id t]
   (let [updated-store (update-store<! (map->entity (assoc t :id (java.util.UUID/fromString id))))]
     (map->StoreRecord (assoc t :id (.toString (:id updated-store))
-                               :created_at (:created_at updated-store)
-                               :updated_at (:updated_at updated-store)))))
+                             :created_at (:created_at updated-store)
+                             :updated_at (:updated_at updated-store)))))
 
 (defn delete
   "Deactivates a store"

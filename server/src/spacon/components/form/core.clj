@@ -36,12 +36,12 @@
         (mqttapi/publish-scmessage mqtt
                                    "/config/update"
                                    (scm/map->SCMessage
-                                     {:action (.value SCCommand/CONFIG_ADD_FORM)
-                                      :payload new-form}))
+                                    {:action (.value SCCommand/CONFIG_ADD_FORM)
+                                     :payload new-form}))
         (response/ok new-form))
       (response/bad-request
-        (str "failed to create form:"
-             (s/explain-str :spacon.spec/form-spec form))))))
+       (str "failed to create form:"
+            (s/explain-str :spacon.spec/form-spec form))))))
 
 (defn delete-form-by-id
   [form]
@@ -56,10 +56,10 @@
     (if (< (count (map delete-form-by-id forms)) (count forms))
       (do
         (mqttapi/publish-scmessage mqtt
-                               "/config/update"
-                               (scm/map->SCMessage
-                                 {:action
-                                  (.value SCCommand/CONFIG_REMOVE_FORM)}))
+                                   "/config/update"
+                                   (scm/map->SCMessage
+                                    {:action
+                                     (.value SCCommand/CONFIG_REMOVE_FORM)}))
         (response/ok (str "Deleted form " form-key)))
       (response/error (str "Error Deleting Form:" form-key)))))
 
