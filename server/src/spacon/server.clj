@@ -3,17 +3,17 @@
   (:require [io.pedestal.http :as server]
             [spacon.http.service :as service]
             [com.stuartsierra.component :as component]
-            [spacon.components.ping :as ping]
-            [spacon.components.user :as user]
-            [spacon.components.team :as team]
-            [spacon.components.device :as device]
-            [spacon.components.config :as config]
-            [spacon.components.store :as store]
-            [spacon.components.location :as location]
-            [spacon.components.trigger :as trigger]
-            [spacon.components.mqtt :as mqtt]
-            [spacon.components.notification :as notification]
-            [spacon.components.form :as form]))
+            [spacon.components.ping.core :as ping]
+            [spacon.components.user.core :as user]
+            [spacon.components.team.core :as team]
+            [spacon.components.device.core :as device]
+            [spacon.components.config.core :as config]
+            [spacon.components.store.core :as store]
+            [spacon.components.location.core :as location]
+            [spacon.components.trigger.core :as trigger]
+            [spacon.components.mqtt.core :as mqtt]
+            [spacon.components.notification.core :as notification]
+            [spacon.components.form.core :as form]))
 
 (defrecord Server [service]
   component/Lifecycle

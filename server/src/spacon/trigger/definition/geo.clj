@@ -1,6 +1,7 @@
 (ns spacon.trigger.definition.geo
   (:require [spacon.trigger.protocol :as proto]
             [cljts.io :as jtsio]
+            [cljts.relation :as spatial-relation]
             [clojure.data.json :as json]))
 
 (defn rhs->jtsgeom [c]
@@ -8,7 +9,7 @@
    (json/write-str c)))
 
 (defn check-simple-feature [A B]
-  (cljts.relation/within? A B))
+  (spatial-relation/within? A B))
 
 (defn check-feature-collection [A B]
   (if-let [features (.features B)]

@@ -7,7 +7,7 @@
             [buddy.auth.backends :as backends]
             [buddy.sign.jwt :as jwt]
             [clj-time.core :refer [weeks from-now]]
-            [spacon.models.user :as usermodel]))
+            [spacon.components.user.db :as usermodel]))
 
 (defonce secret "spaconsecret")
 (def auth-backend (backends/jws {:secret secret}))
