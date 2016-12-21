@@ -34,7 +34,7 @@
   [loc]
   (let [x (get-in loc [:geometry :coordinates 0])
         y (get-in loc [:geometry :coordinates 1])
-        z (get-in loc [:geometry :coordinates 2])
+        z (get-in loc [:geometry :coordinates 2] 0)
         p (jeom/point (jeom/c x y z))
         did (get-in loc [:metadata :client])]
     (upsert p did)))
