@@ -16,7 +16,7 @@
 (defn mqtt-ping [mqttcomp message]
   (mqttapi/publish-scmessage mqttcomp
                              (:reply-to message)
-                             (update message :payload {:result "pong"})))
+                             (assoc message :payload {:result "pong"})))
 
 (defrecord PingComponent [mqtt]
   component/Lifecycle
