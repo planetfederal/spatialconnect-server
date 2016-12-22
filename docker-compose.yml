@@ -15,27 +15,18 @@ services:
       - KAFKA_LOG_CLEANUP_POLICY=compact
 
   nginx:
-    image: nginx
-    depends_on:
-      - nginx-config
+    image: jwilder/nginx-proxy
     ports:
       - '80:80'
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
-    volumes_from:
-      - nginx-config
-
-  nginx-config:
-    image: mrcnc/nginx-config
-    mem_limit: 64m
-    command: "/bin/true"
 
   mosquitto:
     image: boundlessgeo/mosquitto
     ports:
+      - '1883:1883'
       - '8883:8883'
       - '8884:8884'
-      - '9883:9883'
 
   postgis:
     image: mdillon/postgis
@@ -44,21 +35,18 @@ services:
 
   spatialconnect-server:
     build: .
-    command: 'java -jar /opt/spacon-server.jar'
+    command: 'java -jar /opt/server/target/spacon-server.jar'
     depends_on:
-      - nginx
       - mosquitto
       - postgis
     ports:
       - '8085:8085'
-    volumes:
-      - './server/tls:/opt/tls:ro'
     environment:
       - DB_HOST=postgis
       - MQTT_BROKER_URL=ssl://mosquitto:8884
       - VIRTUAL_HOST=spatialconnect-server
-      - TRUST_STORE=/opt/tls/test-cacerts.jks
-      - KEY_STORE=/opt/tls/test-keystore.p12
+      - TRUST_STORE=/opt/server/tls/test-cacerts.jks
+      - KEY_STORE=/opt/server/tls/test-keystore.p12
 
   kafka-tools:
     image: confluent/tools:0.9.0.0-cp1

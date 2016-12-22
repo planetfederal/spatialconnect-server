@@ -13,23 +13,22 @@ First you have to install [Docker](https://docs.docker.com/engine/installation/)
 
 ### Building the spatialconnect-server container
 
-You can build the spatialconnect-server conainter by:
+You can build the spatialconnect-server Docker container like this
 
 ```
-# building the uberjar for the server
-cd server/
-lein uberjar
-
-# build a container with the jar
-cd ..
 docker build -t boundlessgeo/spatialconnect-server .
 ```
 
-Once you've built the container, you can push it to the docker registry to trigger a redeployment:
+Once you've built the container, you can push it to the Docker registry to
+trigger a redeployment:
 
 ```
 docker push boundlessgeo/spatialconnect-server
 ```
+
+> Note that anytime the boundlessgeo/spatialconnect-server GitHub repo is
+> updated, the container will be rebuilt and deployed to the appropriate
+> environment.
 
 ### Local development environment setup
 
