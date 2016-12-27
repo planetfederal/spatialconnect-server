@@ -57,8 +57,8 @@
         (mqttapi/publish-scmessage mqtt
                                    "/config/update"
                                    (scm/map->SCMessage
-                                    {:action
-                                     (.value SCCommand/CONFIG_REMOVE_FORM)}))
+                                    {:action (.value SCCommand/CONFIG_REMOVE_FORM)
+                                     :payload {:form-key: form-key}}))
         (response/ok (str "Deleted form " form-key)))
       (response/error (str "Error Deleting Form:" form-key)))))
 

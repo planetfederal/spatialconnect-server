@@ -103,7 +103,7 @@
     (remove-polling-store id)
     (mqttapi/publish-scmessage mqtt "/config/update"
                                (scm/map->SCMessage {:action (.value SCCommand/CONFIG_REMOVE_STORE)
-                                                    :payload id}))
+                                                    :payload {:id id}}))
 
     (response/ok "success")))
 
