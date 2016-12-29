@@ -52,7 +52,7 @@
   (let [form-key (URLDecoder/decode (get-in request [:path-params :form-key])
                                     "UTF-8")
         forms (formmodel/find-by-form-key form-key)]
-    (if (< (count (map delete-form-by-id forms)) (count forms))
+    (if (== (count (map delete-form-by-id forms)) (count forms))
       (do
         (mqttapi/publish-scmessage mqtt
                                    "/config/update"
