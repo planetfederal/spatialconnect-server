@@ -1,20 +1,22 @@
 (ns spacon.team-test
   (:require [clojure.test :refer :all]
+            [clojure.spec :as spec]
+            [spacon.specs.team]
             [spacon.components.team.db :as teams]
-            [clojure.spec.test :as stest]))
-
-(defn spec-passed? [s]
-  (-> (stest/check s
-                   {:clojure.spec.test.check/opts {:num-tests 25}})
-      first
-      :clojure.spec.test.check/ret
-      :result))
-
-(deftest create-team-test
-  (is (true? (spec-passed? `teams/create))))
-
-(deftest modify-team-test
-  (is (true? (spec-passed? `teams/modify))))
+            [camel-snake-kebab.core :refer :all]
+            [camel-snake-kebab.extras :refer [transform-keys]]
+            [spacon.test-utils :as utils]))
 
 (deftest all-team-test
-  (is (true? (spec-passed? `teams/all))))
+  (is (true? (utils/spec-passed? `teams/all))))
+
+(use-fixtures :once utils/setup-fixtures)
+
+(deftest team-get-test []
+                   (let [res (utils/request-get "/api/teams")]
+                     (is (some? (:result res)))))
+
+(deftest team-get-one-test []
+                           (let [res (utils/request-get "/api/teams")
+                                 team (utils/request-get (str "/api/teams/" (-> res :result first :id)))]
+                             (is (some? team))))

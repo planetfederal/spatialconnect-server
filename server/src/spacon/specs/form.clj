@@ -78,7 +78,7 @@
                                                  :fieldopt/is-integer]))
 
 (s/def :field/type field-types)
-(s/def :field/position pos-int?)
+(s/def :field/position (s/int-in 0 100))
 (s/def :field/is-required boolean?)
 (s/def :field/id pos-int?)
 (s/def :field/field-label (s/and string? #(> (count %) 0)))

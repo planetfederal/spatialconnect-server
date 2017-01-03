@@ -1,12 +1,15 @@
-(ns spacon.http.response)
+(ns spacon.http.response
+  (:require [camel-snake-kebab.core :refer :all]
+            [camel-snake-kebab.extras :refer [transform-keys]]))
 
 (defn is-error? [status]
   (< 300 status))
 
 (defn response [status body & {:as headers}]
-  (let [res-body (assoc {}
-                        :result (if (is-error? status) nil body)
-                        :error (if (is-error? status) body nil))]
+  (let [b_o_d_y (transform-keys ->snake_case_keyword body)
+        res-body (assoc {}
+                        :result (if (is-error? status) nil b_o_d_y)
+                        :error (if (is-error? status) b_o_d_y nil))]
     {:status status :body res-body :headers headers}))
 
 (def ok (partial response 200))

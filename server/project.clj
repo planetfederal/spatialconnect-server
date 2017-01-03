@@ -7,6 +7,7 @@
                  [org.clojure/data.json "0.2.6"]
                  [io.pedestal/pedestal.service "0.5.1"]
                  [io.pedestal/pedestal.jetty "0.5.1"]
+
                  [ragtime "0.5.3"]
                  [yesql "0.5.2"]
                  [cljfmt "0.5.1"]
@@ -45,7 +46,8 @@
             [jonase/eastwood "0.2.3"]]
 
   :aliases {"migrate" ["run" "-m" "spacon.db.conn/migrate"]
-            "rollback" ["run" "-m" "spacon.db.conn/rollback"]}
+            "rollback" ["run" "-m" "spacon.db.conn/rollback"]
+            "sampledata" ["run" "-m" "spacon.generate-data/generate-sample-data"]}
 
   :monkeypatch-clojure-test false
   :min-lein-version "2.0.0"

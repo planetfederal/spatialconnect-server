@@ -15,21 +15,21 @@
             [spacon.components.notification.core :as notification]
             [spacon.components.form.core :as form]))
 
-(defrecord Server [service]
+(defrecord SpaconServer [http-service]
   component/Lifecycle
   (start [component]
-    (let [server (server/create-server (:service-def service))]
+    (let [server (server/create-server (:service-def http-service))]
       (println "Starting Server")
       (server/start server)
-      (assoc component :server server)))
+      (assoc component :http-server server)))
   (stop [component]
     (println "Stopping Server")
-    (update-in component [:server] server/stop)))
+    (update-in component [:http-server] server/stop)))
 
-(defn new-server []
-  (map->Server {}))
+(defn new-spacon-server []
+  (map->SpaconServer {}))
 
-(defn system
+(defn make-spacon-server
   "Returns a new instance of the system"
   [config-options]
   (let [{:keys [http-config mqtt-config]} config-options]
@@ -45,16 +45,16 @@
      :store (component/using (store/make-store-component) [:mqtt :trigger])
      :location (component/using (location/make-location-component) [:mqtt :trigger])
      :form (component/using (form/make-form-component) [:mqtt :trigger])
-     :service (component/using
+     :http-service (component/using
                (service/make-service http-config)
                [:ping :user :team :device :location :trigger :store :config :form :mqtt])
      :server (component/using
-              (new-server)
-              [:service]))))
+              (new-spacon-server)
+              [:http-service]))))
 
 (defn -main
   "The entry-point for 'lein run'"
-  [& args]
+  [& _]
   (println "\nCreating your server...")
   (System/setProperty "javax.net.ssl.trustStore"
                       (or (System/getenv "TRUST_STORE")
@@ -74,6 +74,6 @@
   (System/setProperty "javax.net.ssl.keyStorePassword"
                       (or (System/getenv "KEY_STORE_PASSWORD")
                           "somepass"))
-  (component/start-system (system {:http-config {}
-                                   :mqtt-config {:broker-url (System/getenv "MQTT_BROKER_URL")}})))
+  (component/start-system (make-spacon-server {:http-config {}
+                                               :mqtt-config {:broker-url (System/getenv "MQTT_BROKER_URL")}})))
 
