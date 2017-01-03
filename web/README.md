@@ -19,5 +19,5 @@ npm test
 NODE_ENV=development webpack
 
 # then build a data volume container for the environment
-docker build -t boundlessgeo/nginx-config:development -f Dockerfile.nginx-config .
+docker build -t boundlessgeo/spatialconnect-nginx-config:development -f Dockerfile.nginx-config .
 ```

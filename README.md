@@ -61,20 +61,10 @@ cd server/
 lein migrate
 ```
 
-Build the latest version of the spatialconnect-server container.
-
-```
-# assuming you're still in the server directory, build the uberjar
-lein uberjar
-
-# now build the container to run the uberjar
-cd /path/to/spatialconnect-server/
-docker-compose build spatialconnect-server
-```
-
 Start the spatialconnect-server container (which also starts the mosquitto container)
 
 ```
+cd ..
 docker-compose up -d spatialconnect-server
 # you can tail the logs to ensure everything worked as expected
 docker-compose logs -f spatialconnect-server
@@ -88,6 +78,9 @@ cd /path/to/spatialconnect-server/web
 npm install
 npm run start:local
 ```
+
+The webpack-dev-server will host the app here http://localhost:8080 and rebuild
+the JS when you make changes.
 
 When you're done, you can shut all the containers down with
 
