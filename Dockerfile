@@ -1,9 +1,11 @@
-FROM java:8-alpine
+FROM clojure
 MAINTAINER Marc Cenac <mcenac@boundlessgeo.com>
 
-RUN mkdir /opt
-ADD server/target/spacon-server.jar /opt/spacon-server.jar
+RUN mkdir -p /opt/
+COPY server /opt/server
+WORKDIR /opt/server
+RUN lein uberjar
 
 EXPOSE 8085
 
-CMD ["java", "-jar", "/opt/spacon-server.jar"]
+CMD ["java", "-jar", "/opt/server/target/spacon-server.jar"]

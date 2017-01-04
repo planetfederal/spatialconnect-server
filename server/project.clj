@@ -21,6 +21,8 @@
                  [com.stuartsierra/component "0.3.1"]
                  [clojurewerkz/machine_head "1.0.0-beta9"]
                  [com.boundlessgeo.spatialconnect/schema "0.7"]
+                 ; todo: the protobuf dependency should be packaged into the schema artifact
+                 [com.google.protobuf/protobuf-java "3.1.0"]
                  [buddy "1.1.0"]
                  [camel-snake-kebab "0.4.0"]
                  [org.clojars.diogok/cljts "0.5.0"]
@@ -31,6 +33,7 @@
                  [com.draines/postal "2.0.2"]]
 
   :repositories  [["osgeo" "http://download.osgeo.org/webdav/geotools/"]
+                  ["boundlessgeo-releases" "https://repo.boundlessgeo.com/artifactory/release/"]
                   ["clojars" {:sign-releases false}]
                   ["project" "file:repo"]]
   :dev-dependencies [[lein-reload "1.0.0"]]

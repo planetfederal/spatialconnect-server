@@ -4,21 +4,10 @@ authorizedkeys:
   environment:
     - AUTHORIZED_KEYS=ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC7oJ/blBKJOHbhBbOLve6xWyzggSR/F680yTu0L1Mwp/KM1kJZTaMcsNH2GzPdHfwcliuM5xgEI45d5nRIeQJhusw+95SEdqEQdM3SIiZMyJLqRBQ3w37ewOy3VxvA5ife5jvCNdTMJcP+pxAKiNz5X7bsrhDUAvBxtvuoSFEb46DO+GQ8x1b+FaiK6PrMpFUkCDf84CjUB+zZXUnGSmPyqqd5y1Qf1a6RizmOR3oCBWRaT7Si5mfgJi8q0SmRLPCjy/+njv0PLnMjI2DSgfPvLqJR8OjxqXBU9SP6sJJ1ldDrUaA9qVfEdbDOXx/tUd38HDfbwqtrxXW4+P7mj+St
   image: 'dockercloud/authorizedkeys:latest'
+  tags:
+    - develop
   volumes:
     - '/root:/user'
-  tags:
-    - develop
-bottledwater:
-  autoredeploy: true
-  environment:
-    - DB_NAME=spacon
-  hostname: bottledwater
-  image: 'boundlessgeo/bottledwater-json:latest'
-  links:
-    - kafka
-    - postgres
-  tags:
-    - develop
 geoserver:
   environment:
     - 'JAVA_OPTS=-Xmx1536M -XX:MaxPermSize=756M'
@@ -36,7 +25,6 @@ kafka:
     - KAFKA_ADVERTISED_HOST_NAME=
     - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
     - KAFKA_LOG_CLEANUP_POLICY=compact
-  hostname: kafka
   image: 'confluent/kafka:0.10.0.0-cp1'
   links:
     - zookeeper
@@ -45,66 +33,56 @@ kafka:
   tags:
     - develop
 mosquitto:
-  image: marcusthebrown/mosquitto
-  hostname: mosquitto
-  links:
-    - spatialconnect-server
+  autoredeploy: true
+  image: 'boundlessgeo/mosquitto:latest'
   ports:
     - '1883:1883'
     - '8883:8883'
-    - '9883:9883'
+    - '8884:8884'
   tags:
     - develop
 nginx:
-  image: 'jwilder/nginx-proxy:latest'
+  image: 'nginx:latest'
   ports:
     - '80:80'
+  tags:
+    - develop
   volumes:
     - '/var/run/docker.sock:/tmp/docker.sock:ro'
+  volumes_from:
+    - nginx-config
+nginx-config:
+  autoredeploy: true
+  image: 'boundlessgeo/spatialconnect-nginx-config:development'
+  mem_limit: 64m
+  restart: always
   tags:
     - develop
 postgis:
   environment:
     - POSTGRES_USER=spacon
   image: 'mdillon/postgis:latest'
-  tags:
-    - develop
-postgres:
-  hostname: postgres
-  image: 'confluent/postgres-bw:0.1'
   ports:
     - '5432:5432'
   tags:
     - develop
-spatialconnect-connectors:
-  autoredeploy: true
-  environment:
-    - 'GEOSERVER_URL=http://efc-dev.boundlessgeo.com:8080/geoserver/'
-    - 'KAFKA_SERVERS=kafka:9092'
-    - ROOT_LOG_LEVEL=INFO
-    - TOPICS_LIST=form_data
-  image: 'boundlessgeo/spatialconnect-connectors:latest'
-  links:
-    - geoserver
-    - kafka
-  tags:
-    - develop
 spatialconnect-server:
   autoredeploy: true
-  command: 'npm run start:development'
+  command: java -jar /opt/server/target/spacon-server.jar
   environment:
-    - NODE_ENV=development
-    - PGDATABASE=postgres
-    - PGHOST=postgres
-    - PGUSER=postgres
-    - MQTT_BROKER_HOST=mosquitto
+    - DB_HOST=postgis
+    - KEY_STORE=/opt/server/tls/test-keystore.p12
+    - 'MQTT_BROKER_URL=ssl://mosquitto:8884'
+    - TRUST_STORE=/opt/server/tls/test-cacerts.jks
     - VIRTUAL_HOST=efc-dev.boundlessgeo.com
   image: 'boundlessgeo/spatialconnect-server:latest'
   links:
+    - mosquitto
     - nginx
-    - postgres
+    - postgis
   ports:
     - '8085:8085'
+  restart: always
   tags:
     - develop
 zookeeper:

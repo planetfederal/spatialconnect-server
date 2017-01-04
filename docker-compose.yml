@@ -5,7 +5,6 @@ services:
     ports:
       - '2181:2181'
 
-
   kafka:
     image: confluent/kafka:0.10.0.0-cp1
     ports:
@@ -15,20 +14,6 @@ services:
       - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
       - KAFKA_LOG_CLEANUP_POLICY=compact
 
-
-  postgres:
-    image: confluent/postgres-bw:0.1
-    ports:
-      - '54321:5432'
-
-
-  bottledwater:
-    image: boundlessgeo/bottledwater-json
-    command: --output-format=json --allow-unkeyed
-    environment:
-      - DB_NAME=spacon
-
-
   nginx:
     image: jwilder/nginx-proxy
     ports:
@@ -36,42 +21,35 @@ services:
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
 
-
   mosquitto:
     image: boundlessgeo/mosquitto
     ports:
       - '1883:1883'
       - '8883:8883'
       - '8884:8884'
-      - '9883:9883'
-
 
   postgis:
     image: mdillon/postgis
     ports:
       - '5432:5432'
 
-  efc-server:
+  spatialconnect-server:
     build: .
-    command: 'java -jar /opt/spacon-server.jar'
+    command: 'java -jar /opt/server/target/spacon-server.jar'
     depends_on:
       - mosquitto
       - postgis
     ports:
       - '8085:8085'
-    volumes:
-      - './server/tls:/opt/tls:ro'
     environment:
       - DB_HOST=postgis
       - MQTT_BROKER_URL=ssl://mosquitto:8884
-      - VIRTUAL_HOST=efc-server
-      - TRUST_STORE=/opt/tls/test-cacerts.jks
-      - KEY_STORE=/opt/tls/test-keystore.p12
-
+      - VIRTUAL_HOST=spatialconnect-server
+      - TRUST_STORE=/opt/server/tls/test-cacerts.jks
+      - KEY_STORE=/opt/server/tls/test-keystore.p12
 
   kafka-tools:
     image: confluent/tools:0.9.0.0-cp1
-
 
   geoserver:
     image: kartoza/geoserver:latest
@@ -80,12 +58,3 @@ services:
       - JAVA_OPTS=-Xmx1536M -XX:MaxPermSize=756M
     ports:
       - '8080:8080'
-
-
-  spatialconnect-connectors:
-    image: boundlessgeo/spatialconnect-connectors:latest
-    environment:
-      - KAFKA_SERVERS=kafka:9092
-      - TOPICS_LIST=form_data
-      - GEOSERVER_URL=http://geoserver:8080/geoserver/
-      - ROOT_LOG_LEVEL=INFO

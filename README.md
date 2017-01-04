@@ -1,4 +1,4 @@
-# efc-server
+# spatialconnect-server
 
 This server is the interface used to communicate with mobile clients
 using the SpatialConnect libraries.  It's also the API that powers the
@@ -11,6 +11,24 @@ dashboard web application.
 
 First you have to install [Docker](https://docs.docker.com/engine/installation/) for your local workstation.
 
+### Building the spatialconnect-server container
+
+You can build the spatialconnect-server Docker container like this
+
+```
+docker build -t boundlessgeo/spatialconnect-server .
+```
+
+Once you've built the container, you can push it to the Docker registry to
+trigger a redeployment:
+
+```
+docker push boundlessgeo/spatialconnect-server
+```
+
+> Note that anytime the boundlessgeo/spatialconnect-server GitHub repo is
+> updated, the container will be rebuilt and deployed to the appropriate
+> environment.
 
 ### Local development environment setup
 
@@ -43,23 +61,13 @@ cd server/
 lein migrate
 ```
 
-Build the latest version of the efc-server container.
+Start the spatialconnect-server container (which also starts the mosquitto container)
 
 ```
-# assuming you're still in the server directory, build the uberjar
-lein uberjar
-
-# now build the container to run the uberjar
-cd /path/to/spatialconnect-server/
-docker-compose build efc-server
-```
-
-Start the efc-server container (which also starts the mosquitto container)
-
-```
-docker-compose up -d efc-server
+cd ..
+docker-compose up -d spatialconnect-server
 # you can tail the logs to ensure everything worked as expected
-docker-compose logs -f efc-server
+docker-compose logs -f spatialconnect-server
 ```
 
 
@@ -70,6 +78,9 @@ cd /path/to/spatialconnect-server/web
 npm install
 npm run start:local
 ```
+
+The webpack-dev-server will host the app here http://localhost:8080 and rebuild
+the JS when you make changes.
 
 When you're done, you can shut all the containers down with
 
@@ -86,7 +97,7 @@ docker-compose rm -vf
 
 To test the TLS configuration, you can use the `mosquitto_pub` command line
 client.  Make sure you obtain a valid token by authenticating to the
-efc-server container api first.  Also note that the password is
+spatialconnect-server container api first.  Also note that the password is
 required even though it is not used.
 ```
 mosquitto_pub -h <container hostname or ip> -p 8883 -t "test" -m "sample pub"  -u "valid jwt" -P "anypass" --cafile path/to/ca.crt --insecure -d
