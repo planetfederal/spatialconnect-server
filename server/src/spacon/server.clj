@@ -46,8 +46,8 @@
      :location (component/using (location/make-location-component) [:mqtt :trigger])
      :form (component/using (form/make-form-component) [:mqtt :trigger])
      :http-service (component/using
-               (service/make-service http-config)
-               [:ping :user :team :device :location :trigger :store :config :form :mqtt])
+                    (service/make-service http-config)
+                    [:ping :user :team :device :location :trigger :store :config :form :mqtt])
      :server (component/using
               (new-spacon-server)
               [:http-service]))))

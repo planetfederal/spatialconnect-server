@@ -22,11 +22,11 @@
 
 (defn init-dev []
   (make-spacon-server {:http-config {:env                     :dev
-                         ::server/join?           false
-                         ::server/allowed-origins {:creds true
-                                                   :allowed-origins (constantly true)}}
-           :mqtt-config {:broker-url (or (System/getenv "MQTT_BROKER_URL")
-                                         "tcp://localhost:1883")}}))
+                                     ::server/join?           false
+                                     ::server/allowed-origins {:creds true
+                                                               :allowed-origins (constantly true)}}
+                       :mqtt-config {:broker-url (or (System/getenv "MQTT_BROKER_URL")
+                                                     "tcp://localhost:1883")}}))
 
 (defn init []
   (alter-var-root #'system-val (constantly (init-dev))))
@@ -42,17 +42,26 @@
   (init)
   (start))
 
-
-(defn request-get [url]
-  (let [res (response-for (service-def) :get  url)]
+(defn request-get [url & [headers]]
+  (let [res (response-for (service-def) :get url :headers headers)]
     (keywordize-keys (json/read-str (:body res)))))
 
-(defn request-post [url body]
-  (let [res (client/post url {:body (json/write-str body) :content-type :json})]
+(defn request-post [url body & [headers]]
+  (let [res (response-for (service-def) :post url :body (json/write-str body)
+                          :headers (merge {"Content-Type" "application/json"} headers))]
     (keywordize-keys (json/read-str (:body res)))))
 
-(defn request-put [url body]
-  (let [res (client/put url {:body (json/write-str body) :content-type :json})]
+(defn authenticate [user pass]
+  (let [res (request-post "/api/authenticate" {:email user :password pass})]
+    (get-in res [:result :token])))
+
+(defn request-put [url body & [headers]]
+  (let [res (response-for (service-def) :put url :body (json/write-str body)
+                          :headers (merge {"Content-Type" "application/json"} headers))]
+    (keywordize-keys (json/read-str (:body res)))))
+
+(defn request-delete [url & [headers]]
+  (let [res (response-for (service-def) :delete url :headers headers)]
     (keywordize-keys (json/read-str (:body res)))))
 
 (defn setup-fixtures [f]

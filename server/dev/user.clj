@@ -25,11 +25,11 @@
                       (or (System/getenv "KEY_STORE_PASSWORD")
                           "somepass"))
   (make-spacon-server {:http-config {:env                     :dev
-                         ::server/join?           false
-                         ::server/allowed-origins {:creds true
-                                                   :allowed-origins (constantly true)}}
+                                     ::server/join?           false
+                                     ::server/allowed-origins {:creds true
+                                                               :allowed-origins (constantly true)}}
                        :mqtt-config {:broker-url (or (System/getenv "MQTT_BROKER_URL")
-                                         "tcp://localhost:1883")}}))
+                                                     "tcp://localhost:1883")}}))
 
 (def system-val nil)
 

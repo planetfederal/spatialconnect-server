@@ -14,3 +14,6 @@
 
 (defn json->camelCase [jsonstr]
   (json/read-str jsonstr :key-fn ->camelCaseKeyword))
+
+(defn map->jsonrequest [m]
+  (json/write-str (transform-keys ->snake_case_keyword m)))

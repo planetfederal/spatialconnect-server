@@ -74,7 +74,7 @@
                     (loop [rules (:rules trigger)]
                       (if (empty? rules)
                         (handle-success value trigger notify)
-                        (let [rule (first rules)]
+                        (if-let [rule (first rules)]
                           (if (proto-clause/check rule value)
                             (recur (rest rules))
                             (handle-failure trigger))))))))

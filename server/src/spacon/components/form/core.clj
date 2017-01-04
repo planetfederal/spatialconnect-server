@@ -30,8 +30,8 @@
 (defn http-create-form
   "Creates a new form."
   [mqtt request]
-  (let [form    (get-in request [:json-params])]
-    (if (s/valid? :spacon.spec/form-spec form)
+  (let [form (transform-keys ->kebab-case-keyword (get-in request [:json-params]))]
+    (if (s/valid? :spacon.specs.form/form-spec form)
       (let [new-form (formmodel/add-form-with-fields form)]
         (mqttapi/publish-scmessage mqtt
                                    "/config/update"
@@ -58,7 +58,7 @@
                                    (scm/map->SCMessage
                                     {:action (.value SCCommand/CONFIG_REMOVE_FORM)
                                      :payload {:form-key form-key}}))
-        (response/ok (str "Deleted form " form-key)))
+        (response/ok "success"))
       (response/error (str "Error Deleting Form:" form-key)))))
 
 (defn http-submit-form-data

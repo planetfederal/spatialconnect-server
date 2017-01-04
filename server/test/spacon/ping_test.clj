@@ -5,5 +5,5 @@
 (use-fixtures :once utils/setup-fixtures)
 
 (deftest ping-test []
-         (let [res (utils/request-get "/api/ping")]
-           (is (= (:result res) "pong"))))
+  (let [res (utils/request-get "/api/ping")]
+    (is (= (:result res) "pong"))))
