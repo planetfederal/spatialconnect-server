@@ -1,20 +1,28 @@
 (ns spacon.device-test
-  (:require [clojure.test :refer :all]
-            [clojure.spec :as s]
-            [clojure.spec.test :as stest]
-            [spacon.server :as server]
-            [com.stuartsierra.component :as component]))
+  (:require [clojure.test :refer :all]            [spacon.test-utils :as utils]
+            [camel-snake-kebab.core :refer :all]
+            [camel-snake-kebab.extras :refer [transform-keys]]
+            [clojure.spec.gen :as gen]
+            [clojure.spec :as spec]))
 
-(defn spec-passed? [s] (-> (stest/check s {:clojure.spec.test.check/opts {:num-tests 25}})
-                           first
-                           :clojure.spec.test.check/ret
-                           :result))
+(deftest all-device-test
+  (is (true? (utils/spec-passed? 'spacon.components.device.db/all))))
 
-(deftest create-device-test
-  (is (true? (spec-passed? 'spacon.models.devices/create))))
+(use-fixtures :once utils/setup-fixtures)
 
-(deftest update-device-test
-  (is (true? (spec-passed? 'spacon.models.devices/update))))
+(deftest device-get-test []
+  (let [res (utils/request-get "/api/devices")]
+    (is (some? (:result res)))))
 
-(deftest all-device-tests
-  (is (true? (spec-passed? (stest/enumerate-namespace 'spacon.models.devices)))))
+(deftest device-crud-test []
+  (let [device (gen/generate (spec/gen :spacon.specs.device/device-spec))
+        d (transform-keys ->snake_case_keyword device)
+        new-device (utils/request-post "/api/devices" d)
+        create-res (transform-keys ->kebab-case-keyword (:result new-device))
+        read-device (utils/request-get (str "/api/devices/" (:identifier create-res)))
+        read-res (transform-keys ->kebab-case-keyword (:result read-device))
+        delete-device (utils/request-delete (str "/api/devices/" (:id create-res)))
+        delete-res (transform-keys ->kebab-case-keyword (:result delete-device))]
+    (is (spec/valid? :spacon.specs.device/device-spec create-res))
+    (is (spec/valid? :spacon.specs.device/device-spec read-res))
+    (is (= "success" delete-res))))

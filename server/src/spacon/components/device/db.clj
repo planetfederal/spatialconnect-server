@@ -2,7 +2,9 @@
   (:require [spacon.db.conn :as db]
             [clojure.data.json :as json]
             [yesql.core :refer [defqueries]]
-            [spacon.specs.device :as device-spec]
+            [camel-snake-kebab.core :refer :all]
+            [camel-snake-kebab.extras :refer [transform-keys]]
+            [spacon.specs.device]
             [clojure.spec :as s]))
 
 (defqueries "sql/device.sql"
@@ -19,7 +21,7 @@
      :device-info (:device_info entity)}))
 
 (defn- sanitize [device]
-  (dissoc device :created_at :updated_at :deleted_at))
+  (transform-keys ->kebab-case-keyword (dissoc device :created_at :updated_at :deleted_at)))
 
 (defn count-devices
   "Count of all the active devices"
@@ -30,7 +32,7 @@
   "Retrieves all the active devices deleted_at = null"
   []
   (map (fn [d]
-         (entity->map d)) (device-list-query)))
+         (sanitize d)) (device-list-query)))
 
 (defn find-by-identifier
   "Finds device by its unique identifier"
@@ -45,10 +47,11 @@
   [d]
   (if-not (s/valid? :spacon.specs.device/device-spec d)
     (s/explain-str :spacon.specs.device/device-spec d)
-    (entity->map
-     (create-device<! {:identifier  (:identifier d)
-                       :name        (:name d)
-                       :device_info (json/write-str (:device-info d))}))))
+    (if-let [dev (create-device<! {:identifier  (:identifier d)
+                                   :name        (:name d)
+                                   :device_info (json/write-str (:device-info d))})]
+      (sanitize dev)
+      d)))
 
 (defn modify
   "Updates the device info by the unique id"
@@ -69,7 +72,12 @@
         :args (s/cat :identifier string?))
 
 (s/fdef create
-        :args (s/cat :device (s/spec :spacon.specs.device/device-spec)))
+        :args (s/cat :device (s/spec :spacon.specs.device/device-spec))
+        :ret (s/spec :spacon.specs.device/device-spec))
+
+(s/fdef all
+        :args empty?
+        :ret (s/coll-of :spacon.specs.device/device-spec))
 
 (s/fdef update
         :args (s/cat :id string?

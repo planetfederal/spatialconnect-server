@@ -48,14 +48,15 @@
                     t (:topic v)
                     m (:message v)]
                 (try
-                  (mh/publish (:conn mqtt) t m)
+                  (if-not (or (nil? t) (nil? m))
+                    (mh/publish (:conn mqtt) t m))
                   (catch Exception e
                     (println (.getLocalizedMessage e))
                     (println e)))))))
 
 (defn- process-subscribe-channel [chan]
   (async/go (while true
-              (let [v (async/<!! chan)
+              (let [v (async/<! chan)
                     t (:topic v)
                     m (:message v)
                     f ((keyword t) @topics)]
@@ -88,9 +89,9 @@
       (assoc c :routes (routes c))))
   (stop [this]
     (println "Disconnecting MQTT Client")
-    (mh/disconnect (:conn this))
     (async/close! (:publish-channel this))
     (async/close! (:subscribe-channel this))
+    (mh/disconnect (:conn this))
     this))
 
 (defn make-mqtt-component [mqtt-config]

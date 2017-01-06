@@ -1,12 +1,9 @@
 (ns user
-  (:require [clojure.java.io :as io]
-            [clojure.string :as str]
-            [clojure.pprint :refer (pprint)]
+  (:require [clojure.pprint :refer (pprint)]
             [clojure.repl :refer :all]
-            [clojure.test :as test]
             [com.stuartsierra.component :as component]
             [io.pedestal.http :as server]
-            [spacon.server :refer [system]]))
+            [spacon.server :refer [make-spacon-server]]))
 
 (defn init-dev []
   (System/setProperty "javax.net.ssl.trustStore"
@@ -27,12 +24,12 @@
   (System/setProperty "javax.net.ssl.keyStorePassword"
                       (or (System/getenv "KEY_STORE_PASSWORD")
                           "somepass"))
-  (system {:http-config {:env                     :dev
-                         ::server/join?           false
-                         ::server/allowed-origins {:creds true
-                                                   :allowed-origins (constantly true)}}
-           :mqtt-config {:broker-url (or (System/getenv "MQTT_BROKER_URL")
-                                         "tcp://localhost:1883")}}))
+  (make-spacon-server {:http-config {:env                     :dev
+                                     ::server/join?           false
+                                     ::server/allowed-origins {:creds true
+                                                               :allowed-origins (constantly true)}}
+                       :mqtt-config {:broker-url (or (System/getenv "MQTT_BROKER_URL")
+                                                     "tcp://localhost:1883")}}))
 
 (def system-val nil)
 

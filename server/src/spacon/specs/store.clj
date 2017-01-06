@@ -1,7 +1,7 @@
 (ns spacon.specs.store
   (:require [clojure.spec :as s]
-            [spacon.components.store.db :as storemodel]
-            [clojure.test.check.generators :as gen]))
+            [clojure.test.check.generators :as gen]
+            [spacon.components.team.db :as teammodel]))
 
 (defn uuid-string-gen []
   (->>
@@ -13,13 +13,13 @@
 (s/def :store/id (s/with-gen
                    (s/and string? #(re-matches uuid-regex %))
                    #(uuid-string-gen)))
-(s/def :store/store_type string?)
+(s/def :store/store-type string?)
 (s/def :store/version string?)
 (s/def :store/uri string?)
 (s/def :store/name string?)
-(s/def :store/team-id (s/with-gen (s/and int? pos?)
-                        #(gen/fmap :id (storemodel/all))))
-(s/def :store/default_layers (s/coll-of string?))
-(s/def ::store-spec (s/keys :req-un [:store/name :store/store_type
+(s/def :store/team-id (s/with-gen pos-int?
+                        #(s/gen (set (map :id (teammodel/all))))))
+(s/def :store/default-layers (s/coll-of string?))
+(s/def ::store-spec (s/keys :req-un [:store/name :store/store-type
                                      :store/team-id :store/version :store/uri
-                                     :store/default_layers]))
+                                     :store/default-layers]))

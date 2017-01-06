@@ -3,7 +3,9 @@
             [spacon.http.intercept :as intercept]
             [yesql.core :refer [defqueries]]
             [spacon.components.device.db :as devicemodel]
-            [spacon.http.response :as response]))
+            [spacon.http.response :as response]
+            [camel-snake-kebab.core :refer :all]
+            [camel-snake-kebab.extras :refer [transform-keys]]))
 
 (defn http-get [_]
   (let [d (devicemodel/all)]
@@ -15,7 +17,7 @@
     (response/ok nil)))
 
 (defn http-post-device [context]
-  (if-let [d (devicemodel/create (:json-params context))]
+  (if-let [d (devicemodel/create (transform-keys ->kebab-case-keyword (:json-params context)))]
     (response/ok d)
     (response/error "Error creating")))
 

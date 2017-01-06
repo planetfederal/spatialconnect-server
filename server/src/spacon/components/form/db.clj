@@ -3,14 +3,22 @@
             [yesql.core :refer [defqueries]]
             [clojure.spec :as s]
             [clojure.java.jdbc :as jdbc]
-            [clojure.data.json :as json]))
+            [clojure.data.json :as json]
+            [spacon.specs.form]
+            [camel-snake-kebab.core :refer :all]
+            [camel-snake-kebab.extras :refer [transform-keys]]
+            [spacon.util.db :as dbutil]))
 
 ;; define sql queries as functions
 (defqueries "sql/form.sql" {:connection db/db-spec})
 
-(defn- sanitize [form]
-  (into {} (remove #(nil? (val %))
-                   (dissoc form :created_at :updated_at :deleted_at :form_id))))
+(defn sanitize
+  ; Sanitized the result from a DB query
+  [form]
+  (->> (dissoc form :created_at :updated_at :deleted_at :form_id)
+       (remove #(nil? (val %)))
+       (into {})
+       (transform-keys ->kebab-case-keyword)))
 
 (defn find-by-form-key [form-key]
   (find-by-form-key-query {:form_key form-key}))
@@ -27,7 +35,8 @@
 (defn form-fields
   "Gets the fields for a specific form"
   [form]
-  (assoc form :fields (map sanitize (find-fields {:form_id (:id form)}))))
+  (assoc form :fields
+         (map sanitize (find-fields {:form_id (:id form)}))))
 
 (defn delete [form-id]
   (delete! {:id form-id}))
@@ -61,37 +70,38 @@
   [form]
   (jdbc/with-db-transaction [tx db/db-spec]
     (let [fields   (:fields form)
-          team-id  (:team_id form)
-          form-key (:form_key form)
+          form-key (:form-key form)
           tnx      {:connection tx}
-          version  (some-> (find-latest-version-query {:form_key form-key} tnx)
-                           first
-                           :version
-                           inc)
+          version  (some->
+                    (find-latest-version form-key)
+                    :version
+                    inc)
           new-form (create<! {:form_key   form-key
-                              :form_label (or (:form_label form) form-key)
+                              :form_label (or
+                                           (:form-label form)
+                                           form-key)
                               :version    (or version 1)
-                              :team_id    team-id}
+                              :team_id    (:team-id form)}
                              tnx)
           new-fields (doall
-                      (map #(create-form-fields<!
-                             {:form_id           (:id new-form)
-                              :field_key         (:field_key %)
-                              :field_label       (:field_label %)
-                              :type              (:type %)
-                              :position          (:position %)
-                              :is_required       (:is_required %)
-                              :initial_value     (:initial_value %)
-                              :is_integer        (:is_integer %)
-                              :pattern           (:pattern %)
-                              :options           (:options %)
-                              :minimum           (:minimum %)
-                              :maximum           (:maximum %)
-                              :minimum_length    (:minimum_length %)
-                              :maximum_length    (:maximum_length %)
-                              :exclusive_minimum (:exclusive_minimum %)
-                              :exclusive_maximum (:exclusive_maximum %)}
-                             tnx)
-                           fields))
+                      (map
+                       (fn [fs]
+                         (create-form-fields<!
+                          {:form_id           (:id new-form)
+                           :field_key         (:field-key fs)
+                           :field_label       (:field-label fs)
+                           :type              (:type fs)
+                           :position          (:position fs)
+                           :is_required       (:is-required fs)
+                           :constraints       (json/write-str (:constraints fs))}
+                          tnx)) fields))
           sanitized-fields (map #(sanitize %) new-fields)]
-      (assoc new-form :fields sanitized-fields))))
+      (assoc (sanitize new-form) :fields sanitized-fields))))
+
+(s/fdef all
+        :args empty?
+        :ret (s/coll-of :spacon.specs.form/form-spec))
+
+(s/fdef add-form-with-fields
+        :args (s/cat :form :spacon.specs.form/form-spec)
+        :ret (s/spec :spacon.specs.form/form-spec))
