@@ -17,7 +17,7 @@
 (s/def :store/version string?)
 (s/def :store/uri string?)
 (s/def :store/name string?)
-(s/def :store/team-id (s/with-gen (s/and int? pos?)
+(s/def :store/team-id (s/with-gen pos-int?
                         #(s/gen (set (map :id (teammodel/all))))))
 (s/def :store/default-layers (s/coll-of string?))
 (s/def ::store-spec (s/keys :req-un [:store/name :store/store-type

@@ -51,7 +51,7 @@
                                    :name        (:name d)
                                    :device_info (json/write-str (:device-info d))})]
       (sanitize dev)
-      (sanitize d))))
+      d)))
 
 (defn modify
   "Updates the device info by the unique id"

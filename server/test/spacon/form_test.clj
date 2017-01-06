@@ -20,14 +20,22 @@
 (deftest form-crud-test []
                         (let [token (utils/authenticate "admin@something.com" "admin")
                               auth {"Authorization" (str "Token " token)}
-                              form (gen/generate (spec/gen :spacon.specs.form/form-spec))
-                              t_e_a_m (transform-keys ->snake_case_keyword form)
-                              new-form (utils/request-post "/api/forms" t_e_a_m auth)
+                              form (transform-keys ->snake_case_keyword
+                                                   (gen/generate (spec/gen :spacon.specs.form/form-spec)))
+                              new-form (utils/request-post "/api/forms" form auth)
                               create-res (transform-keys ->kebab-case-keyword (:result new-form))
                               read-form (utils/request-get (str "/api/forms/" (:form-key create-res)) auth)
                               read-res (transform-keys ->kebab-case-keyword (:result read-form))
+                              update-form (utils/request-post "/api/forms"
+                                                              (transform-keys ->snake_case_keyword
+                                                                              (assoc read-res
+                                                                                :form-label "foo"
+                                                                                )) auth)
+                              update-res (transform-keys ->kebab-case-keyword (:result update-form))
                               delete-form (utils/request-delete (str "/api/forms/" (:form-key create-res)) auth)
                               delete-res (transform-keys ->kebab-case-keyword (:result delete-form))]
                           (is (spec/valid? :spacon.specs.form/form-spec create-res))
                           (is (spec/valid? :spacon.specs.form/form-spec read-res))
+                          (is (spec/valid? :spacon.specs.form/form-spec update-res))
+                          (is (= "foo" (:form-label update-res)))
                           (is (= "success" delete-res))))

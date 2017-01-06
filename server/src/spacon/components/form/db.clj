@@ -74,7 +74,6 @@
           tnx      {:connection tx}
           version  (some->
                     (find-latest-version form-key)
-                    first
                     :version
                     inc)
           new-form (create<! {:form_key   form-key
