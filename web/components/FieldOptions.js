@@ -3,17 +3,18 @@ import { find } from 'lodash';
 import { toKey } from '../utils';
 import '../style/FormDetails.less';
 
-const fieldOptions = {
-  string: ['field_label', 'field_key', 'is_required', 'initial_value',
-    'minimum_length', 'maximum_length', 'pattern'],
-  select: ['field_label', 'field_key', 'is_required', 'options'],
-  number: ['field_label', 'field_key', 'is_required', 'initial_value',
+const fieldOptions = ['field_label', 'field_key', 'is_required'];
+
+const fieldConstraints = {
+  string: ['initial_value', 'minimum_length', 'maximum_length', 'pattern'],
+  select: ['options'],
+  number: ['initial_value',
     'minimum', 'maximum', 'is_integer', 'exclusive_minimum', 'exclusive_maximum'],
-  boolean: ['field_label', 'field_key', 'is_required'],
-  date: ['field_label', 'field_key', 'is_required'],
-  slider: ['field_label', 'field_key', 'is_required', 'initial_value', 'minimum', 'maximum'],
-  counter: ['field_label', 'field_key', 'is_required', 'initial_value', 'minimum', 'maximum'],
-  photo: ['field_label', 'field_key', 'is_required'],
+  boolean: [],
+  date: [],
+  slider: ['initial_value', 'minimum', 'maximum'],
+  counter: ['initial_value', 'minimum', 'maximum'],
+  photo: [],
 };
 
 const fieldLabels = {
@@ -71,47 +72,56 @@ class FieldOptions extends Component {
     );
   }
 
-  makeOptionInput(field) {
-    return fieldOptions[field.type].map((o, i) => {
-      if (o === 'is_integer' || o === 'is_required') {
-        return (
-          <div className="checkbox" key={o + i}>
-            <label htmlFor={field.field_key}>
-              <input
-                type="checkbox"
-                id={field.field_key}
-                checked={field[o] && field[o] === true}
-                onChange={(e) => { this.changeOption(o, e); }}
-              /> {fieldLabels[o]}
-            </label>
-          </div>
-        );
-      }
-      if (o === 'options') {
-        return (
-          <div className="form-group" key={o + i}>
-            <label htmlFor={o}>{fieldLabels[o]}</label>
-            <textarea
-              className="form-control" rows="3"
-              id={o}
-              onChange={(e) => { this.changeOption(o, e); }}
-              value={field[o] ? field[o].join('\n') : ''}
-            />
-          </div>
-        );
-      }
+  makeOptionInput(field, option, value, i) {
+    if (option === 'is_integer' || option === 'is_required') {
       return (
-        <div className="form-group" key={o + i}>
-          <label htmlFor={o}>{fieldLabels[o]}</label>
-          <input
-            type="text" className="form-control"
-            id={o}
-            value={field[o] ? field[o] : ''}
-            onChange={(e) => { this.changeOption(o, e); }}
+        <div className="checkbox" key={option + i}>
+          <label htmlFor={field.field_key}>
+            <input
+              type="checkbox"
+              id={field.field_key}
+              checked={value && value === true}
+              onChange={(e) => { this.changeOption(option, e); }}
+            /> {fieldLabels[option]}
+          </label>
+        </div>
+      );
+    }
+    if (option === 'options') {
+      return (
+        <div className="form-group" key={option + i}>
+          <label htmlFor={option}>{fieldLabels[option]}</label>
+          <textarea
+            className="form-control" rows="3"
+            id={option}
+            onChange={(e) => { this.changeOption(option, e); }}
+            value={value ? value.join('\n') : ''}
           />
         </div>
       );
-    });
+    }
+    return (
+      <div className="form-group" key={option + i}>
+        <label htmlFor={option}>{fieldLabels[option]}</label>
+        <input
+          type="text" className="form-control"
+          id={option}
+          value={value || ''}
+          onChange={(e) => { this.changeOption(option, e); }}
+        />
+      </div>
+    );
+  }
+
+  makeOptionInputs(field) {
+    const options = fieldOptions.map((o, i) => this.makeOptionInput(field, o, field[o], i));
+    if (field.constraints) {
+      const constraints = fieldConstraints[field.type].map((o, i) =>
+        this.makeOptionInput(field, o, field.constraints[o], i),
+      );
+      return options.concat(constraints);
+    }
+    return options;
   }
 
   render() {
@@ -119,7 +129,7 @@ class FieldOptions extends Component {
     const activeField = form.activeField;
     const field = find(form.fields, { id: activeField });
     if (activeField && field) {
-      const optionInputs = this.makeOptionInput(field);
+      const optionInputs = this.makeOptionInputs(field);
       return (
         <div className="form-options form-pane">
           <div className="form-pane-title"><h5>Field Options</h5></div>
