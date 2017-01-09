@@ -4,7 +4,7 @@ import transform from 'tcomb-json-schema';
 import scformschema from 'spatialconnect-form-schema';
 import { DragDropContext } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
-import _ from 'lodash';
+import sortBy from 'lodash/sortBy';
 import Field from './Field';
 import '../style/FormDetails.less';
 
@@ -33,7 +33,7 @@ class FormPreview extends Component {
   }
 
   template(locals) {
-    const inputs = _.sortBy(this.props.form.fields, 'position').map((field, idx) => (
+    const inputs = sortBy(this.props.form.fields, 'position').map((field, idx) => (
       <Field
         updateActiveField={this.props.updateActiveField}
         form={this.props.form}

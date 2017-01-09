@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import classNames from 'classnames';
-import { values } from 'lodash';
+import values from 'lodash/values';
 
 const FormListItem = ({ active, onClick, title, count }) =>
   <div

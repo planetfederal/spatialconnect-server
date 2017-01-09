@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import { without } from 'lodash';
+import without from 'lodash/without';
 import { isEmail } from '../utils';
 
 export const validate = (values) => {

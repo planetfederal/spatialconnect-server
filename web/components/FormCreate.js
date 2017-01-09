@@ -1,5 +1,6 @@
 import React, { Component, PropTypes } from 'react';
-import { find, values } from 'lodash';
+import find from 'lodash/find';
+import values from 'lodash/values';
 import { toKey } from '../utils';
 
 export const validate = (form, forms) => {

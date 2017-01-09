@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import { find } from 'lodash';
+import find from 'lodash/find';
 
 const validate = (team, teams) => {
   const errors = {};

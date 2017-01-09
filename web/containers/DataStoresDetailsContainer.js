@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { find } from 'lodash';
+import find from 'lodash/find';
 import DataStoreDetails from '../components/DataStoreDetails';
 import { DataStoreForm } from '../components/DataStoreForm';
 import * as storeActions from '../ducks/dataStores';

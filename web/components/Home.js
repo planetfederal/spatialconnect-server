@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { reduce } from 'lodash';
+import reduce from 'lodash/reduce';
 import { Link } from 'react-router';
 import PropertyListItem from './PropertyListItem';
 

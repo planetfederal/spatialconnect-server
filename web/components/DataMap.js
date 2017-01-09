@@ -1,5 +1,4 @@
 import React, { Component, PropTypes } from 'react';
-import { flatten } from 'lodash';
 import { WS_URL } from 'config';
 import moment from 'moment';
 import '../style/DataMap.less';
@@ -249,23 +248,22 @@ class DataMap extends Component {
 
     this.spatialTriggersSource.clear();
     if (props.spatialTriggersOn) {
-      const spatialTriggerFeatures = Object.keys(props.spatial_triggers)
+      Object.keys(props.spatial_triggers)
         .map(k => props.spatial_triggers[k])
         .filter(t => t.rules.length)
-        .map((t, i) => t.rules.map((r, j) => {
-          const gj = r.rhs;
-          gj.id = `${t.id}.${i}.${j}`;
-          return gj;
-        })
-          .map((gj) => {
+        .forEach((t, i) => {
+          t.rules
+          .filter(r => r && typeof r === 'object' && r.rhs)
+          .forEach((r, j) => {
+            const gj = r.rhs;
+            gj.id = `${t.id}.${i}.${j}`;
             const triggerFeatures = format.readFeatures(gj);
             triggerFeatures.forEach((feature) => {
               feature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
             });
-            return triggerFeatures;
-          }))
-        .reduce((fs, all) => all.concat(fs), []);
-      this.spatialTriggersSource.addFeatures(flatten(spatialTriggerFeatures));
+            this.spatialTriggersSource.addFeatures(triggerFeatures);
+          });
+        });
     }
   }
 
