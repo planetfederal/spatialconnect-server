@@ -7,10 +7,10 @@ import thunk from 'redux-thunk';
 import createLogger from 'redux-logger';
 import { Router, Route, IndexRoute, browserHistory } from 'react-router';
 import { syncHistoryWithStore, routerReducer, routerMiddleware } from 'react-router-redux';
+import throttle from 'lodash/throttle';
 import appReducer from './ducks';
 import AppContainer from './containers/AppContainer';
-import { requireAuthentication } from './utils';
-import { loginUserSuccess } from './ducks/auth';
+import { loadState, saveState, requireAuthentication } from './utils';
 import HomeContainer from './containers/HomeContainer';
 import SignUpContainer from './containers/SignUpContainer';
 import SignInContainer from './containers/SignInContainer';
@@ -34,16 +34,19 @@ const rootReducer = combineReducers({
 
 // create the redux store that holds the state for this app
 // http://redux.js.org/docs/api/createStore.html
+const persistedState = loadState();
 const middleware = routerMiddleware(browserHistory);
 const store = createStore(
   rootReducer,
+  persistedState,
   applyMiddleware(middleware, thunk, createLogger()), // logger must be the last in the chain
 );
 
-const token = localStorage.getItem('token');
-if (token !== null) {
-  store.dispatch(loginUserSuccess(token));
-}
+store.subscribe(throttle(() => {
+  saveState({
+    sc: { auth: store.getState().sc.auth },
+  });
+}, 1000));
 
 // create an enhanced history that syncs navigation events with the store
 const history = syncHistoryWithStore(browserHistory, store);
