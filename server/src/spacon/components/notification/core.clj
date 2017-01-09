@@ -41,7 +41,7 @@
             :mobile (send->mobile mqtt v)
             "default")))))
 
-(defn send->notification [notifcomp message]
+(defn notify [notifcomp message]
   (go (>!! (:send-channel notifcomp) message)))
 
 (defrecord NotificationComponent [mqtt]
