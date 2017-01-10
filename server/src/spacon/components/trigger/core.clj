@@ -111,10 +111,10 @@
 (defn http-put-trigger [context]
   (let [t (:json-params context)]
     (if (s/valid? :spacon.specs.trigger/trigger-spec t)
-      (let [r (response/ok (triggermodel/modify
-                             (get-in context [:path-params :id]) t))]
-        (add-trigger t)
-        r)
+      (let [trigger (triggermodel/modify (get-in context [:path-params :id]) t)
+            res     (response/ok trigger)]
+        (add-trigger trigger)
+        res)
       (response/error
         (str "Failed to update trigger:\n"
              (s/explain-str :spacon.specs.trigger/trigger-spec t))))))
@@ -122,9 +122,10 @@
 (defn http-post-trigger [context]
   (let [t (:json-params context)]
     (if (s/valid? :spacon.specs.trigger/trigger-spec t)
-      (let [r (response/ok (triggermodel/create t))]
-        (add-trigger t)
-        r)
+      (let [trigger (triggermodel/create t)
+            res (response/ok trigger)]
+        (add-trigger trigger)
+        res)
       (response/error (str "Failed to create trigger:\n"
                            (s/explain-str :spacon.specs.trigger/trigger-spec t))))))
 
