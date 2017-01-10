@@ -30,13 +30,27 @@
            :user (System/getenv "SMTP_USERNAME")
            :pass (System/getenv "SMTP_PASSWORD")})
 
+(defn- build-notification-link
+  [id]
+  (let [hostname (or (System/getenv "HOSTNAME")
+                     (.getHostName (java.net.InetAddress/getLocalHost)))]
+    (str "http://" hostname "/notifications/" id)))
+
+(defn- email-recipient
+  [id recipient message]
+  (let [body (str (:body message) "\n" (build-notification-link id))]
+    (send-message conn {:from    "mobile@boundlessgeo.com"
+                        :to      (str recipient)
+                        :subject (str (:title message))
+                        :body    body})))
+
 (defn- send->email
   [message]
-  (send-message conn {:from    "mobile@boundlessgeo.com"
-                      :to      (:to message)
-                      :subject (:title message)
-                      :body    (:body message)})
-  (map notifmodel/mark-as-sent (:notif-id message)))
+  (let [recipients (zipmap (:notif-ids message) (:to message))]
+    (map (fn [[id recipient]]
+           (email-recipient id recipient message)
+           (notifmodel/mark-as-sent id))
+         recipients)))
 
 (defn- process-channel [mqtt input-channel]
   (go (while true
@@ -47,10 +61,9 @@
             "default")))))
 
 (defn notify [notifcomp message message-type info]
-  (let [ids (map :id (notifmodel/create-notifications
-              (:to message) message-type info))]
+  (let [ids (map :id (notifmodel/create-notifications (:to message) message-type info))]
     (go (>!! (:send-channel notifcomp)
-             (assoc message :notif-id ids)))))
+             (assoc message :notif-ids ids)))))
 
 (defn http-get-notif [context]
   (let [id (Integer/parseInt (get-in context [:path-params :id]))]

@@ -49,9 +49,10 @@
     (doall (map add-trigger tl))))
 
 (defn- handle-success [value trigger notify]
-  (let [body (map #(proto-clause/notification % value) (:rules trigger))
-        emails (get-in trigger [:recipients :emails])
-        devices (get-in trigger [:recipients :devices])]
+  (let [body    (doall (map #(proto-clause/notification % value) (:rules trigger)))
+        emails  (get-in trigger [:recipients :emails])
+        devices (get-in trigger [:recipients :devices])
+        trigger (triggermodel/find-by-id (:id trigger))]
     (do
       (if (some? devices)
         (notificationapi/notify
@@ -63,7 +64,9 @@
              :body     body
              :payload  {:time    (str (new java.util.Date))
                         :value   (json/read-str (jtsio/write-geojson value))
-                        :trigger (triggermodel/find-by-id (:id trigger))}})))
+                        :trigger trigger}})
+          "trigger"
+          trigger))
       (if (some? emails)
         (notificationapi/notify
           notify
@@ -74,7 +77,9 @@
              :body     body
              :payload  {:time    (str (new java.util.Date))
                         :value   (json/read-str (jtsio/write-geojson value))
-                        :trigger (triggermodel/find-by-id (:id trigger))}}))))))
+                        :trigger trigger}})
+          "trigger"
+          trigger)))))
 
 (defn- handle-failure [trigger]
   (if (nil? ((keyword (:id trigger)) @valid-triggers))
