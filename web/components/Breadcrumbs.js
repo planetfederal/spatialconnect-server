@@ -7,8 +7,7 @@ class Breadcrumbs extends Component {
 
   render() {
     const { sc, params } = this.props;
-    const routes = this.props.routes.map((r) => {
-      const route = r;
+    const routes = this.props.routes.map((route) => {
       if (route.path === '/stores/:id') {
         const store = find(sc.dataStores.stores, { id: params.id });
         if (store) {
@@ -32,6 +31,9 @@ class Breadcrumbs extends Component {
         if (team) {
           route.name = team.name;
         }
+      }
+      if (route.path === '/notifications/:id') {
+        route.name = 'Notification';
       }
       return route;
     });

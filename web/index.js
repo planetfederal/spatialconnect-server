@@ -23,6 +23,7 @@ import TriggersContainer from './containers/TriggersContainer';
 import TriggerDetailsContainer from './containers/TriggerDetailsContainer';
 import TeamsContainer from './containers/TeamsContainer';
 import TeamDetailsContainer from './containers/TeamDetailsContainer';
+import NotificationContainer from './containers/NotificationContainer';
 
 import './style/Globals.less';
 
@@ -89,6 +90,11 @@ render(
             component={requireAuthentication(TeamDetailsContainer)}
           />
         </Route>
+        <Route
+          path="/notifications/:id"
+          staticName
+          component={requireAuthentication(NotificationContainer)}
+        />
       </Route>
     </Router>
   </Provider>,

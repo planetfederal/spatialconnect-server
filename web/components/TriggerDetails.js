@@ -118,6 +118,12 @@ class TriggerDetails extends Component {
       featureProjection: 'EPSG:3857',
     }));
     gj.id = fcId;
+    gj.features = gj.features.map(f => (
+      {
+        ...f,
+        properties: {},
+      }
+    ));
     const newRule = {
       lhs: ['geometry'],
       comparator: this.state.rule_comparator,
