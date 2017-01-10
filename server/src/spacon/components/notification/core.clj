@@ -38,7 +38,7 @@
 
 (defn- email-recipient
   [id recipient message]
-  (let [body (str (:body message) "\n" (build-notification-link id))]
+  (let [body (str (build-notification-link id))]
     (send-message conn {:from    "mobile@boundlessgeo.com"
                         :to      (str recipient)
                         :subject (str (:title message))
@@ -46,11 +46,11 @@
 
 (defn- send->email
   [message]
-  (let [recipients (zipmap (:notif-ids message) (:to message))]
-    (map (fn [[id recipient]]
-           (email-recipient id recipient message)
-           (notifmodel/mark-as-sent id))
-         recipients)))
+  (let [recipients (do (zipmap (:notif-ids message) (:to message)))]
+    (doall (map (fn [[id recipient]]
+                  (email-recipient id recipient message)
+                  (notifmodel/mark-as-sent id))
+                recipients))))
 
 (defn- process-channel [mqtt input-channel]
   (go (while true
