@@ -35,7 +35,7 @@
       (apply f [value (:clause this)])
       false))
   (notification [this test-value]
-    (str (cljts.io/write-geojson test-value) " was within " (cljts.io/write-geojson (:clause this)) ".")))
+    (str (cljts.io/write-geojson test-value) " was within.")))
 
 (defn make-within-clause [id clause]
   (->WithinClause id (rhs->jtsgeom clause)))

@@ -52,7 +52,10 @@
   (let [body    (doall (map #(proto-clause/notification % value) (:rules trigger)))
         emails  (get-in trigger [:recipients :emails])
         devices (get-in trigger [:recipients :devices])
-        trigger (triggermodel/find-by-id (:id trigger))]
+        trigger (triggermodel/find-by-id (:id trigger))
+        payload {:time    (str (new java.util.Date))
+                 :value   (json/read-str (jtsio/write-geojson value))
+                 :trigger trigger}]
     (do
       (if (some? devices)
         (notificationapi/notify
@@ -62,11 +65,9 @@
              :priority "alert"
              :title    "Alert"
              :body     body
-             :payload  {:time    (str (new java.util.Date))
-                        :value   (json/read-str (jtsio/write-geojson value))
-                        :trigger trigger}})
+             :payload  payload})
           "trigger"
-          trigger))
+          payload))
       (if (some? emails)
         (notificationapi/notify
           notify
@@ -75,11 +76,9 @@
              :priority "alert"
              :title    "Alert"
              :body     body
-             :payload  {:time    (str (new java.util.Date))
-                        :value   (json/read-str (jtsio/write-geojson value))
-                        :trigger trigger}})
+             :payload  payload})
           "trigger"
-          trigger)))))
+          payload)))))
 
 (defn- handle-failure [trigger]
   (if (nil? ((keyword (:id trigger)) @valid-triggers))
@@ -87,9 +86,9 @@
 
 (defn process-value
   "Store Value Notifycomponent"
-  [_ value notify]
+  [store value notify]
   (doall (map (fn [k]
-                (let [trigger (k @invalid-triggers)]
+                (if-let [trigger (k @invalid-triggers)]
                   (if-not (empty? (:rules trigger))
                     (loop [rules (:rules trigger)]
                       (if (empty? rules)
