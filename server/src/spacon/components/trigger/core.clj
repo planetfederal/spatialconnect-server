@@ -8,7 +8,7 @@
             [spacon.components.notification.core :as notificationapi]
             [clojure.core.async :as async]
             [spacon.entity.notification
-             :refer [make-mobile-notification]]
+             :refer [make-mobile-notification, make-email-notification]]
             [cljts.io :as jtsio]
             [spacon.trigger.protocol :as proto-clause]
             [clojure.data.json :as json]
@@ -20,47 +20,67 @@
 
 (defn add-trigger [trigger]
   (let [t (assoc trigger :rules
-                 (map (fn [rule]
-                        (case (:comparator rule)
-                          "$geowithin" (make-within-clause
-                                        (:id trigger) (:rhs rule))
-                          nil)) (:rules trigger)))]
+                         (map (fn [rule]
+                                (case (:comparator rule)
+                                  "$geowithin" (make-within-clause
+                                                 (:id trigger) (:rhs rule))
+                                  nil)) (:rules trigger)))]
     (dosync
-     (commute invalid-triggers assoc
-              (keyword (:id t)) t))))
+      (commute invalid-triggers assoc
+               (keyword (:id t)) t))))
 
 (defn remove-trigger [trigger]
   (dosync
-   (commute invalid-triggers dissoc (keyword (:id trigger)))
-   (commute valid-triggers dissoc (keyword (:id trigger)))))
+    (commute invalid-triggers dissoc (keyword (:id trigger)))
+    (commute valid-triggers dissoc (keyword (:id trigger)))))
 
 (defn set-valid-trigger [trigger]
   (dosync
-   (commute invalid-triggers dissoc (keyword (:id trigger)))
-   (commute valid-triggers assoc (keyword (:id trigger)) trigger)))
+    (commute invalid-triggers dissoc (keyword (:id trigger)))
+    (commute valid-triggers assoc (keyword (:id trigger)) trigger)))
 
 (defn set-invalid-trigger [trigger]
   (dosync
-   (commute invalid-triggers assoc (keyword (:id trigger)) trigger)
-   (commute valid-triggers dissoc (keyword (:id trigger)))))
+    (commute invalid-triggers assoc (keyword (:id trigger)) trigger)
+    (commute valid-triggers dissoc (keyword (:id trigger)))))
 
 (defn load-triggers []
   (let [tl (doall (triggermodel/all))]
     (doall (map add-trigger tl))))
 
 (defn- handle-success [value trigger notify]
-  ;(if-not (:repeated trigger)
-  ;  (remove-trigger trigger)
-  ;  (set-valid-trigger trigger))
-  (notificationapi/send->notification notify
-                                      (make-mobile-notification
-                                       {:to nil
-                                        :priority "alert"
-                                        :title "Alert"
-                                        :body "Point is in Polygon"
-                                        :payload {:time (str (new java.util.Date))
-                                                  :value (json/read-str (jtsio/write-geojson value))
-                                                  :trigger (triggermodel/find-by-id (:id trigger))}})))
+  (let [body    (doall (map #(proto-clause/notification % value) (:rules trigger)))
+        emails  (get-in trigger [:recipients :emails])
+        devices (get-in trigger [:recipients :devices])
+        trigger (triggermodel/find-by-id (:id trigger))]
+    (do
+      (if (some? devices)
+        (notificationapi/notify
+          notify
+          (make-mobile-notification
+            {:to       devices
+             :priority "alert"
+             :title    "Alert"
+             :body     body
+             :payload  {:time    (str (new java.util.Date))
+                        :value   (json/read-str (jtsio/write-geojson value))
+                        :trigger trigger}})
+          "trigger"
+          trigger))
+      (if (some? emails)
+        (notificationapi/notify
+          notify
+          (make-email-notification
+            {:to       emails
+             :priority "alert"
+             :title    "Alert"
+             :body     body
+             :payload  {:time    (str (new java.util.Date))
+                        :value   (json/read-str (jtsio/write-geojson value))
+                        :trigger trigger}})
+          "trigger"
+          trigger)))))
+
 (defn- handle-failure [trigger]
   (if (nil? ((keyword (:id trigger)) @valid-triggers))
     (set-invalid-trigger trigger)))
@@ -73,6 +93,7 @@
                   (if-not (empty? (:rules trigger))
                     (loop [rules (:rules trigger)]
                       (if (empty? rules)
+                        ; All the rules have passed, send a notification
                         (handle-success value trigger notify)
                         (if-let [rule (first rules)]
                           (if (proto-clause/check rule value)
@@ -85,19 +106,19 @@
 
 (defn http-get-trigger [context]
   (response/ok
-   (triggermodel/find-by-id
-    (get-in context [:path-params :id]))))
+    (triggermodel/find-by-id
+      (get-in context [:path-params :id]))))
 
 (defn http-put-trigger [context]
   (let [t (:json-params context)]
     (if (s/valid? :spacon.specs.trigger/trigger-spec t)
       (let [r (response/ok (triggermodel/modify
-                            (get-in context [:path-params :id]) t))]
+                             (get-in context [:path-params :id]) t))]
         (add-trigger t)
         r)
       (response/error
-       (str "Failed to update trigger:\n"
-            (s/explain-str :spacon.specs.trigger/trigger-spec t))))))
+        (str "Failed to update trigger:\n"
+             (s/explain-str :spacon.specs.trigger/trigger-spec t))))))
 
 (defn http-post-trigger [context]
   (let [t (:json-params context)]
@@ -121,7 +142,7 @@
                 (do (process-value (:store v) pt notify))))))
 
 (defn test-value [triggercomp store value]
-   ;trigger component, source store string, value to test
+  ;trigger component, source store string, value to test
   (async/go (async/>! (:source-channel triggercomp)
                       {:store store :value value})))
 

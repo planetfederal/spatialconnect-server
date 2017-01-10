@@ -34,8 +34,8 @@
     (if-let [f (clause-case-map (type (:clause this)))]
       (apply f [value (:clause this)])
       false))
-  (notification [this v]
-    (str "Within was triggered")))
+  (notification [this test-value]
+    (str (cljts.io/write-geojson test-value) " was within " (cljts.io/write-geojson (:clause this)) ".")))
 
 (defn make-within-clause [id clause]
   (->WithinClause id (rhs->jtsgeom clause)))

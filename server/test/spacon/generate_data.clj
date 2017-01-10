@@ -1,7 +1,5 @@
 (ns spacon.generate-data
-  (:gen-class)
-  (:require [spacon.components.organization.db :as org]
-            [spacon.test-utils :as utils]))
+  (:gen-class))
 
 (defn generate-sample-data []
   (let [org (clojure.spec/exercise-fn `spacon.components.organization.db/create)
@@ -14,7 +12,7 @@
 
 (defn -main
   "The entry-point for 'lein generate-data'"
-  [& args]
+  [& _]
   (println "\nGenerating your data...")
   (println (generate-sample-data) " items created")
   (println "\nData generation complete"))
