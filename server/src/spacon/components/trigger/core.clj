@@ -56,7 +56,6 @@
       (if (some? devices)
         (notificationapi/notify
           notify
-
           (make-mobile-notification
             {:to       devices
              :priority "alert"

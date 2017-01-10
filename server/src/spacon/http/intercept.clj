@@ -4,6 +4,16 @@
             [io.pedestal.http.body-params :as body-params]
             [io.pedestal.http.content-negotiation :as conneg]))
 
+(extend-type java.sql.Timestamp
+  clojure.data.json/JSONWriter
+  (-write [date out]
+    (clojure.data.json/-write (str date) out)))
+
+(extend-type java.util.UUID
+  clojure.data.json/JSONWriter
+  (-write [uuid out]
+    (clojure.data.json/-write (str uuid) out)))
+
 (def supported-types ["text/html" "application/edn" "application/json" "text/plain"])
 
 (def content-neg-intc (conneg/negotiate-content supported-types))

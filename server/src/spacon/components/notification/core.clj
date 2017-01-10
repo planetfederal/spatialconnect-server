@@ -2,7 +2,10 @@
   (:require [com.stuartsierra.component :as component]
             [spacon.components.mqtt.core :as mqttapi]
             [clojure.core.async :refer [chan <!! >!! close! go alt!]]
-            [postal.core :refer [send-message]]))
+            [postal.core :refer [send-message]]
+            [spacon.components.notification.db :as notifmodel]
+            [spacon.http.intercept :as intercept]
+            [spacon.http.response :as response]))
 
 (defn- send->device [mqtt device-id message]
   (mqttapi/publish-map mqtt (str "/notify/" device-id) message))
@@ -18,7 +21,8 @@
   (case (count (:to message))
     0 (send->all mqtt message)
     1 (send->device mqtt (first (:to message)) message)
-    (send->devices mqtt (:to message) message)))
+    (send->devices mqtt (:to message) message))
+  (map notifmodel/mark-as-sent (:notif-id message)))
 
 (def conn {:host (or (System/getenv "SMTP_HOST")
                      "email-smtp.us-east-1.amazonaws.com")
@@ -31,7 +35,8 @@
   (send-message conn {:from    "mobile@boundlessgeo.com"
                       :to      (:to message)
                       :subject (:title message)
-                      :body    (:body message)}))
+                      :body    (:body message)})
+  (map notifmodel/mark-as-sent (:notif-id message)))
 
 (defn- process-channel [mqtt input-channel]
   (go (while true
@@ -41,15 +46,25 @@
             :mobile (send->mobile mqtt v)
             "default")))))
 
-(defn notify [notifcomp message]
-  (go (>!! (:send-channel notifcomp) message)))
+(defn notify [notifcomp message message-type info]
+  (let [ids (map :id (notifmodel/create-notifications
+              (:to message) message-type info))]
+    (go (>!! (:send-channel notifcomp)
+             (assoc message :notif-id ids)))))
+
+(defn http-get-notif [context]
+  (let [id (Integer/parseInt (get-in context [:path-params :id]))]
+    (response/ok (notifmodel/find-notif-by-id id))))
+
+(defn routes []
+  #{["/api/notifications/:id" :get (conj intercept/common-interceptors `http-get-notif)]})
 
 (defrecord NotificationComponent [mqtt]
   component/Lifecycle
   (start [this]
     (let [c (chan)]
       (process-channel mqtt c)
-      (assoc this :mqtt mqtt :send-channel c)))
+      (assoc this :mqtt mqtt :send-channel c :routes (routes))))
   (stop [this]
     (close! (:send-channel this))
     this))

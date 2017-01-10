@@ -25,6 +25,11 @@
   (-write [date out]
     (clojure.data.json/-write (str date) out)))
 
+(extend-type java.util.UUID
+  clojure.data.json/JSONWriter
+  (-write [uuid out]
+    (clojure.data.json/-write (str uuid) out)))
+
 (extend-type org.postgresql.util.PGobject
   jdbc/IResultSetReadColumn
   (result-set-read-column [val rsmeta idx]

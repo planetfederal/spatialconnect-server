@@ -47,7 +47,8 @@
      :form (component/using (form/make-form-component) [:mqtt :trigger])
      :http-service (component/using
                     (service/make-service http-config)
-                    [:ping :user :team :device :location :trigger :store :config :form :mqtt])
+                    [:ping :user :team :device :location :trigger
+                     :store :config :form :mqtt :notify])
      :server (component/using
               (new-spacon-server)
               [:http-service]))))
