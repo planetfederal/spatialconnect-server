@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import Dropzone from 'react-dropzone';
-import { isEqual, isEmpty } from 'lodash';
+import isEqual from 'lodash/isEqual';
+import isEmpty from 'lodash/isEmpty';
 import TriggerItem from './TriggerItem';
 import '../style/Triggers.less';
 

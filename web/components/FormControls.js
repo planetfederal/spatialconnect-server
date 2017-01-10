@@ -11,15 +11,21 @@ AddFieldControl.propTypes = {
   options: PropTypes.object.isRequired,
 };
 
-const fieldDefaults = {
-  string: { type: 'string', pattern: '' },
-  number: { type: 'number', integer: false },
-  boolean: { type: 'boolean' },
-  date: { type: 'date' },
-  slider: { type: 'slider', minimum: '0', maximum: '100', initial_value: '0' },
-  counter: { type: 'counter', minimum: '0', maximum: '100', initial_value: '0' },
-  select: { type: 'select', options: [] },
-  photo: { type: 'photo' },
+const fieldDefaults = (fieldType) => {
+  const fieldConstraints = {
+    string: { pattern: '' },
+    number: { integer: false },
+    boolean: { },
+    date: { },
+    slider: { minimum: '0', maximum: '100', initial_value: '0' },
+    counter: { minimum: '0', maximum: '100', initial_value: '0' },
+    select: { options: [] },
+    photo: { },
+  };
+  return {
+    type: fieldType,
+    constraints: fieldConstraints[fieldType],
+  };
 };
 
 class FormControls extends Component {
@@ -46,42 +52,42 @@ class FormControls extends Component {
           <AddFieldControl
             text="Text"
             onClick={this.addField}
-            options={fieldDefaults.string}
+            options={fieldDefaults('string')}
           />
           <AddFieldControl
             text="Number"
             onClick={this.addField}
-            options={fieldDefaults.number}
+            options={fieldDefaults('number')}
           />
           <AddFieldControl
             text="Yes/No"
             onClick={this.addField}
-            options={fieldDefaults.boolean}
+            options={fieldDefaults('boolean')}
           />
           <AddFieldControl
             text="Date"
             onClick={this.addField}
-            options={fieldDefaults.date}
+            options={fieldDefaults('date')}
           />
           <AddFieldControl
             text="Slider"
             onClick={this.addField}
-            options={fieldDefaults.slider}
+            options={fieldDefaults('slider')}
           />
           <AddFieldControl
             text="Counter"
             onClick={this.addField}
-            options={fieldDefaults.counter}
+            options={fieldDefaults('counter')}
           />
           <AddFieldControl
             text="Select"
             onClick={this.addField}
-            options={fieldDefaults.select}
+            options={fieldDefaults('select')}
           />
           <AddFieldControl
             text="Photo"
             onClick={this.addField}
-            options={fieldDefaults.photo}
+            options={fieldDefaults('photo')}
           />
         </div>
       </div>

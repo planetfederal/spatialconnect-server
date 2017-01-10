@@ -1,7 +1,11 @@
 import * as request from 'superagent-bluebird-promise';
 import { API_URL } from 'config';
 import { push } from 'react-router-redux';
-import { find, merge, keyBy, pick, omit } from 'lodash';
+import find from 'lodash/find';
+import merge from 'lodash/merge';
+import keyBy from 'lodash/keyBy';
+import pick from 'lodash/pick';
+import omit from 'lodash/omit';
 import { initForm } from '../utils';
 
 // define action types

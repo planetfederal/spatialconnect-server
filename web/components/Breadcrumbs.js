@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { find } from 'lodash';
+import find from 'lodash/find';
 import ReactBreadcrumbs from 'react-breadcrumbs';
 
 class Breadcrumbs extends Component {

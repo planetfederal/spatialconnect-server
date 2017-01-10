@@ -1,5 +1,7 @@
 import * as request from 'superagent-bluebird-promise';
-import { flatten, without, values } from 'lodash';
+import flatten from 'lodash/flatten';
+import without from 'lodash/without';
+import values from 'lodash/values';
 import { API_URL } from 'config';
 
 export const LOAD_FORM_DATA_ALL = 'sc/data/LOAD_FORM_DATA_ALL';

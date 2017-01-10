@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { find } from 'lodash';
+import find from 'lodash/find';
 import TriggerDetails from '../components/TriggerDetails';
 import * as triggerActions from '../ducks/triggers';
 

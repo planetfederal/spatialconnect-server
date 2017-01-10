@@ -1,6 +1,7 @@
 import * as request from 'superagent-bluebird-promise';
 import { API_URL } from 'config';
 import { push } from 'react-router-redux';
+import find from 'lodash/find';
 import * as authActions from './auth';
 
 export const LOAD = 'sc/auth/LOAD';
@@ -124,13 +125,14 @@ export function addUserTeam(teamId) {
     const { sc } = getState();
     const token = sc.auth.token;
     const userId = sc.auth.userID;
+    const team = find(sc.teams.teams, { id: teamId });
     return request
       .post(`${API_URL}user-team`)
       .set('Authorization', `Token ${token}`)
       .send({ userId, teamId })
       .then(
         () => {
-          dispatch(authActions.loginUser(sc.auth.userEmail, 'admin', '/teams'));
+          dispatch(authActions.joinTeam(team));
           return dispatch(loadTeams());
         });
   };
@@ -141,13 +143,14 @@ export function removeUserTeam(teamId) {
     const { sc } = getState();
     const token = sc.auth.token;
     const userId = sc.auth.userID;
+    const team = find(sc.teams.teams, { id: teamId });
     return request
       .delete(`${API_URL}user-team`)
       .set('Authorization', `Token ${token}`)
       .send({ userId, teamId })
       .then(
         () => {
-          dispatch(authActions.loginUser(sc.auth.userEmail, 'admin', '/teams'));
+          dispatch(authActions.leaveTeam(team));
           return dispatch(loadTeams());
         });
   };

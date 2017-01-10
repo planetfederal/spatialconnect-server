@@ -14,6 +14,8 @@ export const FETCH_PROTECTED_DATA_REQUEST = 'sc/auth/FETCH_PROTECTED_DATA_REQUES
 export const RECEIVE_PROTECTED_DATA = 'sc/auth/RECEIVE_PROTECTED_DATA';
 export const CHANGE_TEAM = 'sc/auth/CHANGE_TEAM';
 export const LOAD_TEAMS = 'sc/auth/LOAD_TEAMS';
+export const JOIN_TEAM = 'sc/auth/JOIN_TEAM';
+export const LEAVE_TEAM = 'sc/auth/LEAVE_TEAM';
 
 const initialState = {
   token: null,
@@ -93,6 +95,20 @@ export default function reducer(state = initialState, action = {}) {
         ...state,
         selectedTeamId: action.payload.teamId,
       };
+    case JOIN_TEAM:
+      return {
+        ...state,
+        teams: state.teams.concat(action.payload.team),
+        selectedTeamId: state.selectedTeamId ? state.selectedTeamId : action.payload.team.id,
+      };
+    case LEAVE_TEAM: {
+      const teams = state.teams.filter(t => t.id !== action.payload.team.id);
+      return {
+        ...state,
+        teams,
+        selectedTeamId: teams.length ? state.selectedTeamId : null,
+      };
+    }
     default: return state;
   }
 }
@@ -199,6 +215,20 @@ export function signUpUser(name, email, password) {
           dispatch(signUpUserFailure('Sign Up unsuccessful.'));
         }
       });
+  };
+}
+
+export function joinTeam(team) {
+  return {
+    type: JOIN_TEAM,
+    payload: { team },
+  };
+}
+
+export function leaveTeam(team) {
+  return {
+    type: LEAVE_TEAM,
+    payload: { team },
   };
 }
 

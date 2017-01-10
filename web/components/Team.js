@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import { Link } from 'react-router';
-import { find } from 'lodash';
+import find from 'lodash/find';
 
 class Team extends Component {
 

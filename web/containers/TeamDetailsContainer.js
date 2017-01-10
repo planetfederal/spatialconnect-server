@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { find } from 'lodash';
+import find from 'lodash/find';
 import Team from '../components/Team';
 import * as teamActions from '../ducks/teams';
 
