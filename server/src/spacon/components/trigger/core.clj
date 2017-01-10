@@ -63,7 +63,7 @@
           (make-mobile-notification
             {:to       devices
              :priority "alert"
-             :title    "Alert"
+             :title    (str "Alert for Trigger: " (:name trigger))
              :body     body
              :payload  payload})
           "trigger"
@@ -74,7 +74,7 @@
           (make-email-notification
             {:to       emails
              :priority "alert"
-             :title    "Alert"
+             :title    (str "Alert for Trigger: " (:name trigger))
              :body     body
              :payload  payload})
           "trigger"
