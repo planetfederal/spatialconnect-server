@@ -35,6 +35,7 @@ export class TriggerForm extends Component {
     this.onSourceChange = this.onSourceChange.bind(this);
     this.onEmailChange = this.onEmailChange.bind(this);
     this.onNameChange = this.onNameChange.bind(this);
+    this.onDescriptionChange = this.onDescriptionChange.bind(this);
   }
 
   onOptionChange(e) {
