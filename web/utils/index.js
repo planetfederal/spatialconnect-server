@@ -1,6 +1,6 @@
 import { UserAuthWrapper } from 'redux-auth-wrapper';
 import { push } from 'react-router-redux';
-import { find } from 'lodash';
+import find from 'lodash/find';
 
 export function checkHttpStatus(response) {
   if (response.status >= 200 && response.status < 300) {

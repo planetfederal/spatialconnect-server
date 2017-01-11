@@ -1,8 +1,10 @@
 import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
-import moment from 'moment';
+import format from 'date-fns/format';
 import PropertyListItem from './PropertyListItem';
 import '../style/FormList.less';
+
+const DATE_FORMAT = 'M/D/YY h:mm a';
 
 const FormItem = ({ form }) => (
   <div className="form-item">
@@ -15,7 +17,7 @@ const FormItem = ({ form }) => (
           <PropertyListItem name={'Number of Records'} value={form.metadata.count} />
           {form.metadata.lastActivity ?
             <PropertyListItem
-              name={'Last Activity'} value={moment(form.metadata.lastActivity).fromNow()}
+              name={'Last Activity'} value={format(form.metadata.lastActivity, DATE_FORMAT)}
             />
         : null}
         </div> : null }

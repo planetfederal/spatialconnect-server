@@ -1,5 +1,4 @@
 import * as request from 'superagent-bluebird-promise';
-import Promise from 'bluebird';
 import { API_URL } from 'config';
 import { push } from 'react-router-redux';
 import keyBy from 'lodash/keyBy';

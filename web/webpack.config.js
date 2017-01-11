@@ -1,15 +1,16 @@
 var path = require('path');
 var webpack = require('webpack');
+var HtmlWebpackPlugin = require('html-webpack-plugin');
 var pkg = require('./package.json');
 
 module.exports = {
-  devtool: 'cheap-module-eval-source-map',
+  devtool: 'source-map',
   entry: [
     path.join(__dirname, 'index'),
   ],
   output: {
     path: path.join(__dirname, 'dist'),
-    filename: 'bundle.js',
+    filename: '/bundle.js',
   },
   devServer: {
     historyApiFallback: true,
@@ -23,7 +24,19 @@ module.exports = {
   plugins: [
     new webpack.optimize.OccurenceOrderPlugin(),
     new webpack.NoErrorsPlugin(),
-    new webpack.DefinePlugin({ VERSION: JSON.stringify(pkg.version) }),
+    new webpack.DefinePlugin({
+      VERSION: JSON.stringify(pkg.version),
+      'process.env': {
+        'NODE_ENV': JSON.stringify('production'),
+      },
+    }),
+    new webpack.optimize.DedupePlugin(),
+    new webpack.optimize.UglifyJsPlugin(),
+    new HtmlWebpackPlugin({
+      template: 'index.ejs',
+      hash: true,
+      filename: '../index.html',
+    }),
   ],
   module: {
     loaders: [

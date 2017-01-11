@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import { WS_URL } from 'config';
-import moment from 'moment';
+import dateFormat from 'date-fns/format';
 import '../style/DataMap.less';
 
 const style = {
@@ -76,7 +76,7 @@ class DataMap extends Component {
         {typeof f.metadata.updated_at === 'string' ?
           <tr>
             <td>Time Recorded:</td>
-            <td>{moment(f.metadata.updated_at).format('dddd, MMMM Do YYYY, h:mm:ss a')}</td>
+            <td>{dateFormat(f.metadata.updated_at, 'dddd, MMMM Do YYYY, h:mm:ss a')}</td>
           </tr> : null}
       </tbody></table>
     </div>);

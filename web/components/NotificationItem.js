@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import moment from 'moment';
+import format from 'date-fns/format';
 import PropertyListItem from './PropertyListItem';
 import '../style/FormList.less';
 
@@ -12,12 +12,12 @@ const NotificationItem = ({ notification }) => (
       <PropertyListItem name={'Type'} value={notification.type} />
       <PropertyListItem
         name={'Sent'}
-        value={notification.sent ? moment(notification.sent).format(dateFormat)
+        value={notification.sent ? format(notification.sent, dateFormat)
          : 'Not Sent'}
       />
       <PropertyListItem
         name={'Delivered'}
-        value={notification.delivered ? moment(notification.delivered).format(dateFormat)
+        value={notification.delivered ? format(notification.delivered, dateFormat)
           : 'Not Delivered'}
       />
     </div>

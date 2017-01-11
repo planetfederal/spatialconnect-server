@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import classnames from 'classnames';
-import moment from 'moment';
+import format from 'date-fns/format';
 import '../style/FormDetails.less';
 
 const DATE_FORMAT = 'M/D/YY h:mm a';
@@ -16,7 +16,7 @@ const FormInfoBar = ({ form, updateActiveForm, saveForm, edited }) => (
           {form.metadata.lastActivity ?
             <li>
               <label htmlFor="last-active">Last Active: </label>
-              {moment(form.metadata.lastActivity).format(DATE_FORMAT)}
+              {format(form.metadata.lastActivity, DATE_FORMAT)}
             </li>
         : null }
           {form.metadata.count ?
