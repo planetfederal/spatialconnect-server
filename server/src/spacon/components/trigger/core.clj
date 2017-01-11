@@ -49,8 +49,8 @@
     (doall (map add-trigger tl))))
 
 (defn- handle-success [value trigger notify]
-  (let [body    (doall (map #(proto-clause/notification % value) (:rules trigger)))
-        emails  (get-in trigger [:recipients :emails])
+  (let [body (doall (map #(proto-clause/notification % value) (:rules trigger)))
+        emails (get-in trigger [:recipients :emails])
         devices (get-in trigger [:recipients :devices])
         trigger (triggermodel/find-by-id (:id trigger))
         payload {:time    (str (new java.util.Date))
@@ -87,18 +87,23 @@
 (defn process-value
   "Store Value Notifycomponent"
   [store value notify]
-  (doall (map (fn [k]
-                (if-let [trigger (k @invalid-triggers)]
-                  (if-not (empty? (:rules trigger))
-                    (loop [rules (:rules trigger)]
-                      (if (empty? rules)
-                        ; All the rules have passed, send a notification
-                        (handle-success value trigger notify)
-                        (if-let [rule (first rules)]
-                          (if (proto-clause/check rule value)
-                            (recur (rest rules))
-                            (handle-failure trigger))))))))
-              (keys @invalid-triggers))))
+  (doall
+    (map (fn [k]
+           (if-let [trigger (k @invalid-triggers)]
+             (if-not (empty? (:rules trigger))
+               (if (or
+                     (= "location" store) ; TODO delete when location data store is completed
+                     (empty? (:stores trigger))           ; empty stores means test all stores
+                     (>= 0 (.indexOf (:stores trigger) store))) ; index found means to filter
+                 (loop [rules (:rules trigger)]
+                   (if (empty? rules)
+                     ; All the rules have passed, send a notification
+                     (handle-success value trigger notify)
+                     (if-let [rule (first rules)]
+                       (if (proto-clause/check rule value)
+                         (recur (rest rules))
+                         (handle-failure trigger)))))))))
+         (keys @invalid-triggers))))
 
 (defn http-get [_]
   (response/ok (triggermodel/all)))
