@@ -1,5 +1,6 @@
 import * as request from 'superagent-bluebird-promise';
-import { keyBy, omit } from 'lodash';
+import keyBy from 'lodash/keyBy';
+import omit from 'lodash/omit';
 import { push } from 'react-router-redux';
 import { API_URL } from 'config';
 
