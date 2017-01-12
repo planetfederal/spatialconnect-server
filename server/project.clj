@@ -47,7 +47,7 @@
 
   :aliases {"migrate" ["run" "-m" "spacon.db.conn/migrate"]
             "rollback" ["run" "-m" "spacon.db.conn/rollback"]
-            "sampledata" ["run" "-m" "spacon.generate-data/generate-sample-data"]}
+            "sampledata" ["run" "-m" "spacon.generate-data"]}
 
   :monkeypatch-clojure-test false
   :min-lein-version "2.0.0"
