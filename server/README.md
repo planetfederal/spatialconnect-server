@@ -12,11 +12,14 @@ psql -U postgres -d spacon -c "CREATE EXTENSION IF NOT EXISTS postgis"
 
 `lein migrate`
 
-
 ### To run the tests
 
 `lein test`
 
+### Generate Sample Data
+This will generate random data in all the tables of the database using [clojure.spec](https://clojure.org/about/spec) by running:
+
+`lein sampledata`
 
 ### MQTT TLS setup
 
