@@ -6,10 +6,10 @@
     "test": "./node_modules/.bin/karma start",
     "test:watch": "./node_modules/.bin/karma start --no-single-run",
     "start:local": "NODE_ENV=local webpack-dev-server --progress --inline --hot",
-    "build:local": "NODE_ENV=local webpack -w",
+    "build:local": "NODE_ENV=local webpack",
     "build:dev": "NODE_ENV=development webpack",
-    "build:cf": "NODE_ENV=cf webpack && cp index.html dist/index.html && cp *.png dist/",
-    "build:pde": "NODE_ENV=pde webpack && cp index.html dist/index.html && cp *.png dist/",
+    "build:cf": "NODE_ENV=cf webpack",
+    "build:pde": "NODE_ENV=pde webpack",
     "build": "NODE_ENV=production webpack"
   },
   "dependencies": {
