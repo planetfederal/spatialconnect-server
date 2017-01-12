@@ -1,8 +1,16 @@
 ## spatialconnect-server-dashboard
 
+
 The SpatialConnect Dashboard is a web application that allows users to configure
 events, data stores, notifications, users, and other properties of
 the spatialconnect-server.
+
+
+### to run for local development
+
+```
+npm run start:local
+```
 
 ### testing
 
@@ -13,11 +21,8 @@ npm test
 ```
 
 
-### build the data volume container for nginx
-```
-# first build the static assests for the environment
-NODE_ENV=development webpack
+### to build the nginx container for the environment
 
-# then build a data volume container for the environment
-docker build -t boundlessgeo/spatialconnect-nginx-config:development -f Dockerfile.nginx-config .
+```
+docker build -t boundlessgeo/spatialconnect-server:web-dev -f Dockerfile.dev .
 ```
