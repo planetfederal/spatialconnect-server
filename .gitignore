@@ -83,3 +83,5 @@ SCMessageOuterClass.java
 node_modules
 
 server/test.js
+# ignore this file b/c it's generated
+web/public/index.html

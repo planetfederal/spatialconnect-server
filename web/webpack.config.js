@@ -9,8 +9,8 @@ module.exports = {
     path.join(__dirname, 'index'),
   ],
   output: {
-    path: path.join(__dirname, 'dist'),
-    filename: '/bundle.js',
+    path: path.join(__dirname, 'public'),
+    filename: 'bundle.js',
   },
   devServer: {
     historyApiFallback: true,
@@ -34,8 +34,8 @@ module.exports = {
     new webpack.optimize.UglifyJsPlugin(),
     new HtmlWebpackPlugin({
       template: 'index.ejs',
+      filename: 'index.html',
       hash: true,
-      filename: '../index.html',
     }),
   ],
   module: {
