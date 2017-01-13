@@ -4,6 +4,7 @@ var HtmlWebpackPlugin = require('html-webpack-plugin');
 var pkg = require('./package.json');
 
 module.exports = {
+  devtool: 'eval-source-map',
   entry: [
     path.join(__dirname, 'index'),
   ],
@@ -12,17 +13,22 @@ module.exports = {
     filename: 'signal.js',
     publicPath: '/',
   },
+  devServer: {
+    historyApiFallback: true,
+    contentBase: './public',
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        secure: false,
+      },
+    },
+  },
   plugins: [
     new webpack.optimize.OccurenceOrderPlugin(),
     new webpack.NoErrorsPlugin(),
     new webpack.DefinePlugin({
       VERSION: JSON.stringify(pkg.version),
-      'process.env': {
-        'NODE_ENV': JSON.stringify('production'),
-      },
     }),
-    new webpack.optimize.DedupePlugin(),
-    new webpack.optimize.UglifyJsPlugin(),
     new HtmlWebpackPlugin({
       template: 'index.ejs',
       filename: 'index.html',

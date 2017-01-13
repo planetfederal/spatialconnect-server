@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import Modal from 'react-modal';
 import isEqual from 'lodash/isEqual';
 import last from 'lodash/last';
+import uniqueId from 'lodash/uniqueId';
 import scformschema from 'spatialconnect-form-schema';
 import * as formActions from '../ducks/forms';
 import FormInfoBar from '../components/FormInfoBar';
@@ -91,8 +92,8 @@ class FormDetailsContainer extends Component {
           overlayClassName="sc-overlay"
         >
           <h3>Errors</h3>
-          {this.state.validationErrors ? this.state.validationErrors.map((e, i) =>
-            <ErrorMessage key={i} error={e} />) : <div />
+          {this.state.validationErrors ? this.state.validationErrors.map(e =>
+            <ErrorMessage key={uniqueId()} error={e} />) : <div />
           }
           <button className="btn btn-sc" onClick={this.closeModal}>Dismiss</button>
         </Modal>

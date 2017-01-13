@@ -5,6 +5,7 @@ import scformschema from 'spatialconnect-form-schema';
 import { DragDropContext } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 import sortBy from 'lodash/sortBy';
+import uniqueId from 'lodash/uniqueId';
 import Field from './Field';
 import '../style/FormDetails.less';
 
@@ -38,7 +39,7 @@ class FormPreview extends Component {
         updateActiveField={this.props.updateActiveField}
         form={this.props.form}
         input={locals.inputs[field.field_key]}
-        key={`field.${field.field_key}.${idx}`}
+        key={`field.${field.field_key}.${uniqueId()}`}
         moveField={this.moveField}
         position={field.position}
         id={field.id}
