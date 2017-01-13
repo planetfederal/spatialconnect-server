@@ -2,6 +2,7 @@
 
 ## What Is Distributed
 
+![Single vs Distributed](https://github.com/boundlessgeo/spatialconnect-server/raw/crdt/sync-notes/Syncing%20-%201.png)
 Single vs Distributed Image
 
 ## Definitions ##
