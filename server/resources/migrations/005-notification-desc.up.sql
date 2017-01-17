@@ -1,6 +1,12 @@
-CREATE TYPE message_type AS ENUM ('trigger');
 
-CREATE TABLE messages (
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'message_type') THEN
+        CREATE TYPE message_type AS ENUM ('trigger');
+    END IF;
+END$$;
+
+CREATE TABLE IF NOT EXISTS messages (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     info json,
     type message_type,
