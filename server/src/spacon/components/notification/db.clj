@@ -17,8 +17,8 @@
 
 (defn- create-message [message-type info]
   (sanitize-message
-    (insert-message<!
-      {:type message-type :info (json/write-str info)})))
+   (insert-message<!
+    {:type message-type :info (json/write-str info)})))
 
 (defn find-message-by-id [id]
   (find-message-by-id-query {:id id}))
@@ -29,16 +29,16 @@
   (let [message (create-message message-type info)
         id (:id message)]
     (map #(sanitize-notif
-            (insert-notification<!
-              {:recipient  %
-               :message_id id})) recipients)))
+           (insert-notification<!
+            {:recipient  %
+             :message_id id})) recipients)))
 
 (defn create-notification
   [recipient message-type info]
   (sanitize-notif
-    (insert-notification<!
-      {:recipient  recipient
-       :message_id (:id (create-message message-type info))})))
+   (insert-notification<!
+    {:recipient  recipient
+     :message_id (:id (create-message message-type info))})))
 
 (defn unsent
   "List of all the unsent notifications"
