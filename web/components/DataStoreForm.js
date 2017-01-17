@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react';
+import uniqueId from 'lodash/uniqueId';
 import { isUrl } from '../utils';
 
 export const validate = (values) => {
@@ -187,8 +188,8 @@ export class DataStoreForm extends Component {
               multiple className="form-control default_layers" value={this.state.default_layers}
               onChange={this.onLayersChange}
             >
-              {this.props.layerList.map((layer, i) => (
-                <option value={layer} key={layer + i}>{layer}</option>
+              {this.props.layerList.map(layer => (
+                <option value={layer} key={uniqueId()}>{layer}</option>
             ))}
             </select>
             {errors.default_layers ? <p className="text-danger">{errors.default_layers}</p> : ''}

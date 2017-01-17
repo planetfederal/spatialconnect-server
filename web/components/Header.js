@@ -6,7 +6,7 @@ const Header = props => (
   <header>
     <div className="header-title">
       <span className="menu" onClick={props.toggleMenu}>&#9776;</span>
-      <Link to="/">spatialconnect</Link>
+      <Link to="/">signal</Link>
     </div>
     {props.isAuthenticated &&
       <nav>
