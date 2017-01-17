@@ -20,29 +20,29 @@
 
 (defn add-trigger [trigger]
   (let [t (assoc trigger :rules
-                         (map (fn [rule]
-                                (case (:comparator rule)
-                                  "$geowithin" (make-within-clause
-                                                 (:id trigger) (:rhs rule))
-                                  nil)) (:rules trigger)))]
+                 (map (fn [rule]
+                        (case (:comparator rule)
+                          "$geowithin" (make-within-clause
+                                        (:id trigger) (:rhs rule))
+                          nil)) (:rules trigger)))]
     (dosync
-      (commute invalid-triggers assoc
-               (keyword (:id t)) t))))
+     (commute invalid-triggers assoc
+              (keyword (:id t)) t))))
 
 (defn remove-trigger [trigger]
   (dosync
-    (commute invalid-triggers dissoc (keyword (:id trigger)))
-    (commute valid-triggers dissoc (keyword (:id trigger)))))
+   (commute invalid-triggers dissoc (keyword (:id trigger)))
+   (commute valid-triggers dissoc (keyword (:id trigger)))))
 
 (defn set-valid-trigger [trigger]
   (dosync
-    (commute invalid-triggers dissoc (keyword (:id trigger)))
-    (commute valid-triggers assoc (keyword (:id trigger)) trigger)))
+   (commute invalid-triggers dissoc (keyword (:id trigger)))
+   (commute valid-triggers assoc (keyword (:id trigger)) trigger)))
 
 (defn set-invalid-trigger [trigger]
   (dosync
-    (commute invalid-triggers assoc (keyword (:id trigger)) trigger)
-    (commute valid-triggers dissoc (keyword (:id trigger)))))
+   (commute invalid-triggers assoc (keyword (:id trigger)) trigger)
+   (commute valid-triggers dissoc (keyword (:id trigger)))))
 
 (defn load-triggers []
   (let [tl (doall (triggermodel/all))]
@@ -59,26 +59,26 @@
     (do
       (if (some? devices)
         (notificationapi/notify
-          notify
-          (make-mobile-notification
-            {:to       devices
-             :priority "alert"
-             :title    (str "Alert for Trigger: " (:name trigger))
-             :body     body
-             :payload  payload})
-          "trigger"
-          payload))
+         notify
+         (make-mobile-notification
+          {:to       devices
+           :priority "alert"
+           :title    (str "Alert for Trigger: " (:name trigger))
+           :body     body
+           :payload  payload})
+         "trigger"
+         payload))
       (if (some? emails)
         (notificationapi/notify
-          notify
-          (make-email-notification
-            {:to       emails
-             :priority "alert"
-             :title    (str "Alert for Trigger: " (:name trigger))
-             :body     body
-             :payload  payload})
-          "trigger"
-          payload)))))
+         notify
+         (make-email-notification
+          {:to       emails
+           :priority "alert"
+           :title    (str "Alert for Trigger: " (:name trigger))
+           :body     body
+           :payload  payload})
+         "trigger"
+         payload)))))
 
 (defn- handle-failure [trigger]
   (if (nil? ((keyword (:id trigger)) @valid-triggers))
@@ -88,30 +88,30 @@
   "Store Value Notifycomponent"
   [store value notify]
   (doall
-    (map (fn [k]
-           (if-let [trigger (k @invalid-triggers)]
-             (if-not (empty? (:rules trigger))
-               (if (or
-                     (= "location" store) ; TODO delete when location data store is completed
-                     (empty? (:stores trigger))           ; empty stores means test all stores
-                     (>= 0 (.indexOf (:stores trigger) store))) ; index found means to filter
-                 (loop [rules (:rules trigger)]
-                   (if (empty? rules)
+   (map (fn [k]
+          (if-let [trigger (k @invalid-triggers)]
+            (if-not (empty? (:rules trigger))
+              (if (or
+                   (= "location" store) ; TODO delete when location data store is completed
+                   (empty? (:stores trigger))           ; empty stores means test all stores
+                   (>= 0 (.indexOf (:stores trigger) store))) ; index found means to filter
+                (loop [rules (:rules trigger)]
+                  (if (empty? rules)
                      ; All the rules have passed, send a notification
-                     (handle-success value trigger notify)
-                     (if-let [rule (first rules)]
-                       (if (proto-clause/check rule value)
-                         (recur (rest rules))
-                         (handle-failure trigger)))))))))
-         (keys @invalid-triggers))))
+                    (handle-success value trigger notify)
+                    (if-let [rule (first rules)]
+                      (if (proto-clause/check rule value)
+                        (recur (rest rules))
+                        (handle-failure trigger)))))))))
+        (keys @invalid-triggers))))
 
 (defn http-get [_]
   (response/ok (triggermodel/all)))
 
 (defn http-get-trigger [context]
   (response/ok
-    (triggermodel/find-by-id
-      (get-in context [:path-params :id]))))
+   (triggermodel/find-by-id
+    (get-in context [:path-params :id]))))
 
 (defn http-put-trigger [context]
   (let [t (:json-params context)]
@@ -121,8 +121,8 @@
         (add-trigger trigger)
         res)
       (response/error
-        (str "Failed to update trigger:\n"
-             (s/explain-str :spacon.specs.trigger/trigger-spec t))))))
+       (str "Failed to update trigger:\n"
+            (s/explain-str :spacon.specs.trigger/trigger-spec t))))))
 
 (defn http-post-trigger [context]
   (let [t (:json-params context)]

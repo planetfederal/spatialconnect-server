@@ -2,6 +2,8 @@
   (:require [clojure.data.json :as json]
             [spacon.http.response :as response]
             [io.pedestal.http.body-params :as body-params]
+            [camel-snake-kebab.core :refer :all]
+            [camel-snake-kebab.extras :refer [transform-keys]]
             [io.pedestal.http.content-negotiation :as conneg]))
 
 (extend-type java.sql.Timestamp
@@ -25,10 +27,24 @@
 (defn transform-content
   [body content-type]
   (case content-type
-    "text/html"        (json/write-str body)
-    "text/plain"       (json/write-str body)
-    "application/edn"  (pr-str body)
+    "text/html" (json/write-str body)
+    "text/plain" (json/write-str body)
+    "application/edn" (pr-str body)
     "application/json" (json/write-str body)))
+
+(def kebab-keys
+  {:name  ::kebab-keys
+   :enter (fn [context]
+            (if-not (nil? (get-in context [:request :json-params]))
+              (update-in context [:request :json-params] #(transform-keys ->kebab-case-keyword %))
+              context))})
+
+(def camel-keys
+  {:name  ::camel-keys
+   :leave (fn [context]
+            (if-not (nil? (get-in context [:response :body :result]))
+              (update-in context [:response :body :result] #(transform-keys ->snake_case_keyword %))
+              context))})
 
 ; always set response content-type to json
 (defn coerce-to
@@ -45,4 +61,4 @@
        (nil? (get-in context [:response :body :headers "Content-Type"]))
        (update-in [:response] coerce-to (accepted-type context))))})
 
-(def common-interceptors [coerce-body content-neg-intc (body-params/body-params)])
+(def common-interceptors [coerce-body content-neg-intc (body-params/body-params) kebab-keys camel-keys])

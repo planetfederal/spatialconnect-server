@@ -8,9 +8,6 @@
             [clojure.spec :as s]
             [spacon.components.mqtt.core :as mqttapi]
             [spacon.components.trigger.core :as triggerapi]
-            [clojure.data.json :as json]
-            [camel-snake-kebab.core :refer :all]
-            [camel-snake-kebab.extras :refer [transform-keys]]
             [spacon.entity.scmessage :as scm])
   (:import java.net.URLDecoder
            (com.boundlessgeo.spatialconnect.schema SCCommand)))
@@ -30,7 +27,7 @@
 (defn http-create-form
   "Creates a new form."
   [mqtt request]
-  (let [form (transform-keys ->kebab-case-keyword (get-in request [:json-params]))]
+  (let [form (get-in request [:json-params])]
     (if (s/valid? :spacon.specs.form/form-spec form)
       (let [new-form (formmodel/add-form-with-fields form)]
         (mqttapi/publish-scmessage mqtt
@@ -72,7 +69,7 @@
 (defn http-get-form-results
   [request]
   (let [form-id (get-in request [:path-params :form-id])]
-    (response/ok (transform-keys ->snake_case_keyword (formmodel/get-form-data form-id)))))
+    (response/ok (formmodel/get-form-data form-id))))
 
 (defn mqtt->form-submit [trigger message]
   (let [p (:payload message)
