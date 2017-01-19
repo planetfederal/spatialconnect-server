@@ -31,7 +31,7 @@ UPDATE notifications SET delivered = NOW() WHERE id = :id;
 -- name: insert-message<!
 -- inserts a message to be delivered
 INSERT INTO messages (info,type)
-VALUES (:info::json,:type::message_type);
+VALUES (:info::json,:type::source_type);
 
 -- name: find-message-by-id-query
 -- gets an individual message

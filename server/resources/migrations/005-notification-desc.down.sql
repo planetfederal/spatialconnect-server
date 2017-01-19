@@ -1,3 +1,4 @@
 ALTER TABLE notifications DROP COLUMN IF EXISTS lhs;
 ALTER TABLE notifications DROP COLUMN IF EXISTS rhs;
 ALTER TABLE notifications DROP COLUMN IF EXISTS recipients;
+DROP TYPE IF EXISTS message_type;

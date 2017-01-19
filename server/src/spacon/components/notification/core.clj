@@ -4,6 +4,7 @@
             [clojure.core.async :refer [chan <!! >!! close! go alt!]]
             [postal.core :refer [send-message]]
             [spacon.components.notification.db :as notifmodel]
+            [spacon.entity.notification :refer [http-map->notification]]
             [spacon.http.intercept :as intercept]
             [spacon.http.response :as response]))
 
@@ -11,8 +12,8 @@
   (mqttapi/publish-map mqtt (str "/notify/" device-id) message))
 
 (defn- send->devices [mqtt devices message]
-  (map (fn [device-id]
-         (send->device mqtt device-id message)) devices))
+  (doall (map (fn [device-id]
+         (send->device mqtt device-id message)) devices)))
 
 (defn- send->all [mqtt message]
   (mqttapi/publish-map mqtt "/notify" message))
@@ -65,19 +66,37 @@
     (go (>!! (:send-channel notifcomp)
              (assoc message :notif-ids ids)))))
 
-(defn http-get-notif [context]
+(defn http-get-notif
+  "Retrieves a notifcation and the message over HTTP"
+  [context]
   (let [id (Integer/parseInt (get-in context [:path-params :id]))]
     (response/ok (notifmodel/find-notif-by-id id))))
 
-(defn routes []
-  #{["/api/notifications/:id" :get (conj intercept/common-interceptors `http-get-notif)]})
+(defn http-post-notif
+  "Creates a notification from an HTTP POST
+  JSON Body: {output_type <email|mobile>,
+              to <an email|a mobile_identifier>
+              priority <alert|background|info>
+              title <string>
+              body <string>
+              payload map]}"
+  [notifycomp context]
+  (let [notif (http-map->notification (:json-params context))]
+    (notify notifycomp notif "web" (:json-params context))
+    (response/ok "queued")))
+
+(defn routes [notifycomp]
+  #{["/api/notifications/:id" :get (conj intercept/common-interceptors `http-get-notif)]
+    ["/api/notification/send" :post (conj intercept/common-interceptors
+                                           (partial http-post-notif notifycomp)) :route-name :http-post-notif]})
 
 (defrecord NotificationComponent [mqtt]
   component/Lifecycle
   (start [this]
-    (let [c (chan)]
+    (let [c (chan)
+          nc (assoc this :mqtt mqtt :send-channel c)]
       (process-channel mqtt c)
-      (assoc this :mqtt mqtt :send-channel c :routes (routes))))
+      (assoc nc :routes (routes nc))))
   (stop [this]
     (close! (:send-channel this))
     this))

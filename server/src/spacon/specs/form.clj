@@ -4,23 +4,7 @@
             [clojure.test.check.generators :as gen]
             [com.gfredericks.test.chuck.generators :as genc]))
 
-(def int-str-gen (s/with-gen
-                   (s/and string? #(> (count %) 0) (fn [p] (re-matches #"(?:\d*\.)?\d+" p)))
-                   #(gen/fmap (fn [s1] (str s1)) gen/int)))
 
-(def int-regex #"\d")
-(def pos-int-str-gen (s/with-gen
-                       (s/and string? #(> (count %) 0) (fn [p] (re-matches int-regex p)))
-                       #(genc/string-from-regex int-regex)))
-
-(def double-regex #"(?:\d*\.)?\d+")
-(def num-str-gen (s/with-gen
-                   (s/and string? #(> (count %) 0) (fn [p] (re-matches double-regex p)))
-                   #(genc/string-from-regex double-regex)))
-
-(def non-empty-string (s/with-gen
-                        (s/and string? #(> (count %) 0))
-                        #(gen/fmap identity gen/string-alphanumeric)))
 
 (s/def :fieldoptstring/initial-value string?)
 (s/def :fieldoptnum/initial-value num-str-gen)
