@@ -86,8 +86,8 @@ AppContainer.propTypes = {
 
 const mapStateToProps = (state, ownProps) => ({
   isAuthenticated: state.sc.auth.isAuthenticated,
-  userName: state.sc.auth.userName,
-  teams: state.sc.auth.teams,
+  userName: state.sc.auth.user.name,
+  teams: state.sc.auth.user.teams,
   id: ownProps.params.id,
   menu: state.sc.menu,
 });

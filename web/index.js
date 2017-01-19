@@ -8,6 +8,7 @@ import { Router, Route, IndexRoute, browserHistory } from 'react-router';
 import { syncHistoryWithStore, routerReducer, routerMiddleware } from 'react-router-redux';
 import throttle from 'lodash/throttle';
 import appReducer from './ducks';
+import { loginUserSuccess } from './ducks/auth';
 import AppContainer from './containers/AppContainer';
 import { loadState, saveState, requireAuthentication } from './utils';
 import HomeContainer from './containers/HomeContainer';
@@ -42,9 +43,19 @@ const store = createStore(
   applyMiddleware(middleware, thunk, createLogger()), // logger must be the last in the chain
 );
 
+const token = persistedState.sc.auth.token;
+if (token !== null) {
+  store.dispatch(loginUserSuccess(token));
+}
+
 store.subscribe(throttle(() => {
   saveState({
-    sc: { auth: store.getState().sc.auth },
+    sc: {
+      auth: {
+        user: store.getState().sc.auth.user,
+        token: store.getState().sc.auth.token,
+      },
+    },
   });
 }, 1000));
 

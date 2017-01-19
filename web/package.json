@@ -5,7 +5,7 @@
   "scripts": {
     "test": "./node_modules/.bin/karma start",
     "test:watch": "./node_modules/.bin/karma start --no-single-run",
-    "start:local": "NODE_ENV=local webpack-dev-server --progress --inline --hot --config webpack.local.js",
+    "start:local": "NODE_ENV=local webpack-dev-server --progress --inline --config webpack.local.js",
     "build:local": "NODE_ENV=local webpack --config webpack.local.js",
     "build:dev": "NODE_ENV=development webpack",
     "build:cf": "NODE_ENV=cf webpack",

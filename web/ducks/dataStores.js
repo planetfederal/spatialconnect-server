@@ -85,7 +85,7 @@ export function receiveStores(stores) {
     const { sc } = getState();
     dispatch({
       type: LOAD_STORES,
-      payload: { stores: keyBy(stores.map(initStore(sc.auth.teams)), 'id') },
+      payload: { stores: keyBy(stores.map(initStore(sc.auth.user.teams)), 'id') },
     });
   };
 }
@@ -95,7 +95,7 @@ export function receiveStore(store) {
     const { sc } = getState();
     dispatch({
       type: LOAD_STORE,
-      payload: { store: initStore(sc.auth.teams)(store) },
+      payload: { store: initStore(sc.auth.user.teams)(store) },
     });
   };
 }

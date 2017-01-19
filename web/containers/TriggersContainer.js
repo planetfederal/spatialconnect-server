@@ -14,6 +14,7 @@ const emptyTrigger = {
     devices: [],
     emails: [],
   },
+  stores: [],
   rules: [],
 };
 
@@ -64,7 +65,7 @@ class TriggersContainer extends Component {
             <TriggerForm
               trigger={emptyTrigger}
               cancel={this.cancel}
-              create={this.create}
+              onSave={this.create}
               errors={this.props.errors}
               actions={this.props.actions}
               stores={this.props.stores}

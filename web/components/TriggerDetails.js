@@ -3,6 +3,8 @@ import Dropzone from 'react-dropzone';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
 import TriggerItem from './TriggerItem';
+import { TriggerForm } from './TriggerForm';
+import PropertyListItem from './PropertyListItem';
 import '../style/Triggers.less';
 
 const format = new ol.format.GeoJSON();
@@ -29,11 +31,11 @@ const newRuleStyle = new ol.style.Style({
 
 const triggerStyleSelected = new ol.style.Style({
   fill: new ol.style.Fill({
-    color: 'rgba(255, 0, 0, 0.2)',
+    color: 'rgba(0, 0, 255, 0.1)',
   }),
   stroke: new ol.style.Stroke({
-    color: '#f00',
-    width: 2,
+    color: '#00f',
+    width: 1,
   }),
 });
 
@@ -43,24 +45,32 @@ class TriggerDetails extends Component {
     this.state = {
       addingRule: false,
       editing: false,
+      editingRule: false,
+      editingTrigger: false,
       creating: false,
       drawing: false,
       uploading: false,
       fileUploaded: false,
+      uploadedFile: false,
       uploadErr: false,
       rule_comparator: '$geowithin',
+      activeRules: {},
     };
-
+    this.ruleLayers = {};
     this.onSave = this.onSave.bind(this);
-    this.onEdit = this.onEdit.bind(this);
     this.onCancel = this.onCancel.bind(this);
-    this.onDone = this.onDone.bind(this);
     this.onDraw = this.onDraw.bind(this);
     this.onUpload = this.onUpload.bind(this);
     this.onDrop = this.onDrop.bind(this);
     this.onDelete = this.onDelete.bind(this);
     this.onAddRule = this.onAddRule.bind(this);
     this.onRuleComparatorChange = this.onRuleComparatorChange.bind(this);
+    this.onEditTrigger = this.onEditTrigger.bind(this);
+    this.onCancelEditTrigger = this.onCancelEditTrigger.bind(this);
+    this.onEditTriggerSave = this.onEditTriggerSave.bind(this);
+    this.toggleRule = this.toggleRule.bind(this);
+    this.onEditRule = this.onEditRule.bind(this);
+    this.onDeleteRule = this.onDeleteRule.bind(this);
   }
 
   componentDidMount() {
@@ -72,20 +82,12 @@ class TriggerDetails extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (!isEqual(nextProps.trigger.rules, this.props.trigger.rules)) {
-      this.triggerSource.clear();
       this.addRules(nextProps.trigger);
     }
     if (this.props.menu.open !== nextProps.menu.open) {
       // wait for menu to transition
       setTimeout(() => this.map.updateSize(), 200);
     }
-  }
-
-  onEdit() {
-    this.setState({ editing: true });
-    this.map.addInteraction(this.modify);
-    const fs = this.triggerSource.getFeatures();
-    fs.forEach(f => this.select.getFeatures().push(f));
   }
 
   onCancel() {
@@ -100,11 +102,20 @@ class TriggerDetails extends Component {
       uploading: false,
       fileUploaded: false,
       uploadErr: false,
+      uploadedFile: false,
+      editingRule: false,
+      editingTrigger: false,
     });
   }
 
   onSave() {
-    this.setState({ editing: false, creating: false, drawing: false, uploading: false });
+    this.setState({
+      editing: false,
+      creating: false,
+      drawing: false,
+      uploading: false,
+      uploadedFile: false,
+    });
     this.map.removeInteraction(this.modify);
     this.map.removeInteraction(this.create);
     this.select.getFeatures().clear();
@@ -118,16 +129,15 @@ class TriggerDetails extends Component {
       featureProjection: 'EPSG:3857',
     }));
     gj.id = fcId;
-    gj.features = gj.features.map(f => (
-      {
-        ...f,
-        properties: {},
-      }
-    ));
+    gj.features = gj.features.map(f => ({
+      ...f,
+      properties: {},
+    }));
     const newRule = {
       lhs: ['geometry'],
       comparator: this.state.rule_comparator,
       rhs: gj,
+      id: Date.now(),
     };
     const newTrigger = {
       ...this.props.trigger,
@@ -135,13 +145,6 @@ class TriggerDetails extends Component {
     };
     this.newRuleSource.clear();
     this.props.actions.updateTrigger(newTrigger);
-  }
-
-  onDone() {
-    this.setState({ drawing: false, uploading: false });
-    this.map.removeInteraction(this.modify);
-    this.map.removeInteraction(this.create);
-    this.select.getFeatures().clear();
   }
 
   onDraw() {
@@ -160,14 +163,16 @@ class TriggerDetails extends Component {
       reader.onload = (e) => {
         try {
           const gj = JSON.parse(e.target.result);
-          this.setState({ uploadErr: false });
+          this.setState({
+            uploadErr: false,
+            uploadedFile: file.name,
+          });
           const features = format.readFeatures(gj);
           features.forEach((feature) => {
             feature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
             this.newRuleSource.addFeature(feature);
           });
           this.map.getView().fit(this.newRuleSource.getExtent(), this.map.getSize());
-          this.setState({ uploading: false });
         } catch (err) {
           this.setState({ uploadErr: 'Not valid GeoJSON' });
         }
@@ -190,16 +195,101 @@ class TriggerDetails extends Component {
     this.setState({ creating: true });
   }
 
+  onEditTrigger() {
+    this.setState({ editingTrigger: true });
+  }
+
+  onCancelEditTrigger() {
+    this.setState({ editingTrigger: false }, () => {
+      this.createMap();
+    });
+  }
+
+  onEditTriggerSave(trigger) {
+    this.props.actions.updateTrigger(trigger);
+    this.setState({ editingTrigger: false }, () => {
+      this.createMap();
+    });
+  }
+
+  onEditRule(rule) {
+    this.setState({ editingRule: rule.id });
+    this.select.getFeatures().clear();
+    this.newRuleSource.clear();
+    const layer = this.ruleLayers[rule.id];
+    this.map.getView().fit(layer.getSource().getExtent(), this.map.getSize());
+    this.map.removeLayer(layer);
+    const fs = layer.getSource().getFeatures().map(f => f.clone());
+    this.newRuleSource.addFeatures(fs);
+    this.modify = new ol.interaction.Modify({
+      features: new ol.Collection(this.newRuleSource.getFeatures()),
+    });
+    this.map.addInteraction(this.modify);
+  }
+
+  onSaveRule(rule) {
+    this.setState({
+      editingRule: false,
+    });
+    this.map.removeInteraction(this.modify);
+
+    const fcId = `${this.props.trigger.id}.${rule.id}`;
+    const fs = this.newRuleSource.getFeatures().map((f, i) => {
+      f.setId(`${fcId}.${i}`);
+      return f;
+    });
+    const gj = JSON.parse(format.writeFeatures(fs, {
+      dataProjection: 'EPSG:4326',
+      featureProjection: 'EPSG:3857',
+    }));
+    gj.id = fcId;
+    gj.features = gj.features.map(f => ({
+      ...f,
+      properties: {},
+    }));
+    const newRule = {
+      ...rule,
+      rhs: gj,
+    };
+    const newTrigger = {
+      ...this.props.trigger,
+      rules: this.props.trigger.rules.map((r) => {
+        if (r.id === newRule.id) {
+          return newRule;
+        }
+        return r;
+      }),
+    };
+    this.newRuleSource.clear();
+    this.props.actions.updateTrigger(newTrigger);
+  }
+
+  onDeleteRule(rule) {
+    const newTrigger = {
+      ...this.props.trigger,
+      rules: this.props.trigger.rules.filter(r => r.id !== rule.id),
+    };
+    this.select.getFeatures().clear();
+    this.props.actions.updateTrigger(newTrigger);
+  }
+
+  onCancelRule(rule) {
+    this.map.removeInteraction(this.modify);
+    this.newRuleSource.clear();
+    const layer = this.ruleLayers[rule.id];
+    this.map.addLayer(layer);
+    this.setState({
+      editingRule: false,
+    });
+  }
+
   createMap() {
     while (this.mapRef.firstChild) {
       this.mapRef.removeChild(this.mapRef.firstChild);
     }
-    this.triggerSource = new ol.source.Vector();
+    this.allRuleSource = new ol.source.Vector();
     this.newRuleSource = new ol.source.Vector();
-    const triggerLayer = new ol.layer.Vector({
-      source: this.triggerSource,
-      style: triggerStyle,
-    });
+    // this.editRuleSource = new ol.source.Vector();
     const newRuleLayer = new ol.layer.Vector({
       source: this.newRuleSource,
       style: newRuleStyle,
@@ -208,6 +298,13 @@ class TriggerDetails extends Component {
       wrapX: false,
       style: triggerStyleSelected,
     });
+    this.modify = new ol.interaction.Modify({
+      features: new ol.Collection(this.newRuleSource.getFeatures()),
+    });
+    this.create = new ol.interaction.Draw({
+      source: this.newRuleSource,
+      type: ('Polygon'),
+    });
     this.map = new ol.Map({
       target: this.mapRef,
       interactions: ol.interaction.defaults().extend([this.select]),
@@ -215,7 +312,6 @@ class TriggerDetails extends Component {
         new ol.layer.Tile({
           source: new ol.source.OSM(),
         }),
-        triggerLayer,
         newRuleLayer,
       ],
       view: new ol.View({
@@ -224,104 +320,196 @@ class TriggerDetails extends Component {
       }),
     });
 
-    this.modify = new ol.interaction.Modify({
-      features: this.select.getFeatures(),
-    });
-
-    this.create = new ol.interaction.Draw({
-      source: this.newRuleSource,
-      type: /** @type {ol.geom.GeometryType} */ ('Polygon'),
-    });
     this.addRules(this.props.trigger);
   }
 
   addRules(trigger) {
-    if (trigger.rules) {
+    Object.keys(this.ruleLayers).forEach(layerid =>
+      this.map.removeLayer(this.ruleLayers[layerid]));
+    this.ruleLayers = {};
+    if (trigger.rules && trigger.rules.length) {
       trigger.rules.forEach((rule) => {
         if (rule.comparator === '$geowithin') {
-          this.addTrigger(rule);
+          this.addRule(rule);
         }
       });
+      this.map.getView().fit(this.allRuleSource.getExtent(), this.map.getSize());
     }
   }
 
-  addTrigger(rule) {
+  addRule(rule) {
     if (isEmpty(rule.rhs)) return;
+    const ruleSource = new ol.source.Vector();
     const features = format.readFeatures(rule.rhs);
     features.forEach((feature) => {
       feature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
-      this.triggerSource.addFeature(feature);
+      ruleSource.addFeature(feature);
+      this.allRuleSource.addFeature(feature);
     });
-    this.map.getView().fit(this.triggerSource.getExtent(), this.map.getSize());
+    const layer = new ol.layer.Vector({
+      source: ruleSource,
+      style: triggerStyle,
+    });
+    this.ruleLayers[rule.id] = layer;
+    this.map.addLayer(layer);
+    this.setState(prevState => ({
+      activeRules: {
+        ...prevState.activeRules,
+        [rule.id]: true,
+      },
+    }));
+  }
+
+  toggleRule(rule) {
+    if (this.ruleLayers[rule.id]) {
+      const layer = this.ruleLayers[rule.id];
+      const active = this.state.activeRules[rule.id];
+      if (active) {
+        this.map.removeLayer(layer);
+      } else {
+        this.map.addLayer(layer);
+      }
+      this.setState(prevState => ({
+        activeRules: {
+          ...prevState.activeRules,
+          [rule.id]: !active,
+        },
+      }));
+    }
+  }
+
+  viewRule(rule) {
+    if (this.ruleLayers[rule.id]) {
+      const layer = this.ruleLayers[rule.id];
+      this.map.getView().fit(layer.getSource().getExtent(), this.map.getSize());
+      const fs = layer.getSource().getFeatures();
+      this.select.getFeatures().clear();
+      fs.forEach(f => this.select.getFeatures().push(f));
+    }
+  }
+
+  renderRules() {
+    const ruleList = this.props.trigger.rules.length === 0 ?
+      <span className="note">No rules have been added to this trigger.</span> :
+      this.props.trigger.rules.map(rule => (
+        <div className="form-item mini">
+          <div className="properties">
+            <PropertyListItem name={'Type'} value={rule.comparator.replace('$', '')} />
+          </div>
+          {this.state.editingRule === rule.id ?
+            <div className="btn-toolbar plain">
+              <span className="btn-plain" onClick={() => this.onSaveRule(rule)}>Save</span>
+              <span className="btn-plain" onClick={() => this.onCancelRule(rule)}>
+                Cancel
+              </span>
+            </div> :
+            <div className="btn-toolbar plain">
+              <span className="btn-plain" onClick={() => this.viewRule(rule)}>View</span>
+              <span className="btn-plain" onClick={() => this.onEditRule(rule)}>Edit</span>
+              <span className="btn-plain" onClick={() => this.onDeleteRule(rule)}>
+                Delete
+              </span>
+            </div>
+          }
+        </div>
+      ));
+    return (<div>
+      <h4>Rules</h4>
+      <div className="rule-list">
+        {ruleList}
+      </div>
+      {!this.state.creating &&
+      <div className="btn-toolbar">
+        <button className="btn btn-sc" onClick={this.onAddRule}>Add Rule</button>
+      </div>}
+    </div>);
   }
 
   renderEditing() {
-    return !this.state.editing && !this.state.creating ?
+    return (
       <div>
         <div className="btn-toolbar">
-          <button className="btn btn-sc" onClick={this.onAddRule}>Add Rule</button>
+          <button className="btn btn-sc" onClick={this.onEditTrigger}>Edit Trigger</button>
           <button className="btn btn-danger" onClick={this.onDelete}>Delete</button>
         </div>
-      </div> : null;
+      </div>);
   }
 
   renderCreating() {
+    const uploading = this.state.uploadedFile ? <span>{this.state.uploadedFile}</span> :
+      (<div>
+        <Dropzone
+          onDrop={this.onDrop} multiple={false}
+          className="drop-zone" activeClassName="drop-zone-active"
+        >
+          <div>
+            <span>Drop file here, or click to select file to upload.</span>
+            <br /><br />
+            <span>GeoJSON files accepted.</span>
+          </div>
+        </Dropzone>
+        {!!this.state.uploadErr &&
+          <p>{this.state.uploadErr}</p>
+        }
+      </div>);
+    const done = (<div className="btn-toolbar">
+      <button className="btn btn-sc" onClick={this.onSave}>Save</button>
+      <button className="btn btn-sc" onClick={this.onCancel}>Cancel</button>
+    </div>);
     if (this.state.creating) {
-      if (this.state.drawing) {
-        return (<div className="btn-toolbar">
-          <button className="btn btn-sc" onClick={this.onDone}>Done Drawing</button>
-          <button className="btn btn-default" onClick={this.onCancel}>Cancel</button>
-        </div>);
-      }
-      if (this.state.uploading) {
-        return (<div>
-          <Dropzone
-            onDrop={this.onDrop} multiple={false}
-            className="drop-zone" activeClassName="drop-zone-active"
+      return (<div className="add-rule">
+        <h4>Add Rule</h4>
+        <div className="form-group">
+          <label htmlFor="comparator" >Rule Type:</label>
+          <select
+            id="comparator" className="form-control"
+            value={this.state.rule_comparator}
+            onChange={this.onRuleComparatorChange}
           >
-            <div>Drop file here, or click to select file to upload.</div>
-          </Dropzone>
-          {!!this.state.uploadErr &&
-            <p>{this.state.uploadErr}</p>
-          }
-          <div className="btn-toolbar">
-            <button className="btn btn-sc" onClick={this.onCancel}>Cancel</button>
-          </div>
-        </div>);
-      }
-      if (!this.state.drawing && !this.state.uploading) {
-        return (<div>
-          <div className="form-group">
-            <label htmlFor="comparator" >Rule Type:</label>
-            <select
-              id="comparator" className="form-control"
-              value={this.state.rule_comparator}
-              onChange={this.onRuleComparatorChange}
-            >
-              <option value="$geowithin">geowithin</option>
-            </select>
-          </div>
+            <option value="$geowithin">geowithin</option>
+          </select>
+        </div>
+        {this.state.drawing && done}
+        {this.state.uploading && <div>{uploading}{done}</div>}
+        {!this.state.drawing && !this.state.uploading &&
+        <div>
           <div className="btn-toolbar">
             <button className="btn btn-sc" onClick={this.onDraw}>Draw</button>
             <button className="btn btn-sc" onClick={this.onUpload}>Upload</button>
           </div>
           <div className="btn-toolbar">
-            <button className="btn btn-sc" onClick={this.onSave}>Save</button>
-            <button className="btn btn-sc" onClick={this.onCancel}>Cancel</button>
+            <button className="btn btn-default" onClick={this.onCancel}>Cancel</button>
           </div>
-        </div>);
-      }
+          </div>}
+      </div>);
     }
     return null;
   }
 
   render() {
     const { trigger } = this.props;
+    if (this.state.editingTrigger) {
+      return (
+        <div className="wrapper">
+          <section className="main">
+            <TriggerForm
+              trigger={trigger}
+              cancel={this.onCancelEditTrigger}
+              onSave={this.onEditTriggerSave}
+              errors={this.props.errors}
+              actions={this.props.actions}
+              stores={this.props.stores}
+            />
+          </section>
+        </div>
+      );
+    }
     return (
       <div className="trigger-details">
         <div className="trigger-props">
-          <TriggerItem trigger={trigger} />
+          <TriggerItem trigger={trigger} stores={this.props.stores} />
           {this.renderEditing()}
+          {this.renderRules()}
           {this.renderCreating()}
         </div>
         <div className="trigger-map" ref={(c) => { this.mapRef = c; }} />
@@ -333,7 +521,9 @@ class TriggerDetails extends Component {
 TriggerDetails.propTypes = {
   trigger: PropTypes.object.isRequired,
   menu: PropTypes.object.isRequired,
-  actions: PropTypes.object.isRquired,
+  actions: PropTypes.object.isRequired,
+  stores: PropTypes.object.isRequired,
+  errors: PropTypes.object.isRequired,
 };
 
 export default TriggerDetails;

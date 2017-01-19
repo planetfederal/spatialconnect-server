@@ -9,7 +9,7 @@ module.exports = {
   ],
   output: {
     path: path.join(__dirname, 'public'),
-    filename: 'signal.js',
+    filename: 'spatialconnect.js',
     publicPath: '/',
   },
   plugins: [

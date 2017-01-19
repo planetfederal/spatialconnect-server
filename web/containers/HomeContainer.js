@@ -37,7 +37,7 @@ const mapStateToProps = state => ({
   device_locations: state.sc.data.device_locations,
   spatial_triggers: state.sc.triggers.spatial_triggers,
   teams: state.sc.teams.teams,
-  userTeams: state.sc.auth.teams,
+  userTeams: state.sc.auth.user.teams,
 });
 
 const mapDispatchToProps = dispatch => ({

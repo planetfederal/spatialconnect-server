@@ -38,7 +38,7 @@ class TeamsContainer extends Component {
             </div>}
           <TeamList
             teams={this.props.teams}
-            userTeams={this.props.auth.teams}
+            userTeams={this.props.auth.user.teams}
             teamActions={this.props.teamActions}
           />
         </section>

@@ -18,8 +18,8 @@ export const JOIN_TEAM = 'sc/auth/JOIN_TEAM';
 export const LEAVE_TEAM = 'sc/auth/LEAVE_TEAM';
 
 const initialState = {
+  user: {},
   token: null,
-  userName: null,
   isAuthenticated: false,
   isAuthenticating: false,
   statusText: null,
@@ -27,7 +27,6 @@ const initialState = {
   signUpError: null,
   signUpSuccess: false,
   selectedTeamId: null,
-  teams: [],
   addTeamError: false,
 };
 
@@ -45,12 +44,9 @@ export default function reducer(state = initialState, action = {}) {
         isAuthenticating: false,
         isAuthenticated: true,
         token: action.token,
-        userName: action.user.name,
-        userID: action.user.id,
-        userEmail: action.user.email,
+        user: action.user,
         selectedTeamId: action.user.teams && action.user.teams.length ?
           action.user.teams[0].id : null,
-        teams: action.user.teams || [],
         statusText: null,
       };
     case LOGIN_USER_FAILURE:
@@ -59,7 +55,7 @@ export default function reducer(state = initialState, action = {}) {
         isAuthenticating: false,
         isAuthenticated: false,
         token: null,
-        userName: null,
+        user: {},
         statusText: `Authentication failed: ${action.statusText}`,
       };
     case SIGNUP_USER_REQUEST:
@@ -87,7 +83,7 @@ export default function reducer(state = initialState, action = {}) {
         ...state,
         isAuthenticated: false,
         token: null,
-        userName: null,
+        user: {},
         statusText: null,
       };
     case CHANGE_TEAM:
@@ -98,14 +94,20 @@ export default function reducer(state = initialState, action = {}) {
     case JOIN_TEAM:
       return {
         ...state,
-        teams: state.teams.concat(action.payload.team),
+        user: {
+          ...state.user,
+          teams: state.user.teams.concat(action.payload.team),
+        },
         selectedTeamId: state.selectedTeamId ? state.selectedTeamId : action.payload.team.id,
       };
     case LEAVE_TEAM: {
-      const teams = state.teams.filter(t => t.id !== action.payload.team.id);
+      const teams = state.user.teams.filter(t => t.id !== action.payload.team.id);
       return {
         ...state,
-        teams,
+        user: {
+          ...state.user,
+          teams,
+        },
         selectedTeamId: teams.length ? state.selectedTeamId : null,
       };
     }
@@ -114,7 +116,6 @@ export default function reducer(state = initialState, action = {}) {
 }
 
 export function loginUserSuccess(token) {
-  localStorage.setItem('token', token);
   return {
     type: LOGIN_USER_SUCCESS,
     token,
@@ -123,7 +124,6 @@ export function loginUserSuccess(token) {
 }
 
 export function loginUserFailure(error) {
-  localStorage.removeItem('token');
   return {
     type: LOGIN_USER_FAILURE,
     statusText: error,
@@ -156,7 +156,6 @@ export function signUpUserRequest() {
 }
 
 export function logout() {
-  localStorage.removeItem('token');
   return {
     type: LOGOUT_USER,
   };
