@@ -13,10 +13,11 @@
 (s/def :trigger/emails (s/coll-of string?))
 (s/def :trigger/devices (s/coll-of string?))
 (s/def :trigger/recipients (s/keys :req-un [:trigger/emails :trigger/devices]))
+(s/def :trigger/id pos-int?)
 (s/def :trigger/lhs (s/coll-of string?))
 (s/def :trigger/comparator :trigger/comparator-spec)
 (s/def :trigger/rhs :spacon.specs.geojson/featurecollectionpolygon-spec)
-(s/def :trigger/rule (s/keys :req-un [:trigger/lhs :trigger/comparator :trigger/rhs]))
+(s/def :trigger/rule (s/keys :req-un [:trigger/lhs :trigger/comparator :trigger/rhs :trigger/id]))
 (s/def :trigger/rules (s/coll-of (s/or :no-rules empty? :some-rules :trigger/rule)))
 (s/def :trigger/repeated boolean?)
 (s/def ::trigger-spec (s/keys :req-un

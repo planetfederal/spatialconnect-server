@@ -62,7 +62,7 @@ SideMenu.propTypes = {
   closeMenu: PropTypes.func.isRequired,
   menuOpen: PropTypes.bool.isRequired,
   changeTeam: PropTypes.func.isRequired,
-  teams: PropTypes.array.isRequired,
+  teams: PropTypes.array,
 };
 
 export default SideMenu;

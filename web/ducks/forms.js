@@ -309,7 +309,7 @@ export function receiveForms(forms) {
     const { sc } = getState();
     dispatch({
       type: LOAD_SUCCESS,
-      forms: keyBy(forms.map(initForm(sc.auth.teams)), 'form_key'),
+      forms: keyBy(forms.map(initForm(sc.auth.user.teams)), 'form_key'),
     });
   };
 }
@@ -319,7 +319,7 @@ export function receiveForm(form) {
     const { sc } = getState();
     dispatch({
       type: ADD_FORM,
-      form: initForm(sc.auth.teams)(form),
+      form: initForm(sc.auth.user.teams)(form),
     });
   };
 }

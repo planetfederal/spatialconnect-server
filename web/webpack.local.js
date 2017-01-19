@@ -4,13 +4,13 @@ var HtmlWebpackPlugin = require('html-webpack-plugin');
 var pkg = require('./package.json');
 
 module.exports = {
-  devtool: 'eval-source-map',
+  devtool: 'cheap-module-eval-source-map',
   entry: [
     path.join(__dirname, 'index'),
   ],
   output: {
     path: path.join(__dirname, 'public'),
-    filename: 'signal.js',
+    filename: 'spatialconnect.js',
     publicPath: '/',
   },
   devServer: {

@@ -11,7 +11,7 @@ const TeamDetailsContainer = props => (
       <div>
         <Team
           team={props.team}
-          userTeams={props.auth.teams}
+          userTeams={props.auth.user.teams}
           teamActions={props.teamActions}
         />
         <div className="btn-toolbar">

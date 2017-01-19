@@ -23,9 +23,9 @@ export class TriggerForm extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      repeat: false,
-      sourceStores: [],
-      email_recipients: [],
+      repeated: props.trigger.repeated,
+      sourceStores: props.trigger.stores || [],
+      email_recipients: props.trigger.recipients.emails || [],
       name: props.trigger.name,
       description: props.trigger.description,
     };
@@ -39,7 +39,7 @@ export class TriggerForm extends Component {
   }
 
   onOptionChange(e) {
-    this.setState({ repeat: e.target.value === 'repeat_on' });
+    this.setState({ repeated: e.target.value === 'repeat_on' });
   }
 
   onNameChange(e) {
@@ -70,20 +70,20 @@ export class TriggerForm extends Component {
 
   save() {
     const newTrigger = {
+      ...this.props.trigger,
       name: this.state.name,
       description: this.state.description,
-      repeated: this.state.repeat,
+      repeated: this.state.repeated,
       stores: this.state.sourceStores,
       recipients: {
         emails: this.state.email_recipients,
         devices: [],
       },
-      rules: [],
     };
     const errors = validate(newTrigger);
     this.props.actions.updateTriggerErrors(errors);
     if (!Object.keys(errors).length) {
-      this.props.create(newTrigger);
+      this.props.onSave(newTrigger);
     }
   }
 
@@ -130,8 +130,8 @@ export class TriggerForm extends Component {
           <div className="radio">
             <label htmlFor="repeat_off">
               <input
-                type="radio" name="repeat" id="repeat_off" value="repeat_off"
-                checked={!this.state.repeat}
+                type="radio" name="repeated" id="repeat_off" value="repeat_off"
+                checked={!this.state.repeated}
                 onChange={this.onOptionChange}
               />
               Alert Once
@@ -140,8 +140,8 @@ export class TriggerForm extends Component {
           <div className="radio">
             <label htmlFor="repeat_on">
               <input
-                type="radio" name="repeat" id="repeat_on" value="repeat_on"
-                defaultChecked={this.state.repeat}
+                type="radio" name="repeated" id="repeat_on" value="repeat_on"
+                defaultChecked={this.state.repeated}
                 onChange={this.onOptionChange}
               />
               Alert Always
@@ -158,10 +158,10 @@ export class TriggerForm extends Component {
           />
           {errors.email ? <p className="text-danger">{errors.email}</p> : ''}
         </div>
-        {!!this.props.errors.lengt &&
+        {!!this.props.errors.length &&
           <p className="text-danger">{this.props.errors}</p>}
         <div className="btn-toolbar">
-          <button className="btn btn-sc" onClick={this.save}>Create</button>
+          <button className="btn btn-sc" onClick={this.save}>Save</button>
           <button className="btn btn-default" onClick={cancel}>Cancel</button>
         </div>
       </div>
@@ -175,7 +175,7 @@ TriggerForm.propTypes = {
   cancel: PropTypes.func.isRequired,
   stores: PropTypes.object.isRequired,
   actions: PropTypes.object.isRequired,
-  create: PropTypes.func.isRequired,
+  onSave: PropTypes.func.isRequired,
 };
 
 export default TriggerForm;

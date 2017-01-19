@@ -73,7 +73,10 @@ class SignIn extends Component {
 
 SignIn.propTypes = {
   isAuthenticating: PropTypes.bool.isRequired,
-  statusText: PropTypes.string.isRequired,
+  statusText: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.bool,
+  ]),
   location: PropTypes.object.isRequired,
   actions: PropTypes.object.isRequired,
 };
