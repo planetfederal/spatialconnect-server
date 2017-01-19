@@ -29,16 +29,6 @@ const newRuleStyle = new ol.style.Style({
   }),
 });
 
-const triggerStyleSelected = new ol.style.Style({
-  fill: new ol.style.Fill({
-    color: 'rgba(0, 0, 255, 0.1)',
-  }),
-  stroke: new ol.style.Stroke({
-    color: '#00f',
-    width: 1,
-  }),
-});
-
 class TriggerDetails extends Component {
   constructor(props) {
     super(props);
@@ -213,13 +203,13 @@ class TriggerDetails extends Component {
   }
 
   onEditRule(rule) {
+    const layer = this.ruleLayers[rule.id];
+    const fs = layer.getSource().getFeatures().map(f => f.clone());
     this.setState({ editingRule: rule.id });
     this.select.getFeatures().clear();
     this.newRuleSource.clear();
-    const layer = this.ruleLayers[rule.id];
     this.map.getView().fit(layer.getSource().getExtent(), this.map.getSize());
     this.map.removeLayer(layer);
-    const fs = layer.getSource().getFeatures().map(f => f.clone());
     this.newRuleSource.addFeatures(fs);
     this.modify = new ol.interaction.Modify({
       features: new ol.Collection(this.newRuleSource.getFeatures()),
@@ -228,11 +218,6 @@ class TriggerDetails extends Component {
   }
 
   onSaveRule(rule) {
-    this.setState({
-      editingRule: false,
-    });
-    this.map.removeInteraction(this.modify);
-
     const fcId = `${this.props.trigger.id}.${rule.id}`;
     const fs = this.newRuleSource.getFeatures().map((f, i) => {
       f.setId(`${fcId}.${i}`);
@@ -260,6 +245,10 @@ class TriggerDetails extends Component {
         return r;
       }),
     };
+    this.setState({
+      editingRule: false,
+    });
+    this.map.removeInteraction(this.modify);
     this.newRuleSource.clear();
     this.props.actions.updateTrigger(newTrigger);
   }
@@ -274,9 +263,9 @@ class TriggerDetails extends Component {
   }
 
   onCancelRule(rule) {
+    const layer = this.ruleLayers[rule.id];
     this.map.removeInteraction(this.modify);
     this.newRuleSource.clear();
-    const layer = this.ruleLayers[rule.id];
     this.map.addLayer(layer);
     this.setState({
       editingRule: false,
@@ -289,14 +278,13 @@ class TriggerDetails extends Component {
     }
     this.allRuleSource = new ol.source.Vector();
     this.newRuleSource = new ol.source.Vector();
-    // this.editRuleSource = new ol.source.Vector();
     const newRuleLayer = new ol.layer.Vector({
       source: this.newRuleSource,
       style: newRuleStyle,
     });
     this.select = new ol.interaction.Select({
       wrapX: false,
-      style: triggerStyleSelected,
+      style: newRuleStyle,
     });
     this.modify = new ol.interaction.Modify({
       features: new ol.Collection(this.newRuleSource.getFeatures()),
@@ -381,8 +369,8 @@ class TriggerDetails extends Component {
   viewRule(rule) {
     if (this.ruleLayers[rule.id]) {
       const layer = this.ruleLayers[rule.id];
-      this.map.getView().fit(layer.getSource().getExtent(), this.map.getSize());
       const fs = layer.getSource().getFeatures();
+      this.map.getView().fit(layer.getSource().getExtent(), this.map.getSize());
       this.select.getFeatures().clear();
       fs.forEach(f => this.select.getFeatures().push(f));
     }

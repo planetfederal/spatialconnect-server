@@ -124,7 +124,7 @@ export function addUserTeam(teamId) {
   return (dispatch, getState) => {
     const { sc } = getState();
     const token = sc.auth.token;
-    const userId = sc.auth.userID;
+    const userId = sc.auth.user.id;
     const team = find(sc.teams.teams, { id: teamId });
     return request
       .post(`${API_URL}user-team`)
@@ -142,7 +142,7 @@ export function removeUserTeam(teamId) {
   return (dispatch, getState) => {
     const { sc } = getState();
     const token = sc.auth.token;
-    const userId = sc.auth.userID;
+    const userId = sc.auth.user.id;
     const team = find(sc.teams.teams, { id: teamId });
     return request
       .delete(`${API_URL}user-team`)

@@ -16,8 +16,11 @@ const SignInContainer = props => (
 SignInContainer.propTypes = {
   actions: PropTypes.object.isRequired,
   isAuthenticating: PropTypes.bool.isRequired,
-  statusText: PropTypes.string,
-  location: PropTypes.string,
+  statusText: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.bool,
+  ]),
+  location: PropTypes.object,
 };
 
 const mapStateToProps = state => ({

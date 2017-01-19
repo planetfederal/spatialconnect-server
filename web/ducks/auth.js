@@ -22,7 +22,7 @@ const initialState = {
   token: null,
   isAuthenticated: false,
   isAuthenticating: false,
-  statusText: null,
+  statusText: false,
   isSigningUp: false,
   signUpError: null,
   signUpSuccess: false,
@@ -56,7 +56,7 @@ export default function reducer(state = initialState, action = {}) {
         isAuthenticated: false,
         token: null,
         user: {},
-        statusText: `Authentication failed: ${action.statusText}`,
+        statusText: action.statusText,
       };
     case SIGNUP_USER_REQUEST:
       return {
@@ -123,6 +123,14 @@ export function loginUserSuccess(token) {
   };
 }
 
+export function loginPersistedUser(token, user) {
+  return {
+    type: LOGIN_USER_SUCCESS,
+    token,
+    user,
+  };
+}
+
 export function loginUserFailure(error) {
   return {
     type: LOGIN_USER_FAILURE,
@@ -180,17 +188,14 @@ export function loginUser(email, password, redirect = '/') {
             dispatch(loginUserSuccess(response.body.result.token));
             dispatch(push(redirect));
           } else {
-            dispatch(loginUserFailure(response.body.error.message));
+            dispatch(loginUserFailure('Login unsuccessful.'));
           }
         } catch (e) {
           dispatch(loginUserFailure('Invalid token'));
         }
-      })
-      .catch((response) => {
-        if (response.body.error.errors) {
-          dispatch(loginUserFailure(response.body.error.errors[0].message));
-        } else if (response.body.error.message) {
-          dispatch(loginUserFailure(response.body.error.message));
+      }, (response) => {
+        if (response.body.error) {
+          dispatch(loginUserFailure(response.body.error));
         } else {
           dispatch(loginUserFailure('Login unsuccessful.'));
         }

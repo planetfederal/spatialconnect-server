@@ -81,7 +81,7 @@ export class FormList extends Component {
 FormList.propTypes = {
   spatialTriggersOn: PropTypes.bool.isRequired,
   deviceLocationsOn: PropTypes.bool.isRequired,
-  spatial_triggers: PropTypes.array.isRequired,
+  spatial_triggers: PropTypes.object.isRequired,
   device_locations: PropTypes.array.isRequired,
   formData: PropTypes.array.isRequired,
   form_ids: PropTypes.array.isRequired,
