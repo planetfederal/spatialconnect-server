@@ -10,10 +10,13 @@
             [spacon.entity.scmessage :as scm]
             [clojure.data.json :as json]
             [clojure.xml :as xml]
-            [overtone.at-at :refer [every,mk-pool,stop,stop-and-reset-pool!]])
+            [overtone.at-at :refer [every,mk-pool,stop,stop-and-reset-pool!]]
+            [clojure.tools.logging :as log])
   (:import (com.boundlessgeo.spatialconnect.schema SCCommand)))
 
-(defn feature-collection->geoms [fc]
+(defn feature-collection->geoms
+  "Given a geojson feature collection, return a list of the features' geometries"
+  [fc]
   (if-let [features (.features fc)]
     (if (.hasNext features)
       (loop [feature (-> features .next .getDefaultGeometry)
@@ -24,8 +27,10 @@
       [])
     []))
 
-(defn fetch-url [trigger url]
-  (println "Fetching:" url)
+(defn fetch-url
+  "Fetches geojson from url and tests each feature for the specified trigger"
+  [trigger url]
+  (log/debug "Fetching" url)
   (let [res (client/get url)
         status (:status res)
         body (:body res)]
@@ -35,7 +40,7 @@
                       feature-collection->geoms)]
         (doall (map (fn [g]
                       (triggerapi/test-value trigger "STORE" g)) geoms)))
-      (println "Error Fetching " url))))
+      (log/error "Error Fetching" url))))
 
 (def polling-stores (ref {}))
 (def sched-pool (mk-pool))
@@ -65,49 +70,66 @@
 (defn load-polling-stores [trigger]
   (doall (map (partial add-polling-store trigger) (storemodel/all))))
 
-(defn http-get [context]
-  (if-let [d (storemodel/all)]
-    (response/ok d)
-    (response/error "Error")))
+(defn http-get-all-stores
+  "Returns http response of all stores"
+  [_]
+  (log/debug "Getting all stores")
+  (response/ok (storemodel/all)))
 
-(defn http-get-error [context]
-  (response/error "Error"))
+(defn http-get-store
+  "Gets a store by id"
+  [request]
+  (log/debug "Getting store by id")
+  (let [id (get-in request [:path-params :id])]
+    (if-let [store (storemodel/find-by-id id)]
+      (response/ok store)
+      (let [err-msg (str "No store found for id" id)]
+        (log/warn err-msg)
+        (response/ok err-msg)))))
 
-(defn http-get-store [context]
-  (if-let [d (storemodel/find-by-id (get-in context [:path-params :id]))]
-    (response/ok d)
-    (response/error "Error retrieving store")))
+(defn http-put-store
+  "Updates a store using the json body then publishes
+  a config update message about the newly updated store"
+  [mqtt trigger request]
+  (log/debug "Updating device")
+  (let [id (get-in request [:path-params :id])]
+    (if-let [store (storemodel/modify id (:json-params request))]
+      (do (mqttapi/publish-scmessage mqtt "/config/update"
+                                     (scm/map->SCMessage
+                                      {:action (.value SCCommand/CONFIG_UPDATE_STORE)
+                                       :payload store}))
+          (add-polling-store trigger store)
+          (response/ok "success"))
+      (response/error "Error updating"))))
 
-(defn http-put-store [mqtt trigger context]
-  (if-let [d (storemodel/modify (get-in context [:path-params :id]) (:json-params context))]
-    (do (mqttapi/publish-scmessage mqtt "/config/update"
-                                   (scm/map->SCMessage
-                                    {:action (.value SCCommand/CONFIG_UPDATE_STORE)
-                                     :payload d}))
-        (add-polling-store trigger d)
-        (response/ok "success"))
-    (response/error "Error updating")))
-
-(defn http-post-store [mqtt trigger context]
-  (if-let [d (storemodel/create (:json-params context))]
+(defn http-post-store
+  "Creates a new store using the json body then publishes
+  a config update message about the newly updated store"
+  [mqtt trigger request]
+  (if-let [store (storemodel/create (:json-params request))]
     (do (mqttapi/publish-scmessage mqtt "/config/update"
                                    (scm/map->SCMessage {:action (.value SCCommand/CONFIG_ADD_STORE)
-                                                        :payload d}))
-        (add-polling-store trigger d)
-        (response/ok d))
+                                                        :payload store}))
+        (add-polling-store trigger store)
+        (response/ok store))
     (response/error "Error creating")))
 
-(defn http-delete-store [mqtt context]
-  (let [id (get-in context [:path-params :id])]
-    (storemodel/delete (get-in context [:path-params :id]))
+(defn http-delete-store
+  "Deletes a store by id then publishes a config update message about
+  the delted store"
+  [mqtt request]
+  (let [id (get-in request [:path-params :id])]
+    (storemodel/delete id)
     (remove-polling-store id)
     (mqttapi/publish-scmessage mqtt "/config/update"
                                (scm/map->SCMessage {:action (.value SCCommand/CONFIG_REMOVE_STORE)
                                                     :payload {:id id}}))
-
     (response/ok "success")))
 
-(defn get-capabilities->layer-names [caps]
+(defn get-capabilities->layer-names
+  "Takes a WFS GetCapabilities document as an xml string and returns
+  a list of layer names specified in the document"
+  [caps]
   (let [layer-names (->> caps
                          .getBytes
                          java.io.ByteArrayInputStream.
@@ -120,8 +142,11 @@
                          (map #(first (:content (first (:content %))))))]
     layer-names))
 
-(defn http-get-capabilities [context]
-  (let [url (get-in context [:query-params :url])
+(defn http-get-capabilities
+  "Makes a request to a WFS endpoint specified by the 'url'
+  query parmeter.  Used as a proxy to avoid cross origin issues."
+  [request]
+  (let [url (get-in request [:query-params :url])
         res (client/get (str url "?service=WFS&version=1.1.0&request=GetCapabilities"))
         status (:status res)
         body (:body res)]
@@ -131,9 +156,7 @@
 
 (defn- routes [mqtt trigger]
   #{["/api/stores" :get
-     (conj intercept/common-interceptors `http-get)]
-    ["/api/stores-error" :get
-     (conj intercept/common-interceptors `http-get-error)]
+     (conj intercept/common-interceptors `http-get-all-stores)]
     ["/api/stores/:id" :get
      (conj intercept/common-interceptors `http-get-store)]
     ["/api/stores/:id" :put
@@ -148,9 +171,11 @@
 (defrecord StoreComponent [mqtt trigger]
   component/Lifecycle
   (start [this]
+    (log/debug "Starting Store Component")
     (load-polling-stores trigger)
     (assoc this :routes (routes mqtt trigger)))
   (stop [this]
+    (log/debug "Stopping Store Component")
     this))
 
 (defn make-store-component []

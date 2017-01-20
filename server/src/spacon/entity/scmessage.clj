@@ -2,7 +2,8 @@
   (:require [clojure.data.json :as json]
             [clojure.string :refer [blank?]]
             [camel-snake-kebab.core :refer :all]
-            [camel-snake-kebab.extras :refer [transform-keys]])
+            [camel-snake-kebab.extras :refer [transform-keys]]
+            [clojure.tools.logging :as log])
   (:import (com.boundlessgeo.spatialconnect.schema
             SCMessageOuterClass$SCMessage)))
 
@@ -17,7 +18,8 @@
        :action (.getAction scm)
        :payload payload}
       (catch Exception e
-        (println (.getLocalizedMessage e))))))
+        (log/error "Could not parse protobuf into map b/c"
+                   (.getLocalizedMessage e))))))
 
 (defn- make-protobuf [correlation-id jwt reply-to action payload]
   (-> (SCMessageOuterClass$SCMessage/newBuilder)
@@ -30,10 +32,14 @@
 
 (defrecord SCMessage [correlation-id jwt reply-to action payload])
 
-(defn from-bytes [b]
+(defn from-bytes
+  "Deserializes the protobuf byte array into an SCMessage record"
+  [b]
   (map->SCMessage (bytes->map b)))
 
-(defn message->bytes [message]
+(defn message->bytes
+  "Serializes an SCMessage record into a protobuf byte array"
+  [message]
   (.toByteArray (make-protobuf
                  (or (get message :correlation-id) -1)
                  (or (get message :jwt) "")

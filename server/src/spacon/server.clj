@@ -13,17 +13,18 @@
             [spacon.components.trigger.core :as trigger]
             [spacon.components.mqtt.core :as mqtt]
             [spacon.components.notification.core :as notification]
-            [spacon.components.form.core :as form]))
+            [spacon.components.form.core :as form]
+            [clojure.tools.logging :as log]))
 
 (defrecord SpaconServer [http-service]
   component/Lifecycle
   (start [component]
+    (log/info "Starting SpaconServer Component")
     (let [server (server/create-server (:service-def http-service))]
-      (println "Starting Server")
       (server/start server)
       (assoc component :http-server server)))
   (stop [component]
-    (println "Stopping Server")
+    (log/info "Stopping SpaconServer Component")
     (update-in component [:http-server] server/stop)))
 
 (defn new-spacon-server []
@@ -32,6 +33,7 @@
 (defn make-spacon-server
   "Returns a new instance of the system"
   [config-options]
+  (log/debug "Making server config with these options" config-options)
   (let [{:keys [http-config mqtt-config]} config-options]
     (component/system-map
      :user (user/make-user-component)
@@ -46,17 +48,20 @@
      :location (component/using (location/make-location-component) [:mqtt :trigger])
      :form (component/using (form/make-form-component) [:mqtt :trigger])
      :http-service (component/using
-                    (service/make-service http-config)
+                    (service/make-http-service-component http-config)
                     [:ping :user :team :device :location :trigger
                      :store :config :form :mqtt :notify])
-     :server (component/using
-              (new-spacon-server)
-              [:http-service]))))
+     :server (component/using (new-spacon-server) [:http-service]))))
 
 (defn -main
   "The entry-point for 'lein run'"
   [& _]
-  (println "\nCreating your server...")
+  (log/info "Configuring the server...")
+  ;; create global uncaught exception handler so threads don't silently die
+  (Thread/setDefaultUncaughtExceptionHandler
+   (reify Thread$UncaughtExceptionHandler
+     (uncaughtException [_ thread ex]
+       (log/error ex "Uncaught exception on thread" (.getName thread)))))
   (System/setProperty "javax.net.ssl.trustStore"
                       (or (System/getenv "TRUST_STORE")
                           "tls/test-cacerts.jks"))
@@ -75,6 +80,7 @@
   (System/setProperty "javax.net.ssl.keyStorePassword"
                       (or (System/getenv "KEY_STORE_PASSWORD")
                           "somepass"))
+  ;; todo: auto migrate flag?
   (component/start-system (make-spacon-server {:http-config {}
                                                :mqtt-config {:broker-url (System/getenv "MQTT_BROKER_URL")}})))
 

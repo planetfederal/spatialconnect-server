@@ -1,16 +1,23 @@
 (ns spacon.http.response
   (:require [camel-snake-kebab.core :refer :all]
-            [camel-snake-kebab.extras :refer [transform-keys]]))
+            [camel-snake-kebab.extras :refer [transform-keys]]
+            [clojure.tools.logging :as log]))
 
 (defn is-error? [status]
   (< 300 status))
 
-(defn response [status body & {:as headers}]
+(defn response
+  "Creates a response map using the status, body, and headers.
+  Also transforms response body keys to be snake_case"
+  [status body & {:as headers}]
   (let [b_o_d_y (transform-keys ->snake_case_keyword body)
         res-body (assoc {}
                         :result (if (is-error? status) nil b_o_d_y)
                         :error (if (is-error? status) b_o_d_y nil))]
-    {:status status :body res-body :headers headers}))
+    (let [res {:status status :body res-body :headers headers}]
+      (log/trace "Returning response" res)
+      res)))
+
 
 (def ok (partial response 200))
 (def created (partial response 201))

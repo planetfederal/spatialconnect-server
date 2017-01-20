@@ -5,10 +5,11 @@
             [camel-snake-kebab.core :refer :all]
             [camel-snake-kebab.extras :refer [transform-keys]]
             [spacon.specs.device]
-            [clojure.spec :as s]))
+            [clojure.spec :as s]
+            [clojure.tools.logging :as log]))
 
-(defqueries "sql/device.sql"
-  {:connection db/db-spec})
+;; define sql queries as functions in this namespace
+(defqueries "sql/device.sql" {:connection db/db-spec})
 
 (defn- entity->map
   "maps an entity returned from the database to a clojure map"
@@ -26,17 +27,20 @@
 (defn count-devices
   "Count of all the active devices"
   []
+  (log/debug "Fetching total number of devices from db")
   (count-devices-query))
 
 (defn all
   "Retrieves all the active devices deleted_at = null"
   []
+  (log/debug "Fetching all active devices from db")
   (map (fn [d]
          (sanitize d)) (device-list-query)))
 
 (defn find-by-identifier
   "Finds device by its unique identifier"
   [identifier]
+  (log/debug "Finding device with identifier" identifier)
   (some-> (find-by-identifier-query {:identifier identifier})
           (last)
           entity->map))
@@ -45,17 +49,21 @@
   "Takes a map representing a device and saves it to the database if it's valid.
    returns the device with the id or nil"
   [d]
+  (log/debug "Validating device against spec")
   (if-not (s/valid? :spacon.specs.device/device-spec d)
     (s/explain-str :spacon.specs.device/device-spec d)
-    (if-let [dev (create-device<! {:identifier  (:identifier d)
-                                   :name        (:name d)
-                                   :device_info (json/write-str (:device-info d))})]
-      (sanitize dev)
-      d)))
+    (do
+      (log/debug "Inserting device into db")
+      (if-let [dev (create-device<! {:identifier  (:identifier d)
+                                     :name        (:name d)
+                                     :device_info (json/write-str (:device-info d))})]
+        (sanitize dev)
+        d))))
 
 (defn modify
   "Updates the device info by the unique id"
   [identifier d]
+  (log/debug "Updating device with identifier" identifier)
   (let [di (:device-info d)]
     (entity->map
      (update-device<! {:identifier identifier
@@ -66,6 +74,7 @@
 (defn delete
   "Deactivates the device"
   [identifier]
+  (log/debug "Deleting device with identifier" identifier)
   (delete-device! {:identifier identifier}))
 
 (s/fdef find-by-identifier

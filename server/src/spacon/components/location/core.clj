@@ -6,9 +6,13 @@
             [yesql.core :refer [defqueries]]
             [spacon.components.mqtt.core :as mqttapi]
             [spacon.components.trigger.core :as triggerapi]
-            [spacon.components.location.db :as locationmodel]))
+            [spacon.components.location.db :as locationmodel]
+            [clojure.tools.logging :as log]))
 
-(defn location->geojson [locations]
+(defn location->geojson
+  "Given list of locations, returns a lazy sequence of geojson
+  features with device metadata for each location"
+  [locations]
   (map (fn [l]
          {:type     "Feature"
           :id       (:identifier l)
@@ -18,17 +22,21 @@
                      :updated_at (:updated_at l)}})
        locations))
 
-(defn http-get [_]
+(defn http-get-all-locations
+  "Returns the latest location of each device"
+  [_]
+  (log/debug "Getting all device locations")
   (let [fs (location->geojson (locationmodel/all))]
     (response/ok {:type "FeatureCollection"
                   :features fs})))
 
 (defn- routes [] #{["/api/locations" :get
-                    (conj intercept/common-interceptors `http-get)]})
+                    (conj intercept/common-interceptors `http-get-all-locations)]})
 
 (defrecord LocationComponent [mqtt trigger]
   component/Lifecycle
   (start [this]
+    (log/debug "Starting Location Component")
     (mqttapi/subscribe mqtt "/store/tracking"
                        (fn [message]
                          (let [loc (:payload message)]
@@ -36,6 +44,7 @@
                            (triggerapi/test-value trigger "location" loc))))
     (assoc this :routes (routes)))
   (stop [this]
+    (log/debug "Stopping Location Component")
     this))
 
 (defn make-location-component []

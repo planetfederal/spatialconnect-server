@@ -6,6 +6,7 @@
             [spacon.db.conn :as db]
             [clojure.data.json :as json]))
 
+;; define sql queries as functions in this namespace
 (defqueries "sql/notification.sql" {:connection db/db-spec})
 
 (defn sanitize-notif [n]

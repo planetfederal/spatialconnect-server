@@ -3,9 +3,11 @@
             [clojure.repl :refer :all]
             [com.stuartsierra.component :as component]
             [io.pedestal.http :as server]
-            [spacon.server :refer [make-spacon-server]]))
+            [spacon.server :refer [make-spacon-server]]
+            [clojure.tools.logging :as log]))
 
 (defn init-dev []
+  (log/info "Initializing dev system for repl")
   (System/setProperty "javax.net.ssl.trustStore"
                       (or (System/getenv "TRUST_STORE")
                           "tls/test-cacerts.jks"))

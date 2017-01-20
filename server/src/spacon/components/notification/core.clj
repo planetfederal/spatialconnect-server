@@ -5,7 +5,8 @@
             [postal.core :refer [send-message]]
             [spacon.components.notification.db :as notifmodel]
             [spacon.http.intercept :as intercept]
-            [spacon.http.response :as response]))
+            [spacon.http.response :as response]
+            [clojure.tools.logging :as log]))
 
 (defn- send->device [mqtt device-id message]
   (mqttapi/publish-map mqtt (str "/notify/" device-id) message))
@@ -75,10 +76,12 @@
 (defrecord NotificationComponent [mqtt]
   component/Lifecycle
   (start [this]
+    (log/debug "Starting Notification Component")
     (let [c (chan)]
       (process-channel mqtt c)
       (assoc this :mqtt mqtt :send-channel c :routes (routes))))
   (stop [this]
+    (log/debug "Stopping Notification Component")
     (close! (:send-channel this))
     this))
 

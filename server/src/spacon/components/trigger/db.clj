@@ -5,11 +5,12 @@
             [yesql.core :refer [defqueries]]
             [clojure.data.json :as json]
             [spacon.util.db :as dbutil]
-            [spacon.specs.trigger :as trigger-spec])
+            [spacon.specs.trigger :as trigger-spec]
+            [clojure.tools.logging :as log])
   (:import (org.postgresql.util PGobject)))
 
-(defqueries "sql/trigger.sql"
-  {:connection db/db-spec})
+;; define sql queries as functions in this namespace
+(defqueries "sql/trigger.sql" {:connection db/db-spec})
 
 (defn- sanitize [trigger]
   (dissoc trigger :created_at :updated_at :deleted_at))
@@ -42,12 +43,14 @@
 (defn all
   "Returns all the active triggers"
   []
+  (log/debug "Fetching all active triggers from db")
   (map (fn [t]
          (entity->map t)) (trigger-list-query {} result->map)))
 
 (defn find-by-id
   "Find trigger by identifier"
   [id]
+  (log/debugf "Finding triggers with id %s from db" id)
   (some-> (find-by-id-query {:id (java.util.UUID/fromString id)} result->map)
           (first)
           entity->map))
@@ -64,7 +67,9 @@
 (defn create
   "Creates a trigger definition"
   [t]
+  (log/debug "Validating trigger against spec")
   {:pre [(s/valid? :spacon.specs.trigger/trigger-spec t)]}
+  (log/debug "Inserting trigger into db" t)
   (let [entity (map->entity t)
         new-trigger (insert-trigger<!
                      (assoc entity

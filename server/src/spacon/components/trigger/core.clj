@@ -13,44 +13,67 @@
             [spacon.trigger.protocol :as proto-clause]
             [clojure.data.json :as json]
             [spacon.trigger.definition.geo
-             :refer [make-within-clause]]))
+             :refer [make-within-clause]]
+            [clojure.tools.logging :as log]))
 
-(def invalid-triggers (ref {}))
-(def valid-triggers (ref {}))
+(def invalid-triggers
+  "Triggers that don't evaluate to true"
+  (ref {}))
+(def valid-triggers
+  "If it's a valid trigger, data has satisified the rules and we need to
+  send an alert"
+   (ref {}))
 
-(defn add-trigger [trigger]
+(defn add-trigger
+  "Adds a trigger to the invalid-triggers ref"
+  [trigger]
+  (log/trace "Adding trigger" trigger)
+  ;; builds a compound where clause of (rule AND rule AND ...)
   (let [t (assoc trigger :rules
                  (map (fn [rule]
                         (case (:comparator rule)
+                          ;; todo: implement other spatial relations
                           "$geowithin" (make-within-clause
                                         (:id trigger) (:rhs rule))
-                          nil)) (:rules trigger)))]
+                          nil))
+                      (:rules trigger)))]
     (dosync
      (commute invalid-triggers assoc
               (keyword (:id t)) t))))
 
-(defn remove-trigger [trigger]
+(defn remove-trigger
+  "Removes trigger from both valid-triggers and invalid-triggers ref"
+  [trigger]
+  (log/trace "Removing trigger" trigger)
   (dosync
    (commute invalid-triggers dissoc (keyword (:id trigger)))
    (commute valid-triggers dissoc (keyword (:id trigger)))))
 
-(defn set-valid-trigger [trigger]
+(defn set-valid-trigger
+  "Puts trigger in valid-triggers ref and removes it from invalid-triggers ref"
+  [trigger]
   (dosync
    (commute invalid-triggers dissoc (keyword (:id trigger)))
    (commute valid-triggers assoc (keyword (:id trigger)) trigger)))
 
-(defn set-invalid-trigger [trigger]
+(defn set-invalid-trigger
+  "Puts trigger in invalid-triggers ref and removes it from valid-triggers ref"
+  [trigger]
   (dosync
    (commute invalid-triggers assoc (keyword (:id trigger)) trigger)
    (commute valid-triggers dissoc (keyword (:id trigger)))))
 
-(defn load-triggers []
-  (let [tl (doall (triggermodel/all))]
-    (doall (map add-trigger tl))))
+(defn load-triggers
+  "Fetches all triggers from db and loads them into memory"
+  []
+  (let [triggers (doall (triggermodel/all))]
+    (doall (map add-trigger triggers))))
 
-(defn- handle-success [value trigger notify]
-  (let [body (doall (map #(proto-clause/notification % value) (:rules trigger)))
-        emails (get-in trigger [:recipients :emails])
+(defn- handle-success
+  "Sets trigger as valid, then sends a noification"
+  [value trigger notify]
+  (let [body    (doall (map #(proto-clause/notification % value) (:rules trigger)))
+        emails  (get-in trigger [:recipients :emails])
         devices (get-in trigger [:recipients :devices])
         trigger (triggermodel/find-by-id (:id trigger))
         payload {:time    (str (new java.util.Date))
@@ -80,12 +103,15 @@
          "trigger"
          payload)))))
 
-(defn- handle-failure [trigger]
+(defn- handle-failure
+  "Makes the trigger invalid b/c it failed the test value."
+  [trigger]
   (if (nil? ((keyword (:id trigger)) @valid-triggers))
     (set-invalid-trigger trigger)))
 
 (defn process-value
-  "Store Value Notifycomponent"
+  "Maps over all invalid triggers to check if they evaluate to true based
+  on the value to test against all rules for a trigger."
   [store value notify]
   (doall
    (map (fn [k]
@@ -105,55 +131,86 @@
                         (handle-failure trigger)))))))))
         (keys @invalid-triggers))))
 
-(defn http-get [_]
+(defn http-get-all-triggers
+  "Returns http response of all triggers"
+  [_]
+  (log/debug "Getting all triggers")
   (response/ok (triggermodel/all)))
 
-(defn http-get-trigger [context]
-  (response/ok
-   (triggermodel/find-by-id
-    (get-in context [:path-params :id]))))
+(defn http-get-trigger
+  "Gets a trigger by id"
+  [request]
+  (log/debug "Getting trigger by id")
+  (let [id (get-in request [:path-params :id])]
+    (if-let [trigger (triggermodel/find-by-id id)]
+      (response/ok trigger)
+      (let [err-msg (str "No trigger found for id" id)]
+        (log/warn err-msg)
+        (response/ok err-msg)))))
 
-(defn http-put-trigger [context]
-  (let [t (:json-params context)]
+
+(defn http-put-trigger
+  "Updates a trigger using the json body"
+  [request]
+  (log/debug "Updating trigger")
+  (let [t (:json-params request)]
+    (log/debug "Validating trigger")
     (if (s/valid? :spacon.specs.trigger/trigger-spec t)
-      (let [trigger (triggermodel/modify (get-in context [:path-params :id]) t)
-            res     (response/ok trigger)]
+      (let [trigger (triggermodel/modify (get-in request [:path-params :id]) t)]
         (add-trigger trigger)
-        res)
-      (response/error
-       (str "Failed to update trigger:\n"
-            (s/explain-str :spacon.specs.trigger/trigger-spec t))))))
+        (response/ok trigger))
+      (let [reason (s/explain-str :spacon.specs.trigger/trigger-spec t)]
+        (log/error "Failed to update trigger b/c" reason)
+        (response/error (str "Failed to update trigger b/c" reason))))))
 
-(defn http-post-trigger [context]
-  (let [t (:json-params context)]
+
+(defn http-post-trigger
+  "Creates a new trigger using the json body"
+  [request]
+  (log/debug "Adding new trigger")
+  (let [t (:json-params request)]
+    (log/debug "Validating trigger")
     (if (s/valid? :spacon.specs.trigger/trigger-spec t)
       (let [trigger (triggermodel/create t)
             res (response/ok trigger)]
         (add-trigger trigger)
         res)
-      (response/error (str "Failed to create trigger:\n"
-                           (s/explain-str :spacon.specs.trigger/trigger-spec t))))))
+      (let [reason (s/explain-str :spacon.specs.trigger/trigger-spec t)]
+        (log/error "Failed to create trigger b/c" reason)
+        (response/error (str "Failed to create trigger b/c" reason))))))
 
-(defn http-delete-trigger [context]
-  (let [id (get-in context [:path-params :id])]
+(defn http-delete-trigger
+  "Deletes a trigger"
+  [request]
+  (log/debug "Deleting trigger")
+  (let [id (get-in request [:path-params :id])]
     (triggermodel/delete id)
     (remove-trigger {:id id})
     (response/ok "success")))
 
-(defn process-channel [notify input-channel]
+(defn process-channel
+  "Waits for input on channel to check values against triggers"
+  [notify input-channel]
   (async/go (while true
               (let [v (async/<! input-channel)
-                    pt (:value v)]
+                    pt (:value v)]  ;; todo: support data types other than points
                 (do (process-value (:store v) pt notify))))))
 
-(defn test-value [triggercomp store value]
-  ;trigger component, source store string, value to test
+(defn test-value
+  "Posts a value to be checked on the source channel"
+  [triggercomp store value]
+  ;; the source-channel is the source of incoming data
+    ;; the store it came from
+  ;; the value to be checked
   (async/go (async/>! (:source-channel triggercomp)
                       {:store store :value value})))
 
-(defn http-test-trigger [triggercomp context]
+(defn http-test-trigger
+  "HTTP endpoint used to test triggers.  Takes a geojson feature
+  in the json body as the feature to test"
+  [triggercomp request]
   (test-value triggercomp "http-api"
-              (-> (:json-params context)
+              (-> (:json-params request)
                   json/write-str
                   jtsio/read-feature
                   .getDefaultGeometry))
@@ -161,7 +218,7 @@
 
 (defn- routes [triggercomp]
   #{["/api/triggers" :get
-     (conj intercept/common-interceptors `http-get)]
+     (conj intercept/common-interceptors `http-get-all-triggers)]
     ["/api/triggers/:id" :get
      (conj intercept/common-interceptors `http-get-trigger)]
     ["/api/triggers/:id" :put
@@ -176,12 +233,14 @@
 (defrecord TriggerComponent [notify location]
   component/Lifecycle
   (start [this]
+    (log/debug "Starting Trigger Component")
     (let [c (async/chan)
           comp (assoc this :source-channel c :notify notify)]
       (process-channel (:notify comp) (:source-channel comp))
       (load-triggers)
       (assoc comp :routes (routes comp))))
   (stop [this]
+    (log/debug "Stopping Trigger Component")
     (async/close! (:source-channel this))
     this))
 

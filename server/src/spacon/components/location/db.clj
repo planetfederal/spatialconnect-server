@@ -6,8 +6,8 @@
             [cljts.io :as jio]
             [cljts.geom :as jeom]))
 
-(defqueries "sql/location.sql"
-  {:connection db/db-spec})
+;; define sql queries as functions in this namespace
+(defqueries "sql/location.sql" {:connection db/db-spec})
 
 (defn- sanitize
   [location]

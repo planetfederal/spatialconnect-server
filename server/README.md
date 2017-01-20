@@ -21,6 +21,14 @@ This will generate random data in all the tables of the database using [clojure.
 
 `lein sampledata`
 
+### To run the formatter
+
+`lein cljfmt fix`
+
+### To generate the docs
+
+`lein codox`
+
 ### MQTT TLS setup
 
 In order to connect to the MQTT broker, we need to present a valid
