@@ -4,29 +4,44 @@
             [spacon.http.intercept :as intercept]
             [spacon.http.response :as response]
             [spacon.components.team.db :as teammodel]
-            [spacon.db.conn :as db]))
+            [spacon.db.conn :as db]
+            [clojure.tools.logging :as log]))
 
-(defn http-get [context]
-  (if-let [d (teammodel/all)]
-    (response/ok d)
-    (response/error "Error")))
+(defn http-get-all-teams
+  "Returns http response of all teams"
+  [_]
+  (log/debug "Getting all teams")
+  (response/ok (teammodel/all)))
 
-(defn http-get-team [context]
-  (if-let [d (teammodel/find-by-id (get-in context [:path-params :id]))]
-    (response/ok d)
-    (response/error "Error retrieving team")))
+(defn http-get-team
+  "Gets team by id"
+  [request]
+  (log/debug "Getting team by id")
+  (let [id (get-in request [:path-params :id])]
+    (if-let [team (teammodel/find-by-id id)]
+      (response/ok team)
+      (let [err-msg (str "No team found for id" id)]
+        (log/warn err-msg)
+        (response/ok err-msg)))))
 
-(defn http-post-team [context]
-  (if-let [d (teammodel/create (:json-params context))]
-    (response/ok d)
-    (response/error "Error creating")))
+(defn http-post-team
+  "Creates a new team using the json body"
+  [request]
+  (if-let [team (teammodel/create (:json-params request))]
+    (response/ok team)
+    (let [err-msg "Failed to create new team"]
+      (log/error err-msg)
+      (response/error err-msg))))
 
-(defn http-delete-team [context]
-  (teammodel/delete (get-in context [:path-params :id]))
+(defn http-delete-team
+  "Deletes a team"
+  [request]
+  (log/debug "Deleting team")
+  (teammodel/delete (get-in request [:path-params :id]))
   (response/ok "success"))
 
 (defn- routes [] #{["/api/teams" :get
-                    (conj intercept/common-interceptors `http-get)]
+                    (conj intercept/common-interceptors `http-get-all-teams)]
                    ["/api/teams/:id" :get
                     (conj intercept/common-interceptors `http-get-team)]
                    ["/api/teams" :post
@@ -37,8 +52,10 @@
 (defrecord TeamComponent []
   component/Lifecycle
   (start [this]
+    (log/debug "Starting Team Component")
     (assoc this :routes (routes)))
   (stop [this]
+    (log/debug "Stopping Team Component")
     this))
 
 (defn make-team-component []

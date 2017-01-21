@@ -9,7 +9,7 @@
             [camel-snake-kebab.extras :refer [transform-keys]]
             [spacon.entity.store :refer :all]))
 
-;; define sql queries as functions
+;; define sql queries as functions in this namespace
 (defqueries "sql/store.sql" {:connection db/db-spec})
 
 (def uuid-regex #"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")

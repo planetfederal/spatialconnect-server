@@ -3,11 +3,13 @@
    [io.pedestal.http :as http]
    [io.pedestal.http.route :as route]
    [com.stuartsierra.component :as component]
-   [spacon.http.auth :as auth]))
+   [spacon.http.auth :as auth]
+   [clojure.tools.logging :as log]))
 
-(defrecord Service [http-config ping user team device location trigger store config form mqtt notify]
+(defrecord HttpService [http-config ping user team device location trigger store config form mqtt notify]
   component/Lifecycle
   (start [this]
+    (log/debug "Starting HttpService component")
     (let [routes #(route/expand-routes
                    (clojure.set/union #{}
                                       (auth/routes)
@@ -36,7 +38,8 @@
                                                                              :ssl? false}}))))
 
   (stop [this]
+    (log/debug "Starting HttpService component")
     this))
 
-(defn make-service [http-config]
-  (map->Service {:http-config http-config}))
+(defn make-http-service-component [http-config]
+  (map->HttpService {:http-config http-config}))

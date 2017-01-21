@@ -5,8 +5,8 @@
             [clojure.set :refer [rename-keys]]
             [yesql.core :refer [defqueries]]))
 
-(defqueries "sql/organization.sql"
-  {:connection db/db-spec})
+;; define sql queries as functions in this namespace
+(defqueries "sql/organization.sql" {:connection db/db-spec})
 
 (defn sanitize [org]
   (dissoc org :created_at :updated_at :deleted_at))

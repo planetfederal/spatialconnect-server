@@ -7,7 +7,8 @@
             [buddy.auth.backends :as backends]
             [buddy.sign.jwt :as jwt]
             [clj-time.core :refer [weeks from-now]]
-            [spacon.components.user.db :as usermodel]))
+            [spacon.components.user.db :as usermodel]
+            [clojure.tools.logging :as log]))
 
 (defonce secret "spaconsecret")
 (def auth-backend (backends/jws {:secret secret}))
@@ -36,6 +37,7 @@
         user   (some-> (usermodel/find-by-email {:email email})
                        first)
         authn? (hashers/check pwd (:password user))]
+    (log/debug "Autenticating user" user)
     (if-not authn?
       (response/unauthorized "Authentication failed")
       (response/ok {:token (get-token user)}))))

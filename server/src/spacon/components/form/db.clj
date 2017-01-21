@@ -9,7 +9,7 @@
             [camel-snake-kebab.extras :refer [transform-keys]]
             [spacon.util.db :as dbutil]))
 
-;; define sql queries as functions
+;; define sql queries as functions in this namespace
 (defqueries "sql/form.sql" {:connection db/db-spec})
 
 (defn sanitize

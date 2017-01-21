@@ -7,7 +7,6 @@
                  [org.clojure/data.json "0.2.6"]
                  [io.pedestal/pedestal.service "0.5.1"]
                  [io.pedestal/pedestal.jetty "0.5.1"]
-
                  [ragtime "0.5.3"]
                  [yesql "0.5.2"]
                  [cljfmt "0.5.1"]
@@ -32,7 +31,8 @@
                  [clj-http "2.3.0"]
                  [com.gfredericks/test.chuck "0.2.7"]
                  [jonase/eastwood "0.2.3" :exclusions [org.clojure/clojure]]
-                 [com.draines/postal "2.0.2"]]
+                 [com.draines/postal "2.0.2"]
+                 [org.clojure/tools.logging "0.3.1"]]
 
   :repositories  [["osgeo" "http://download.osgeo.org/webdav/geotools/"]
                   ["boundlessgeo-releases" "https://repo.boundlessgeo.com/artifactory/release/"]
@@ -43,7 +43,8 @@
   :plugins [[lein-environ "1.0.3"]
             [lein-cljfmt "0.5.6"]
             [ragtime/ragtime.lein "0.3.6"]
-            [jonase/eastwood "0.2.3"]]
+            [jonase/eastwood "0.2.3"]
+            [lein-codox "0.10.2"]]
 
   :aliases {"migrate" ["run" "-m" "spacon.db.conn/migrate"]
             "rollback" ["run" "-m" "spacon.db.conn/rollback"]
@@ -55,6 +56,7 @@
   ;; If you use HTTP/2 or ALPN, use the java-agent to pull in the correct alpn-boot dependency
   ;:java-agents [[org.mortbay.jetty.alpn/jetty-alpn-agent "2.0.3"]]
   :profiles {:dev {:source-paths ["dev"]
+                   :resource-paths ["config", "resources"]
                    :dependencies [[io.pedestal/pedestal.service-tools "0.5.1"]
                                   [org.clojure/test.check "0.9.0"]]}
              :uberjar {:aot :all
