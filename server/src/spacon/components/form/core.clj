@@ -32,11 +32,11 @@
   "Creates a new form using the json body then publishes a
   config update message about the newly added form"
   [mqtt request]
-  (let [form (get-in request [:json-params])]
+  (let [form (:json-params request)]
     (log/debug "Validating form")
     (if (s/valid? :spacon.specs.form/form-spec form)
       (let [new-form (formmodel/add-form-with-fields form)]
-        (log/debug "Adding new form")
+        (log/debug "Added new form")
         (mqttapi/publish-scmessage mqtt
                                    "/config/update"
                                    (scm/map->SCMessage
