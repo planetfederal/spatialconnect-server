@@ -11,7 +11,8 @@
             [clojure.data.json :as json]
             [clojure.xml :as xml]
             [overtone.at-at :refer [every,mk-pool,stop,stop-and-reset-pool!]]
-            [clojure.tools.logging :as log])
+            [clojure.tools.logging :as log]
+            [clojure.spec :as s])
   (:import (com.boundlessgeo.spatialconnect.schema SCCommand)))
 
 (defn feature-collection->geoms
@@ -91,39 +92,52 @@
   "Updates a store using the json body then publishes
   a config update message about the newly updated store"
   [mqtt trigger request]
-  (log/debug "Updating device")
-  (let [id (get-in request [:path-params :id])]
-    (if-let [store (storemodel/modify id (:json-params request))]
-      (do (mqttapi/publish-scmessage mqtt "/config/update"
-                                     (scm/map->SCMessage
-                                      {:action (.value SCCommand/CONFIG_UPDATE_STORE)
-                                       :payload store}))
-          (add-polling-store trigger store)
-          (response/ok "success"))
-      (response/error "Error updating"))))
+  (log/debug "Updating store")
+  (let [store (:json-params request)
+        id (get-in request [:path-params :id])]
+    (if (s/valid? :spacon.specs.store/store-spec store)
+      (let [updated-store (storemodel/modify id store)]
+        (mqttapi/publish-scmessage mqtt "/config/update"
+                                       (scm/map->SCMessage
+                                        {:action (.value SCCommand/CONFIG_UPDATE_STORE)
+                                         :payload updated-store}))
+        (add-polling-store trigger updated-store)
+        (response/ok updated-store))
+      (let [err-msg "Failed to update store"]
+        (log/error err-msg)
+        (response/error err-msg)))))
 
 (defn http-post-store
   "Creates a new store using the json body then publishes
   a config update message about the newly updated store"
   [mqtt trigger request]
-  (if-let [store (storemodel/create (:json-params request))]
-    (do (mqttapi/publish-scmessage mqtt "/config/update"
-                                   (scm/map->SCMessage {:action (.value SCCommand/CONFIG_ADD_STORE)
-                                                        :payload store}))
-        (add-polling-store trigger store)
-        (response/ok store))
-    (response/error "Error creating")))
+  (let [store (:json-params request)]
+    (log/debug "Validating store")
+    (if (s/valid? :spacon.specs.store/store-spec store)
+      (let [new-store (storemodel/create store)]
+        (log/debug "Added new store")
+        (mqttapi/publish-scmessage mqtt "/config/update"
+                                       (scm/map->SCMessage
+                                         {:action (.value SCCommand/CONFIG_ADD_STORE)
+                                          :payload new-store}))
+        (add-polling-store trigger new-store)
+        (response/ok new-store))
+      (let [err-msg "Failed to create new store"]
+        (log/error err-msg)
+        (response/error err-msg)))))
 
 (defn http-delete-store
   "Deletes a store by id then publishes a config update message about
   the delted store"
   [mqtt request]
+  (log/debug "Deleting store")
   (let [id (get-in request [:path-params :id])]
     (storemodel/delete id)
     (remove-polling-store id)
     (mqttapi/publish-scmessage mqtt "/config/update"
-                               (scm/map->SCMessage {:action (.value SCCommand/CONFIG_REMOVE_STORE)
-                                                    :payload {:id id}}))
+                               (scm/map->SCMessage
+                                 {:action (.value SCCommand/CONFIG_REMOVE_STORE)
+                                  :payload {:id id}}))
     (response/ok "success")))
 
 (defn get-capabilities->layer-names

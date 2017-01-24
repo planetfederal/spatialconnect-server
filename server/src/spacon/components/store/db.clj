@@ -20,8 +20,7 @@
 (defn map->entity [t]
   (-> t
       (cond-> (nil? (:options t)) (assoc :options nil))
-      (cond-> (some? (:options t)) (assoc :options
-                                          (json/write-str (:options t))))
+      (cond-> (some? (:options t)) (assoc :options (json/write-str (:options t))))
       (assoc :default_layers (dbutil/->StringArray (:default-layers t)))))
 
 (defn row-fn [row]
@@ -63,7 +62,8 @@
   [id t]
   (let [entity (map->entity (assoc t :id (java.util.UUID/fromString id)))
         tr (transform-keys ->snake_case_keyword entity)
-        updated-store (update-store<! tr)]
+        updated-store (update-store<! (assoc tr :default_layers
+                                                (dbutil/->StringArray (:default_layers tr))))]
     (sanitize (row-fn t))))
 
 (defn delete
