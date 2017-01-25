@@ -1,5 +1,4 @@
 import React, { Component, PropTypes } from 'react';
-import { WS_URL } from 'config';
 import dateFormat from 'date-fns/format';
 import '../style/DataMap.less';
 
@@ -225,25 +224,6 @@ class DataMap extends Component {
           return feature;
         });
       this.deviceLocationsSource.addFeatures(deviceLocationFeatures);
-
-      this.connection = new WebSocket(WS_URL);
-      this.connection.onmessage = (m) => {
-        const gj = JSON.parse(m.data);
-        const newDeviceLocation = format.readFeature(gj);
-        newDeviceLocation.getGeometry().transform('EPSG:4326', 'EPSG:3857');
-        const feature = this.deviceLocationsSource.getFeatureById(gj.metadata.client);
-        if (feature) {
-          feature.setGeometry(newDeviceLocation.getGeometry());
-        } else {
-          const newFeature = format.readFeature(gj);
-          newFeature.setId(gj.metadata.identifier);
-          newFeature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
-          newFeature.setStyle(deviceStyle);
-          this.deviceLocationsSource.addFeature(newFeature);
-        }
-      };
-    } else if (this.connection) {
-      this.connection.close();
     }
 
     this.spatialTriggersSource.clear();
