@@ -68,8 +68,8 @@ Pods/
 Podfile.lock
 *.framework/
 Carthage/
-*signal.js
-*signal.js.map
+*spatialconnect.js
+*spatialconnect.js.map
 dist
 testdb.json
 

@@ -13,8 +13,8 @@ WORKDIR /web
 RUN npm install
 RUN npm run build:dev
 
-COPY ./nginx-config/signal.conf /etc/nginx/conf.d/signal.conf
-COPY ./nginx-config/signal-tls.conf /
+COPY ./nginx-config/spatialconnect.conf /etc/nginx/conf.d/spatialconnect.conf
+COPY ./nginx-config/spatialconnect-tls.conf /
 COPY ./public/ /usr/share/nginx/html
 
 COPY ./nginx-config/start.sh /
