@@ -24,6 +24,7 @@ const fieldDefaults = (fieldType) => {
   };
   return {
     type: fieldType,
+    is_required: false,
     constraints: fieldConstraints[fieldType],
   };
 };
