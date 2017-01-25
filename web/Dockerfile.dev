@@ -14,7 +14,7 @@ RUN npm install
 RUN npm run build:dev
 
 COPY ./nginx-config/signal.conf /etc/nginx/conf.d/signal.conf
-COPY ./nginx-config/signal-tls.conf /etc/nginx/signal-tls.conf
+COPY ./nginx-config/signal-tls.conf /
 COPY ./public/ /usr/share/nginx/html
 
 COPY ./nginx-config/start.sh /
