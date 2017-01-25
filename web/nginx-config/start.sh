@@ -9,9 +9,9 @@ if [ -z "$DOMAIN_NAME" ]; then
 fi
 
 echo replacing __this.will.be.replaced.by.DOMAIN_NAME__/$DOMAIN_NAME
-sed -i "s/__this.will.be.replaced.by.DOMAIN_NAME__/$DOMAIN_NAME/g" /etc/nginx/conf.d/signal.conf
+sed -i "s/__this.will.be.replaced.by.DOMAIN_NAME__/$DOMAIN_NAME/g" /etc/nginx/conf.d/spatialconnect.conf
 
-cat /etc/nginx/conf.d/signal.conf
+cat /etc/nginx/conf.d/spatialconnect.conf
 echo .
 echo Firing up nginx in the background.
 nginx
@@ -38,9 +38,9 @@ do
 done
 
 echo replacing __this.will.be.replaced.by.DOMAIN_NAME__/$DOMAIN_NAME
-sed -i "s/__this.will.be.replaced.by.DOMAIN_NAME__/$DOMAIN_NAME/g" /signal-tls.conf
+sed -i "s/__this.will.be.replaced.by.DOMAIN_NAME__/$DOMAIN_NAME/g" /spatialconnect-tls.conf
 
 # restart nginx with tls config
 kill $(ps aux | grep nginx | awk '{print $2}')
-cp /signal-tls.conf /etc/nginx/conf.d/signal.conf
+cp /spatialconnect-tls.conf /etc/nginx/conf.d/spatialconnect.conf
 nginx -g 'daemon off;'

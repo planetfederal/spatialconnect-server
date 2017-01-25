@@ -11,7 +11,7 @@ authorizedkeys:
 certbot:
   command: run.sh
   environment:
-  - DOMAIN_NAME=dev.signal.boundlessgeo.com
+  - DOMAIN_NAME=dev.spatialconnect.boundlessgeo.com
   - EMAIL=mcenac@boundlessgeo.com
   image: boundlessgeo/spatialconnect-server:certbot
   ports:
@@ -20,8 +20,6 @@ certbot:
   volumes:
   - /etc/letsencrypt
   - /var/lib/letsencrypt
-  tags:
-  - develop
 geoserver:
   environment:
   - JAVA_OPTS=-Xmx1536M -XX:MaxPermSize=756M
@@ -58,7 +56,7 @@ mosquitto:
 nginx:
   autoredeploy: true
   environment:
-  - DOMAIN_NAME=dev.signal.boundlessgeo.com
+  - DOMAIN_NAME=dev.spatialconnect.boundlessgeo.com
   image: boundlessgeo/spatialconnect-server:web-dev
   ports:
   - 80:80
@@ -80,7 +78,7 @@ spatialconnect-server:
   command: java -jar /opt/server/target/spacon-server.jar
   environment:
   - DB_HOST=postgis
-  - HOSTNAME=dev.signal.boundlessgeo.com
+  - HOSTNAME=dev.spatialconnect.boundlessgeo.com
   - KEY_STORE=/opt/server/tls/test-keystore.p12
   - MQTT_BROKER_URL=ssl://mosquitto:8884
   - SMTP_PASSWORD=<your smtp password>
