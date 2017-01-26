@@ -78,9 +78,8 @@
         (entity->map (assoc t :id (:id new-trigger)
                             :created_at (:created_at new-trigger)
                             :updated_at (:updated_at new-trigger)))))
-    (let [reason (s/explain-str :spacon.specs.trigger/trigger-spec t)
-          err-msg "Failed to create new trigger b/c" reason]
-      (log/error))))
+    (log/error (str "Failed to create new trigger b/c"
+                    (s/explain-str :spacon.specs.trigger/trigger-spec t)))))
 
 (defn modify
   "Update trigger"

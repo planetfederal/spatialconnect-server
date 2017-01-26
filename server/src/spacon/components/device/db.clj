@@ -51,8 +51,8 @@
   [d]
   (log/debug "Validating device against spec")
   (if-not (s/valid? :spacon.specs.device/device-spec d)
-    (let [reason  (s/explain-str :spacon.specs.device/device-spec device)
-          err-msg (format "Failed to validate device %s because %s" device reason)]
+    (let [reason  (s/explain-str :spacon.specs.device/device-spec d)
+          err-msg (format "Failed to validate device %s because %s" d reason)]
       (log/error err-msg))
     (do
       (log/debug "Inserting device into db")

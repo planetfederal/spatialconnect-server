@@ -29,7 +29,7 @@
   (log/debugf "Updating team id %s with %s" id team)
   (if-not (s/valid? :spacon.specs.team/team-spec team)
     (let [reason (s/explain-str :spacon.specs.team/team-spec team)
-          err-msg "Failed to update team because" reason]
+          err-msg (str "Failed to update team because" reason)]
       (log/error err-msg))
     (sanitize (update-team<! {:id id :name (:name team)}))))
 
