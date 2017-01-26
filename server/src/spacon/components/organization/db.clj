@@ -4,7 +4,7 @@
             [spacon.db.conn :as db]
             [clojure.set :refer [rename-keys]]
             [yesql.core :refer [defqueries]]
-            [io.pedestal.log :as log]))
+            [clojure.tools.logging :as log]))
 
 ;; define sql queries as functions in this namespace
 (defqueries "sql/organization.sql" {:connection db/db-spec})
@@ -18,14 +18,14 @@
 (defn create [org]
   (if-not (s/valid? :spacon.specs.organization/organization-spec org)
     (let [reason (s/explain-str :spacon.specs.organization/organization-spec org)
-          err-msg "Failed to create new organization because" reason]
+          err-msg (str "Failed to create new organization because" reason)]
       (log/error err-msg))
     (create-organization<! {:name (:name org)})))
 
 (defn modify [id org]
   (if-not (s/valid? :spacon.specs.organization/organization-spec org)
     (let [reason (s/explain-str :spacon.specs.organization/organization-spec org)
-          err-msg "Failed to update organization because" reason]
+          err-msg (str "Failed to update organization b/c" reason)]
       (log/error err-msg))
     (update-organization<! {:id id :name (:name org)})))
 
