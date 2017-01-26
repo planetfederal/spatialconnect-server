@@ -43,8 +43,9 @@
                                     {:action (.value SCCommand/CONFIG_ADD_FORM)
                                      :payload new-form}))
         (response/ok new-form))
-      (let [err-msg "Failed to create new form"]
-        (log/error err-msg)
+      (let [reason (s/explain-str :spacon.specs.form/form-spec form)
+            err-msg "Failed to create new form"]
+        (log/error (str err-msg "because" reason))
         (response/error err-msg)))))
 
 (defn- delete-form
