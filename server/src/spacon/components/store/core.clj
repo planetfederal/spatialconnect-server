@@ -104,7 +104,7 @@
         (add-polling-store trigger updated-store)
         (response/ok updated-store))
       (let [err-msg "Failed to update store"]
-        (log/error err-msg)
+        (log/error (str err-msg "b/c" (s/explain-str :spacon.specs.store/store-spec store)))
         (response/error err-msg)))))
 
 (defn http-post-store
@@ -123,7 +123,7 @@
         (add-polling-store trigger new-store)
         (response/ok new-store))
       (let [err-msg "Failed to create new store"]
-        (log/error err-msg)
+        (log/error (str err-msg "b/c" (s/explain-str :spacon.specs.store/store-spec store)))
         (response/error err-msg)))))
 
 (defn http-delete-store
