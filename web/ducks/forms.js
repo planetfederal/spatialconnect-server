@@ -24,6 +24,7 @@ export const CHANGE_FIELD_ORDER = 'sc/forms/CHANGE_FIELD_ORDER';
 export const SWAP_FIELD_ORDER = 'sc/forms/SWAP_FIELD_ORDER';
 export const UPDATE_FORM_VALUE = 'sc/forms/UPDATE_FORM_VALUE';
 export const UPDATE_FIELD_OPTION = 'sc/forms/UPDATE_FIELD_OPTION';
+export const UPDATE_FIELD_CONSTRAINT = 'sc/forms/UPDATE_FIELD_CONSTRAINT';
 export const UPDATE_ACTIVE_FIELD = 'sc/forms/UPDATE_ACTIVE_FIELD';
 export const UPDATE_ACTIVE_FORM = 'sc/forms/UPDATE_ACTIVE_FORM';
 export const UPDATE_SAVED_FORM = 'sc/forms/UPDATE_SAVED_FORM';
@@ -64,10 +65,21 @@ const formReducer = (state = {}, action) => {
           return field;
         }),
       };
-    case UPDATE_ACTIVE_FIELD:
+    case UPDATE_FIELD_CONSTRAINT:
       return {
         ...state,
-        activeField: action.fieldId,
+        fields: state.fields.map((field) => {
+          if (field.id === action.fieldId) {
+            return {
+              ...field,
+              constraints: {
+                ...field.constraints,
+                [action.option]: action.value,
+              },
+            };
+          }
+          return field;
+        }),
       };
     case ADD_FIELD:
       return {
@@ -157,6 +169,11 @@ export default function reducer(state = initialState, action = {}) {
         ...state,
         activeForm: action.form_key,
       };
+    case UPDATE_ACTIVE_FIELD:
+      return {
+        ...state,
+        activeField: action.field_key,
+      };
     case UPDATE_SAVED_FORM:
       return {
         ...state,
@@ -176,7 +193,7 @@ export default function reducer(state = initialState, action = {}) {
     case UPDATE_FORM_NAME:
     case UPDATE_FORM_VALUE:
     case UPDATE_FIELD_OPTION:
-    case UPDATE_ACTIVE_FIELD:
+    case UPDATE_FIELD_CONSTRAINT:
     case ADD_FIELD:
     case SWAP_FIELD_ORDER:
     case REMOVE_FIELD: {
@@ -249,8 +266,23 @@ export function addField(payload) {
 }
 
 export function updateFieldOption(form_key, fieldId, option, value) {
+  return (dispatch) => {
+    if (option === 'field_key') {
+      dispatch(updateActiveField(form_key, value));
+    }
+    dispatch({
+      type: UPDATE_FIELD_OPTION,
+      form_key,
+      fieldId,
+      option,
+      value,
+    });
+  };
+}
+
+export function updateFieldConstraint(form_key, fieldId, option, value) {
   return {
-    type: UPDATE_FIELD_OPTION,
+    type: UPDATE_FIELD_CONSTRAINT,
     form_key,
     fieldId,
     option,
@@ -274,13 +306,13 @@ export function updateActiveForm(form_key) {
   };
 }
 
-export function updateActiveField(form_key, fieldId) {
+export function updateActiveField(form_key, field_key) {
   return (dispatch) => {
     dispatch(updateActiveForm(false));
     dispatch({
       type: UPDATE_ACTIVE_FIELD,
       form_key,
-      fieldId,
+      field_key,
     });
   };
 }

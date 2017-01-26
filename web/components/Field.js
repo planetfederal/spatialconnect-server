@@ -79,11 +79,11 @@ function collectTarget(connect) {
 class Field extends Component {
 
   render() {
-    const { form, id, input, connectDragSource, connectDropTarget } = this.props;
+    const { field, form, id, input, connectDragSource, connectDropTarget } = this.props;
     return connectDragSource(connectDropTarget(
       <div
         className={classNames('field-wrap', { active: id === form.activeField })}
-        onClick={() => this.props.updateActiveField(form.form_key, id)}
+        onClick={() => this.props.updateActiveField(form.form_key, field.field_key)}
       >
         {input}
       </div>,
@@ -92,6 +92,7 @@ class Field extends Component {
 }
 
 Field.propTypes = {
+  field: PropTypes.object.isRequired,
   input: PropTypes.object.isRequired,
   connectDragSource: PropTypes.func.isRequired,
   connectDropTarget: PropTypes.func.isRequired,
