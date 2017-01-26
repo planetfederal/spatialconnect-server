@@ -9,7 +9,7 @@ const fieldConstraints = {
   string: ['initial_value', 'minimum_length', 'maximum_length', 'pattern'],
   select: ['options'],
   number: ['initial_value',
-    'minimum', 'maximum', 'is_integer', 'exclusive_minimum', 'exclusive_maximum'],
+    'minimum', 'maximum', 'is_integer'],
   boolean: [],
   date: [],
   slider: ['initial_value', 'minimum', 'maximum'],
@@ -40,7 +40,7 @@ class FieldOptions extends Component {
     this.removeField = this.removeField.bind(this);
   }
 
-  changeOption(option, e) {
+  changeOption(field, option, e, updater) {
     let value;
     if (e.currentTarget.type === 'checkbox') {
       value = e.target.checked;
@@ -48,40 +48,40 @@ class FieldOptions extends Component {
       value = e.target.value.split('\n');
     } else if (option === 'field_label') {
       value = e.target.value;
-      this.props.updateFieldOption(
+      updater(
         this.props.form.form_key,
-        this.props.form.activeField,
+        field.id,
         'field_key',
         toKey(value),
       );
     } else {
       value = e.target.value;
     }
-    this.props.updateFieldOption(
+    updater(
       this.props.form.form_key,
-      this.props.form.activeField,
+      field.id,
       option,
       value,
     );
   }
 
-  removeField() {
+  removeField(field) {
     this.props.removeField(
       this.props.form.form_key,
-      this.props.form.activeField,
+      field.id,
     );
   }
 
-  makeOptionInput(field, option, value, i) {
+  makeOptionInput(field, option, value, i, updater) {
     if (option === 'is_integer' || option === 'is_required') {
       return (
         <div className="checkbox" key={option + i}>
-          <label htmlFor={field.field_key}>
+          <label htmlFor={option}>
             <input
               type="checkbox"
-              id={field.field_key}
+              id={option}
               checked={value && value === true}
-              onChange={(e) => { this.changeOption(option, e); }}
+              onChange={(e) => { this.changeOption(field, option, e, updater); }}
             /> {fieldLabels[option]}
           </label>
         </div>
@@ -94,7 +94,7 @@ class FieldOptions extends Component {
           <textarea
             className="form-control" rows="3"
             id={option}
-            onChange={(e) => { this.changeOption(option, e); }}
+            onChange={(e) => { this.changeOption(field, option, e, updater); }}
             value={value ? value.join('\n') : ''}
           />
         </div>
@@ -107,17 +107,18 @@ class FieldOptions extends Component {
           type="text" className="form-control"
           id={option}
           value={value || ''}
-          onChange={(e) => { this.changeOption(option, e); }}
+          onChange={(e) => { this.changeOption(field, option, e, updater); }}
         />
       </div>
     );
   }
 
   makeOptionInputs(field) {
-    const options = fieldOptions.map((o, i) => this.makeOptionInput(field, o, field[o], i));
+    const options = fieldOptions.map((o, i) =>
+      this.makeOptionInput(field, o, field[o], i, this.props.updateFieldOption));
     if (field.constraints) {
       const constraints = fieldConstraints[field.type].map((o, i) =>
-        this.makeOptionInput(field, o, field.constraints[o], i),
+        this.makeOptionInput(field, o, field.constraints[o], i, this.props.updateFieldConstraint),
       );
       return options.concat(constraints);
     }
@@ -125,9 +126,8 @@ class FieldOptions extends Component {
   }
 
   render() {
-    const { form } = this.props;
-    const activeField = form.activeField;
-    const field = find(form.fields, { id: activeField });
+    const { form, activeField } = this.props;
+    const field = find(form.fields, { field_key: activeField });
     if (activeField && field) {
       const optionInputs = this.makeOptionInputs(field);
       return (
@@ -135,7 +135,9 @@ class FieldOptions extends Component {
           <div className="form-pane-title"><h5>Field Options</h5></div>
           <div className="form-pane-wrapper">
             {optionInputs}
-            <button className="btn btn-danger" onClick={this.removeField}>Delete Field</button>
+            <button className="btn btn-danger" onClick={() => this.removeField(field)}>
+              Delete Field
+            </button>
           </div>
         </div>
       );
@@ -153,7 +155,9 @@ class FieldOptions extends Component {
 
 FieldOptions.propTypes = {
   form: PropTypes.object.isRequired,
+  activeField: PropTypes.string,
   updateFieldOption: PropTypes.func.isRequired,
+  updateFieldConstraint: PropTypes.func.isRequired,
   removeField: PropTypes.func.isRequired,
 };
 

@@ -8,7 +8,7 @@
                    (s/and string? #(> (count %) 0) (fn [p] (re-matches #"(?:\d*\.)?\d+" p)))
                    #(gen/fmap (fn [s1] (str s1)) gen/int)))
 
-(def int-regex #"\d")
+(def int-regex #"\d+")
 (def pos-int-str-gen (s/with-gen
                        (s/and string? #(> (count %) 0) (fn [p] (re-matches int-regex p)))
                        #(genc/string-from-regex int-regex)))
@@ -22,7 +22,7 @@
                         (s/and string? #(> (count %) 0))
                         #(gen/fmap identity gen/string-alphanumeric)))
 
-(s/def :fieldoptstring/initial-value string?)
+(s/def :fieldoptstring/initial-value non-empty-string)
 (s/def :fieldoptnum/initial-value num-str-gen)
 (s/def :fieldoptnum/minimum num-str-gen)
 (s/def :fieldoptnum/maximum num-str-gen)
@@ -40,7 +40,8 @@
                    "select" "slider" "counter" "photo"})
 (s/def :fieldstring/type (s/with-gen (s/and string? #(contains? #{"string"} %))
                            #(s/gen #{"string"})))
-(s/def :fieldstring/constraints (s/keys :opt-un [:fieldopt/minimum-length
+(s/def :fieldstring/constraints (s/keys :opt-un [:fieldoptstring/initial-value
+                                                 :fieldopt/minimum-length
                                                  :fieldopt/maximum-length
                                                  :fieldopt/pattern]))
 (s/def :fieldboolean/type (s/with-gen (s/and string? #(contains? #{"boolean"} %))

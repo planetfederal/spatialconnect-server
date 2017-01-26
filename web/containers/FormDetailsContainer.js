@@ -80,7 +80,7 @@ class FormDetailsContainer extends Component {
   }
 
   render() {
-    const { form, activeForm, savedForm } = this.props;
+    const { form, activeForm, activeField, savedForm } = this.props;
     if (!form) {
       return <div className="form-details">Fetching Form...</div>;
     }
@@ -124,7 +124,9 @@ class FormDetailsContainer extends Component {
             /> :
             <FieldOptions
               form={form}
+              activeField={activeField}
               updateFieldOption={this.props.actions.updateFieldOption}
+              updateFieldConstraint={this.props.actions.updateFieldConstraint}
               removeField={this.props.actions.removeField}
               changeFieldName={this.props.actions.changeFieldName}
               changeRequired={this.props.actions.changeRequired}
@@ -142,6 +144,7 @@ FormDetailsContainer.propTypes = {
   form: PropTypes.object.isRequired,
   savedForm: PropTypes.object,
   activeForm: PropTypes.string,
+  activeField: PropTypes.string,
 };
 
 const mapStateToProps = (state, ownProps) => ({
@@ -152,6 +155,7 @@ const mapStateToProps = (state, ownProps) => ({
   saved_forms: state.sc.forms.saved_forms,
   savedForm: state.sc.forms.saved_forms[ownProps.params.form_key],
   activeForm: state.sc.forms.activeForm,
+  activeField: state.sc.forms.activeField,
 });
 
 const mapDispatchToProps = dispatch => ({
