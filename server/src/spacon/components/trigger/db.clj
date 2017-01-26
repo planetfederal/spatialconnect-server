@@ -68,15 +68,19 @@
   "Creates a trigger definition"
   [t]
   (log/debug "Validating trigger against spec")
-  {:pre [(s/valid? :spacon.specs.trigger/trigger-spec t)]}
-  (log/debug "Inserting trigger into db" t)
-  (let [entity (map->entity t)
-        new-trigger (insert-trigger<!
-                     (assoc entity
-                            :stores (dbutil/->StringArray (:stores t))))]
-    (entity->map (assoc t :id (:id new-trigger)
-                        :created_at (:created_at new-trigger)
-                        :updated_at (:updated_at new-trigger)))))
+  (if (s/valid? :spacon.specs.trigger/trigger-spec t)
+    (do
+      (log/debug "Inserting trigger into db" t)
+      (let [entity (map->entity t)
+            new-trigger (insert-trigger<!
+                         (assoc entity
+                                :stores (dbutil/->StringArray (:stores t))))]
+        (entity->map (assoc t :id (:id new-trigger)
+                            :created_at (:created_at new-trigger)
+                            :updated_at (:updated_at new-trigger)))))
+    (let [reason (s/explain-str :spacon.specs.trigger/trigger-spec t)
+          err-msg "Failed to create new trigger b/c" reason]
+      (log/error))))
 
 (defn modify
   "Update trigger"
