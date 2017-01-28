@@ -64,7 +64,7 @@
                    :plugins [[test2junit "1.2.2"]]}
              :uberjar {:aot :all
                        :dependencies [[org.clojure/test.check "0.9.0"]]}}
-  :test2junit-output-dir "test-results"
+  :test2junit-output-dir "target/test-results"
   :test2junit-run-ant true
   :uberjar-name "spacon-server.jar"
   :main ^{:skip-aot true} spacon.server)
