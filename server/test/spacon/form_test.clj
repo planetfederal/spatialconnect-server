@@ -10,7 +10,8 @@
             [camel-snake-kebab.extras :refer [transform-keys]]
             [spacon.components.mqtt.core :as mqttapi]
             [clojure.data.json :as json]
-            [spacon.entity.scmessage :as scm])
+            [spacon.entity.scmessage :as scm]
+            [clojure.walk :refer [keywordize-keys]])
   (:import java.net.URLDecoder
            (com.boundlessgeo.spatialconnect.schema SCCommand)))
 
@@ -67,10 +68,12 @@
             "The response should contain the updated form label")))
 
     (testing "Deleting forms through REST api produces a valid HTML response"
-      (let [form (-> (utils/request-get "/api/forms" auth) :result first)
-            res (utils/request-delete (str "/api/forms/" (:form_key form)) auth)]
-        (is (= "success" (:result res))
-            "The response should contain a success message")))
+      (let [form-to-delete (generate-test-form)]
+        ;; first create the form that needs to be deleted
+        (utils/request-post "/api/forms" form-to-delete auth)
+        (let [res (utils/request-delete (str "/api/forms/" (:form_key form-to-delete)) auth)]
+          (is (= "success" (:result res))
+              "The response should contain a success message"))))
 
     (testing "Creating a form through REST api produces a valid message on config/update topic"
       (let [mqtt (:mqtt user/system-val)
@@ -135,3 +138,31 @@
               feature-ids (doall (map #(get % :id) submissions))]
           (is (not (empty? (filter #(= (:id feature) %) feature-ids)))
               "The submitted feature should be in the response"))))))
+
+
+(defn generate-invalid-form
+  []
+  (gen/generate (gen/any)))
+
+(deftest test-invalid-form-crud
+  (let [token (utils/authenticate "admin@something.com" "admin")
+        auth {"Authorization" (str "Token " token)}]
+
+    (testing "The REST api prevents invalid forms from being created or updated"
+      (let [f (generate-invalid-form)
+            res (utils/get-response-for :post "/api/forms" f auth)
+            body (-> res :body json/read-str keywordize-keys)]
+        (is (contains? body :error)
+            "The response body should contain an error message")
+        (is (= 400 (:status res))
+            "The response code should be 400")))
+
+    (testing "The REST api responds with error when trying to delete and invalid form"
+      (let [invalid-form-key (gen/generate (gen/string-alphanumeric))
+            res (utils/get-response-for :delete (str "/api/forms/" invalid-form-key) {} auth)
+            body (-> res :body json/read-str keywordize-keys)]
+        (is (contains? body :error)
+            "The response body should contain an error message")
+        (is (= 400 (:status res))
+            "The response code should be 400")))))
+

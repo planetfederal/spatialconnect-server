@@ -3,7 +3,8 @@
             [spacon.server :as spacon]
             [clojure.walk :refer [keywordize-keys]]
             [io.pedestal.test :refer [response-for]]
-            [clojure.data.json :as json]))
+            [clojure.data.json :as json]
+            [clojure.string :as cstr]))
 
 (defn spec-passed? [s] (-> (stest/check s
                                         {:clojure.spec.test.check/opts
@@ -19,9 +20,15 @@
   (let [res (response-for (service-def) :get url :headers headers)]
     (keywordize-keys (json/read-str (:body res)))))
 
+(defn get-response-for
+  [method url body & [headers]]
+  (response-for (service-def)
+                method url
+                :body (json/write-str body)
+                :headers (merge {"Content-Type" "application/json"} headers)))
+
 (defn request-post [url body & [headers]]
-  (let [res (response-for (service-def) :post url :body (json/write-str body)
-                          :headers (merge {"Content-Type" "application/json"} headers))]
+  (let [res (get-response-for :post url body headers)]
     (keywordize-keys (json/read-str (:body res)))))
 
 (defn authenticate [user pass]
