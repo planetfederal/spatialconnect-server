@@ -86,7 +86,7 @@
       (response/ok store)
       (let [err-msg (str "No store found for id" id)]
         (log/warn err-msg)
-        (response/ok err-msg)))))
+        (response/not-found err-msg)))))
 
 (defn http-put-store
   "Updates a store using the json body then publishes
@@ -124,21 +124,27 @@
         (response/ok new-store))
       (let [err-msg "Failed to create new store"]
         (log/error (str err-msg "b/c" (s/explain-str :spacon.specs.store/store-spec store)))
-        (response/error err-msg)))))
+        (response/bad-request err-msg)))))
 
 (defn http-delete-store
   "Deletes a store by id then publishes a config update message about
   the delted store"
   [mqtt request]
   (log/debug "Deleting store")
-  (let [id (get-in request [:path-params :id])]
-    (storemodel/delete id)
-    (remove-polling-store id)
-    (mqttapi/publish-scmessage mqtt "/config/update"
-                               (scm/map->SCMessage
-                                 {:action (.value SCCommand/CONFIG_REMOVE_STORE)
-                                  :payload {:id id}}))
-    (response/ok "success")))
+  (let [id (get-in request [:path-params :id])
+        store (storemodel/find-by-id id)]
+    (if (nil? store)
+      (let [err-msg (str "No store found with id" id)]
+        (log/error err-msg)
+        (response/bad-request err-msg))
+      (do
+        (storemodel/delete id)
+        (remove-polling-store id)
+        (mqttapi/publish-scmessage mqtt "/config/update"
+                                   (scm/map->SCMessage
+                                     {:action (.value SCCommand/CONFIG_REMOVE_STORE)
+                                      :payload {:id id}}))
+        (response/ok "success")))))
 
 (defn get-capabilities->layer-names
   "Takes a WFS GetCapabilities document as an xml string and returns
@@ -161,12 +167,12 @@
   query parmeter.  Used as a proxy to avoid cross origin issues."
   [request]
   (let [url (get-in request [:query-params :url])
-        res (client/get (str url "?service=WFS&version=1.1.0&request=GetCapabilities"))
+        res (client/get (str url "?service=WFS&version=1.1.0&request=GetCapabilities")  {:ignore-unknown-host? true})
         status (:status res)
         body (:body res)]
     (if (= status 200)
       (response/ok (get-capabilities->layer-names body))
-      (response/error (str "Could not get capabilities from " url)))))
+      (response/bad-request (str "Could not get capabilities from " url)))))
 
 (defn- routes [mqtt trigger]
   #{["/api/stores" :get

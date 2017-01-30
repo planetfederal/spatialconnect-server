@@ -8,7 +8,8 @@
             [camel-snake-kebab.extras :refer [transform-keys]]
             [spacon.components.mqtt.core :as mqttapi]
             [clojure.data.json :as json]
-            [spacon.entity.scmessage :as scm])
+            [spacon.entity.scmessage :as scm]
+            [clojure.walk :refer [keywordize-keys]])
   (:import (java.net URLEncoder URLDecoder)
            (com.boundlessgeo.spatialconnect.schema SCCommand)))
 
@@ -107,3 +108,49 @@
           res (utils/request-get (str "/api/wfs/getCapabilities?url=" wfs-url) auth)]
       (is (< 0 (count (:result res)))
           "The response should contain a list of layers in the result"))))
+
+(defn generate-invalid-store
+  []
+  (gen/generate (gen/any)))
+
+(deftest test-invalid-store-crud
+  (let [token (utils/authenticate "admin@something.com" "admin")
+        auth {"Authorization" (str "Token " token)}]
+
+    (testing "The REST api prevents invalid stores from being created or updated"
+      (let [f (generate-invalid-store)
+            res (utils/get-response-for :post "/api/stores" f auth)
+            body (-> res :body json/read-str keywordize-keys)]
+        (is (contains? body :error)
+            "The response body should contain an error message")
+        (is (= 400 (:status res))
+            "The response code should be 400")))
+
+    (testing "The REST api returns a 404 Not Found error for a GET request with an invalid store id"
+      (let [res (utils/get-response-for :get (str "/api/stores/" 0) {} auth)
+            body (-> res :body json/read-str keywordize-keys)]
+        (is (contains? body :error)
+            "The response body should contain an error message")
+        (is (= 404 (:status res))
+            "The response code should be 404")))
+
+    (testing "The REST api responds with error when trying to delete and invalid store"
+      (let [invalid-store-id (gen/generate (gen/string-alphanumeric))
+            res (utils/get-response-for :delete (str "/api/stores/" invalid-store-id) {} auth)
+            body (-> res :body json/read-str keywordize-keys)]
+        (is (contains? body :error)
+            "The response body should contain an error message")
+        (is (= 400 (:status res))
+            "The response code should be 400")))))
+
+(deftest invalid-wfs-url-returns-no-layers
+  (testing "Sending an invalid wfs endpoint to /api/wfs/getCapabilities returns an error"
+    (let [token (utils/authenticate "admin@something.com" "admin")
+          auth {"Authorization" (str "Token " token)}
+          wfs-url (URLEncoder/encode "http://invalid.boundlessgeo.com/geoserver/osm/ows" "UTF-8")
+          res (utils/get-response-for :get (str "/api/wfs/getCapabilities?url=" wfs-url) {} auth)
+          body (-> res :body json/read-str keywordize-keys)]
+      (is (contains? body :error)
+          "The response body should contain an error message")
+      (is (= 400 (:status res))
+          "The response code should be 400"))))
