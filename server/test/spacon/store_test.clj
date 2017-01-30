@@ -110,9 +110,19 @@
   (gen/generate (gen/any)))
 
 (deftest test-invalid-store-crud
-  (testing "The REST api prevents invalid stores from being created or updated"
-    (let [f (generate-invalid-store)
-          res (utils/get-response-for :post "/api/stores" f)
+  (testing "The REST api prevents invalid stores from being created"
+    (let [s (generate-invalid-store)
+          res (utils/get-response-for :post "/api/stores" s)
+          body (-> res :body json/read-str keywordize-keys)]
+      (is (contains? body :error)
+          "The response body should contain an error message")
+      (is (= 400 (:status res))
+          "The response code should be 400")))
+
+  (testing "The REST api prevents invalid stores from being updated"
+    (let [s (generate-invalid-store)
+          id (-> (utils/request-get "/api/stores") :result first :id)
+          res (utils/get-response-for :put (str "/api/stores/" id) s)
           body (-> res :body json/read-str keywordize-keys)]
       (is (contains? body :error)
           "The response body should contain an error message")

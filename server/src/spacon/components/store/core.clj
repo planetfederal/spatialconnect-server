@@ -105,7 +105,7 @@
         (response/ok updated-store))
       (let [err-msg "Failed to update store"]
         (log/error (str err-msg "b/c" (s/explain-str :spacon.specs.store/store-spec store)))
-        (response/error err-msg)))))
+        (response/bad-request err-msg)))))
 
 (defn http-post-store
   "Creates a new store using the json body then publishes
