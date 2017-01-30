@@ -16,35 +16,42 @@
 (defn service-def []
   (:io.pedestal.http/service-fn (:http-server (:server user/system-val))))
 
-(defn request-get [url & [headers]]
-  (let [res (response-for (service-def) :get url :headers headers)]
-    (keywordize-keys (json/read-str (:body res)))))
+(def auth-header (atom {}))
 
 (defn get-response-for
   [method url body & [headers]]
   (response-for (service-def)
                 method url
                 :body (json/write-str body)
-                :headers (merge {"Content-Type" "application/json"} headers)))
+                :headers (merge {"Content-Type" "application/json"}
+                                @auth-header
+                                headers)))
+
+(defn request-get [url & [headers]]
+  (let [res (get-response-for :get url nil headers)]
+    (keywordize-keys (json/read-str (:body res)))))
+
 
 (defn request-post [url body & [headers]]
   (let [res (get-response-for :post url body headers)]
     (keywordize-keys (json/read-str (:body res)))))
 
-(defn authenticate [user pass]
-  (let [res (request-post "/api/authenticate" {:email user :password pass})]
-    (get-in res [:result :token])))
-
 (defn request-put [url body & [headers]]
-  (let [res (response-for (service-def) :put url :body (json/write-str body)
-                          :headers (merge {"Content-Type" "application/json"} headers))]
+  (let [res (get-response-for :put url body headers)]
     (keywordize-keys (json/read-str (:body res)))))
 
 (defn request-delete [url & [headers]]
-  (let [res (response-for (service-def) :delete url :headers headers)]
+  (let [res (get-response-for :delete url nil headers)]
     (keywordize-keys (json/read-str (:body res)))))
+
+(defn- authenticate [user pass]
+  (let [res (request-post "/api/authenticate" {:email user :password pass})
+        token (get-in res [:result :token])]
+    {"Authorization" (str "Token " token)}))
 
 (defn setup-fixtures [f]
   (user/go)
+  (let [ah (authenticate "admin@something.com" "admin")]
+    (reset! auth-header ah))
   (f)
   (user/stop))
