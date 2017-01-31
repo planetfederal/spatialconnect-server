@@ -22,6 +22,15 @@
                      :updated_at (:updated_at l)}})
        locations))
 
+(defn update-device-location
+  "MQTT message handler that persists the device location
+  of the message body, then tests it against the triggers"
+  [trigger message]
+  (log/debug "Received device location update")
+  (let [loc (json/read-str (:payload message) :key-fn clojure.core/keyword)]
+    (locationmodel/upsert-gj loc)
+    (triggerapi/test-value trigger "location" loc)))
+
 (defn http-get-all-locations
   "Returns the latest location of each device"
   [_]
@@ -37,11 +46,7 @@
   component/Lifecycle
   (start [this]
     (log/debug "Starting Location Component")
-    (mqttapi/subscribe mqtt "/store/tracking"
-                       (fn [message]
-                         (let [loc (:payload message)]
-                           (locationmodel/upsert-gj loc)
-                           (triggerapi/test-value trigger "location" loc))))
+    (mqttapi/subscribe mqtt "/store/tracking" (partial update-device-location trigger))
     (assoc this :routes (routes)))
   (stop [this]
     (log/debug "Stopping Location Component")

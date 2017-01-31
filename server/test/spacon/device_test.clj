@@ -1,5 +1,6 @@
 (ns spacon.device-test
-  (:require [clojure.test :refer :all]            [spacon.test-utils :as utils]
+  (:require [clojure.test :refer :all]
+            [spacon.test-utils :as utils]
             [camel-snake-kebab.core :refer :all]
             [camel-snake-kebab.extras :refer [transform-keys]]
             [clojure.spec.gen :as gen]

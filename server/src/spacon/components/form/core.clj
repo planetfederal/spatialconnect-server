@@ -32,11 +32,11 @@
   "Creates a new form using the json body then publishes a
   config update message about the newly added form"
   [mqtt request]
-  (let [form (get-in request [:json-params])]
+  (let [form (:json-params request)]
     (log/debug "Validating form")
     (if (s/valid? :spacon.specs.form/form-spec form)
       (let [new-form (formmodel/add-form-with-fields form)]
-        (log/debug "Adding new form")
+        (log/debug "Added new form")
         (mqttapi/publish-scmessage mqtt
                                    "/config/update"
                                    (scm/map->SCMessage
@@ -45,8 +45,8 @@
         (response/ok new-form))
       (let [reason (s/explain-str :spacon.specs.form/form-spec form)
             err-msg "Failed to create new form"]
-        (log/error (str err-msg "because" reason))
-        (response/error err-msg)))))
+        (log/error (str err-msg " because " reason))
+        (response/bad-request err-msg)))))
 
 (defn- delete-form
   [form]
@@ -60,17 +60,21 @@
   (let [form-key (URLDecoder/decode (get-in request [:path-params :form-key])
                                     "UTF-8")
         forms (formmodel/find-by-form-key form-key)]
-    (if (== (count (map delete-form forms)) (count forms))
-      (do
-        (mqttapi/publish-scmessage mqtt
-                                   "/config/update"
-                                   (scm/map->SCMessage
-                                    {:action (.value SCCommand/CONFIG_REMOVE_FORM)
-                                     :payload {:form-key form-key}}))
-        (response/ok "success"))
-      (do
-        (log/error "Failed to delete form")
-        (response/error (str "Failed to delete form"))))))
+    (if (zero? (count forms))
+      (let [err-msg (str "No forms found for form-key" form-key)]
+        (log/error err-msg)
+        (response/bad-request err-msg))
+      (if (== (count (map delete-form forms)) (count forms))
+        (do
+          (mqttapi/publish-scmessage mqtt
+                                     "/config/update"
+                                     (scm/map->SCMessage
+                                      {:action (.value SCCommand/CONFIG_REMOVE_FORM)
+                                       :payload {:form-key form-key}}))
+          (response/ok "success"))
+        (let [err-msg (str "Failed to delete all form versions for form-key" form-key)]
+          (log/error err-msg)
+          (response/error err-msg))))))
 
 (defn http-submit-form-data
   "Creates a form submission using the json body"

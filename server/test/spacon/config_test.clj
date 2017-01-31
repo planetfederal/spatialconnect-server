@@ -11,9 +11,7 @@
 (use-fixtures :once utils/setup-fixtures)
 
 (deftest config-get-test []
-  (let [token (utils/authenticate "admin@something.com" "admin")
-        auth {"Authorization" (str "Token " token)}
-        read-config (utils/request-get "/api/config" auth)
+  (let [read-config (utils/request-get "/api/config")
         read-res (transform-keys ->kebab-case-keyword (:result read-config))]
     (is (some? (:forms read-res)))
     (is (some? (:stores read-res)))))

@@ -44,7 +44,9 @@
             [lein-cljfmt "0.5.6"]
             [ragtime/ragtime.lein "0.3.6"]
             [jonase/eastwood "0.2.3"]
-            [lein-codox "0.10.2"]]
+            [lein-codox "0.10.2"]
+            [lein-cloverage "1.0.9"]]
+
 
   :aliases {"migrate" ["run" "-m" "spacon.db.conn/migrate"]
             "rollback" ["run" "-m" "spacon.db.conn/rollback"]
@@ -58,8 +60,11 @@
   :profiles {:dev {:source-paths ["dev"]
                    :resource-paths ["config", "resources"]
                    :dependencies [[io.pedestal/pedestal.service-tools "0.5.1"]
-                                  [org.clojure/test.check "0.9.0"]]}
+                                  [org.clojure/test.check "0.9.0"]]
+                   :plugins [[test2junit "1.2.2"]]}
              :uberjar {:aot :all
                        :dependencies [[org.clojure/test.check "0.9.0"]]}}
+  :test2junit-output-dir "target/test-results"
+  :test2junit-run-ant true
   :uberjar-name "spacon-server.jar"
   :main ^{:skip-aot true} spacon.server)
