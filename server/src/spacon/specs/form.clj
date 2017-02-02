@@ -1,23 +1,23 @@
 (ns spacon.specs.form
   (:require [clojure.spec :as s]
             [spacon.components.team.db :as teammodel]
-            [clojure.test.check.generators :as gen]
-            [com.gfredericks.test.chuck.generators :as genc]))
+            [com.gfredericks.test.chuck.generators :as genc]
+            [spacon.specs.util :as util]))
 
 
 
 (s/def :fieldoptstring/initial-value string?)
-(s/def :fieldoptnum/initial-value num-str-gen)
-(s/def :fieldoptnum/minimum num-str-gen)
-(s/def :fieldoptnum/maximum num-str-gen)
-(s/def :fieldoptint/initial-value int-str-gen)
-(s/def :fieldoptint/maximum int-str-gen)
-(s/def :fieldoptint/minimum int-str-gen)
+(s/def :fieldoptnum/initial-value util/num-str-gen)
+(s/def :fieldoptnum/minimum util/num-str-gen)
+(s/def :fieldoptnum/maximum util/num-str-gen)
+(s/def :fieldoptint/initial-value util/int-str-gen)
+(s/def :fieldoptint/maximum util/int-str-gen)
+(s/def :fieldoptint/minimum util/int-str-gen)
 (s/def :fieldopt/is-integer boolean?)
-(s/def :fieldopt/minimum-length pos-int-str-gen)
-(s/def :fieldopt/maximum-length pos-int-str-gen)
+(s/def :fieldopt/minimum-length util/pos-int-str-gen)
+(s/def :fieldopt/maximum-length util/pos-int-str-gen)
 (s/def :fieldopt/pattern string?)
-(s/def :fieldopt/options (s/coll-of non-empty-string :kind vector?
+(s/def :fieldopt/options (s/coll-of util/non-empty-string :kind vector?
                                     :min-count 1 :distinct true))
 
 (def field-types #{"string" "number" "date" "boolean"

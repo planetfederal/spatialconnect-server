@@ -1,9 +1,8 @@
 (ns spacon.specs.user
-  (:require [clojure.spec :as s]))
+  (:require [clojure.spec :as s]
+            [spacon.util.regex :as regex]))
 
-;;; specs about user account data
-
-(s/def :user/email-type (s/and string? #(re-matches email-regex %)))
+(s/def :user/email-type (s/and string? #(re-matches regex/email %)))
 (s/def :user/email :user/email-type)
 (s/def :user/password string?)
 (s/def :user/name string?)
