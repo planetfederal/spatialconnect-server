@@ -20,13 +20,17 @@
           device-id (->> (utils/request-get "/api/devices") :result first :identifier)
           payload (assoc loc :metadata {:client device-id})
           m (scm/map->SCMessage {:action (.value SCCommand/NO_ACTION)
-                                 :payload (json/write-str payload)})]
+                                 :payload payload})]
       (mqttapi/publish-scmessage mqtt "/store/tracking" m)
       (Thread/sleep 2000)
       (let [res (utils/request-get "/api/locations")
             features (get-in res [:result :features])
-            coords (doall (map #(get-in % [:geometry :coordinates]) features))]
-        (is (not (empty? (filter #(.equals (get-in loc [:geometry :coordinates]) %) coords)))
+            coords (doall (map #(get-in % [:geometry :coordinates]) features))
+            lat (first (get-in loc [:geometry :coordinates]))
+            lon (second (get-in loc [:geometry :coordinates]))]
+        (is (not (empty? (filter #(and (= lat (first %))
+                                       (= lon (second %)))
+                                 coords)))
             "The submitted point should be in the response")))))
 
 

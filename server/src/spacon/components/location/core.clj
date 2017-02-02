@@ -26,8 +26,8 @@
   "MQTT message handler that persists the device location
   of the message body, then tests it against the triggers"
   [trigger message]
-  (log/debug "Received device location update")
-  (let [loc (json/read-str (:payload message) :key-fn clojure.core/keyword)]
+  (log/debugf "Received device location update message %s" (:payload message))
+  (let [loc (:payload message)]
     (locationmodel/upsert-gj loc)
     (triggerapi/test-value trigger "location" loc)))
 
