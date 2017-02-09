@@ -23,6 +23,9 @@
 (defn find-by-form-key [form-key]
   (find-by-form-key-query {:form_key form-key}))
 
+(defn find-by-id [id]
+  (find-by-id-query {:id id}))
+
 (defn add-form-data [val form-id device-identifier]
   (add-form-data<! {:val     (json/write-str val)
                     :form_id form-id

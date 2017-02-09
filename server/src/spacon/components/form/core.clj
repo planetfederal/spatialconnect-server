@@ -6,10 +6,12 @@
             [spacon.components.form.db :as formmodel]
             [spacon.components.mqtt.core :as mqttapi]
             [clojure.spec :as s]
+            [clojure.spec.gen :as gen]
             [spacon.components.mqtt.core :as mqttapi]
             [spacon.components.trigger.core :as triggerapi]
             [spacon.entity.scmessage :as scm]
-            [clojure.tools.logging :as log])
+            [clojure.tools.logging :as log]
+            [clojure.data.json :as json])
   (:import java.net.URLDecoder
            (com.boundlessgeo.spatialconnect.schema SCCommand)))
 
@@ -93,6 +95,48 @@
   (let [form-id (get-in request [:path-params :form-id])]
     (response/ok (formmodel/get-form-data form-id))))
 
+
+(defn get-value-for-field
+  "Generates a random value for a field based on its type"
+  [field]
+  (case (:type field)
+    "string"  (gen/generate (gen/string-alphanumeric))
+    "number"  (gen/generate (s/gen number?))
+    "date"    (gen/generate (gen/string-alphanumeric))
+    "boolean" (gen/generate (s/gen boolean?))
+    "select"  (gen/generate (gen/string-alphanumeric))
+    "slider"  (gen/generate (gen/string-alphanumeric))
+    "counter" (gen/generate (s/gen pos-int?))
+    "photo"   (gen/generate (gen/string-alphanumeric))))
+
+(defn make-properties-from-fields
+  "Makes a hash map of properties for all the form fields"
+  [form-fields]
+  (let [keys (map #(keyword (:field_key %)) form-fields)
+        vals (map get-value-for-field form-fields)]
+    (zipmap keys vals)))
+
+(defn generate-data-for-form
+  "Generates a sample GeoJSON point feature with properties that
+  conform to the form's schema"
+  [form-id]
+  (let [form-fields (formmodel/find-fields {:form_id (Integer/parseInt form-id)})]
+    (gen/generate
+      (gen/fmap
+         (fn [feature] (assoc feature :properties (make-properties-from-fields form-fields)))
+         (s/gen :spacon.specs.geojson/pointfeature-spec)))))
+
+(defn http-get-sample-form-data
+  "Generates a sample form submission for a given form"
+  [request]
+  (let [form-id (get-in request [:path-params :form-id])
+        form-key (-> (formmodel/find-by-id (Integer/parseInt form-id)) first :form_key)]
+    (log/debugf "Generating sample data for form %s" form-id)
+    (let [feature-data (generate-data-for-form form-id)]
+      (response/ok-without-snake-case {:form-key form-key
+                                       :form-id form-id
+                                       :feature feature-data}))))
+
 (defn mqtt->form-submit
   "MQTT message handler that submits new form data using the payload
   of the message body"
@@ -112,8 +156,9 @@
     ["/api/forms/:form-key"      :delete (conj common-interceptors check-auth (partial http-delete-form-by-key mqtt)) :route-name :delete-form]
     ["/api/forms/:form-key"      :get    (conj common-interceptors check-auth `http-get-form)]
     ;; todo: need to figure out why forms causes a route conflict
-    ["/api/form/:form-id/submit"   :post   (conj common-interceptors check-auth `http-submit-form-data) :constraints {:form-id #"[0-9]+"}]
-    ["/api/form/:form-id/results"  :get   (conj common-interceptors check-auth `http-get-form-results) :constraints {:form-id #"[0-9]+"}]})
+    ["/api/form/:form-id/submit"  :post  (conj common-interceptors check-auth `http-submit-form-data) :constraints {:form-id #"[0-9]+"}]
+    ["/api/form/:form-id/results" :get   (conj common-interceptors check-auth `http-get-form-results) :constraints {:form-id #"[0-9]+"}]
+    ["/api/form/:form-id/sample"  :get   (conj common-interceptors check-auth `http-get-sample-form-data) :constraints {:form-id #"[0-9]+"}]})
 
 (defrecord FormComponent [mqtt trigger]
   component/Lifecycle

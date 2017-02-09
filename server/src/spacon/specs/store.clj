@@ -13,7 +13,7 @@
 (s/def :store/id (s/with-gen
                    (s/and string? #(re-matches uuid-regex %))
                    #(uuid-string-gen)))
-(s/def :store/store-type string?)
+(s/def :store/store-type #{"geojson" "gpkg" "wfs"})
 (s/def :store/version string?)
 (s/def :store/uri string?)
 (s/def :store/name string?)
