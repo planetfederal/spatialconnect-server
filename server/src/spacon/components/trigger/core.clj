@@ -22,7 +22,7 @@
 (def valid-triggers
   "If it's a valid trigger, data has satisified the rules and we need to
   send an alert"
-   (ref {}))
+  (ref {}))
 
 (defn add-trigger
   "Adds a trigger to the invalid-triggers ref"
@@ -148,7 +148,6 @@
         (log/warn err-msg)
         (response/ok err-msg)))))
 
-
 (defn http-put-trigger
   "Updates a trigger using the json body"
   [request]
@@ -162,7 +161,6 @@
       (let [reason (s/explain-str :spacon.specs.trigger/trigger-spec t)]
         (log/error "Failed to update trigger b/c" reason)
         (response/error (str "Failed to update trigger b/c" reason))))))
-
 
 (defn http-post-trigger
   "Creates a new trigger using the json body"

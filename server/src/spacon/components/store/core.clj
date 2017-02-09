@@ -98,9 +98,9 @@
     (if (s/valid? :spacon.specs.store/store-spec store)
       (let [updated-store (storemodel/modify id store)]
         (mqttapi/publish-scmessage mqtt "/config/update"
-                                       (scm/map->SCMessage
-                                        {:action (.value SCCommand/CONFIG_UPDATE_STORE)
-                                         :payload updated-store}))
+                                   (scm/map->SCMessage
+                                    {:action (.value SCCommand/CONFIG_UPDATE_STORE)
+                                     :payload updated-store}))
         (add-polling-store trigger updated-store)
         (response/ok updated-store))
       (let [err-msg "Failed to update store"]
@@ -117,9 +117,9 @@
       (let [new-store (storemodel/create store)]
         (log/debug "Added new store")
         (mqttapi/publish-scmessage mqtt "/config/update"
-                                       (scm/map->SCMessage
-                                         {:action (.value SCCommand/CONFIG_ADD_STORE)
-                                          :payload new-store}))
+                                   (scm/map->SCMessage
+                                    {:action (.value SCCommand/CONFIG_ADD_STORE)
+                                     :payload new-store}))
         (add-polling-store trigger new-store)
         (response/ok new-store))
       (let [err-msg "Failed to create new store"]
@@ -142,8 +142,8 @@
         (remove-polling-store id)
         (mqttapi/publish-scmessage mqtt "/config/update"
                                    (scm/map->SCMessage
-                                     {:action (.value SCCommand/CONFIG_REMOVE_STORE)
-                                      :payload {:id id}}))
+                                    {:action (.value SCCommand/CONFIG_REMOVE_STORE)
+                                     :payload {:id id}}))
         (response/ok "success")))))
 
 (defn get-capabilities->layer-names

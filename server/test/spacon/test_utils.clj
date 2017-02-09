@@ -31,7 +31,6 @@
   (let [res (get-response-for :get url nil headers)]
     (keywordize-keys (json/read-str (:body res)))))
 
-
 (defn request-post [url body & [headers]]
   (let [res (get-response-for :post url body headers)]
     (keywordize-keys (json/read-str (:body res)))))

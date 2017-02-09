@@ -95,7 +95,6 @@
   (let [form-id (get-in request [:path-params :form-id])]
     (response/ok (formmodel/get-form-data form-id))))
 
-
 (defn get-value-for-field
   "Generates a random value for a field based on its type"
   [field]
@@ -122,9 +121,9 @@
   [form-id]
   (let [form-fields (formmodel/find-fields {:form_id (Integer/parseInt form-id)})]
     (gen/generate
-      (gen/fmap
-         (fn [feature] (assoc feature :properties (make-properties-from-fields form-fields)))
-         (s/gen :spacon.specs.geojson/pointfeature-spec)))))
+     (gen/fmap
+      (fn [feature] (assoc feature :properties (make-properties-from-fields form-fields)))
+      (s/gen :spacon.specs.geojson/pointfeature-spec)))))
 
 (defn http-get-sample-form-data
   "Generates a sample form submission for a given form"

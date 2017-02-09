@@ -33,4 +33,3 @@
                                  coords)))
             "The submitted point should be in the response")))))
 
-
