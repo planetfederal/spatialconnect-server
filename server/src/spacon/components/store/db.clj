@@ -63,7 +63,7 @@
   (let [entity (map->entity (assoc t :id (java.util.UUID/fromString id)))
         tr (transform-keys ->snake_case_keyword entity)
         updated-store (update-store<! (assoc tr :default_layers
-                                                (dbutil/->StringArray (:default_layers tr))))]
+                                             (dbutil/->StringArray (:default_layers tr))))]
     (sanitize (row-fn t))))
 
 (defn delete

@@ -10,8 +10,8 @@
   "Creates a response map using the status, body, and headers."
   [status body & {:as headers}]
   (let [res-body (assoc {}
-                   :result (if (is-error? status) nil body)
-                   :error (if (is-error? status) body nil))]
+                        :result (if (is-error? status) nil body)
+                        :error (if (is-error? status) body nil))]
     (let [res {:status status :body res-body :headers headers}]
       (log/trace "Returning response" res)
       res)))
@@ -21,8 +21,7 @@
   Also transforms response body keys to be snake_case"
   [status body & {:as headers}]
   (let [b_o_d_y (transform-keys ->snake_case_keyword body)]
-      (make-response status b_o_d_y)))
-
+    (make-response status b_o_d_y)))
 
 (def ok-without-snake-case (partial make-response 200))
 (def ok (partial make-default-response 200))

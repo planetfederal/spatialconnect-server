@@ -20,15 +20,15 @@
     (log/debug "Making db connection to"
                (format "%s:%s/%s" (:db_host db-creds) (:db_port db-creds) (:db_name db-creds)))
     (pool/make-datasource-spec
-      {:classname   "org.postgresql.Driver"
-       :subprotocol "postgresql"
-       :subname     (format "//%s:%s/%s" (:db_host db-creds) (:db_port db-creds) (:db_name db-creds))
-       :user        (:username db-creds)
-       :password    (:password db-creds)
-       :stringtype  "unspecified"
-       :max-pool-size     10
-       :min-pool-size     2
-       :initial-pool-size 2})))
+     {:classname   "org.postgresql.Driver"
+      :subprotocol "postgresql"
+      :subname     (format "//%s:%s/%s" (:db_host db-creds) (:db_port db-creds) (:db_name db-creds))
+      :user        (:username db-creds)
+      :password    (:password db-creds)
+      :stringtype  "unspecified"
+      :max-pool-size     10
+      :min-pool-size     2
+      :initial-pool-size 2})))
 
 (defn loadconfig []
   (log/debug "Loading database migration config")

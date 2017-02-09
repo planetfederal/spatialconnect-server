@@ -18,7 +18,7 @@
        (transform-keys ->snake_case_keyword)))
 
 (deftest trigger-http-crud-test
-  (let [test-trigger(generate-test-trigger)]
+  (let [test-trigger (generate-test-trigger)]
 
     (testing "Creating a trigger through REST api produces a valid HTML response"
       (let [res (utils/request-post "/api/triggers" test-trigger)

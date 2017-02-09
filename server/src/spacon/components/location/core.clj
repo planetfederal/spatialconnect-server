@@ -7,7 +7,8 @@
             [spacon.components.mqtt.core :as mqttapi]
             [spacon.components.trigger.core :as triggerapi]
             [spacon.components.location.db :as locationmodel]
-            [clojure.tools.logging :as log]))
+            [clojure.tools.logging :as log]
+            [cljts.io :as jtsio]))
 
 (defn location->geojson
   "Given list of locations, returns a lazy sequence of geojson
@@ -29,7 +30,11 @@
   (log/debugf "Received device location update message %s" (:payload message))
   (let [loc (:payload message)]
     (locationmodel/upsert-gj loc)
-    (triggerapi/test-value trigger "location" loc)))
+    (let [gj (-> (:payload message)
+                 json/write-str
+                 jtsio/read-feature
+                 .getDefaultGeometry)]
+      (triggerapi/test-value trigger "location" gj))))
 
 (defn http-get-all-locations
   "Returns the latest location of each device"

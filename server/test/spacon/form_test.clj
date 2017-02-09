@@ -15,7 +15,6 @@
   (:import java.net.URLDecoder
            (com.boundlessgeo.spatialconnect.schema SCCommand)))
 
-
 (use-fixtures :once utils/setup-fixtures)
 
 (defn generate-test-form []
@@ -103,8 +102,6 @@
         (utils/request-delete (str "/api/forms/" (:form_key form)))
         (Thread/sleep 1000)))))
 
-
-
 (deftest form-data-submission-test
   (testing "Submitting form data through REST api produces a valid HTML response"
     (let [id (-> (utils/request-get "/api/forms") :result first :id)
@@ -132,7 +129,6 @@
             feature-ids (doall (map #(get % :id) submissions))]
         (is (not (empty? (filter #(= (:id feature) %) feature-ids)))
             "The submitted feature should be in the response")))))
-
 
 (defn generate-invalid-form
   []

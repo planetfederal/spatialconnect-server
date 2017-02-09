@@ -72,7 +72,6 @@
                     (log/error "Could not publish message b/c"
                                (.getLocalizedMessage e))))))))
 
-
 (defn- process-subscribe-channel [chan]
   (async/go (while true
               (let [v (async/<! chan)

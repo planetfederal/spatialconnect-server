@@ -4,19 +4,19 @@
             [cljts.relation :as spatial-relation]
             [clojure.data.json :as json]))
 
-(defn rhs->jtsgeom 
+(defn rhs->jtsgeom
   "Takes a clojure map of the geojson and returns it as 
   a JTS default feature collection"
   [c]
   (jtsio/read-feature-collection
    (json/write-str c)))
 
-(defn check-simple-feature 
+(defn check-simple-feature
   "Returns true if point is in feature"
   [point feature]
   (spatial-relation/within? point feature))
 
-(defn check-feature-collection 
+(defn check-feature-collection
   "Returns true if point is within any geometry in feature-collection"
   [point feature-collection]
   (if-let [features (.features feature-collection)]
@@ -44,7 +44,7 @@
   (notification [this test-value]
     (str (cljts.io/write-geojson test-value) " was within.")))
 
-(defn make-within-clause 
+(defn make-within-clause
   "Takes a right hand side clause of a rule and returns a jts geometry"
   [id clause]
   (->WithinClause id (rhs->jtsgeom clause)))
