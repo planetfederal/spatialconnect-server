@@ -44,13 +44,13 @@
     (sanitize (create<! user-info))))
 
 (defn add-user-team [user-team]
-  (log/debug "Adding user %s to team %s" (:userId user-team)  (:teamId user-team))
-  (if-let [new-user-team (add-team<! {:user_id (:userId user-team) :team_id (:teamId user-team)})]
+  (log/debugf "Adding user %s to team %s" (:user-id user-team)  (:team-id user-team))
+  (if-let [new-user-team (add-team<! {:user_id (:user-id user-team) :team_id (:team-id user-team)})]
     (sanitize new-user-team)
     nil))
 
 (defn remove-user-team [user-team]
-  (log/debug "Removing user %s from team %s" (:userId user-team)  (:teamId user-team))
-  (if-let [new-user-team (remove-team<! {:user_id (:userId user-team) :team_id (:teamId user-team)})]
+  (log/debugf "Removing user %s from team %s" (:user-id user-team)  (:team-id user-team))
+  (if-let [new-user-team (remove-team<! {:user_id (:user-id user-team) :team_id (:team-id user-team)})]
     (sanitize new-user-team)
     nil))
