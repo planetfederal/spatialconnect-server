@@ -1,8 +1,8 @@
 (defproject spacon "0.8.0-SNAPSHOT"
   :description "SpatialConnect Server"
   :url "http://github.com/boundlessgeo/spatialconnect-server"
-  :license {:name "Eclipse Public License"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
+  :license {:name "Apache License, Version 2.0"
+            :url "https://www.apache.org/licenses/LICENSE-2.0"}
   :dependencies [[org.clojure/clojure "1.9.0-alpha14"]
                  [org.clojure/data.json "0.2.6"]
                  [io.pedestal/pedestal.service "0.5.1"]
