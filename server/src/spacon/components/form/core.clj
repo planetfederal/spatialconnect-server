@@ -106,7 +106,7 @@
     "boolean" (gen/generate (s/gen boolean?))
     "select"  (gen/generate (gen/string-alphanumeric))
     "slider"  (gen/generate (gen/string-alphanumeric))
-    "counter" (gen/generate (gen/int))
+    "counter" (gen/generate (s/gen pos-int?))
     "photo"   (gen/generate (gen/string-alphanumeric))))
 
 (defn make-properties-from-fields
@@ -129,10 +129,12 @@
 (defn http-get-sample-form-data
   "Generates a sample form submission for a given form"
   [request]
-  (let [form-id (get-in request [:path-params :form-id])]
+  (let [form-id (get-in request [:path-params :form-id])
+        form-key (-> (formmodel/find-by-id (Integer/parseInt form-id)) first :form_key)]
     (log/debugf "Generating sample data for form %s" form-id)
     (let [feature-data (generate-data-for-form form-id)]
-      (response/ok-without-snake-case {:form-id form-id
+      (response/ok-without-snake-case {:form-key form-key
+                                       :form-id form-id
                                        :feature feature-data}))))
 
 (defn mqtt->form-submit
