@@ -134,8 +134,8 @@
         form-key (-> (formmodel/find-by-id (Integer/parseInt form-id)) first :form_key)]
     (log/debugf "Generating sample data for form %s" form-id)
     (let [feature-data (generate-data-for-form form-id)]
-      (response/ok-without-snake-case {:form-key form-key
-                                       :form-id form-id
+      (response/ok-without-snake-case {:form_key form-key
+                                       :form_id form-id
                                        :feature feature-data}))))
 
 (defn mqtt->form-submit
