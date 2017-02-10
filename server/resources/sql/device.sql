@@ -1,5 +1,3 @@
-
-
 -- name: count-devices-query
 -- counts the number of devices
 SELECT count(*) AS count

@@ -1,4 +1,3 @@
-
 -- name: team-list-query
 -- gets all the teams
 SELECT id,name,organization_id

@@ -1,4 +1,3 @@
-
 -- name: trigger-list-query
 -- Gets list of all active triggers
 SELECT * FROM triggers WHERE deleted_at IS NULL

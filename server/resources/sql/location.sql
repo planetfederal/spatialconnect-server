@@ -1,4 +1,3 @@
-
 -- name: device-locations
 -- counts the number of devices
 SELECT ST_AsText(geom) AS geom,

@@ -1,5 +1,3 @@
-
-
 -- name: store-list-query
 -- gets all the stores
 SELECT *

@@ -1,4 +1,3 @@
-
 -- name: organization-list-query
 -- gets all the organizations
 SELECT id,name
