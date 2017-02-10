@@ -17,10 +17,12 @@
 
 (defn http-get-all-forms
   "Returns the latest version of each form"
-  [_]
-  ;; todo: get all the forms for all the teams that the calling user belongs to
-  (log/debug "Getting all forms")
-  (response/ok (formmodel/all)))
+  [request]
+  (let [user (get-in request [:identity :user])
+        team-ids (map :id (:teams user))]
+    (log/debugf "Getting all forms for %s" (:email user))
+    (response/ok (filter #(> (.indexOf team-ids (:team-id %)) -1)
+                         (formmodel/all)))))
 
 (defn http-get-form
   "Gets the latest version of a form by its form-key"
@@ -150,7 +152,7 @@
     (formmodel/add-form-data form-data form-id device-identifier)))
 
 (defn- routes [mqtt]
-  #{["/api/forms"                :get    (conj common-interceptors `http-get-all-forms)]
+  #{["/api/forms"                :get    (conj common-interceptors check-auth `http-get-all-forms)]
     ["/api/forms"                :post   (conj common-interceptors check-auth (partial http-post-form mqtt)) :route-name :create-form]
     ["/api/forms/:form-key"      :delete (conj common-interceptors check-auth (partial http-delete-form-by-key mqtt)) :route-name :delete-form]
     ["/api/forms/:form-key"      :get    (conj common-interceptors check-auth `http-get-form)]
