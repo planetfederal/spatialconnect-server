@@ -88,13 +88,18 @@
                     (log/error "Could not publish message b/c"
                                (.getLocalizedMessage e))))))))
 
+(defn foo [a]
+  (println a))
+
 (defn- process-subscribe-channel [chan]
   (async/go (while true
               (let [v (async/<! chan)
                     t (:topic v)
                     m (:message v)
                     f ((keyword t) @topics)]
-                (f m)))))
+                (if-not (nil? m)
+                  (f m)
+                  (log/debug "Nil value on Subscribe Channel"))))))
 
 (defn publish-scmessage [mqtt topic message]
   (publish mqtt topic message))

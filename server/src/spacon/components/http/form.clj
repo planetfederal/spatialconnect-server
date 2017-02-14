@@ -68,7 +68,7 @@
   (log/debug "Deleting form")
   (let [form-key (URLDecoder/decode (get-in request [:path-params :form-key])
                                     "UTF-8")
-        forms (form-key)]
+        forms (formapi/find-by-form-key form-comp form-key)]
     (if (zero? (count forms))
       (let [err-msg (str "No forms found for form-key" form-key)]
         (log/error err-msg)
