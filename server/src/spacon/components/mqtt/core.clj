@@ -88,16 +88,14 @@
                     (log/error "Could not publish message b/c"
                                (.getLocalizedMessage e))))))))
 
-(defn foo [a]
-  (println a))
-
 (defn- process-subscribe-channel [chan]
   (async/go (while true
               (let [v (async/<! chan)
                     t (:topic v)
                     m (:message v)
                     f ((keyword t) @topics)]
-                (if-not (nil? m)
+
+                (if-not (or (nil? m) (nil? f))
                   (f m)
                   (log/debug "Nil value on Subscribe Channel"))))))
 

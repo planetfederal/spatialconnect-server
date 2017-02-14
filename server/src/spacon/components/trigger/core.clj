@@ -214,8 +214,6 @@
   ;; the source-channel is the source of incoming data
     ;; the store it came from
   ;; the value to be checked
-  (if (map? value)
-    (println "foo"))
   (if-not (or (nil? store) (nil? value))
     (async/go (async/>! (:source-channel triggercomp)
                         {:store store :value value}))

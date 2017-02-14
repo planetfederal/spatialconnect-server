@@ -145,26 +145,4 @@
         (is (not (empty? (filter #(= (:id feature) %) feature-ids)))
             "The submitted feature should be in the response")))))
 
-(defn generate-invalid-form
-  []
-  (gen/generate (gen/any)))
-
-(deftest test-invalid-form-crud
-  (testing "The REST api prevents invalid forms from being created or updated"
-    (let [f (generate-invalid-form)
-          res (utils/get-response-for :post "/api/forms" f)
-          body (-> res :body json/read-str keywordize-keys)]
-      (is (contains? body :error)
-          "The response body should contain an error message")
-      (is (= 400 (:status res))
-          "The response code should be 400")))
-
-  (testing "The REST api responds with error when trying to delete and invalid form"
-    (let [invalid-form-key (gen/generate (gen/string-alphanumeric))
-          res (utils/get-response-for :delete (str "/api/forms/" invalid-form-key) {})
-          body (-> res :body json/read-str keywordize-keys)]
-      (is (contains? body :error)
-          "The response body should contain an error message")
-      (is (= 400 (:status res))
-          "The response code should be 400"))))
 

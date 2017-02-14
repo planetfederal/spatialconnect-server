@@ -19,6 +19,7 @@
    [com.stuartsierra.component :as component]
    [spacon.components.http.auth :as auth]
    [spacon.components.http.form :as form-http]
+   [spacon.components.http.config :as config-http]
    [clojure.tools.logging :as log]))
 
 (defrecord HttpService [http-config ping user team device location trigger store config form mqtt notify]
@@ -36,6 +37,7 @@
                                       (:routes trigger)
                                       (:routes store)
                                       (:routes config)
+                                      (config-http/routes config)
                                       (:routes mqtt)
                                       (form-http/routes form mqtt)
                                       (:routes notify)))]
