@@ -12,7 +12,7 @@
 ;; See the License for the specific language governing permissions and
 ;; limitations under the License.
 
-(ns spacon.http.response
+(ns spacon.components.http.response
   (:require [camel-snake-kebab.core :refer :all]
             [camel-snake-kebab.extras :refer [transform-keys]]
             [clojure.tools.logging :as log]))

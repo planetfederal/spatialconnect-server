@@ -12,9 +12,8 @@
 ;; See the License for the specific language governing permissions and
 ;; limitations under the License.
 
-(ns spacon.http.intercept
+(ns spacon.components.http.intercept
   (:require [clojure.data.json :as json]
-            [spacon.http.response :as response]
             [io.pedestal.http.body-params :as body-params]
             [camel-snake-kebab.core :refer :all]
             [camel-snake-kebab.extras :refer [transform-keys]]

@@ -14,8 +14,8 @@
 
 (ns spacon.components.location.core
   (:require [com.stuartsierra.component :as component]
-            [spacon.http.intercept :as intercept]
-            [spacon.http.response :as response]
+            [spacon.components.http.intercept :as intercept]
+            [spacon.components.http.response :as response]
             [clojure.data.json :as json]
             [yesql.core :refer [defqueries]]
             [spacon.components.mqtt.core :as mqttapi]

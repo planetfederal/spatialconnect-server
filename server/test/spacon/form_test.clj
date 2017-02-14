@@ -119,7 +119,8 @@
 (deftest form-data-submission-test
   (testing "Submitting form data through REST api produces a valid HTML response"
     (let [id (-> (utils/request-get "/api/forms") :result first :id)
-          res (utils/request-post (format "/api/form/%s/submit" id) {:test "data"})]
+          feature (gen/generate (spec/gen :spacon.specs.geojson/feature-spec))
+          res (utils/request-post (format "/api/form/%s/submit" id) feature)]
       (is (= "data submitted successfully" (:result res))
           "The response should contain a success message")))
 
@@ -144,26 +145,4 @@
         (is (not (empty? (filter #(= (:id feature) %) feature-ids)))
             "The submitted feature should be in the response")))))
 
-(defn generate-invalid-form
-  []
-  (gen/generate (gen/any)))
-
-(deftest test-invalid-form-crud
-  (testing "The REST api prevents invalid forms from being created or updated"
-    (let [f (generate-invalid-form)
-          res (utils/get-response-for :post "/api/forms" f)
-          body (-> res :body json/read-str keywordize-keys)]
-      (is (contains? body :error)
-          "The response body should contain an error message")
-      (is (= 400 (:status res))
-          "The response code should be 400")))
-
-  (testing "The REST api responds with error when trying to delete and invalid form"
-    (let [invalid-form-key (gen/generate (gen/string-alphanumeric))
-          res (utils/get-response-for :delete (str "/api/forms/" invalid-form-key) {})
-          body (-> res :body json/read-str keywordize-keys)]
-      (is (contains? body :error)
-          "The response body should contain an error message")
-      (is (= 400 (:status res))
-          "The response code should be 400"))))
 

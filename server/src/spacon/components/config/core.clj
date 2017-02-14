@@ -14,19 +14,17 @@
 
 (ns spacon.components.config.core
   (:require [com.stuartsierra.component :as component]
-            [spacon.http.intercept :as intercept]
-            [spacon.http.response :as response]
             [spacon.components.store.db :as storemodel]
             [spacon.components.device.db :as devicemodel]
             [spacon.components.mqtt.core :as mqttapi]
-            [spacon.http.auth :refer [token->user check-auth]]
+            [spacon.components.http.auth :refer [token->user check-auth]]
             [spacon.components.form.db :as formmodel]
             [clojure.tools.logging :as log]))
 
 (defn create-config
   "Returns a map of the config by fetching the stores and forms
   for teams that user belongs to"
-  [user]
+  [config-comp user]
   (log/debug "Creating config for user" user)
   (let [teams (map :id (:teams user))]
     {:stores (filter (fn [s]
@@ -36,30 +34,20 @@
                        (> (.indexOf teams (:team-id f)) -1))
                      (formmodel/all))}))
 
-(defn http-get
-  "Returns an http response with the config for the user"
-  [request]
-  (log/debug "Getting config")
-  (let [d (create-config (get-in request [:identity :user]))]
-    (response/ok d)))
-
-(defn- routes [] #{["/api/config" :get
-                    (conj intercept/common-interceptors check-auth `http-get)]})
-
-(defn mqtt->config
+(defn- mqtt->config
   "MQTT message handler that receives the request for a config
    from a device and responds by publishing the requested config
    on its reply-to topic"
-  [mqtt message]
+  [config-comp mqtt-comp message]
   (log/debug "Received request for config" message)
   (let [topic (:reply-to message)
         jwt   (:jwt message)
         user  (token->user jwt)
-        cfg   (create-config user)]
+        cfg   (create-config config-comp user)]
     (log/debug "Sending config to" user)
-    (mqttapi/publish-scmessage mqtt topic (assoc message :payload cfg))))
+    (mqttapi/publish-scmessage mqtt-comp topic (assoc message :payload cfg))))
 
-(defn mqtt->register
+(defn- mqtt->register
   "MQTT message handler that registers a device"
   [message]
   (let [device (:payload message)]
@@ -71,8 +59,8 @@
   (start [this]
     (log/debug "Starting Config Component")
     (mqttapi/subscribe mqtt "/config/register" mqtt->register)
-    (mqttapi/subscribe mqtt "/config" (partial mqtt->config mqtt))
-    (assoc this :routes (routes)))
+    (mqttapi/subscribe mqtt "/config" (partial mqtt->config this mqtt))
+    this)
   (stop [this]
     (log/debug "Stopping Config Component")
     this))
