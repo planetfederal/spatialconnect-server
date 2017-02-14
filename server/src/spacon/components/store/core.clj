@@ -14,8 +14,8 @@
 
 (ns spacon.components.store.core
   (:require [com.stuartsierra.component :as component]
-            [spacon.http.intercept :as intercept]
-            [spacon.http.response :as response]
+            [spacon.components.http.intercept :as intercept]
+            [spacon.components.http.response :as response]
             [spacon.components.store.db :as storemodel]
             [spacon.components.trigger.core :as triggerapi]
             [clj-http.client :as client]

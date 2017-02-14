@@ -119,7 +119,8 @@
 (deftest form-data-submission-test
   (testing "Submitting form data through REST api produces a valid HTML response"
     (let [id (-> (utils/request-get "/api/forms") :result first :id)
-          res (utils/request-post (format "/api/form/%s/submit" id) {:test "data"})]
+          feature (gen/generate (spec/gen :spacon.specs.geojson/feature-spec))
+          res (utils/request-post (format "/api/form/%s/submit" id) feature)]
       (is (= "data submitted successfully" (:result res))
           "The response should contain a success message")))
 

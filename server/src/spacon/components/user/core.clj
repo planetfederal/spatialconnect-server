@@ -15,11 +15,10 @@
 (ns spacon.components.user.core
   (:require [com.stuartsierra.component :as component]
             [io.pedestal.interceptor.helpers :refer [defhandler]]
-            [spacon.http.intercept :as intercept]
-            [spacon.http.response :as response]
-            [spacon.specs.user :as user-spec]
+            [spacon.components.http.intercept :as intercept]
+            [spacon.components.http.response :as response]
             [spacon.components.user.db :as usermodel]
-            [spacon.http.auth :refer [check-auth]]
+            [spacon.components.http.auth :refer [check-auth]]
             [clojure.spec :as s]
             [clojure.tools.logging :as log]))
 

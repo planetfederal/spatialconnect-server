@@ -14,8 +14,8 @@
 
 (ns spacon.components.ping.core
   (:require [com.stuartsierra.component :as component]
-            [spacon.http.intercept :as intercept]
-            [spacon.http.response :as response]
+            [spacon.components.http.intercept :as intercept]
+            [spacon.components.http.response :as response]
             [spacon.components.mqtt.core :as mqttapi]
             [clojure.data.json :as json]
             [clojure.tools.logging :as log]))

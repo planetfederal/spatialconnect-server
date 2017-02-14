@@ -15,7 +15,7 @@
 (ns spacon.server
   (:gen-class)                                              ; for -main method in uberjar
   (:require [io.pedestal.http :as server]
-            [spacon.http.service :as service]
+            [spacon.components.http.core :as http]
             [com.stuartsierra.component :as component]
             [spacon.components.ping.core :as ping]
             [spacon.components.user.core :as user]
@@ -62,7 +62,7 @@
      :location (component/using (location/make-location-component) [:mqtt :trigger])
      :form (component/using (form/make-form-component) [:mqtt :trigger])
      :http-service (component/using
-                    (service/make-http-service-component http-config)
+                    (http/make-http-service-component http-config)
                     [:ping :user :team :device :location :trigger
                      :store :config :form :mqtt :notify])
      :server (component/using (new-spacon-server) [:http-service]))))

@@ -26,8 +26,12 @@
                  (range vertices))]
     (conj pts (last pts))))
 
-(defn line-gen [x y]
-  (list x y))
+(defn line-gen [x y cnt]
+  (let [vertices  (+ cnt 2)]
+    (map (fn  []
+           [(+ x (rand))
+            (+ y (rand))])
+         (range vertices))))
 
 ;;; geojson
 (s/def :gj/x (s/double-in :min -175.0 :max 175.0 :NaN? false :infinite? false))
@@ -41,18 +45,18 @@
   (s/with-gen
     coll?
     #(gen/fmap (fn
-                 [[lon lat]]
-                 (list (line-gen lon lat)))
-               (gen/tuple (s/gen :gj/x) (s/gen :gj/y)))))
+                 [[lon lat cnt]]
+                 (line-gen lon lat cnt))
+               (gen/tuple (s/gen :gj/x) (s/gen :gj/y) (s/gen pos-int?)))))
 (s/def :gjls/type (s/with-gen string? #(s/gen #{"LineString"})))
 (s/def :gjpl/coordinates (s/with-gen
-                           coll?
+                           (s/and coll? #(< 3 (count %)))
                            #(gen/fmap (fn [[lon lat]] (list (circle-gen lon lat)))
                                       (gen/tuple (s/gen :gj/x) (s/gen :gj/y)))))
 (s/def :gjpl/type (s/with-gen string? #(s/gen #{"Polygon"})))
 (s/def :gjmpt/coordinates (s/coll-of :gj/coordinates))
 (s/def :gjmpt/type (s/with-gen string? #(s/gen #{"MultiPoint"})))
-(s/def :gjmls/coordinates (s/coll-of #(s/valid? :gjls/coordinates %)))
+(s/def :gjmls/coordinates (s/coll-of :gjls/coordinates))
 (s/def :gjmls/type (s/with-gen string? #(s/gen #{"MultiLineString"})))
 (s/def :gjmpl/coordinates (s/coll-of :gjpl/coordinates))
 (s/def :gjmpl/type (s/with-gen string? #(s/gen #{"MultiPolygon"})))
@@ -98,10 +102,11 @@
 (s/def ::linestringfeature-spec (s/keys :req-un
                                         [:gfeature/id :gfeature/type
                                          :gfeature/properties :gjls/geometry]))
+
 ; Single geojson feature
 (s/def ::feature-spec (s/keys :req-un
                               [:gfeature/id :gfeature/type
-                               :gj/geometry :gfeature/properties])) ;;;TODO Add properties
+                               :gj/geometry :gfeature/properties]))
 (s/def :gj/features (s/coll-of ::feature-spec))
 (s/def :gjpoly/features (s/coll-of ::polygonfeature-spec :min-count 1))
 (s/def :fcgj/type (s/with-gen

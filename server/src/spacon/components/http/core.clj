@@ -12,12 +12,13 @@
 ;; See the License for the specific language governing permissions and
 ;; limitations under the License.
 
-(ns spacon.http.service
+(ns spacon.components.http.core
   (:require
    [io.pedestal.http :as http]
    [io.pedestal.http.route :as route]
    [com.stuartsierra.component :as component]
-   [spacon.http.auth :as auth]
+   [spacon.components.http.auth :as auth]
+   [spacon.components.http.form :as form-http]
    [clojure.tools.logging :as log]))
 
 (defrecord HttpService [http-config ping user team device location trigger store config form mqtt notify]
@@ -36,7 +37,7 @@
                                       (:routes store)
                                       (:routes config)
                                       (:routes mqtt)
-                                      (:routes form)
+                                      (form-http/routes form mqtt)
                                       (:routes notify)))]
       (assoc this :service-def (merge http-config {:env                     :prod
                                                    ::http/routes            routes

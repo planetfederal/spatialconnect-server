@@ -16,10 +16,10 @@
   (:require [com.stuartsierra.component :as component]
             [clojurewerkz.machine-head.client :as mh]
             [spacon.entity.scmessage :as scm]
-            [spacon.http.intercept :as intercept]
-            [spacon.http.response :as response]
+            [spacon.components.http.intercept :as intercept]
+            [spacon.components.http.response :as response]
             [clojure.core.async :as async]
-            [spacon.http.auth :refer [get-token]]
+            [spacon.components.http.auth :refer [get-token]]
             [clojure.tools.logging :as log]))
 
 (def client-id "spacon-server")
@@ -57,7 +57,9 @@
 ; receive message on subscribe channel
 (defn- receive [mqtt topic message]
   (log/tracef "Received message on topic %s %nmessage:%s" topic message)
-  (async/go (async/>!! (:subscribe-channel mqtt) {:topic topic :message (scm/from-bytes message)})))
+  (if (nil? message)
+    (log/debug "Nil message on topic " topic)
+    (async/go (async/>!! (:subscribe-channel mqtt) {:topic topic :message (scm/from-bytes message)}))))
 
 (defn subscribe
   "Subscribe to mqtt topic with message handler function f"

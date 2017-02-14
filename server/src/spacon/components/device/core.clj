@@ -14,10 +14,10 @@
 
 (ns spacon.components.device.core
   (:require [com.stuartsierra.component :as component]
-            [spacon.http.intercept :as intercept]
+            [spacon.components.http.intercept :as intercept]
             [yesql.core :refer [defqueries]]
             [spacon.components.device.db :as devicemodel]
-            [spacon.http.response :as response]
+            [spacon.components.http.response :as response]
             [clojure.spec :as s]
             [clojure.tools.logging :as log]))
 

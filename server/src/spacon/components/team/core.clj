@@ -15,10 +15,9 @@
 (ns spacon.components.team.core
   (:require [com.stuartsierra.component :as component]
             [yesql.core :refer [defqueries]]
-            [spacon.http.intercept :as intercept]
-            [spacon.http.response :as response]
+            [spacon.components.http.intercept :as intercept]
+            [spacon.components.http.response :as response]
             [spacon.components.team.db :as teammodel]
-            [spacon.db.conn :as db]
             [clojure.tools.logging :as log]))
 
 (defn http-get-all-teams

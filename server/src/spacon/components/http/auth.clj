@@ -12,10 +12,10 @@
 ;; See the License for the specific language governing permissions and
 ;; limitations under the License.
 
-(ns spacon.http.auth
+(ns spacon.components.http.auth
   (:require [io.pedestal.interceptor.chain :refer [terminate]]
-            [spacon.http.intercept :as intercept]
-            [spacon.http.response :as response]
+            [spacon.components.http.intercept :as intercept]
+            [spacon.components.http.response :as response]
             [buddy.hashers :as hashers]
             [buddy.auth.protocols :as proto]
             [buddy.auth.backends :as backends]

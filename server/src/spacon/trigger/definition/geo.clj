@@ -28,7 +28,12 @@
 (defn check-simple-feature
   "Returns true if point is in feature"
   [point feature]
-  (spatial-relation/within? point feature))
+  (if (or (map? point)
+          (map? feature))
+    (println "FOo")
+    (if (or (nil? point) (nil? feature))
+      false
+      (spatial-relation/within? point feature))))
 
 (defn check-feature-collection
   "Returns true if point is within any geometry in feature-collection"

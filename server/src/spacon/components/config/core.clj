@@ -14,12 +14,12 @@
 
 (ns spacon.components.config.core
   (:require [com.stuartsierra.component :as component]
-            [spacon.http.intercept :as intercept]
-            [spacon.http.response :as response]
+            [spacon.components.http.intercept :as intercept]
+            [spacon.components.http.response :as response]
             [spacon.components.store.db :as storemodel]
             [spacon.components.device.db :as devicemodel]
             [spacon.components.mqtt.core :as mqttapi]
-            [spacon.http.auth :refer [token->user check-auth]]
+            [spacon.components.http.auth :refer [token->user check-auth]]
             [spacon.components.form.db :as formmodel]
             [clojure.tools.logging :as log]))
 

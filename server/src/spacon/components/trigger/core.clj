@@ -16,8 +16,8 @@
   (:require [com.stuartsierra.component :as component]
             [yesql.core :refer [defqueries]]
             [clojure.spec :as s]
-            [spacon.http.intercept :as intercept]
-            [spacon.http.response :as response]
+            [spacon.components.http.intercept :as intercept]
+            [spacon.components.http.response :as response]
             [spacon.components.trigger.db :as triggermodel]
             [spacon.components.notification.core :as notificationapi]
             [clojure.core.async :as async]
@@ -214,8 +214,12 @@
   ;; the source-channel is the source of incoming data
     ;; the store it came from
   ;; the value to be checked
-  (async/go (async/>! (:source-channel triggercomp)
-                      {:store store :value value})))
+  (if (map? value)
+    (println "foo"))
+  (if-not (or (nil? store) (nil? value))
+    (async/go (async/>! (:source-channel triggercomp)
+                        {:store store :value value}))
+    (log/error "Store and value must be set")))
 
 (defn http-test-trigger
   "HTTP endpoint used to test triggers.  Takes a geojson feature
