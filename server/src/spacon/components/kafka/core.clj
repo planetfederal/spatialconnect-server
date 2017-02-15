@@ -35,11 +35,11 @@
                 client-id        (str "sc-producer-" (.getHostName (java.net.InetAddress/getLocalHost)))}}
         producer-config]
     (KafkaProducer. ^java.util.Map
-                    (assoc config
-                      "request.timeout.ms" (str timeout-ms)
-                      "bootstrap.servers" servers
-                      "client.id" client-id
-                      "acks" "all")
+     (assoc config
+            "request.timeout.ms" (str timeout-ms)
+            "bootstrap.servers" servers
+            "client.id" client-id
+            "acks" "all")
                     ^Serializer key-serializer
                     ^Serializer value-serializer)))
 
@@ -69,7 +69,6 @@
       key                 (ProducerRecord. topic key value)
       :else               (ProducerRecord. topic value))))
 
-
 (defn send!
   "Sends a record (a map of :topic, :value and optionally :key, :partition) using the given Producer component.
   Returns ch (a promise-chan unless otherwise specified) where record metadata will be put after it's successfuly sent."
@@ -89,6 +88,4 @@
                              :timestamp (.timestamp rm)})]
                   (async/put! ch (or ret e))))))
      ch)))
-
-
 

@@ -67,7 +67,6 @@
   #{["/api/ping" :get (conj intercept/common-interceptors `pong)]
     ["/api/ping/kafka" :post (conj intercept/common-interceptors (partial pong-kafka kafka-producer)) :route-name :pong-kafka]})
 
-
 (defrecord PingComponent [mqtt kafka-producer]
   component/Lifecycle
   (start [this]

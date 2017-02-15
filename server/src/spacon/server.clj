@@ -98,9 +98,9 @@
                           "somepass"))
   ;; todo: auto migrate flag?
   (component/start-system
-    (make-spacon-server {:http-config {}
-                         :mqtt-config {:broker-url (System/getenv "MQTT_BROKER_URL")}
-                         :kafka-producer-config {:timeout-ms 2000}
-                         :kafka-consumer-config {:servers (System/getenv "BOOTSTRAP_SERVERS")
-                                                 :group-id (System/getenv "GROUP_ID")}})))
+   (make-spacon-server {:http-config {}
+                        :mqtt-config {:broker-url (System/getenv "MQTT_BROKER_URL")}
+                        :kafka-producer-config {:timeout-ms 2000}
+                        :kafka-consumer-config {:servers (System/getenv "BOOTSTRAP_SERVERS")
+                                                :group-id (System/getenv "GROUP_ID")}})))
 

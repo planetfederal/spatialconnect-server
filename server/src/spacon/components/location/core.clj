@@ -37,7 +37,11 @@
                      :updated_at (:updated_at l)}})
        locations))
 
-(defn update-device-location
+(defn locations
+  [location-comp]
+  (location->geojson (locationmodel/all)))
+
+(defn- update-device-location
   "MQTT message handler that persists the device location
   of the message body, then tests it against the triggers"
   [trigger message]
@@ -50,23 +54,12 @@
                  .getDefaultGeometry)]
       (triggerapi/test-value trigger "location" gj))))
 
-(defn http-get-all-locations
-  "Returns the latest location of each device"
-  [_]
-  (log/debug "Getting all device locations")
-  (let [fs (location->geojson (locationmodel/all))]
-    (response/ok {:type "FeatureCollection"
-                  :features fs})))
-
-(defn- routes [] #{["/api/locations" :get
-                    (conj intercept/common-interceptors `http-get-all-locations)]})
-
 (defrecord LocationComponent [mqtt trigger]
   component/Lifecycle
   (start [this]
     (log/debug "Starting Location Component")
     (mqttapi/subscribe mqtt "/store/tracking" (partial update-device-location trigger))
-    (assoc this :routes (routes)))
+    this)
   (stop [this]
     (log/debug "Stopping Location Component")
     this))
