@@ -145,4 +145,3 @@
         (is (not (empty? (filter #(= (:id feature) %) feature-ids)))
             "The submitted feature should be in the response")))))
 
-
