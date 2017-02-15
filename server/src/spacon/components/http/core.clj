@@ -20,6 +20,7 @@
    [spacon.components.http.auth :as auth]
    [spacon.components.http.form :as form-http]
    [spacon.components.http.config :as config-http]
+   [spacon.components.http.device :as device-http]
    [clojure.tools.logging :as log]))
 
 (defrecord HttpService [http-config ping user team device location trigger store config form mqtt notify]
@@ -32,7 +33,7 @@
                                       (:routes ping)
                                       (:routes user)
                                       (:routes team)
-                                      (:routes device)
+                                      (device-http/routes device)
                                       (:routes location)
                                       (:routes trigger)
                                       (:routes store)

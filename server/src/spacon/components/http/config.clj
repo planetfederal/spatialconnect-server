@@ -5,7 +5,6 @@
             [spacon.components.http.intercept :as intercept]
             [spacon.components.http.response :as response]))
 
-
 (defn http-get
   "Returns an http response with the config for the user"
   [config-comp request]
@@ -14,4 +13,4 @@
     (response/ok d)))
 
 (defn routes [config-comp] #{["/api/config" :get
-                    (conj intercept/common-interceptors check-auth (partial http-get config-comp)) :route-name :get-config]})
+                              (conj intercept/common-interceptors check-auth (partial http-get config-comp)) :route-name :get-config]})
