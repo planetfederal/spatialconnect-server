@@ -14,7 +14,6 @@
 
 (ns spacon.components.form.core
   (:require [com.stuartsierra.component :as component]
-
             [spacon.components.form.db :as formmodel]
             [spacon.components.mqtt.core :as mqttapi]
             [clojure.spec :as s]

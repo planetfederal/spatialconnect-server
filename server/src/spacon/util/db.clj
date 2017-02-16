@@ -24,6 +24,19 @@
           jdbc-array (.createArrayOf (.getConnection stmt) "text" as-array)]
       (.setArray stmt ix jdbc-array))))
 
+(deftype FloatArray [items]
+  clojure.java.jdbc/ISQLParameter
+  (set-parameter [_ stmt ix]
+    (let [conn (.getConnection stmt)
+          as-array (into-array Object items)
+          jdbc-array (.createArrayOf conn "numeric" as-array)]
+      (.setArray stmt ix jdbc-array))))
+
+(extend-protocol clojure.java.jdbc/IResultSetReadColumn
+  java.sql.Array
+  (result-set-read-column [val _ _]
+    (into [] (.getArray val))))
+
 (defn sqluuid->str [row col-name]
   (if-let [r (col-name row)]
     (assoc row col-name (if (instance? java.util.UUID r) (.toString r) r))
