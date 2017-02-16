@@ -22,9 +22,10 @@
    [spacon.components.http.config :as config-http]
    [spacon.components.http.device :as device-http]
    [spacon.components.http.location :as location-http]
+   [spacon.components.http.layer :as layer-http]
    [clojure.tools.logging :as log]))
 
-(defrecord HttpService [http-config ping user team device location trigger store config form mqtt notify]
+(defrecord HttpService [http-config ping user team layer device location trigger store config form mqtt notify]
   component/Lifecycle
   (start [this]
     (log/debug "Starting HttpService component")
@@ -34,6 +35,7 @@
                                       (:routes ping)
                                       (:routes user)
                                       (:routes team)
+                                      (layer-http/routes layer)
                                       (device-http/routes device)
                                       (location-http/routes location)
                                       (:routes trigger)

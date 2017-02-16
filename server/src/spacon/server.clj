@@ -29,6 +29,7 @@
             [spacon.components.notification.core :as notification]
             [spacon.components.form.core :as form]
             [spacon.components.kafka.core :as kafka]
+            [spacon.components.layer.core :as layer]
             [clojure.tools.logging :as log]))
 
 (defrecord SpaconServer [http-service]
@@ -53,6 +54,7 @@
     (component/system-map
      :user (user/make-user-component)
      :team (team/make-team-component)
+     :layer (layer/make-layer-component)
      :mqtt (mqtt/make-mqtt-component mqtt-config)
      :kafka-producer (kafka/make-producer-component kafka-producer-config)
      :ping (component/using (ping/make-ping-component) [:mqtt :kafka-producer])
@@ -65,7 +67,7 @@
      :form (component/using (form/make-form-component) [:mqtt :trigger])
      :http-service (component/using
                     (http/make-http-service-component http-config)
-                    [:ping :user :team :device :location :trigger
+                    [:ping :user :team :layer :device :location :trigger
                      :store :config :form :mqtt :notify])
      :server (component/using (new-spacon-server) [:http-service]))))
 

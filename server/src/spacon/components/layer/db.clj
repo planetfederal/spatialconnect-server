@@ -24,17 +24,24 @@
 ;; define sql queries as functions in this namespace
 (defqueries "sql/layer.sql" {:connection db/db-spec})
 
+;; todo: remove this in favor of extending IResultSetReadColumn
+(defn- extent->vec [row]
+  (assoc row :extent (vec (.getArray (:extent row)))))
+
 ;; todo: we should pass a database component down into these functions
 (defn create-layer
   [layer-config]
   (let [props (json/write-str (:properties layer-config))
-        bbox (dbutil/->FloatArray (float-array (:extent layer-config)))]
-    (create<! (assoc layer-config :properties props :extent bbox))))
+        bbox (dbutil/->FloatArray (float-array (:extent layer-config)))
+        new-layer (create<! (assoc layer-config :properties props :extent bbox))]
+    (extent->vec new-layer)))
 
 (defn list-layers
   [offset limit]
-  (find-all {:offset offset :limit limit}))
+  (find-all {:offset offset :limit limit}
+            {:row-fn extent->vec}))
 
 (defn get-layer-by-id
   [id]
-  (find-by-id-query {:id id}))
+  (find-by-id-query {:id id}
+                    {:row-fn extent->vec}))
