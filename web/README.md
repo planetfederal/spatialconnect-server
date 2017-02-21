@@ -23,6 +23,21 @@ npm test
 
 ### to build the nginx container for the environment
 
+First you have to build the index and js bundle:
+
+```
+npm run build:dev
+```
+
+Then you can build the container with the static assets
+
 ```
 docker build -t boundlessgeo/spatialconnect-server:web-dev -f Dockerfile.dev .
+```
+
+Or for Cloud Foundry deployments, use the static files buildpack (see
+example config in manifest.yml)
+
+```
+cf push efc-web
 ```
