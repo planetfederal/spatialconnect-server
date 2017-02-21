@@ -9,7 +9,7 @@
     "build:local": "NODE_ENV=local webpack --config webpack.local.js",
     "build:dev": "NODE_ENV=development webpack",
     "build:cf": "NODE_ENV=cf webpack",
-    "build:pde": "NODE_ENV=pde webpack",
+    "build:devio": "NODE_ENV=devio webpack",
     "build": "NODE_ENV=production webpack"
   },
   "dependencies": {

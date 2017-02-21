@@ -30,6 +30,14 @@ docker push boundlessgeo/spatialconnect-server
 > updated, the container will be rebuilt and deployed to the appropriate
 > environment.
 
+
+If you need to deploy to a Cloud Foundry environment,  you can deploy
+the container like this:
+
+```
+cf push efc -o boundlessgeo/spatialconnect-server:devio
+```
+
 ### Local development environment setup
 
 First startup the database container:
