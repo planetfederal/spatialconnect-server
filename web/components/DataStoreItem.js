@@ -14,7 +14,7 @@ const DataStoreItem = ({ store }) => (
       <PropertyListItem name={'Team'} value={store.team_name} />
       {(store.options && store.options.polling) &&
       <PropertyListItem name={'Polling Interval'} value={store.options.polling} />}
-      {store.default_layers.length ?
+      {store.default_layers && store.default_layers.length ?
         <PropertyListItem name={'Default Layers'} value={store.default_layers.join(', ')} />
         : '' }
     </div>

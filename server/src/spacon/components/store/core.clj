@@ -89,7 +89,7 @@
   "Returns http response of all stores"
   [_]
   (log/debug "Getting all stores")
-  (response/ok (storemodel/all)))
+  (response/ok-without-snake-case (storemodel/all)))
 
 (defn http-get-store
   "Gets a store by id"
@@ -97,7 +97,7 @@
   (log/debug "Getting store by id")
   (let [id (get-in request [:path-params :id])]
     (if-let [store (storemodel/find-by-id id)]
-      (response/ok store)
+      (response/ok-without-snake-case store)
       (let [err-msg (str "No store found for id" id)]
         (log/warn err-msg)
         (response/not-found err-msg)))))

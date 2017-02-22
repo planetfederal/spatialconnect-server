@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import uniqueId from 'lodash/uniqueId';
-import { isUrl } from '../utils';
+import { isUrl, emptyStore } from '../utils';
 
 export const validate = (values) => {
   const errors = {};
@@ -48,11 +48,14 @@ export class DataStoreForm extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      store: props.store,
       name: props.store.name,
       store_type: props.store.store_type,
       version: props.store.version,
       uri: props.store.uri,
       default_layers: props.store.default_layers || [],
+      style: props.store.style && props.store.style.length ?
+        props.store.style[0] : emptyStore.style[0],
       polling: props.store.options && props.store.options.polling ?
         props.store.options.polling : null,
       show_polling: props.store.store_type === 'geojson' || props.store.store_type === 'wfs',
@@ -64,6 +67,11 @@ export class DataStoreForm extends Component {
     this.onURIChange = this.onURIChange.bind(this);
     this.onLayersChange = this.onLayersChange.bind(this);
     this.onPollingChange = this.onPollingChange.bind(this);
+    this.onFillColorChange = this.onFillColorChange.bind(this);
+    this.onFillOpacityChange = this.onFillOpacityChange.bind(this);
+    this.onLineColorChange = this.onLineColorChange.bind(this);
+    this.onLineOpacityChange = this.onLineOpacityChange.bind(this);
+    this.onIconColorChange = this.onIconColorChange.bind(this);
     this.save = this.save.bind(this);
   }
 
@@ -115,12 +123,73 @@ export class DataStoreForm extends Component {
     this.setState({ polling: e.target.value });
   }
 
+  onFillColorChange(e) {
+    this.setState({
+      style: {
+        ...this.state.style,
+        paint: {
+          ...this.state.style.paint,
+          'fill-color': e.target.value,
+        },
+      },
+    });
+  }
+
+  onFillOpacityChange(e) {
+    this.setState({
+      style: {
+        ...this.state.style,
+        paint: {
+          ...this.state.style.paint,
+          'fill-opacity': e.target.value,
+        },
+      },
+    });
+  }
+
+  onLineColorChange(e) {
+    this.setState({
+      style: {
+        ...this.state.style,
+        paint: {
+          ...this.state.style.paint,
+          'line-color': e.target.value,
+        },
+      },
+    });
+  }
+
+  onLineOpacityChange(e) {
+    this.setState({
+      style: {
+        ...this.state.style,
+        paint: {
+          ...this.state.style.paint,
+          'line-opacity': e.target.value,
+        },
+      },
+    });
+  }
+
+  onIconColorChange(e) {
+    this.setState({
+      style: {
+        ...this.state.style,
+        paint: {
+          ...this.state.style.paint,
+          'icon-color': e.target.value,
+        },
+      },
+    });
+  }
+
   save() {
     const store = {
       name: this.state.name,
       store_type: this.state.store_type,
       version: this.state.version.trim(),
       uri: this.state.uri.trim(),
+      style: [this.state.style],
     };
     if (this.state.default_layers) {
       store.default_layers = this.state.default_layers;
@@ -139,6 +208,7 @@ export class DataStoreForm extends Component {
 
   render() {
     const { store, errors } = this.props;
+    const paint = this.state.style.paint;
     return (
       <div className="side-form">
         <div className="form-group">
@@ -207,6 +277,62 @@ export class DataStoreForm extends Component {
             {errors.polling ? <p className="text-danger">{errors.polling}</p> : ''}
           </div> : ''
         }
+        <div className="form-group">
+          <div className="multi-input-group">
+            <div className="multi-input">
+              <label htmlFor="store-fill-color">Fill Color:</label>
+              <input
+                id="store-fill-color" type="color" className="form-control"
+                value={paint['fill-color']}
+                onChange={this.onFillColorChange}
+              />
+            </div>
+            <div className="multi-input">
+              <label htmlFor="store-line-color">Line Color:</label>
+              <input
+                id="store-line-color" type="color" className="form-control"
+                value={paint['line-color']}
+                onChange={this.onLineColorChange}
+              />
+            </div>
+            <div className="multi-input">
+              <label htmlFor="store-icon-color">Icon Color:</label>
+              <input
+                id="store-icon-color" type="color" className="form-control"
+                value={paint['icon-color']}
+                onChange={this.onIconColorChange}
+              />
+            </div>
+          </div>
+        </div>
+        <div className="form-group">
+          <label htmlFor="store-fill-opacity">Fill Opacity:</label>
+          <div className="input-group">
+            <input
+              id="store-fill-opacity" type="range" className="form-control"
+              min="0" max="1" step=".1"
+              value={paint['fill-opacity']}
+              onChange={this.onFillOpacityChange}
+            />
+            <div className="range-value">
+              {Number(paint['fill-opacity']).toFixed(1)}
+            </div>
+          </div>
+        </div>
+        <div className="form-group">
+          <label htmlFor="store-line-opacity">Line Opacity:</label>
+          <div className="input-group">
+            <input
+              id="store-line-opacity" type="range" className="form-control"
+              min="0" max="1" step=".1"
+              value={paint['line-opacity']}
+              onChange={this.onLineOpacityChange}
+            />
+            <div className="range-value">
+              {Number(paint['line-opacity']).toFixed(1)}
+            </div>
+          </div>
+        </div>
         <div className="btn-toolbar">
           <button className="btn btn-sc" onClick={this.save}>Save</button>
           <button className="btn btn-default" onClick={this.props.cancel}>Cancel</button>

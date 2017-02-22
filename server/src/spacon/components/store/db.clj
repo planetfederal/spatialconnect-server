@@ -29,12 +29,14 @@
 (def uuid-regex #"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
 
 (defn- sanitize [store]
-  (transform-keys ->kebab-case-keyword (dissoc store :created_at :updated_at :deleted_at)))
+  (dissoc store :created_at :updated_at :deleted_at))
 
 (defn map->entity [t]
   (-> t
       (cond-> (nil? (:options t)) (assoc :options nil))
       (cond-> (some? (:options t)) (assoc :options (json/write-str (:options t))))
+      (cond-> (nil? (:style t)) (assoc :style nil))
+      (cond-> (some? (:style t)) (assoc :style (json/write-str (:style t))))
       (assoc :default_layers (dbutil/->StringArray (:default-layers t)))))
 
 (defn row-fn [row]
@@ -67,7 +69,8 @@
   [t]
   (let [entity (map->entity t)
         tr (transform-keys ->snake_case_keyword entity)]
-    (if-let [new-store (insert-store<! tr)]
+    (if-let [new-store (insert-store<! (assoc tr :default_layers
+                                         (dbutil/->StringArray (:default_layers tr))))]
       (sanitize (assoc t :id (.toString (:id new-store))))
       nil)))
 
