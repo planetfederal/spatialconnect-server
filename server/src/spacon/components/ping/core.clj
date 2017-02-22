@@ -31,11 +31,11 @@
 
 (defn pong-kafka
   "Subscribes to test topic and awaits pong message to ensure kafka cluster is reachable"
-  [producer-component request]
+  [kafka-comp request]
   (let [record {:topic "test"
                 :key "anykey"
                 :value (json/write-str (:json-params request))}
-        promise-chan (kafka/send! producer-component record)
+        promise-chan (kafka/send! kafka-comp record)
         [val ch] (async/alts!! [promise-chan (async/timeout 2000)])]
     (if (nil? val)
       (response/error "Error writing to Kafka or timeout")
@@ -51,9 +51,9 @@
 
 (defn- ping-kafka
   "Sends a record to kafka every 5 seconds as a heartbeat."
-  [kafka-producer]
+  [kafka-comp]
   (let [pool (Executors/newScheduledThreadPool 1)]
-    (.scheduleAtFixedRate pool #(send-ping kafka-producer) 0 5 TimeUnit/SECONDS)))
+    (.scheduleAtFixedRate pool #(send-ping kafka-comp) 0 5 TimeUnit/SECONDS)))
 
 (defn mqtt-ping
   "Responds with pong as a way to ensure mqtt broker is reachable"
@@ -63,17 +63,17 @@
                              (assoc message :payload {:result "pong"})))
 
 (defn- routes
-  [kafka-producer]
+  [kafka-comp]
   #{["/api/ping" :get (conj intercept/common-interceptors `pong)]
-    ["/api/ping/kafka" :post (conj intercept/common-interceptors (partial pong-kafka kafka-producer)) :route-name :pong-kafka]})
+    ["/api/ping/kafka" :post (conj intercept/common-interceptors (partial pong-kafka kafka-comp)) :route-name :pong-kafka]})
 
-(defrecord PingComponent [mqtt kafka-producer]
+(defrecord PingComponent [mqtt kafka]
   component/Lifecycle
   (start [this]
     (log/debug "Starting Ping Component")
     (mqttapi/subscribe mqtt "/ping" (partial mqtt-ping mqtt))
-    (ping-kafka kafka-producer)
-    (assoc this :routes (routes kafka-producer)))
+    (ping-kafka kafka)
+    (assoc this :routes (routes kafka)))
   (stop [this]
     (log/debug "Stopping Ping Component")
     this))

@@ -17,11 +17,9 @@
             [clojure.core.async :as async]
             [clojure.core.async.impl.protocols :as p]
             [clojure.tools.logging :as log])
-  (:import [org.apache.kafka.clients.producer Producer MockProducer KafkaProducer ProducerRecord Callback RecordMetadata]
-           [org.apache.kafka.clients.consumer Consumer MockConsumer KafkaConsumer ConsumerRecord OffsetResetStrategy]
-           [org.apache.kafka.common.serialization Serializer Deserializer StringSerializer StringDeserializer]
-           [org.apache.kafka.common.errors WakeupException]
-           [org.apache.kafka.common TopicPartition]))
+  (:import [org.apache.kafka.clients.producer Producer KafkaProducer ProducerRecord Callback RecordMetadata]
+           [org.apache.kafka.clients.consumer Consumer ConsumerConfig KafkaConsumer]
+           [org.apache.kafka.common.serialization Serializer StringSerializer Deserializer StringDeserializer]))
 
 (defn construct-producer
   "Construct and return a KafkaProducer using the producer-config map
@@ -35,27 +33,45 @@
                 client-id        (str "sc-producer-" (.getHostName (java.net.InetAddress/getLocalHost)))}}
         producer-config]
     (KafkaProducer. ^java.util.Map
-     (assoc config
-            "request.timeout.ms" (str timeout-ms)
-            "bootstrap.servers" servers
-            "client.id" client-id
-            "acks" "all")
+                    (assoc config
+                      "request.timeout.ms" (str timeout-ms)
+                      "bootstrap.servers" servers
+                      "client.id" client-id
+                      "acks" "all")
                     ^Serializer key-serializer
                     ^Serializer value-serializer)))
 
-(defrecord ProducerComponent [producer-config]
+(defn construct-consumer
+  [consumer-config]
+  (let [{:keys [servers client-id key-deserializer value-deserializer]
+         :or   {client-id        (str "sc-consumer-" (.getHostName (java.net.InetAddress/getLocalHost)))
+                servers          "localhost:9092"
+                key-deserializer   (StringDeserializer.)
+                value-deserializer (StringDeserializer.)
+                }} consumer-config]
+    (KafkaConsumer. ^java.util.Map
+                    (assoc {}
+                      ConsumerConfig/CLIENT_ID_CONFIG client-id
+                      ConsumerConfig/GROUP_ID_CONFIG client-id
+                      ConsumerConfig/BOOTSTRAP_SERVERS_CONFIG servers)
+                    ^Deserializer key-deserializer
+                    ^Deserializer value-deserializer)))
+
+(defrecord KafkaComponent [producer-config consumer-config]
   component/Lifecycle
   (start [this]
     (log/debug "Starting ProducerComponent")
-    (assoc this :producer (construct-producer producer-config)))
-  (stop  [this]
+    (assoc this :producer (construct-producer producer-config) :consumer (construct-consumer consumer-config)))
+  (stop [this]
     (log/debug "Stopping ProducerComponent")
     (.close (:producer this))
     this))
 
-(defn make-producer-component
-  [producer-config]
-  (map->ProducerComponent {:producer-config producer-config}))
+(defn make-kafka-component
+  [producer-config consumer-config]
+  (map->KafkaComponent {:producer-config producer-config
+                        :consumer-config consumer-config}))
+
 
 ;; todo: write specs for valid records that we accept
 ;; for instance, restrict the topics and keys that can be sent
@@ -66,16 +82,16 @@
   (let [{:keys [topic partition key value]} record]
     (cond
       (and partition key) (ProducerRecord. topic (int partition) key value)
-      key                 (ProducerRecord. topic key value)
-      :else               (ProducerRecord. topic value))))
+      key (ProducerRecord. topic key value)
+      :else (ProducerRecord. topic value))))
 
 (defn send!
   "Sends a record (a map of :topic, :value and optionally :key, :partition) using the given Producer component.
   Returns ch (a promise-chan unless otherwise specified) where record metadata will be put after it's successfuly sent."
-  ([producer-component record]
-   (send! producer-component record (async/promise-chan)))
-  ([producer-component record ch]
-   (let [^Producer producer (:producer producer-component)]
+  ([kafka-comp record]
+   (send! kafka-comp record (async/promise-chan)))
+  ([kafka-comp record ch]
+   (let [^Producer producer (:producer kafka-comp)]
      (.send producer
             (producer-record record)
             (reify
@@ -89,3 +105,9 @@
                   (async/put! ch (or ret e))))))
      ch)))
 
+(defn listen
+  ([kafka-comp topic f]
+   (let [^Consumer consumer (:consumer kafka-comp)]
+     (.subscribe consumer #{topic})
+     (while true
+       (-> (.poll consumer 100) f)))))
