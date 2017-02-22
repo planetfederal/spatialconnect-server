@@ -78,3 +78,22 @@ export const saveState = (state) => {
     // Ignore write errors.
   }
 };
+
+export const emptyStore = {
+  id: false,
+  name: '',
+  version: '1',
+  uri: '',
+  store_type: '',
+  options: {},
+  style: [{
+    id: 'default',
+    paint: {
+      'fill-color': '#ff0000',
+      'fill-opacity': 0.5,
+      'line-color': '#ff0000',
+      'line-opacity': 1,
+      'icon-color': '#ff0000',
+    },
+  }],
+};

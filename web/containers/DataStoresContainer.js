@@ -2,18 +2,10 @@ import React, { Component, PropTypes } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
+import { emptyStore } from '../utils';
 import * as dataStoresActions from '../ducks/dataStores';
 import DataStoresList from '../components/DataStoresList';
 import { DataStoreForm } from '../components/DataStoreForm';
-
-const emptyStore = {
-  id: false,
-  name: '',
-  version: '1',
-  uri: '',
-  store_type: '',
-  options: {},
-};
 
 class DataStoresContainer extends Component {
 
