@@ -15,7 +15,7 @@
 (ns spacon.server
   (:gen-class)                                              ; for -main method in uberjar
   (:require [io.pedestal.http :as server]
-            [spacon.http.service :as service]
+            [spacon.components.http.core :as http]
             [com.stuartsierra.component :as component]
             [spacon.components.ping.core :as ping]
             [spacon.components.user.core :as user]
@@ -28,6 +28,7 @@
             [spacon.components.mqtt.core :as mqtt]
             [spacon.components.notification.core :as notification]
             [spacon.components.form.core :as form]
+            [spacon.components.kafka.core :as kafka]
             [clojure.tools.logging :as log]))
 
 (defrecord SpaconServer [http-service]
@@ -48,12 +49,13 @@
   "Returns a new instance of the system"
   [config-options]
   (log/debug "Making server config with these options" config-options)
-  (let [{:keys [http-config mqtt-config]} config-options]
+  (let [{:keys [http-config mqtt-config kafka-producer-config kafka-consumer-config]} config-options]
     (component/system-map
      :user (user/make-user-component)
      :team (team/make-team-component)
      :mqtt (mqtt/make-mqtt-component mqtt-config)
-     :ping (component/using (ping/make-ping-component) [:mqtt])
+     :kafka (kafka/make-kafka-component kafka-producer-config kafka-consumer-config)
+     :ping (component/using (ping/make-ping-component) [:mqtt :kafka])
      :device (component/using (device/make-device-component) [:mqtt])
      :config (component/using (config/make-config-component) [:mqtt])
      :notify (component/using (notification/make-notification-component) [:mqtt])
@@ -62,7 +64,7 @@
      :location (component/using (location/make-location-component) [:mqtt :trigger])
      :form (component/using (form/make-form-component) [:mqtt :trigger])
      :http-service (component/using
-                    (service/make-http-service-component http-config)
+                    (http/make-http-service-component http-config)
                     [:ping :user :team :device :location :trigger
                      :store :config :form :mqtt :notify])
      :server (component/using (new-spacon-server) [:http-service]))))
@@ -95,6 +97,10 @@
                       (or (System/getenv "KEY_STORE_PASSWORD")
                           "somepass"))
   ;; todo: auto migrate flag?
-  (component/start-system (make-spacon-server {:http-config {}
-                                               :mqtt-config {:broker-url (System/getenv "MQTT_BROKER_URL")}})))
+  (component/start-system
+   (make-spacon-server {:http-config {}
+                        :mqtt-config {:broker-url (System/getenv "MQTT_BROKER_URL")}
+                        :kafka-producer-config {:timeout-ms 2000}
+                        :kafka-consumer-config {:servers (System/getenv "BOOTSTRAP_SERVERS")
+                                                :group-id (System/getenv "GROUP_ID")}})))
 

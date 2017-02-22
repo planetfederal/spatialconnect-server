@@ -32,11 +32,16 @@
                  [com.gfredericks/test.chuck "0.2.7"]
                  [jonase/eastwood "0.2.3" :exclusions [org.clojure/clojure]]
                  [com.draines/postal "2.0.2"]
-                 [org.clojure/tools.logging "0.3.1"]]
+                 [org.clojure/tools.logging "0.3.1"]
+                 [org.apache.kafka/kafka-clients "0.10.1.1"]
+                 [org.apache.kafka/kafka-streams "0.10.0.0-cp1" :exclusions [org.slf4j/slf4j-log4j12]]
+                 [clj-time "0.13.0"]
+                 [ymilky/franzy "0.0.1"]]
 
   :repositories  [["osgeo" "http://download.osgeo.org/webdav/geotools/"]
                   ["boundlessgeo-releases" "https://repo.boundlessgeo.com/artifactory/release/"]
                   ["clojars" {:sign-releases false}]
+                  ["confluent" {:url "http://packages.confluent.io/maven/"}]
                   ["project" "file:repo"]]
   :dev-dependencies [[lein-reload "1.0.0"]]
 
