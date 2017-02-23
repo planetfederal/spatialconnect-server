@@ -105,14 +105,6 @@
 (defn publish-map [mqtt topic m]
   (publish mqtt topic (scm/map->SCMessage {:payload m})))
 
-(defn http-mq-post [mqtt context]
-  (let [m (:json-params context)]
-    (publish-map mqtt (:topic m) (:payload m)))
-  (response/ok "success"))
-
-(defn- routes [mqtt] #{["/api/mqtt" :post
-                        (conj intercept/common-interceptors (partial http-mq-post mqtt)) :route-name :http-mq-post]})
-
 (defrecord MqttComponent [mqtt-config]
   component/Lifecycle
   (start [this]
@@ -124,7 +116,7 @@
           c (assoc this :conn m :publish-channel pub-chan :subscribe-channel sub-chan)]
       (process-publish-channel c pub-chan)
       (process-subscribe-channel sub-chan)
-      (assoc c :routes (routes c))))
+      c))
   (stop [this]
     (log/debug "Stopping MQTT Component")
     (async/close! (:publish-channel this))

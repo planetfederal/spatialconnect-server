@@ -24,22 +24,7 @@
             [clj-time.local :as l])
   (:import [java.util.concurrent Executors TimeUnit]))
 
-(defn- pong
-  "Responds with pong as a way to ensure http service is reachable"
-  [request]
-  (response/ok "pong"))
 
-(defn pong-kafka
-  "Subscribes to test topic and awaits pong message to ensure kafka cluster is reachable"
-  [kafka-comp request]
-  (let [record {:topic "test"
-                :key "anykey"
-                :value (json/write-str (:json-params request))}
-        promise-chan (kafka/send! kafka-comp record)
-        [val ch] (async/alts!! [promise-chan (async/timeout 2000)])]
-    (if (nil? val)
-      (response/error "Error writing to Kafka or timeout")
-      (response/ok val))))
 
 (defn- send-ping [kafka-producer]
   (let [ping-msg (json/write-str {:type "ping"
@@ -62,18 +47,13 @@
                              (:reply-to message)
                              (assoc message :payload {:result "pong"})))
 
-(defn- routes
-  [kafka-comp]
-  #{["/api/ping" :get (conj intercept/common-interceptors `pong)]
-    ["/api/ping/kafka" :post (conj intercept/common-interceptors (partial pong-kafka kafka-comp)) :route-name :pong-kafka]})
-
 (defrecord PingComponent [mqtt kafka]
   component/Lifecycle
   (start [this]
     (log/debug "Starting Ping Component")
     (mqttapi/subscribe mqtt "/ping" (partial mqtt-ping mqtt))
     (ping-kafka kafka)
-    (assoc this :routes (routes kafka)))
+    this)
   (stop [this]
     (log/debug "Stopping Ping Component")
     this))

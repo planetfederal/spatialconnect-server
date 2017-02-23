@@ -57,14 +57,14 @@
                    :password (hashers/derive (:password u))}]
     (sanitize (create<! user-info))))
 
-(defn add-user-team [user-team]
-  (log/debugf "Adding user %s to team %s" (:user-id user-team)  (:team-id user-team))
-  (if-let [new-user-team (add-team<! {:user_id (:user-id user-team) :team_id (:team-id user-team)})]
+(defn add-user-team [user-id team-id]
+  (log/debugf "Adding user %s to team %s" user-id team-id)
+  (if-let [new-user-team (add-team<! {:user_id user-id :team_id team-id})]
     (sanitize new-user-team)
     nil))
 
-(defn remove-user-team [user-team]
-  (log/debugf "Removing user %s from team %s" (:user-id user-team)  (:team-id user-team))
-  (if-let [new-user-team (remove-team<! {:user_id (:user-id user-team) :team_id (:team-id user-team)})]
+(defn remove-user-team [user-id team-id]
+  (log/debugf "Removing user %s from team %s" user-id  team-id)
+  (if-let [new-user-team (remove-team<! {:user_id user-id :team_id team-id})]
     (sanitize new-user-team)
     nil))

@@ -80,12 +80,9 @@
     (go (>!! (:send-channel notifcomp)
              (assoc message :notif-ids ids)))))
 
-(defn http-get-notif [context]
-  (let [id (Integer/parseInt (get-in context [:path-params :id]))]
-    (response/ok (notifmodel/find-notif-by-id id))))
-
-(defn routes []
-  #{["/api/notifications/:id" :get (conj intercept/common-interceptors `http-get-notif)]})
+(defn find-notif-by-id
+  [notif-comp id]
+  (notifmodel/find-notif-by-id id))
 
 (defrecord NotificationComponent [mqtt]
   component/Lifecycle
@@ -93,7 +90,7 @@
     (log/debug "Starting Notification Component")
     (let [c (chan)]
       (process-channel mqtt c)
-      (assoc this :mqtt mqtt :send-channel c :routes (routes))))
+      (assoc this :mqtt mqtt :send-channel c )))
   (stop [this]
     (log/debug "Stopping Notification Component")
     (close! (:send-channel this))

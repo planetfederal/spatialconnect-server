@@ -22,6 +22,13 @@
    [spacon.components.http.config :as config-http]
    [spacon.components.http.device :as device-http]
    [spacon.components.http.location :as location-http]
+   [spacon.components.http.mqtt :as mqtt-http]
+   [spacon.components.http.notification :as notif-http]
+   [spacon.components.http.store :as store-http]
+   [spacon.components.http.ping :as ping-http]
+   [spacon.components.http.user :as user-http]
+   [spacon.components.http.trigger :as trigger-http]
+   [spacon.components.http.team :as team-http]
    [clojure.tools.logging :as log]))
 
 (defrecord HttpService [http-config ping user team device location trigger store config form mqtt notify]
@@ -31,18 +38,17 @@
     (let [routes #(route/expand-routes
                    (clojure.set/union #{}
                                       (auth/routes)
-                                      (:routes ping)
-                                      (:routes user)
-                                      (:routes team)
+                                      (ping-http/routes ping)
+                                      (user-http/routes user)
+                                      (team-http/routes team)
                                       (device-http/routes device)
                                       (location-http/routes location)
-                                      (:routes trigger)
-                                      (:routes store)
-                                      (:routes config)
+                                      (trigger-http/routes trigger)
+                                      (store-http/routes store)
                                       (config-http/routes config)
-                                      (:routes mqtt)
+                                      (mqtt-http/routes mqtt)
                                       (form-http/routes form mqtt)
-                                      (:routes notify)))]
+                                      (notif-http/routes notify)))]
       (assoc this :service-def (merge http-config {:env                     :prod
                                                    ::http/routes            routes
                                                    ::http/resource-path     "/public"
