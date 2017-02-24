@@ -38,11 +38,11 @@
   (response/ok "success"))
 
 (defn routes [team-comp] #{["/api/teams" :get
-                    (conj intercept/common-interceptors (partial http-get-all-teams team-comp)) :route-name :get-teams]
-                   ["/api/teams/:id" :get
-                    (conj intercept/common-interceptors (partial http-get-team team-comp)) :route-name :get-team]
-                   ["/api/teams" :post
-                    (conj intercept/common-interceptors (partial http-post-team team-comp)) :route-name :post-team]
-                   ["/api/teams/:id" :delete
-                    (conj intercept/common-interceptors (partial http-delete-team team-comp)) :route-name :delete-team]})
+                            (conj intercept/common-interceptors (partial http-get-all-teams team-comp)) :route-name :get-teams]
+                           ["/api/teams/:id" :get
+                            (conj intercept/common-interceptors (partial http-get-team team-comp)) :route-name :get-team]
+                           ["/api/teams" :post
+                            (conj intercept/common-interceptors (partial http-post-team team-comp)) :route-name :post-team]
+                           ["/api/teams/:id" :delete
+                            (conj intercept/common-interceptors (partial http-delete-team team-comp)) :route-name :delete-team]})
 

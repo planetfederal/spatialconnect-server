@@ -73,25 +73,24 @@
   (if (not-empty (get-in s [:options :polling]))
     (do
       (dosync
-        (commute polling-stores assoc (keyword (:id s)) s))
+       (commute polling-stores assoc (keyword (:id s)) s))
       (start-polling trigger s))))
 
 (defn remove-polling-store [id]
   ; takes a store id string
   (dosync
-    (commute polling-stores dissoc (keyword id)))
+   (commute polling-stores dissoc (keyword id)))
   (stop-polling (keyword id)))
 
 (defn load-polling-stores [trigger]
   (doall (map (partial add-polling-store trigger) (storemodel/all))))
 
-
 (defn create [store-comp s]
   (let [new-store (storemodel/create s)]
     (mqttapi/publish-scmessage (:mqtt store-comp) "/config/update"
                                (scm/map->SCMessage
-                                 {:action  (.value SCCommand/CONFIG_ADD_STORE)
-                                  :payload new-store}))
+                                {:action  (.value SCCommand/CONFIG_ADD_STORE)
+                                 :payload new-store}))
     (add-polling-store (:trigger store-comp) new-store)
     new-store))
 
@@ -99,8 +98,8 @@
   (let [updated-store (storemodel/modify id s)]
     (mqttapi/publish-scmessage (:mqtt store-comp) "/config/update"
                                (scm/map->SCMessage
-                                 {:action  (.value SCCommand/CONFIG_UPDATE_STORE)
-                                  :payload updated-store}))
+                                {:action  (.value SCCommand/CONFIG_UPDATE_STORE)
+                                 :payload updated-store}))
     (add-polling-store (:trigger store-comp) updated-store)
     updated-store))
 
@@ -112,8 +111,8 @@
   (remove-polling-store id)
   (mqttapi/publish-scmessage (:mqtt store-comp) "/config/update"
                              (scm/map->SCMessage
-                               {:action  (.value SCCommand/CONFIG_REMOVE_STORE)
-                                :payload {:id id}})))
+                              {:action  (.value SCCommand/CONFIG_REMOVE_STORE)
+                               :payload {:id id}})))
 
 (defn all [store-comp]
   (storemodel/all))

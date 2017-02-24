@@ -24,8 +24,6 @@
             [clj-time.local :as l])
   (:import [java.util.concurrent Executors TimeUnit]))
 
-
-
 (defn- send-ping [kafka-producer]
   (let [ping-msg (json/write-str {:type "ping"
                                   :timestamp (l/format-local-time (l/local-now) :date-time-no-ms)})]

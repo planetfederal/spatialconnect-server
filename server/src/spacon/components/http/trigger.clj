@@ -63,10 +63,10 @@
   in the json body as the feature to test"
   [triggercomp request]
   (triggerapi/test-value triggercomp "http-api"
-              (-> (:json-params request)
-                  json/write-str
-                  jtsio/read-feature
-                  .getDefaultGeometry))
+                         (-> (:json-params request)
+                             json/write-str
+                             jtsio/read-feature
+                             .getDefaultGeometry))
   (response/ok "success"))
 
 (defn routes [triggercomp]

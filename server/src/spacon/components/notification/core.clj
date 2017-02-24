@@ -90,7 +90,7 @@
     (log/debug "Starting Notification Component")
     (let [c (chan)]
       (process-channel mqtt c)
-      (assoc this :mqtt mqtt :send-channel c )))
+      (assoc this :mqtt mqtt :send-channel c)))
   (stop [this]
     (log/debug "Stopping Notification Component")
     (close! (:send-channel this))
