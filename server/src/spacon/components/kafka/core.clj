@@ -33,11 +33,11 @@
                 client-id        (str "sc-producer-" (.getHostName (java.net.InetAddress/getLocalHost)))}}
         producer-config]
     (KafkaProducer. ^java.util.Map
-                    (assoc config
-                      "request.timeout.ms" (str timeout-ms)
-                      "bootstrap.servers" servers
-                      "client.id" client-id
-                      "acks" "all")
+     (assoc config
+            "request.timeout.ms" (str timeout-ms)
+            "bootstrap.servers" servers
+            "client.id" client-id
+            "acks" "all")
                     ^Serializer key-serializer
                     ^Serializer value-serializer)))
 
@@ -47,13 +47,12 @@
          :or   {client-id        (str "sc-consumer-" (.getHostName (java.net.InetAddress/getLocalHost)))
                 servers          "localhost:9092"
                 key-deserializer   (StringDeserializer.)
-                value-deserializer (StringDeserializer.)
-                }} consumer-config]
+                value-deserializer (StringDeserializer.)}} consumer-config]
     (KafkaConsumer. ^java.util.Map
-                    (assoc {}
-                      ConsumerConfig/CLIENT_ID_CONFIG client-id
-                      ConsumerConfig/GROUP_ID_CONFIG client-id
-                      ConsumerConfig/BOOTSTRAP_SERVERS_CONFIG servers)
+     (assoc {}
+            ConsumerConfig/CLIENT_ID_CONFIG client-id
+            ConsumerConfig/GROUP_ID_CONFIG client-id
+            ConsumerConfig/BOOTSTRAP_SERVERS_CONFIG servers)
                     ^Deserializer key-deserializer
                     ^Deserializer value-deserializer)))
 
@@ -71,7 +70,6 @@
   [producer-config consumer-config]
   (map->KafkaComponent {:producer-config producer-config
                         :consumer-config consumer-config}))
-
 
 ;; todo: write specs for valid records that we accept
 ;; for instance, restrict the topics and keys that can be sent

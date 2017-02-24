@@ -70,7 +70,7 @@
   (let [entity (map->entity t)
         tr (transform-keys ->snake_case_keyword entity)]
     (if-let [new-store (insert-store<! (assoc tr :default_layers
-                                         (dbutil/->StringArray (:default_layers tr))))]
+                                              (dbutil/->StringArray (:default_layers tr))))]
       (sanitize (assoc t :id (.toString (:id new-store))))
       nil)))
 
