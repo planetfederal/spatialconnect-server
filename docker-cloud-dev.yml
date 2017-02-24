@@ -34,16 +34,18 @@ geoserver:
   - develop
 kafka:
   environment:
-  - KAFKA_ADVERTISED_HOST_NAME=
-  - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
-  - KAFKA_LOG_CLEANUP_POLICY=compact
-  image: confluent/kafka:0.10.0.0-cp1
+  - KAFKA_ADVERTISED_HOST_NAME=kafka
+  - KAFKA_ADVERTISED_PORT=9092
+  - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+  image: wurstmeister/kafka:0.10.1.1
   links:
   - zookeeper
   ports:
   - 9092:9092
   tags:
   - develop
+  volumes:
+  - /root/data/kafka:/kafka
 mosquitto:
   autoredeploy: true
   image: boundlessgeo/mosquitto:latest
@@ -54,7 +56,6 @@ mosquitto:
   tags:
   - develop
 nginx:
-  autoredeploy: true
   environment:
   - DOMAIN_NAME=dev.spatialconnect.boundlessgeo.com
   image: boundlessgeo/spatialconnect-server:web-dev
@@ -77,6 +78,7 @@ spatialconnect-server:
   autoredeploy: true
   command: java -jar /opt/server/target/spacon-server.jar
   environment:
+  - BOOTSTRAP_SERVERS=kafka:9092
   - DB_HOST=postgis
   - HOSTNAME=dev.spatialconnect.boundlessgeo.com
   - KEY_STORE=/opt/server/tls/test-keystore.p12
@@ -95,9 +97,10 @@ spatialconnect-server:
   tags:
   - develop
 zookeeper:
-  hostname: zookeeper
-  image: confluent/zookeeper:3.4.6-cp1
+  image: wurstmeister/zookeeper:3.4.6
   ports:
   - 2181:2181
   tags:
   - develop
+  volumes:
+  - /root/data/zookeeper:/opt/zookeeper-3.4.6/data
