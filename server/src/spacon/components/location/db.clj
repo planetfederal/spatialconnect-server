@@ -15,8 +15,6 @@
 (ns spacon.components.location.db
   (:require [spacon.db.conn :as db]
             [yesql.core :refer [defqueries]]
-            [clojure.spec :as s]
-            [clojure.data.json :as json]
             [cljts.io :as jio]
             [cljts.geom :as jeom]))
 

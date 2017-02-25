@@ -23,7 +23,7 @@
 ;;; specs about device data
 (s/def ::name non-empty-string)
 (s/def ::identifier non-empty-string)
-(s/def ::device-info (s/with-gen map?
+(s/def ::device_info (s/with-gen map?
                        #(gen/fmap (fn [[t1 t2]]
                                     {t1 t2}) (gen/tuple gen/keyword gen/string-alphanumeric))))
-(s/def ::device-spec (s/keys :req-un [::name ::identifier ::device-info]))
+(s/def ::device-spec (s/keys :req-un [::name ::identifier ::device_info]))

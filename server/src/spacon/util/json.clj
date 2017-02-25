@@ -13,9 +13,7 @@
 ;; limitations under the License.
 
 (ns spacon.util.json
-  (:require [clojure.data.json :as json]
-            [camel-snake-kebab.extras :refer [transform-keys]]
-            [camel-snake-kebab.core :refer :all]))
+  (:require [clojure.data.json :as json]))
 
 (defn key->kebabkeyword [key]
   (->kebab-case-keyword (keyword key)))
@@ -24,10 +22,10 @@
   (->camelCaseKeyword (keyword key)))
 
 (defn json->kebab [jsonstr]
-  (json/read-str jsonstr :key-fn ->kebab-case-keyword))
+  (json/read-str jsonstr))
 
 (defn json->camelCase [jsonstr]
-  (json/read-str jsonstr :key-fn ->camelCaseKeyword))
+  (json/read-str jsonstr))
 
 (defn map->jsonrequest [m]
-  (json/write-str (transform-keys ->snake_case_keyword m)))
+  (json/write-str m))

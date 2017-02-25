@@ -52,7 +52,6 @@
             [lein-codox "0.10.2"]
             [lein-cloverage "1.0.9"]]
 
-
   :aliases {"migrate" ["run" "-m" "spacon.db.conn/migrate"]
             "rollback" ["run" "-m" "spacon.db.conn/rollback"]
             "sampledata" ["run" "-m" "spacon.generate-data"]}

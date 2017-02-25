@@ -15,8 +15,7 @@
 (ns spacon.entity.scmessage
   (:require [clojure.data.json :as json]
             [clojure.string :refer [blank?]]
-            [camel-snake-kebab.core :refer :all]
-            [camel-snake-kebab.extras :refer [transform-keys]]
+            [clojure.walk :refer [keywordize-keys]]
             [clojure.tools.logging :as log])
   (:import (com.boundlessgeo.spatialconnect.schema
             SCMessageOuterClass$SCMessage)))
@@ -24,7 +23,7 @@
 (defn- bytes->map [proto]
   (let [scm (SCMessageOuterClass$SCMessage/parseFrom proto)
         p (.getPayload scm)
-        payload (if (blank? p) {} (json/read-str p :key-fn ->kebab-case-keyword))]
+        payload (if (blank? p) {} (keywordize-keys (json/read-str p)))]
     (try
       {:correlation-id (.getCorrelationId scm)
        :jwt (.getJwt scm)
@@ -59,4 +58,4 @@
                  (or (get message :jwt) "")
                  (or (get message :reply-to) "")
                  (or (get message :action) -1)
-                 (json/write-str (or (get message :payload) "{}") :key-fn ->snake_case_string))))
+                 (json/write-str (or (get message :payload) "{}")))))

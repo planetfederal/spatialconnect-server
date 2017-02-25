@@ -29,11 +29,11 @@
 
 (defn add-user-team
   [_ team]
-  (usermodel/add-user-team (:user-id team) (:team-id team)))
+  (usermodel/add-user-team (:user_id team) (:team_id team)))
 
 (defn remove-user-team
   [_ team]
-  (usermodel/remove-user-team (:user-id team) (:team-id team)))
+  (usermodel/remove-user-team (:user_id team) (:team_id team)))
 
 (defrecord UserComponent []
   component/Lifecycle

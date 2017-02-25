@@ -22,8 +22,8 @@
                         #(gen/fmap identity gen/string-alphanumeric)))
 ;;; specs for teams
 (s/def :team/name non-empty-string)
-(s/def :team/organization-id
+(s/def :team/organization_id
   (s/with-gen pos-int?
     #(s/gen (set (map :id (orgsmodel/all))))))
 (s/def ::team-spec (s/keys :req-un
-                           [:team/name :team/organization-id]))
+                           [:team/name :team/organization_id]))

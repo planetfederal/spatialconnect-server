@@ -31,13 +31,13 @@
 
 (deftest device-crud-test []
   (let [device (gen/generate (spec/gen :spacon.specs.device/device-spec))
-        d (transform-keys ->snake_case_keyword device)
+        d device
         new-device (utils/request-post "/api/devices" d)
-        create-res (transform-keys ->kebab-case-keyword (:result new-device))
+        create-res (:result new-device)
         read-device (utils/request-get (str "/api/devices/" (:identifier create-res)))
-        read-res (transform-keys ->kebab-case-keyword (:result read-device))
+        read-res (:result read-device)
         delete-device (utils/request-delete (str "/api/devices/" (:id create-res)))
-        delete-res (transform-keys ->kebab-case-keyword (:result delete-device))]
+        delete-res (:result delete-device)]
     (is (spec/valid? :spacon.specs.device/device-spec create-res))
     (is (spec/valid? :spacon.specs.device/device-spec read-res))
     (is (= "success" delete-res))))

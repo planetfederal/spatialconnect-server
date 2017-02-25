@@ -36,8 +36,8 @@
       (cond-> (nil? (:options t)) (assoc :options nil))
       (cond-> (some? (:options t)) (assoc :options (json/write-str (:options t))))
       (cond-> (nil? (:style t)) (assoc :style nil))
-      (cond-> (some? (:style t)) (assoc :style (json/write-str (:style t))))
-      (assoc :default_layers (dbutil/->StringArray (:default-layers t)))))
+      (cond-> (some? (:style t)) (assoc :style (json/write-str (:style t))))))
+      ;(assoc :default_layers (dbutil/->StringArray (:default_layers t)))))
 
 (defn row-fn [row]
   (-> row
@@ -67,8 +67,7 @@
 (defn create
   "Creates a store"
   [t]
-  (let [entity (map->entity t)
-        tr (transform-keys ->snake_case_keyword entity)]
+  (let [tr (map->entity t)]
     (if-let [new-store (insert-store<! (assoc tr :default_layers
                                               (dbutil/->StringArray (:default_layers tr))))]
       (sanitize (assoc t :id (.toString (:id new-store))))
@@ -78,10 +77,9 @@
   "Update a data store"
   [id t]
   (let [entity (map->entity (assoc t :id (java.util.UUID/fromString id)))
-        tr (transform-keys ->snake_case_keyword entity)
-        updated-store (update-store<! (assoc tr :default_layers
-                                             (dbutil/->StringArray (:default_layers tr))))]
-    (sanitize (row-fn t))))
+        updated-store (update-store<! (assoc entity :default_layers
+                                             (dbutil/->StringArray (:default_layers entity))))]
+    (sanitize (row-fn updated-store))))
 
 (defn delete
   "Deactivates a store"

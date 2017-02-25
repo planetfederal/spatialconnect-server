@@ -36,16 +36,16 @@
                         (s/and string? #(> (count %) 0))
                         #(gen/fmap identity gen/string-alphanumeric)))
 
-(s/def :fieldoptstring/initial-value non-empty-string)
-(s/def :fieldoptnum/initial-value num-str-gen)
+(s/def :fieldoptstring/initial_value non-empty-string)
+(s/def :fieldoptnum/initial_value num-str-gen)
 (s/def :fieldoptnum/minimum num-str-gen)
 (s/def :fieldoptnum/maximum num-str-gen)
-(s/def :fieldoptint/initial-value int-str-gen)
+(s/def :fieldoptint/initial_value int-str-gen)
 (s/def :fieldoptint/maximum int-str-gen)
 (s/def :fieldoptint/minimum int-str-gen)
-(s/def :fieldopt/is-integer boolean?)
-(s/def :fieldopt/minimum-length pos-int-str-gen)
-(s/def :fieldopt/maximum-length pos-int-str-gen)
+(s/def :fieldopt/is_integer boolean?)
+(s/def :fieldopt/minimum_length pos-int-str-gen)
+(s/def :fieldopt/maximum_length pos-int-str-gen)
 (s/def :fieldopt/pattern string?)
 (s/def :fieldopt/options (s/coll-of non-empty-string :kind vector?
                                     :min-count 1 :distinct true))
@@ -54,9 +54,9 @@
                    "select" "slider" "counter" "photo"})
 (s/def :fieldstring/type (s/with-gen (s/and string? #(contains? #{"string"} %))
                            #(s/gen #{"string"})))
-(s/def :fieldstring/constraints (s/keys :opt-un [:fieldoptstring/initial-value
-                                                 :fieldopt/minimum-length
-                                                 :fieldopt/maximum-length
+(s/def :fieldstring/constraints (s/keys :opt-un [:fieldoptstring/initial_value
+                                                 :fieldopt/minimum_length
+                                                 :fieldopt/maximum_length
                                                  :fieldopt/pattern]))
 (s/def :fieldboolean/type (s/with-gen (s/and string? #(contains? #{"boolean"} %))
                             #(s/gen #{"boolean"})))
@@ -64,7 +64,7 @@
 
 (s/def :fieldcounter/type (s/with-gen (s/and string? #(contains? #{"counter"} %))
                             #(s/gen #{"counter"})))
-(s/def :fieldcounter/constraints (s/keys :req-un [:fieldoptint/initial-value
+(s/def :fieldcounter/constraints (s/keys :req-un [:fieldoptint/initial_value
                                                   :fieldoptint/maximum
                                                   :fieldoptint/minimum]))
 (s/def :fielddate/type (s/with-gen (s/and string? #(contains? #{"date"} %))
@@ -73,7 +73,7 @@
 
 (s/def :fieldslider/type (s/with-gen (s/and string? #(contains? #{"slider"} %))
                            #(s/gen #{"slider"})))
-(s/def :fieldslider/constraints (s/keys :req-un [:fieldoptnum/initial-value
+(s/def :fieldslider/constraints (s/keys :req-un [:fieldoptnum/initial_value
                                                  :fieldoptnum/maximum
                                                  :fieldoptnum/minimum]))
 
@@ -87,44 +87,44 @@
 
 (s/def :fieldnumber/type (s/with-gen (s/and string? #(contains? #{"number"} %))
                            #(s/gen #{"number"})))
-(s/def :fieldnumber/constraints (s/keys :opt-un [:fieldoptnum/initial-value
+(s/def :fieldnumber/constraints (s/keys :opt-un [:fieldoptnum/initial_value
                                                  :fieldoptnum/minimum
                                                  :fieldoptnum/maximum
-                                                 :fieldopt/is-integer]))
+                                                 :fieldopt/is_integer]))
 
 (s/def :field/type field-types)
 (s/def :field/position (s/int-in 0 100))
-(s/def :field/is-required boolean?)
+(s/def :field/is_required boolean?)
 (s/def :field/id pos-int?)
-(s/def :field/field-label (s/and string? #(> (count %) 0)))
+(s/def :field/field_label (s/and string? #(> (count %) 0)))
 (def sqlcol-regex #"[a-z][a-z0-9_]*")
-(s/def :field/field-key (s/with-gen
+(s/def :field/field_key (s/with-gen
                           (s/and string? #(> (count %) 0) #(re-matches sqlcol-regex %))
                           #(genc/string-from-regex sqlcol-regex)))
 
-(s/def :fieldstring/spec (s/keys :req-un [:field/id :field/field-key :field/is-required
-                                          :field/position :field/field-label :fieldstring/type
+(s/def :fieldstring/spec (s/keys :req-un [:field/id :field/field_key :field/is_required
+                                          :field/position :field/field_label :fieldstring/type
                                           :fieldstring/constraints]))
-(s/def :fieldnumber/spec (s/keys :req-un [:field/id :field/field-key :field/is-required
-                                          :field/position :field/field-label :fieldnumber/type
+(s/def :fieldnumber/spec (s/keys :req-un [:field/id :field/field_key :field/is_required
+                                          :field/position :field/field_label :fieldnumber/type
                                           :fieldnumber/constraints]))
-(s/def :fielddate/spec (s/keys :req-un [:field/id :field/field-key :field/is-required
-                                        :field/position :field/field-label :fielddate/type]))
-(s/def :fieldboolean/spec (s/keys :req-un [:field/id :field/field-key :field/is-required
-                                           :field/position :field/field-label :fieldboolean/type]))
-(s/def :fieldselect/spec (s/keys :req-un [:field/id :field/field-key :field/is-required
-                                          :field/position :field/field-label :fieldselect/type
+(s/def :fielddate/spec (s/keys :req-un [:field/id :field/field_key :field/is_required
+                                        :field/position :field/field_label :fielddate/type]))
+(s/def :fieldboolean/spec (s/keys :req-un [:field/id :field/field_key :field/is_required
+                                           :field/position :field/field_label :fieldboolean/type]))
+(s/def :fieldselect/spec (s/keys :req-un [:field/id :field/field_key :field/is_required
+                                          :field/position :field/field_label :fieldselect/type
                                           :fieldselect/constraints]))
 
-(s/def :fieldslider/spec (s/keys :req-un [:field/id :field/field-key :field/is-required
-                                          :field/position :field/field-label :fieldslider/type
+(s/def :fieldslider/spec (s/keys :req-un [:field/id :field/field_key :field/is_required
+                                          :field/position :field/field_label :fieldslider/type
                                           :fieldslider/constraints]))
 
-(s/def :fieldphoto/spec (s/keys :req-un [:field/id :field/field-key :field/is-required
-                                         :field/position :field/field-label :fieldphoto/type]))
+(s/def :fieldphoto/spec (s/keys :req-un [:field/id :field/field_key :field/is_required
+                                         :field/position :field/field_label :fieldphoto/type]))
 
-(s/def :fieldcounter/spec (s/keys :req-un [:field/id :field/field-key :field/is-required
-                                           :field/position :field/field-label :fieldcounter/type
+(s/def :fieldcounter/spec (s/keys :req-un [:field/id :field/field_key :field/is_required
+                                           :field/position :field/field_label :fieldcounter/type
                                            :fieldcounter/constraints]))
 
 (s/def ::field-spec (s/or :number :fieldnumber/spec
@@ -136,12 +136,12 @@
                           :photo :fieldphoto/spec
                           :counter :fieldcounter/spec))
 
-(s/def :form/form-key :field/field-key)
+(s/def :form/form_key :field/field_key)
 (s/def :form/version pos-int?)
-(s/def :form/form-label (s/and string? #(> (count %) 0)))
+(s/def :form/form_label (s/and string? #(> (count %) 0)))
 (s/def :form/fields (s/coll-of ::field-spec))
-(s/def :form/team-id (s/with-gen (s/and int? pos?)
+(s/def :form/team_id (s/with-gen (s/and int? pos?)
                        #(s/gen (set (map :id (teammodel/all))))))
 
-(s/def ::form-spec (s/keys :req-un [:form/form-key :form/version :form/form-label
-                                    :form/fields :form/team-id]))
+(s/def ::form-spec (s/keys :req-un [:form/form_key :form/version :form/form_label
+                                    :form/fields :form/team_id]))

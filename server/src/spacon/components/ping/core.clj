@@ -42,7 +42,7 @@
   "Responds with pong as a way to ensure mqtt broker is reachable"
   [mqttcomp message]
   (mqttapi/publish-scmessage mqttcomp
-                             (:reply-to message)
+                             (:reply_to message)
                              (assoc message :payload {:result "pong"})))
 
 (defrecord PingComponent [mqtt kafka]

@@ -28,10 +28,10 @@
   (log/debug "Creating config for user" user)
   (let [teams (map :id (:teams user))]
     {:stores (filter (fn [s]
-                       (> (.indexOf teams (:team-id s)) -1))
+                       (> (.indexOf teams (:team_id s)) -1))
                      (storemodel/all))
      :forms  (filter (fn [f]
-                       (> (.indexOf teams (:team-id f)) -1))
+                       (> (.indexOf teams (:team_id f)) -1))
                      (formmodel/all))}))
 
 (defn- mqtt->config

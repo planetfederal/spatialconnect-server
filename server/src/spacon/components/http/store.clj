@@ -15,7 +15,7 @@
   (log/debug "Getting store by id")
   (let [id (get-in request [:path-params :id])]
     (if-let [store (storeapi/find-by-id store-comp id)]
-      (response/ok-without-snake-case store)
+      (response/ok store)
       (let [err-msg (str "No store found for id" id)]
         (log/warn err-msg)
         (response/not-found err-msg)))))
@@ -67,7 +67,7 @@
   "Returns http response of all stores"
   [store-comp _]
   (log/debug "Getting all stores")
-  (response/ok-without-snake-case (storeapi/all store-comp)))
+  (response/ok (storeapi/all store-comp)))
 
 (defn get-capabilities->layer-names
   "Takes a WFS GetCapabilities document as an xml string and returns

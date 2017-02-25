@@ -19,9 +19,9 @@
 (defn make-email-notification
   "Takes a map of a notification and returns a Notification record for email"
   [n]
-  (map->Notification (assoc n :output-type :email)))
+  (map->Notification (assoc n :output_type :email)))
 
 (defn make-mobile-notification
   "Takes a map of a notification and returns a Notification record for mobile"
   [n]
-  (map->Notification (assoc n :output-type :mobile)))
+  (map->Notification (assoc n :output_type :mobile)))
