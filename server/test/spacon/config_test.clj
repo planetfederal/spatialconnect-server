@@ -17,8 +17,6 @@
             [spacon.components.form.db :as form]
             [spacon.specs.form]
             [spacon.test-utils :as utils]
-            [clojure.spec.gen :as gen]
-            [clojure.spec :as spec]
             [camel-snake-kebab.core :refer :all]
             [camel-snake-kebab.extras :refer [transform-keys]]))
 
@@ -26,6 +24,6 @@
 
 (deftest config-get-test []
   (let [read-config (utils/request-get "/api/config")
-        read-res (transform-keys ->kebab-case-keyword (:result read-config))]
+        read-res (:result read-config)]
     (is (some? (:forms read-res)))
     (is (some? (:stores read-res)))))

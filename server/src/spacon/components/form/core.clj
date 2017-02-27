@@ -99,7 +99,7 @@
   [trigger message]
   (log/debug "Handling form submission")
   (let [p (:payload message)
-        form-id (:form-id p)
+        form-id (:form_id p)
         form-data (:feature p)
         device-identifier (:client (:metadata form-data))
         gj (-> form-data

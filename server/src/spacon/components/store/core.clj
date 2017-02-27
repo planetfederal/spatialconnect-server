@@ -14,19 +14,14 @@
 
 (ns spacon.components.store.core
   (:require [com.stuartsierra.component :as component]
-            [spacon.components.http.intercept :as intercept]
-            [spacon.components.http.response :as response]
             [spacon.components.store.db :as storemodel]
             [spacon.components.trigger.core :as triggerapi]
             [clj-http.client :as client]
             [cljts.io :as jtsio]
             [spacon.components.mqtt.core :as mqttapi]
             [spacon.entity.scmessage :as scm]
-            [clojure.data.json :as json]
-            [clojure.xml :as xml]
             [overtone.at-at :refer [every, mk-pool, stop, stop-and-reset-pool!]]
-            [clojure.tools.logging :as log]
-            [clojure.spec :as s])
+            [clojure.tools.logging :as log])
   (:import (com.boundlessgeo.spatialconnect.schema SCCommand)))
 
 (defn feature-collection->geoms

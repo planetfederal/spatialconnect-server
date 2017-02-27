@@ -14,7 +14,7 @@
 
 (ns spacon.specs.trigger
   (:require [clojure.spec :as s]
-            [spacon.specs.geojson :as geojson-spec]))
+            [spacon.specs.geojson]))
 
 (s/def :trigger/comparator-spec (s/with-gen
                                   (s/and string? #(contains? #{"$geowithin"} %))

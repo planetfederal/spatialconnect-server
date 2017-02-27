@@ -31,8 +31,7 @@
   [form]
   (->> (dissoc form :created_at :updated_at :deleted_at :form_id)
        (remove #(nil? (val %)))
-       (into {})
-       (transform-keys ->kebab-case-keyword)))
+       (into {})))
 
 (defn find-by-form-key [form-key]
   (find-by-form-key-query {:form_key form-key}))
@@ -87,7 +86,7 @@
   [form]
   (jdbc/with-db-transaction [tx db/db-spec]
     (let [fields   (:fields form)
-          form-key (:form-key form)
+          form-key (:form_key form)
           tnx      {:connection tx}
           version  (some->
                     (find-latest-version form-key)
@@ -95,21 +94,21 @@
                     inc)
           new-form (create<! {:form_key   form-key
                               :form_label (or
-                                           (:form-label form)
+                                           (:form_label form)
                                            form-key)
                               :version    (or version 1)
-                              :team_id    (:team-id form)}
+                              :team_id    (:team_id form)}
                              tnx)
           new-fields (doall
                       (map
                        (fn [fs]
                          (create-form-fields<!
                           {:form_id           (:id new-form)
-                           :field_key         (:field-key fs)
-                           :field_label       (:field-label fs)
+                           :field_key         (:field_key fs)
+                           :field_label       (:field_label fs)
                            :type              (:type fs)
                            :position          (:position fs)
-                           :is_required       (:is-required fs)
+                           :is_required       (:is_required fs)
                            :constraints       (json/write-str (:constraints fs))}
                           tnx)) fields))
           sanitized-fields (map #(sanitize %) new-fields)]

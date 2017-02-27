@@ -45,20 +45,6 @@
     "application/edn" (pr-str body)
     "application/json" (json/write-str body)))
 
-(def kebab-keys
-  {:name  ::kebab-keys
-   :enter (fn [context]
-            (if-not (nil? (get-in context [:request :json-params]))
-              (update-in context [:request :json-params] #(transform-keys ->kebab-case-keyword %))
-              context))})
-
-(def camel-keys
-  {:name  ::camel-keys
-   :leave (fn [context]
-            (if-not (nil? (get-in context [:response :body :result]))
-              (update-in context [:response :body :result] #(transform-keys ->snake_case_keyword %))
-              context))})
-
 ; always set response content-type to json
 (defn coerce-to
   [response content-type]
@@ -74,4 +60,4 @@
        (nil? (get-in context [:response :body :headers "Content-Type"]))
        (update-in [:response] coerce-to (accepted-type context))))})
 
-(def common-interceptors [coerce-body content-neg-intc (body-params/body-params) kebab-keys])
+(def common-interceptors [coerce-body content-neg-intc (body-params/body-params)])

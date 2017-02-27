@@ -28,15 +28,14 @@
   (is (true? (utils/spec-passed? `trigger/all))))
 
 (defn generate-test-trigger []
-  (->> (gen/generate (spec/gen :spacon.specs.trigger/trigger-spec))
-       (transform-keys ->snake_case_keyword)))
+  (gen/generate (spec/gen :spacon.specs.trigger/trigger-spec)))
 
 (deftest trigger-http-crud-test
   (let [test-trigger (generate-test-trigger)]
 
     (testing "Creating a trigger through REST api produces a valid HTML response"
       (let [res (utils/request-post "/api/triggers" test-trigger)
-            new-trigger (transform-keys ->kebab-case-keyword (:result res))]
+            new-trigger (:result res)]
         (is (contains? res :result)
             "Response should have result keyword")
         (is (spec/valid? :spacon.specs.trigger/trigger-spec new-trigger)
@@ -44,7 +43,7 @@
 
     (testing "Retrieving all triggers through REST api produces a valid HTML response"
       (let [res (-> (utils/request-get "/api/triggers"))
-            trigger (->> res :result first (transform-keys ->kebab-case-keyword))]
+            trigger (->> res :result first)]
         (is (contains? res :result)
             "Response should have result keyword")
         (is (spec/valid? :spacon.specs.trigger/trigger-spec trigger)
@@ -53,7 +52,7 @@
     (testing "Retrieving trigger by its key through REST api produces a valid HTML response"
       (let [t (-> (utils/request-get "/api/triggers") :result first)
             res (-> (utils/request-get (str "/api/triggers/" (:id t))))
-            trigger (transform-keys ->kebab-case-keyword (:result res))]
+            trigger (:result res)]
         (is (contains? res :result)
             "Response should have result keyword")
         (is (spec/valid? :spacon.specs.trigger/trigger-spec trigger)
@@ -61,9 +60,9 @@
 
     (testing "Updating a trigger through REST api produces a valid HTML response"
       (let [trigger (-> (utils/request-get "/api/triggers") :result first)
-            renamed-trigger (->> (assoc trigger :name "foo") (transform-keys ->snake_case_keyword))
+            renamed-trigger (assoc trigger :name "foo")
             res (utils/request-put (str "/api/triggers/" (:id trigger)) renamed-trigger)
-            updated-trigger (transform-keys ->kebab-case-keyword (:result res))]
+            updated-trigger (:result res)]
         (is (contains? res :result)
             "Response should have result keyword")
         (is (spec/valid? :spacon.specs.trigger/trigger-spec updated-trigger)

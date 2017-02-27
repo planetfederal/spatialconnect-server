@@ -18,8 +18,6 @@
             [clojure.core.async :refer [chan <!! >!! close! go alt!]]
             [postal.core :refer [send-message]]
             [spacon.components.notification.db :as notifmodel]
-            [spacon.components.http.intercept :as intercept]
-            [spacon.components.http.response :as response]
             [clojure.tools.logging :as log]))
 
 (defn- send->device [mqtt device-id message]
@@ -37,7 +35,7 @@
     0 (send->all mqtt message)
     1 (send->device mqtt (first (:to message)) message)
     (send->devices mqtt (:to message) message))
-  (map notifmodel/mark-as-sent (:notif-id message)))
+  (map notifmodel/mark-as-sent (:notif_id message)))
 
 (def conn {:host (or (System/getenv "SMTP_HOST")
                      "email-smtp.us-east-1.amazonaws.com")

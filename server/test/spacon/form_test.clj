@@ -20,20 +20,15 @@
             [spacon.test-utils :as utils]
             [clojure.spec.gen :as gen]
             [clojure.spec :as spec]
-            [camel-snake-kebab.core :refer :all]
-            [camel-snake-kebab.extras :refer [transform-keys]]
             [spacon.components.mqtt.core :as mqttapi]
-            [clojure.data.json :as json]
             [spacon.entity.scmessage :as scm]
             [clojure.walk :refer [keywordize-keys]])
-  (:import java.net.URLDecoder
-           (com.boundlessgeo.spatialconnect.schema SCCommand)))
+  (:import (com.boundlessgeo.spatialconnect.schema SCCommand)))
 
 (use-fixtures :once utils/setup-fixtures)
 
 (defn generate-test-form []
-  (->> (gen/generate (spec/gen :spacon.specs.form/form-spec))
-       (transform-keys ->snake_case_keyword)))
+  (gen/generate (spec/gen :spacon.specs.form/form-spec)))
 
 (deftest form-list-test
   (is (true? (utils/spec-passed? `form/all))))
@@ -42,7 +37,7 @@
   (let [test-form (generate-test-form)]
     (testing "Creating a form through REST api produces a valid HTML response"
       (let [res (utils/request-post "/api/forms" test-form)
-            new-form (transform-keys ->kebab-case-keyword (:result res))]
+            new-form (:result res)]
         (is (contains? res :result)
             "Response should have result keyword")
         (is (spec/valid? :spacon.specs.form/form-spec new-form)
@@ -50,7 +45,7 @@
 
     (testing "Retrieving all forms through REST api produces a valid HTML response"
       (let [res (-> (utils/request-get "/api/forms"))
-            form (->> res :result first (transform-keys ->kebab-case-keyword))]
+            form (->> res :result first)]
         (is (contains? res :result)
             "Response should have result keyword")
         (is (spec/valid? :spacon.specs.form/form-spec form)
@@ -59,7 +54,7 @@
     (testing "Retrieving form by its key through REST api produces a valid HTML response"
       (let [f (-> (utils/request-get "/api/forms") :result first)
             res (-> (utils/request-get (str "/api/forms/" (:form_key f))))
-            form (transform-keys ->kebab-case-keyword (:result res))]
+            form (:result res)]
         (is (contains? res :result)
             "Response should have result keyword")
         (is (spec/valid? :spacon.specs.form/form-spec form)
@@ -67,9 +62,9 @@
 
     (testing "Updating a form through REST api produces a valid HTML response"
       (let [form (-> (utils/request-get "/api/forms") :result first)
-            renamed-form (->> (assoc form :form-label "foo") (transform-keys ->snake_case_keyword))
+            renamed-form (assoc form :form-label "foo")
             res (utils/request-post "/api/forms" renamed-form)
-            updated-form (transform-keys ->kebab-case-keyword (:result res))]
+            updated-form (:result res)]
         (is (contains? res :result)
             "Response should have result keyword")
         (is (spec/valid? :spacon.specs.form/form-spec updated-form)
@@ -97,7 +92,7 @@
     (testing "Updating a form through REST api produces a valid message on config/update topic"
       (let [mqtt (:mqtt user/system-val)
             form (-> (utils/request-get "/api/forms") :result first)
-            updated-form (->> (assoc form :form-label "foo") (transform-keys ->snake_case_keyword))
+            updated-form (assoc form :form-label "foo")
             msg-handler (fn [form-key m]
                           (is (= form-key (get-in m [:payload :form-key])))
                           ;; todo: we never update a form...we only add new ones with a newer version

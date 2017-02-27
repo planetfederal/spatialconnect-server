@@ -26,8 +26,7 @@
 (defqueries "sql/team.sql" {:connection db/db-spec})
 
 (defn- sanitize [team]
-  (let [mteam (rename-keys team {:organization_id :organization-id})]
-    (dissoc mteam :created_at :updated_at :deleted_at)))
+  (dissoc team :created_at :updated_at :deleted_at))
 
 (defn all []
   (log/debug "Fetching all teams from db")
@@ -35,7 +34,7 @@
 
 (defn create [team]
   (log/debug "Inserting new team into db" team)
-  (if-let [new-team (insert-team<! (rename-keys team {:organization-id :organization_id}))]
+  (if-let [new-team (insert-team<! team)]
     (sanitize new-team)
     nil))
 
