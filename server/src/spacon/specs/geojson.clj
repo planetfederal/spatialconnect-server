@@ -50,7 +50,7 @@
                (gen/tuple (s/gen :gj/x) (s/gen :gj/y) (s/gen pos-int?)))))
 (s/def :gjls/type (s/with-gen string? #(s/gen #{"LineString"})))
 (s/def :gjpl/coordinates (s/with-gen
-                           (s/and coll? #(< 3 (count %)))
+                           coll?
                            #(gen/fmap (fn [[lon lat]] (list (circle-gen lon lat)))
                                       (gen/tuple (s/gen :gj/x) (s/gen :gj/y)))))
 (s/def :gjpl/type (s/with-gen string? #(s/gen #{"Polygon"})))
@@ -87,9 +87,7 @@
 (s/def :gfeature/properties (s/with-gen
                               (s/or :nil nil? :map map?)
                               #(s/gen #{{}})))
-(s/def :gfeature/type (s/with-gen
-                        (s/and string? #(contains? #{"Feature"} %))
-                        #(s/gen #{"Feature"})))
+(s/def :gfeature/type #{"Feature"})
 ; Single geojson point feature
 (s/def ::pointfeature-spec (s/keys :req-un
                                    [:gfeature/id :gfeature/type
