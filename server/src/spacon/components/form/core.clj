@@ -14,7 +14,6 @@
 
 (ns spacon.components.form.core
   (:require [com.stuartsierra.component :as component]
-
             [spacon.components.form.db :as formmodel]
             [spacon.components.mqtt.core :as mqttapi]
             [clojure.spec :as s]
@@ -63,7 +62,8 @@
 
 (defn get-form-by-id
   [_ form-id]
-  (formmodel/find-by-id (Integer/parseInt form-id)))
+  (let [form (formmodel/find-by-id (Integer/parseInt form-id))]
+    form))
 
 (defn get-form-data
   "Retrieves data for a specific form"

@@ -13,7 +13,7 @@
 (defn http-get-sample-form-data
   "Generates a sample form submission for a given form"
   [form-comp request]
-  (let [form-id (get-in request [:path-params :form_id])
+  (let [form-id (get-in request [:path-params :form-id])
         form-key (-> (partial formapi/get-form-by-id form-comp) first :form_key)]
     (log/debugf "Generating sample data for form %s" form-id)
     (let [feature-data (formapi/generate-data-for-form form-comp form-id)]
@@ -35,8 +35,9 @@
   [form-comp request]
   (log/debug "Getting form by form-key")
   ;; todo, we should check form_key and team_id in the query
-  (let [form-key (get-in request [:path-params :form_key])]
-    (response/ok (formapi/find-latest-version form-comp form-key))))
+  (let [form-key (get-in request [:path-params :form-key])
+        form (formapi/find-latest-version form-comp form-key)]
+    (response/ok form)))
 
 (defn http-post-form
   "Creates a new form using the json body then publishes a
@@ -66,7 +67,7 @@
   config update message about the deleted form"
   [form-comp mqtt-comp request]
   (log/debug "Deleting form")
-  (let [form-key (URLDecoder/decode (get-in request [:path-params :form_key])
+  (let [form-key (URLDecoder/decode (get-in request [:path-params :form-key])
                                     "UTF-8")
         forms (formapi/find-by-form-key form-comp form-key)]
     (if (zero? (count forms))
@@ -89,7 +90,7 @@
   "Creates a form submission using the json body"
   [form-comp request]
   (log/debug "Submitting form data")
-  (let [form-id   (Integer/parseInt (get-in request [:path-params :form_id]))
+  (let [form-id   (Integer/parseInt (get-in request [:path-params :form-id]))
         form-data (get-in request [:json-params])
         device-id (:device_id form-data)] ;; todo: device-id is not sent yet so this will always be nil
     (formapi/add-form-data form-comp form-data form-id device-id)
@@ -99,7 +100,7 @@
   "Gets the form submissions for given form"
   [form-comp request]
   (log/debug "Fetching form data")
-  (let [form-id (get-in request [:path-params :form_id])]
+  (let [form-id (get-in request [:path-params :form-id])]
     (response/ok (formapi/get-form-data form-comp form-id))))
 
 (defn routes [form-comp mqtt]

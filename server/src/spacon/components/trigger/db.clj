@@ -84,7 +84,6 @@
   (log/debug "Validating trigger against spec")
   (if (s/valid? :spacon.specs.trigger/trigger-spec t)
     (do
-      (log/debug "Inserting trigger into db" t)
       (let [entity (map->entity t)
             new-trigger (insert-trigger<!
                          (assoc entity
