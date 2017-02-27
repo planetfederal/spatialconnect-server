@@ -110,7 +110,7 @@
 
 (deftest wfs-get-caps-proxy
   (testing "Sending a request to /api/wfs/getCapabilities?url=<wfs-endpoint> returns a list of layernames"
-    (let [wfs-url (URLEncoder/encode "http://demo.boundlessgeo.com/geoserver/osm/ows" "UTF-8")
+    (let [wfs-url (URLEncoder/encode "http://spatialconnect.boundlessgeo.com:8080/geoserver/ows" "UTF-8")
           res (utils/request-get (str "/api/wfs/getCapabilities?url=" wfs-url))]
       (is (< 0 (count (:result res)))
           "The response should contain a list of layers in the result"))))
