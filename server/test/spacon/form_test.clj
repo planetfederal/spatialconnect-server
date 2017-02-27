@@ -62,14 +62,14 @@
 
     (testing "Updating a form through REST api produces a valid HTML response"
       (let [form (-> (utils/request-get "/api/forms") :result first)
-            renamed-form (assoc form :form-label "foo")
+            renamed-form (assoc form :form_label "foo")
             res (utils/request-post "/api/forms" renamed-form)
             updated-form (:result res)]
         (is (contains? res :result)
             "Response should have result keyword")
         (is (spec/valid? :spacon.specs.form/form-spec updated-form)
             "The response should contain a form that conforms to the form spec")
-        (is (= "foo" (:form-label updated-form))
+        (is (= "foo" (:form_label updated-form))
             "The response should contain the updated form label")))
 
     (testing "Deleting forms through REST api produces a valid HTML response"
@@ -83,7 +83,7 @@
     (testing "Creating a form through REST api produces a valid message on config/update topic"
       (let [mqtt (:mqtt user/system-val)
             msg-handler (fn [form-key m]
-                          (is (= form-key (get-in m [:payload :form-key])))
+                          (is (= form-key (get-in m [:payload :form_key])))
                           (is (= (.value SCCommand/CONFIG_ADD_FORM) (:action m))))]
         (mqttapi/subscribe mqtt "/config/update" (partial msg-handler (:form_key test-form)))
         (utils/request-post "/api/forms" test-form)
@@ -92,9 +92,9 @@
     (testing "Updating a form through REST api produces a valid message on config/update topic"
       (let [mqtt (:mqtt user/system-val)
             form (-> (utils/request-get "/api/forms") :result first)
-            updated-form (assoc form :form-label "foo")
+            updated-form (assoc form :form_label "foo")
             msg-handler (fn [form-key m]
-                          (is (= form-key (get-in m [:payload :form-key])))
+                          (is (= form-key (get-in m [:payload :form_key])))
                           ;; todo: we never update a form...we only add new ones with a newer version
                           (is (= (.value SCCommand/CONFIG_ADD_FORM) (:action m))))]
         (mqttapi/subscribe mqtt "/config/update" (partial msg-handler (:form_key updated-form)))
@@ -105,7 +105,7 @@
       (let [mqtt (:mqtt user/system-val)
             form (-> (utils/request-get "/api/forms") :result first)
             msg-handler (fn [form-key m]
-                          (is (= form-key (get-in m [:payload :form-key])))
+                          (is (= form-key (get-in m [:payload :form_key])))
                           (is (= (.value SCCommand/CONFIG_REMOVE_FORM) (:action m))))]
         (mqttapi/subscribe mqtt "/config/update" (partial msg-handler (:form_key form)))
         (utils/request-delete (str "/api/forms/" (:form_key form)))
