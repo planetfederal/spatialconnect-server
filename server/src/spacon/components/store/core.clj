@@ -18,6 +18,7 @@
             [spacon.components.trigger.core :as triggerapi]
             [clj-http.client :as client]
             [cljts.io :as jtsio]
+            [spacon.specs.store]
             [spacon.components.mqtt.core :as mqttapi]
             [spacon.entity.scmessage :as scm]
             [overtone.at-at :refer [every, mk-pool, stop, stop-and-reset-pool!]]
