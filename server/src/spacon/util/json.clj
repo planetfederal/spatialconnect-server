@@ -15,17 +15,3 @@
 (ns spacon.util.json
   (:require [clojure.data.json :as json]))
 
-(defn key->kebabkeyword [key]
-  (->kebab-case-keyword (keyword key)))
-
-(defn key->camelkeyword [key]
-  (->camelCaseKeyword (keyword key)))
-
-(defn json->kebab [jsonstr]
-  (json/read-str jsonstr))
-
-(defn json->camelCase [jsonstr]
-  (json/read-str jsonstr))
-
-(defn map->jsonrequest [m]
-  (json/write-str m))
