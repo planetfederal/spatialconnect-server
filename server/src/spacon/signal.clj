@@ -34,24 +34,18 @@
   "Returns a new instance of the system"
   [config-options]
   (log/debug "Making server config with these options" config-options)
-  (let [{:keys [http-config mqtt-config]} config-options]
+  (let [{:keys [http-config]} config-options]
     (component/system-map
-      :user (user/make-user-component)
-      :team (team/make-team-component)
-      :mqtt (mqtt/make-mqtt-component mqtt-config)
-      :ping (component/using (ping/make-ping-component) [:mqtt])
-      :device (component/using (device/make-device-component) [:mqtt])
-      :config (component/using (config/make-config-component) [:mqtt])
-      :notify (component/using (notification/make-notification-component) [:mqtt])
-      :trigger (component/using (trigger/make-trigger-component) [:notify])
-      :store (component/using (store/make-store-component) [:mqtt :trigger])
-      :location (component/using (location/make-location-component) [:mqtt :trigger])
-      :form (component/using (form/make-form-component) [:mqtt :trigger])
-      :http-service (component/using
-                      (http/make-http-service-component http-config)
-                      [:ping :user :team :device :location :trigger
-                       :store :config :form :mqtt :notify])
-      :server (component/using (new-signal-server) [:http-service]))))
+     :user (user/make-user-component)
+     :team (team/make-team-component)
+     :notify (component/using (notification/make-signal-notification-component) [])
+     :trigger (component/using (trigger/make-trigger-component) [:notify])
+     :store (component/using (store/make-store-component) [:trigger])
+     :http-service (component/using
+                    (http/make-signal-http-service-component http-config)
+                    [:user :team :trigger
+                     :store :notify])
+     :server (component/using (new-signal-server) [:http-service]))))
 
 (defn -main
   "The entry-point for 'lein run'"
@@ -61,9 +55,9 @@
     (spacon.db.conn/migrate))
   ;; create global uncaught exception handler so threads don't silently die
   (Thread/setDefaultUncaughtExceptionHandler
-    (reify Thread$UncaughtExceptionHandler
-      (uncaughtException [_ thread ex]
-        (log/error ex "Uncaught exception on thread" (.getName thread)))))
+   (reify Thread$UncaughtExceptionHandler
+     (uncaughtException [_ thread ex]
+       (log/error ex "Uncaught exception on thread" (.getName thread)))))
   (System/setProperty "javax.net.ssl.trustStore"
                       (or (System/getenv "TRUST_STORE")
                           "tls/test-cacerts.jks"))
@@ -83,4 +77,4 @@
                       (or (System/getenv "KEY_STORE_PASSWORD")
                           "somepass"))
   (component/start-system
-    (make-signal-server {:http-config {}})))
+   (make-signal-server {:http-config {}})))

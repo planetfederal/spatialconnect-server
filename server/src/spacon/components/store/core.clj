@@ -83,19 +83,12 @@
 
 (defn create [store-comp s]
   (let [new-store (storemodel/create s)]
-    (mqttapi/publish-scmessage (:mqtt store-comp) "/config/update"
-                               (scm/map->SCMessage
-                                {:action  (.value SCCommand/CONFIG_ADD_STORE)
-                                 :payload new-store}))
     (add-polling-store (:trigger store-comp) new-store)
     new-store))
 
 (defn modify [store-comp id s]
   (let [updated-store (storemodel/modify id s)]
-    (mqttapi/publish-scmessage (:mqtt store-comp) "/config/update"
-                               (scm/map->SCMessage
-                                {:action  (.value SCCommand/CONFIG_UPDATE_STORE)
-                                 :payload updated-store}))
+
     (add-polling-store (:trigger store-comp) updated-store)
     updated-store))
 
@@ -104,21 +97,17 @@
 
 (defn delete [store-comp id]
   (storemodel/delete id)
-  (remove-polling-store id)
-  (mqttapi/publish-scmessage (:mqtt store-comp) "/config/update"
-                             (scm/map->SCMessage
-                              {:action  (.value SCCommand/CONFIG_REMOVE_STORE)
-                               :payload {:id id}})))
+  (remove-polling-store id))
 
 (defn all [store-comp]
   (storemodel/all))
 
-(defrecord StoreComponent [mqtt trigger]
+(defrecord StoreComponent [trigger]
   component/Lifecycle
   (start [this]
     (log/debug "Starting Store Component")
     (load-polling-stores trigger)
-    (assoc this :mqtt mqtt :trigger trigger))
+    (assoc this :trigger trigger))
   (stop [this]
     (log/debug "Stopping Store Component")
     this))
