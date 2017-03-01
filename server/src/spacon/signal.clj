@@ -57,6 +57,8 @@
   "The entry-point for 'lein run'"
   [& _]
   (log/info "Configuring Signal server...")
+  (if (= "DEV" (System/getenv "ENV"))
+    (spacon.db.conn/migrate))
   ;; create global uncaught exception handler so threads don't silently die
   (Thread/setDefaultUncaughtExceptionHandler
     (reify Thread$UncaughtExceptionHandler
@@ -80,6 +82,5 @@
   (System/setProperty "javax.net.ssl.keyStorePassword"
                       (or (System/getenv "KEY_STORE_PASSWORD")
                           "somepass"))
-  ;; todo: auto migrate flag?
   (component/start-system
     (make-signal-server {:http-config {}})))

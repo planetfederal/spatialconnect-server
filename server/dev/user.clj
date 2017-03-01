@@ -23,6 +23,7 @@
 
 (defn init-dev []
   (log/info "Initializing dev system for repl")
+  (spacon.db.conn/migrate)
   (System/setProperty "javax.net.ssl.trustStore"
                       (or (System/getenv "TRUST_STORE")
                           "tls/test-cacerts.jks"))
@@ -59,6 +60,7 @@
 
 (defn init-signal-dev []
   (log/info "Initializing dev system for repl")
+  (spacon.db.conn/migrate)
   (System/setProperty "javax.net.ssl.trustStore"
                       (or (System/getenv "TRUST_STORE")
                           "tls/test-cacerts.jks"))
