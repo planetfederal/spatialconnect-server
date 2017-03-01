@@ -68,7 +68,7 @@
 (defn- process-channel [mqtt input-channel]
   (go (while true
         (let [v (<!! input-channel)]
-          (case (:output-type v)
+          (case (:output_type v)
             :email (send->email v)
             :mobile (send->mobile mqtt v)
             "default")))))
