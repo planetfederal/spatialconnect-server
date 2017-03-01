@@ -96,7 +96,6 @@
   (System/setProperty "javax.net.ssl.keyStorePassword"
                       (or (System/getenv "KEY_STORE_PASSWORD")
                           "somepass"))
-  ;; todo: auto migrate flag?
   (component/start-system
    (make-spacon-server {:http-config {}
                         :mqtt-config {:broker-url (System/getenv "MQTT_BROKER_URL")}
