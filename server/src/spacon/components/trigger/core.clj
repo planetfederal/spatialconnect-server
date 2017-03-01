@@ -189,7 +189,7 @@
   (triggermodel/delete id)
   (remove-trigger id))
 
-(defrecord TriggerComponent [notify location]
+(defrecord TriggerComponent [notify]
   component/Lifecycle
   (start [this]
     (log/debug "Starting Trigger Component")

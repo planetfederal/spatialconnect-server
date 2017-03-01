@@ -70,7 +70,7 @@
         (let [v (<!! input-channel)]
           (case (:output-type v)
             :email (send->email v)
-            :mobile (send->mobile mqtt v)
+            :mobile (if-not (empty? mqtt) (send->mobile mqtt v)) ; For Signal that doesn't have an mqtt component
             "default")))))
 
 (defn notify [notifcomp message message-type info]
@@ -94,5 +94,18 @@
     (close! (:send-channel this))
     this))
 
+(defrecord SignalNotificationComponent []
+  component/Lifecycle
+  (start [this]
+    (log/debug "Starting Signal")
+    (let [c (chan)]
+      (process-channel nil c)
+      (assoc this :send-channel c)))
+  (stop [this]
+    this))
+
 (defn make-notification-component []
   (->NotificationComponent nil))
+
+(defn make-signal-notification-component []
+  (->SignalNotificationComponent))

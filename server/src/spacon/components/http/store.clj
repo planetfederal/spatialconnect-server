@@ -6,7 +6,8 @@
             [clojure.spec :as s]
             [clojure.tools.logging :as log]
             [spacon.entity.scmessage :as scm]
-            [spacon.components.store.core :as storeapi])
+            [spacon.components.store.core :as storeapi]
+            [spacon.components.mqtt.core :as mqttapi])
   (:import (com.boundlessgeo.spatialconnect.schema SCCommand)))
 
 (defn http-get-store
@@ -23,13 +24,18 @@
 (defn http-put-store
   "Updates a store using the json body then publishes
   a config update message about the newly updated store"
-  [store-comp request]
+  [mqtt-comp store-comp request]
   (log/debug "Updating store")
   (let [store (:json-params request)
         id (get-in request [:path-params :id])]
     (if (s/valid? :spacon.specs.store/store-spec store)
       (let [updated-store (storeapi/modify store-comp id store)]
-        (response/ok updated-store))
+        (do
+          (if-not (empty? mqtt-comp) (mqttapi/publish-scmessage mqtt-comp "/config/update"
+                                                                (scm/map->SCMessage
+                                                                 {:action  (.value SCCommand/CONFIG_UPDATE_STORE)
+                                                                  :payload updated-store})))
+          (response/ok updated-store)))
       (let [err-msg "Failed to update store"]
         (log/error (str err-msg "b/c" (s/explain-str :spacon.specs.store/store-spec store)))
         (response/bad-request err-msg)))))
@@ -37,13 +43,18 @@
 (defn http-post-store
   "Creates a new store using the json body then publishes
   a config update message about the newly updated store"
-  [store-comp request]
+  [mqtt-comp store-comp request]
   (let [store (:json-params request)]
     (log/debug "Validating store")
     (if (s/valid? :spacon.specs.store/store-spec store)
       (let [new-store (storeapi/create store-comp store)]
         (log/debug "Added new store")
-        (response/ok new-store))
+        (do
+          (if-not (empty? mqtt-comp) (mqttapi/publish-scmessage mqtt-comp "/config/update"
+                                                                (scm/map->SCMessage
+                                                                 {:action  (.value SCCommand/CONFIG_ADD_STORE)
+                                                                  :payload new-store})))
+          (response/ok new-store)))
       (let [err-msg "Failed to create new store"]
         (log/error (str err-msg "b/c" (s/explain-str :spacon.specs.store/store-spec store)))
         (response/bad-request err-msg)))))
@@ -51,7 +62,7 @@
 (defn http-delete-store
   "Deletes a store by id then publishes a config update message about
   the delted store"
-  [store-comp request]
+  [mqtt-comp store-comp request]
   (log/debug "Deleting store")
   (let [id (get-in request [:path-params :id])
         store (storeapi/find-by-id store-comp id)]
@@ -61,6 +72,10 @@
         (response/bad-request err-msg))
       (do
         (storeapi/delete store-comp id)
+        (if-not (empty? mqtt-comp) (mqttapi/publish-scmessage mqtt-comp "/config/update"
+                                                              (scm/map->SCMessage
+                                                               {:action  (.value SCCommand/CONFIG_REMOVE_STORE)
+                                                                :payload {:id id}})))
         (response/ok "success")))))
 
 (defn http-get-all-stores
@@ -97,16 +112,16 @@
       (response/ok (get-capabilities->layer-names body))
       (response/bad-request (str "Could not get capabilities from " url)))))
 
-(defn routes [store-comp]
+(defn routes [mqtt-comp store-comp]
   #{["/api/stores" :get
      (conj intercept/common-interceptors (partial http-get-all-stores store-comp)) :route-name :http-all-stores]
     ["/api/stores/:id" :get
      (conj intercept/common-interceptors (partial http-get-store store-comp)) :route-name :http-get-store]
     ["/api/stores/:id" :put
-     (conj intercept/common-interceptors (partial http-put-store store-comp)) :route-name :http-put-store]
+     (conj intercept/common-interceptors (partial http-put-store mqtt-comp store-comp)) :route-name :http-put-store]
     ["/api/stores" :post
-     (conj intercept/common-interceptors (partial http-post-store store-comp)) :route-name :http-post-store]
+     (conj intercept/common-interceptors (partial http-post-store mqtt-comp store-comp)) :route-name :http-post-store]
     ["/api/stores/:id" :delete
-     (conj intercept/common-interceptors (partial http-delete-store store-comp)) :route-name :http-delete-store]
+     (conj intercept/common-interceptors (partial http-delete-store mqtt-comp store-comp)) :route-name :http-delete-store]
     ["/api/wfs/getCapabilities" :get
      (conj intercept/common-interceptors `http-get-capabilities)]})
