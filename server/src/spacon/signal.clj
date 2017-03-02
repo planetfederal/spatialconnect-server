@@ -51,7 +51,7 @@
   "The entry-point for 'lein run'"
   [& _]
   (log/info "Configuring Signal server...")
-  (if (= "DEV" (System/getenv "ENV"))
+  (if (= "true" (System/getenv "AUTO_MIGRATE"))
     (spacon.db.conn/migrate))
   ;; create global uncaught exception handler so threads don't silently die
   (Thread/setDefaultUncaughtExceptionHandler

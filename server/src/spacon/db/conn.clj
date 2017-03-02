@@ -22,7 +22,7 @@
             [clojure.tools.logging :as log]))
 
 (def db-creds (or (some-> (System/getenv "VCAP_SERVICES")
-                          (json/read-str :key-fn clojure.core/keyword) vals first first :credentials)
+                          (json/read-str :key-fn clojure.core/keyword) :pg_95_XL_DEV_SHARED_001 first :credentials)
                   {:db_host  (or (System/getenv "DB_HOST") "localhost")
                    :db_port  5432
                    :db_name  (or (System/getenv "DB_NAME") "spacon")

@@ -73,6 +73,8 @@
   "The entry-point for 'lein run'"
   [& _]
   (log/info "Configuring the server...")
+  (if (= "true" (System/getenv "AUTO_MIGRATE"))
+    (spacon.db.conn/migrate))
   ;; create global uncaught exception handler so threads don't silently die
   (Thread/setDefaultUncaughtExceptionHandler
    (reify Thread$UncaughtExceptionHandler
@@ -97,7 +99,7 @@
                       (or (System/getenv "KEY_STORE_PASSWORD")
                           "somepass"))
   (component/start-system
-   (make-spacon-server {:http-config {}
+   (make-spacon-server {:http-config {::server/allowed-origins {:allowed-origins [(System/getenv "ALLOWED_ORIGINS")]}}
                         :mqtt-config {:broker-url (System/getenv "MQTT_BROKER_URL")}
                         :kafka-producer-config {:servers (System/getenv "BOOTSTRAP_SERVERS")
                                                 :timeout-ms 2000}
