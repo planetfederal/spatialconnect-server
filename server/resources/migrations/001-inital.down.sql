@@ -30,7 +30,7 @@ DROP TABLE IF EXISTS spacon.form_fields CASCADE;
 DROP TRIGGER IF EXISTS update_updated_at_form_fields ON spacon.form_fields;
 DROP TABLE IF EXISTS spacon.user_team CASCADE;
 DROP TABLE IF EXISTS spacon.users CASCADE;
-DROP TYPE IF EXISTS form_type;
+DROP TYPE IF EXISTS spacon.form_type;
 DROP TRIGGER IF EXISTS update_updated_at_users ON spacon.users;
 DROP TABLE IF EXISTS spacon.triggers;
 DROP TRIGGER IF EXISTS update_updated_at_triggers ON spacon.triggers;

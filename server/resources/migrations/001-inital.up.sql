@@ -204,14 +204,14 @@ CREATE TRIGGER update_updated_at_form_data
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_role_type') THEN
-        CREATE TYPE user_role_type AS ENUM ('user','team_admin','org_admin');
+        CREATE TYPE spacon.user_role_type AS ENUM ('user','team_admin','org_admin');
     END IF;
 END$$;
 
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_role_type') THEN
-        CREATE TYPE user_role_type AS ENUM ('user','team_admin','org_admin');
+        CREATE TYPE spacon.user_role_type AS ENUM ('user','team_admin','org_admin');
     END IF;
 END$$;
 

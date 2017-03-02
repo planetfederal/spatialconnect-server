@@ -12,12 +12,12 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 
-CREATE TYPE message_type AS ENUM ('trigger');
+CREATE TYPE spacon.message_type AS ENUM ('trigger');
 
 CREATE TABLE spacon.messages (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     info json,
-    type message_type,
+    type spacon.message_type,
     created_at timestamp DEFAULT NOW()
 ) WITH (
     OIDS=FALSE
