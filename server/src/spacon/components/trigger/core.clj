@@ -28,12 +28,13 @@
             [clojure.data.json :as json]
             [spacon.trigger.definition.geo
              :refer [make-within-clause]]
-            [clojure.tools.logging :as log]))
+            [clojure.tools.logging :as log]
+            [spacon.components.form.db :as formmodel]))
 
-(def invalid-triggers
+(def falsey-triggers
   "Triggers that don't evaluate to true"
   (ref {}))
-(def valid-triggers
+(def truthy-triggers
   "If it's a valid trigger, data has satisified the rules and we need to
   send an alert"
   (ref {}))
@@ -52,30 +53,30 @@
                           nil))
                       (:rules trigger)))]
     (dosync
-     (commute invalid-triggers assoc
+     (commute falsey-triggers assoc
               (keyword (:id t)) t))))
 
-(defn- remove-trigger
+(defn- evict-trigger
   "Removes trigger from both valid-triggers and invalid-triggers ref"
   [trigger]
   (log/trace "Removing trigger" trigger)
   (dosync
-   (commute invalid-triggers dissoc (keyword (:id trigger)))
-   (commute valid-triggers dissoc (keyword (:id trigger)))))
+   (commute falsey-triggers dissoc (keyword (:id trigger)))
+   (commute truthy-triggers dissoc (keyword (:id trigger)))))
 
-(defn- set-valid-trigger
+(defn- set-truthy-trigger
   "Puts trigger in valid-triggers ref and removes it from invalid-triggers ref"
   [trigger]
   (dosync
-   (commute invalid-triggers dissoc (keyword (:id trigger)))
-   (commute valid-triggers assoc (keyword (:id trigger)) trigger)))
+   (commute falsey-triggers dissoc (keyword (:id trigger)))
+   (commute truthy-triggers assoc (keyword (:id trigger)) trigger)))
 
-(defn- set-invalid-trigger
+(defn- set-falsey-trigger
   "Puts trigger in invalid-triggers ref and removes it from valid-triggers ref"
   [trigger]
   (dosync
-   (commute invalid-triggers assoc (keyword (:id trigger)) trigger)
-   (commute valid-triggers dissoc (keyword (:id trigger)))))
+   (commute falsey-triggers assoc (keyword (:id trigger)) trigger)
+   (commute truthy-triggers dissoc (keyword (:id trigger)))))
 
 (defn- load-triggers
   "Fetches all triggers from db and loads them into memory"
@@ -115,13 +116,17 @@
            :body     body
            :payload  payload})
          "trigger"
-         payload)))))
+         payload))
+      (if-not (:repeated trigger)
+        (do
+          (log/info "Removing trigger " (:name trigger) " with id:" (:id trigger))
+          (triggermodel/delete (:id trigger)))))))
 
 (defn- handle-failure
   "Makes the trigger invalid b/c it failed the test value."
   [trigger]
-  (if (nil? ((keyword (:id trigger)) @valid-triggers))
-    (set-invalid-trigger trigger)))
+  (if (nil? ((keyword (:id trigger)) @truthy-triggers))
+    (set-falsey-trigger trigger)))
 
 (defn process-value
   "Maps over all invalid triggers to check if they evaluate to true based
@@ -129,7 +134,7 @@
   [store value notify]
   (doall
    (map (fn [k]
-          (if-let [trigger (k @invalid-triggers)]
+          (if-let [trigger (k @falsey-triggers)]
             (if-not (empty? (:rules trigger))
               (if (or
                    (= "location" store) ; TODO delete when location data store is completed
@@ -143,7 +148,7 @@
                       (if (proto-clause/check rule value)
                         (recur (rest rules))
                         (handle-failure trigger)))))))))
-        (keys @invalid-triggers))))
+        (keys @falsey-triggers))))
 
 (defn process-channel
   "Waits for input on channel to check values against triggers"
@@ -187,7 +192,7 @@
 (defn delete
   [trigger-comp id]
   (triggermodel/delete id)
-  (remove-trigger id))
+  (evict-trigger id))
 
 (defrecord TriggerComponent [notify]
   component/Lifecycle
