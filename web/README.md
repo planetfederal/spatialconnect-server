@@ -35,9 +35,9 @@ Then you can build the container with the static assets
 docker build -t boundlessgeo/spatialconnect-server:web-dev -f Dockerfile.dev .
 ```
 
-Or for Cloud Foundry deployments, use the static files buildpack (see
-example config in manifest.yml)
-
+Or for Cloud Foundry deployments
 ```
+npm run build:devio
+cd pcf/
 cf push efc-web
 ```

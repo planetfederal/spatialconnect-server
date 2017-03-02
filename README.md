@@ -35,6 +35,11 @@ If you need to deploy to a Cloud Foundry environment,  you can deploy
 the container like this:
 
 ```
+# build the container for the environment
+docker build -t boundlessgeo/spatialconnect-server:devio .
+# push to a container repo where PCF can access it
+docker push boundlessgeo/spatialconnect-server:devio
+# instruct pcf to deploy the app using the container
 cf push efc -o boundlessgeo/spatialconnect-server:devio
 ```
 
