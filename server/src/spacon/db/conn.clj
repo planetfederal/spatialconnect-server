@@ -46,7 +46,7 @@
 
 (defn loadconfig []
   (log/debug "Loading database migration config")
-  {:datastore  (jdbc/sql-database db-spec)
+  {:datastore  (jdbc/sql-database db-spec {:migrations-table "spacon.migrations"})
    :migrations (jdbc/load-resources "migrations")})
 
 (defn migrate []

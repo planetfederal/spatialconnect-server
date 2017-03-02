@@ -15,7 +15,7 @@
 --CREATE EXTENSION IF NOT EXISTS pgcrypto;
 --CREATE EXTENSION IF NOT EXISTS postgis;
 
-CREATE SCHEMA spacon;
+CREATE SCHEMA IF NOT EXISTS spacon;
 SET search_path=spacon,public;
 
 CREATE OR REPLACE FUNCTION update_updated_at_column()

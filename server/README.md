@@ -8,6 +8,7 @@ extensions:
 createdb spacon -O spacon
 psql -U postgres -d spacon -c "CREATE EXTENSION IF NOT EXISTS pgcrypto"
 psql -U postgres -d spacon -c "CREATE EXTENSION IF NOT EXISTS postgis"
+psql -U postgres -d spacon -c "CREATE SCHEMA IF NOT EXISTS spacon"
 ```
 
 `lein migrate`
