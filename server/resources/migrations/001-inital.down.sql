@@ -34,5 +34,5 @@ DROP TYPE IF EXISTS form_type;
 DROP TRIGGER IF EXISTS update_updated_at_users ON spacon.users;
 DROP TABLE IF EXISTS spacon.triggers;
 DROP TRIGGER IF EXISTS update_updated_at_triggers ON spacon.triggers;
-DROP FUNCTION IF EXISTS update_updated_at_column();
+DROP FUNCTION IF EXISTS spacon.update_updated_at_column();
 

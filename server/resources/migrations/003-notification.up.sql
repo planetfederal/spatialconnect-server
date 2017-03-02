@@ -30,4 +30,4 @@ WITH (
 
 CREATE TRIGGER update_updated_at_notifications
     BEFORE UPDATE ON spacon.notifications FOR EACH ROW EXECUTE
-    PROCEDURE update_updated_at_column();
+    PROCEDURE spacon.update_updated_at_column();

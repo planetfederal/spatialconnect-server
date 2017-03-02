@@ -18,7 +18,7 @@
 CREATE SCHEMA IF NOT EXISTS spacon;
 SET search_path=spacon,public;
 
-CREATE OR REPLACE FUNCTION update_updated_at_column()
+CREATE OR REPLACE FUNCTION spacon.update_updated_at_column()
         RETURNS TRIGGER AS '
     BEGIN
         NEW.updated_at = NOW();
@@ -40,7 +40,7 @@ WITH (
 
 CREATE TRIGGER update_updated_at_organizations
     BEFORE UPDATE ON spacon.organizations FOR EACH ROW EXECUTE
-    PROCEDURE update_updated_at_column();
+    PROCEDURE spacon.update_updated_at_column();
 
 CREATE TABLE IF NOT EXISTS spacon.teams
 (
@@ -62,7 +62,7 @@ WITH (
 
 CREATE TRIGGER update_updated_at_teams
     BEFORE UPDATE ON spacon.teams FOR EACH ROW EXECUTE
-    PROCEDURE update_updated_at_column();
+    PROCEDURE spacon.update_updated_at_column();
 
 CREATE TABLE IF NOT EXISTS spacon.stores
 (
@@ -86,7 +86,7 @@ WITH (
 
 CREATE TRIGGER update_updated_at_stores
     BEFORE UPDATE ON spacon.stores FOR EACH ROW EXECUTE
-    PROCEDURE update_updated_at_column();
+    PROCEDURE spacon.update_updated_at_column();
 
 CREATE TABLE IF NOT EXISTS spacon.forms
 (
@@ -110,7 +110,7 @@ WITH (
 
 CREATE TRIGGER update_updated_at_forms
   BEFORE UPDATE ON spacon.forms FOR EACH ROW EXECUTE
-  PROCEDURE update_updated_at_column();
+  PROCEDURE spacon.update_updated_at_column();
 
 CREATE TABLE IF NOT EXISTS spacon.devices
 (
@@ -129,7 +129,7 @@ WITH (
 
 CREATE TRIGGER update_updated_at_devices
   BEFORE UPDATE ON spacon.devices FOR EACH ROW EXECUTE
-  PROCEDURE update_updated_at_column();
+  PROCEDURE spacon.update_updated_at_column();
 
 CREATE TABLE IF NOT EXISTS spacon.device_locations
 (
@@ -149,7 +149,7 @@ WITH (
 
 CREATE TRIGGER update_updated_at_device_locations
   BEFORE UPDATE ON spacon.device_locations FOR EACH ROW EXECUTE
-  PROCEDURE update_updated_at_column();
+  PROCEDURE spacon.update_updated_at_column();
 
 CREATE TABLE IF NOT EXISTS spacon.form_fields
 (
@@ -175,7 +175,7 @@ WITH (
 
 CREATE TRIGGER update_updated_at_form_fields
   BEFORE UPDATE ON spacon.form_fields FOR EACH ROW EXECUTE
-  PROCEDURE update_updated_at_column();
+  PROCEDURE spacon.update_updated_at_column();
 
 CREATE TABLE IF NOT EXISTS spacon.form_data
 (
@@ -199,7 +199,7 @@ WITH (
 
 CREATE TRIGGER update_updated_at_form_data
     BEFORE UPDATE ON spacon.form_data FOR EACH ROW EXECUTE
-    PROCEDURE update_updated_at_column();
+    PROCEDURE spacon.update_updated_at_column();
 
 DO $$
 BEGIN
@@ -240,7 +240,7 @@ CREATE TABLE IF NOT EXISTS spacon.user_team (
 
 CREATE TRIGGER update_updated_at_users
     BEFORE UPDATE ON spacon.users FOR EACH ROW EXECUTE
-    PROCEDURE update_updated_at_column();
+    PROCEDURE spacon.update_updated_at_column();
 
 CREATE TABLE IF NOT EXISTS spacon.triggers
 (
@@ -261,4 +261,4 @@ WITH (
 
 CREATE TRIGGER update_updated_at_triggers
     BEFORE UPDATE ON spacon.triggers FOR EACH ROW EXECUTE
-    PROCEDURE update_updated_at_column();
+    PROCEDURE spacon.update_updated_at_column();
