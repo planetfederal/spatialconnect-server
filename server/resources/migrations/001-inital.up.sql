@@ -1,4 +1,4 @@
---  Copyright  Copyright 2016-2017 Boundless, http://boundlessgeo.com
+--  Copyright 2016-2017 Boundless, http://boundlessgeo.com
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
 --  you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
 --CREATE EXTENSION IF NOT EXISTS pgcrypto;
 --CREATE EXTENSION IF NOT EXISTS postgis;
 
+CREATE SCHEMA spacon;
+SET search_path=spacon,public;
+
 CREATE OR REPLACE FUNCTION update_updated_at_column()
         RETURNS TRIGGER AS '
     BEGIN
@@ -23,7 +26,7 @@ CREATE OR REPLACE FUNCTION update_updated_at_column()
     END;
 ' LANGUAGE 'plpgsql';
 
-CREATE TABLE IF NOT EXISTS public.organizations
+CREATE TABLE IF NOT EXISTS spacon.organizations
 (
    id serial PRIMARY KEY,
    name TEXT,
@@ -35,13 +38,11 @@ WITH (
    OIDS=FALSE
 );
 
-ALTER TABLE public.organizations OWNER TO spacon;
-
 CREATE TRIGGER update_updated_at_organizations
-    BEFORE UPDATE ON organizations FOR EACH ROW EXECUTE
+    BEFORE UPDATE ON spacon.organizations FOR EACH ROW EXECUTE
     PROCEDURE update_updated_at_column();
 
-CREATE TABLE IF NOT EXISTS public.teams
+CREATE TABLE IF NOT EXISTS spacon.teams
 (
     id serial PRIMARY KEY,
     name TEXT,
@@ -51,20 +52,19 @@ CREATE TABLE IF NOT EXISTS public.teams
     deleted_at timestamp with time zone,
     CONSTRAINT team_org_name_c UNIQUE (name,organization_id),
     CONSTRAINT team_org_id_fkey FOREIGN KEY (organization_id)
-        REFERENCES public.organizations (id) MATCH SIMPLE
+        REFERENCES spacon.organizations (id) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE CASCADE
 )
 WITH (
     OIDS=FALSE
 );
 
-ALTER TABLE public.teams OWNER TO spacon;
 
 CREATE TRIGGER update_updated_at_teams
-    BEFORE UPDATE ON teams FOR EACH ROW EXECUTE
+    BEFORE UPDATE ON spacon.teams FOR EACH ROW EXECUTE
     PROCEDURE update_updated_at_column();
 
-CREATE TABLE IF NOT EXISTS public.stores
+CREATE TABLE IF NOT EXISTS spacon.stores
 (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   store_type TEXT,
@@ -77,20 +77,18 @@ CREATE TABLE IF NOT EXISTS public.stores
   updated_at timestamp DEFAULT NOW(),
   deleted_at timestamp with time zone,
     CONSTRAINT stores_team_fkey FOREIGN KEY (team_id)
-          REFERENCES public.teams (id) MATCH SIMPLE
+          REFERENCES spacon.teams (id) MATCH SIMPLE
           ON UPDATE CASCADE ON DELETE CASCADE
 )
 WITH (
   OIDS=FALSE
 );
-ALTER TABLE public.stores
-  OWNER TO spacon;
 
 CREATE TRIGGER update_updated_at_stores
-    BEFORE UPDATE ON stores FOR EACH ROW EXECUTE
+    BEFORE UPDATE ON spacon.stores FOR EACH ROW EXECUTE
     PROCEDURE update_updated_at_column();
 
-CREATE TABLE IF NOT EXISTS public.forms
+CREATE TABLE IF NOT EXISTS spacon.forms
 (
   id SERIAL PRIMARY KEY,
   form_key TEXT,
@@ -102,20 +100,19 @@ CREATE TABLE IF NOT EXISTS public.forms
   deleted_at timestamp with time zone,
   CONSTRAINT key_version_team_c UNIQUE (form_key,version,team_id),
   CONSTRAINT forms_team_fkey FOREIGN KEY (team_id)
-        REFERENCES public.teams (id) MATCH SIMPLE
+        REFERENCES spacon.teams (id) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE CASCADE
 )
 WITH (
   OIDS=FALSE
 );
-ALTER TABLE public.forms
-  OWNER TO spacon;
+
 
 CREATE TRIGGER update_updated_at_forms
-  BEFORE UPDATE ON forms FOR EACH ROW EXECUTE
+  BEFORE UPDATE ON spacon.forms FOR EACH ROW EXECUTE
   PROCEDURE update_updated_at_column();
 
-CREATE TABLE IF NOT EXISTS public.devices
+CREATE TABLE IF NOT EXISTS spacon.devices
 (
   id SERIAL PRIMARY KEY,
   name TEXT,
@@ -128,14 +125,13 @@ CREATE TABLE IF NOT EXISTS public.devices
 WITH (
   OIDS=FALSE
 );
-ALTER TABLE public.devices
-  OWNER TO spacon;
+--ALTER TABLE devices OWNER TO spacon;
 
 CREATE TRIGGER update_updated_at_devices
-  BEFORE UPDATE ON devices FOR EACH ROW EXECUTE
+  BEFORE UPDATE ON spacon.devices FOR EACH ROW EXECUTE
   PROCEDURE update_updated_at_column();
 
-CREATE TABLE IF NOT EXISTS public.device_locations
+CREATE TABLE IF NOT EXISTS spacon.device_locations
 (
   id SERIAL PRIMARY KEY,
   geom geometry,
@@ -144,20 +140,18 @@ CREATE TABLE IF NOT EXISTS public.device_locations
   deleted_at timestamp with time zone,
   device_id integer UNIQUE,
   CONSTRAINT device_locations_devices_fkey FOREIGN KEY (device_id)
-    REFERENCES public.devices (id) MATCH SIMPLE
+    REFERENCES spacon.devices (id) MATCH SIMPLE
     ON UPDATE CASCADE ON DELETE SET NULL
 )
 WITH (
   OIDS=FALSE
 );
-ALTER TABLE public.device_locations
-  OWNER TO spacon;
 
 CREATE TRIGGER update_updated_at_device_locations
-  BEFORE UPDATE ON device_locations FOR EACH ROW EXECUTE
+  BEFORE UPDATE ON spacon.device_locations FOR EACH ROW EXECUTE
   PROCEDURE update_updated_at_column();
 
-CREATE TABLE IF NOT EXISTS public.form_fields
+CREATE TABLE IF NOT EXISTS spacon.form_fields
 (
   id SERIAL PRIMARY KEY,
   type TEXT,
@@ -171,21 +165,19 @@ CREATE TABLE IF NOT EXISTS public.form_fields
   deleted_at timestamp with time zone,
   form_id integer,
   CONSTRAINT form_field_form_id_fkey FOREIGN KEY (form_id)
-    REFERENCES public.forms (id) MATCH SIMPLE
+    REFERENCES spacon.forms (id) MATCH SIMPLE
     ON UPDATE CASCADE ON DELETE SET NULL,
   CONSTRAINT field_key_form_id_pk UNIQUE(field_key,form_id)
 )
 WITH (
   OIDS=FALSE
 );
-ALTER TABLE public.form_fields
-  OWNER TO spacon;
 
 CREATE TRIGGER update_updated_at_form_fields
-  BEFORE UPDATE ON form_fields FOR EACH ROW EXECUTE
+  BEFORE UPDATE ON spacon.form_fields FOR EACH ROW EXECUTE
   PROCEDURE update_updated_at_column();
 
-CREATE TABLE IF NOT EXISTS public.form_data
+CREATE TABLE IF NOT EXISTS spacon.form_data
 (
   id SERIAL PRIMARY KEY,
   val jsonb,
@@ -195,20 +187,18 @@ CREATE TABLE IF NOT EXISTS public.form_data
   device_id integer,
   form_id integer,
   CONSTRAINT form_data_device_id_fkey FOREIGN KEY (device_id)
-    REFERENCES public.devices (id) MATCH SIMPLE
+    REFERENCES spacon.devices (id) MATCH SIMPLE
     ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT form_data_form_id_fkey FOREIGN KEY (form_id)
-    REFERENCES public.forms (id) MATCH SIMPLE
+    REFERENCES spacon.forms (id) MATCH SIMPLE
     ON UPDATE CASCADE ON DELETE CASCADE
 )
 WITH (
   OIDS=FALSE
 );
-ALTER TABLE public.form_data
-  OWNER TO spacon;
 
 CREATE TRIGGER update_updated_at_form_data
-    BEFORE UPDATE ON form_data FOR EACH ROW EXECUTE
+    BEFORE UPDATE ON spacon.form_data FOR EACH ROW EXECUTE
     PROCEDURE update_updated_at_column();
 
 DO $$
@@ -225,7 +215,7 @@ BEGIN
     END IF;
 END$$;
 
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE IF NOT EXISTS spacon.users (
   id            serial PRIMARY KEY,
   name          TEXT NOT NULL CHECK (name <> ''),
   email         TEXT NOT NULL UNIQUE,
@@ -236,23 +226,23 @@ CREATE TABLE IF NOT EXISTS users (
   password      TEXT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS user_team (
+CREATE TABLE IF NOT EXISTS spacon.user_team (
   id serial PRIMARY KEY,
   user_id INTEGER,
   team_id INTEGER,
   CONSTRAINT user_team_user_fkey FOREIGN KEY (user_id)
-      REFERENCES public.users (id) MATCH SIMPLE
+      REFERENCES spacon.users (id) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT user_team_team_fkey FOREIGN KEY (team_id)
-      REFERENCES public.teams (id) MATCH SIMPLE
+      REFERENCES spacon.teams (id) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TRIGGER update_updated_at_users
-    BEFORE UPDATE ON users FOR EACH ROW EXECUTE
+    BEFORE UPDATE ON spacon.users FOR EACH ROW EXECUTE
     PROCEDURE update_updated_at_column();
 
-CREATE TABLE IF NOT EXISTS public.triggers
+CREATE TABLE IF NOT EXISTS spacon.triggers
 (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT,
@@ -269,8 +259,6 @@ WITH (
   OIDS=FALSE
 );
 
-ALTER TABLE public.users OWNER TO spacon;
-
 CREATE TRIGGER update_updated_at_triggers
-    BEFORE UPDATE ON triggers FOR EACH ROW EXECUTE
+    BEFORE UPDATE ON spacon.triggers FOR EACH ROW EXECUTE
     PROCEDURE update_updated_at_column();

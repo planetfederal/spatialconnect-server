@@ -1,4 +1,4 @@
---  Copyright  Copyright 2016-2017 Boundless, http://boundlessgeo.com
+--  Copyright 2016-2017 Boundless, http://boundlessgeo.com
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
 --  you may not use this file except in compliance with the License.
@@ -12,5 +12,5 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 
-ALTER TABLE stores ADD COLUMN options json;
-ALTER TABLE forms ADD COLUMN options json;
+ALTER TABLE spacon.stores ADD COLUMN options json;
+ALTER TABLE spacon.forms ADD COLUMN options json;

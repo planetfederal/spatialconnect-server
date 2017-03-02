@@ -1,4 +1,4 @@
---  Copyright  Copyright 2016-2017 Boundless, http://boundlessgeo.com
+--  Copyright 2016-2017 Boundless, http://boundlessgeo.com
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
 --  you may not use this file except in compliance with the License.
@@ -12,27 +12,27 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 
-DROP TABLE IF EXISTS organizations CASCADE;
-DROP TRIGGER IF EXISTS update_updated_at_organizations ON organizations;
-DROP TABLE IF EXISTS teams CASCADE;
-DROP TRIGGER IF EXISTS update_updated_at_teams ON teams;
-DROP TABLE IF EXISTS stores CASCADE;
-DROP TRIGGER IF EXISTS update_updated_at_stores ON stores;
-DROP TABLE IF EXISTS forms CASCADE;
-DROP TRIGGER IF EXISTS update_updated_at_forms ON forms;
-DROP TABLE IF EXISTS devices CASCADE;
-DROP TRIGGER IF EXISTS update_updated_at_devices ON devices;
-DROP TABLE IF EXISTS device_locations CASCADE;
-DROP TRIGGER IF EXISTS update_updated_at_device_locations ON device_locations;
-DROP TABLE IF EXISTS form_data CASCADE;
-DROP TRIGGER IF EXISTS update_updated_at_form_data ON form_data;
-DROP TABLE IF EXISTS form_fields CASCADE;
-DROP TRIGGER IF EXISTS update_updated_at_form_fields ON form_fields;
-DROP TABLE IF EXISTS user_team CASCADE;
-DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS spacon.organizations CASCADE;
+DROP TRIGGER IF EXISTS update_updated_at_organizations ON spacon.organizations;
+DROP TABLE IF EXISTS spacon.teams CASCADE;
+DROP TRIGGER IF EXISTS update_updated_at_teams ON spacon.teams;
+DROP TABLE IF EXISTS spacon.stores CASCADE;
+DROP TRIGGER IF EXISTS update_updated_at_stores ON spacon.stores;
+DROP TABLE IF EXISTS spacon.forms CASCADE;
+DROP TRIGGER IF EXISTS update_updated_at_forms ON spacon.forms;
+DROP TABLE IF EXISTS spacon.devices CASCADE;
+DROP TRIGGER IF EXISTS update_updated_at_devices ON spacon.devices;
+DROP TABLE IF EXISTS spacon.device_locations CASCADE;
+DROP TRIGGER IF EXISTS update_updated_at_device_locations ON spacon.device_locations;
+DROP TABLE IF EXISTS spacon.form_data CASCADE;
+DROP TRIGGER IF EXISTS update_updated_at_form_data ON spacon.form_data;
+DROP TABLE IF EXISTS spacon.form_fields CASCADE;
+DROP TRIGGER IF EXISTS update_updated_at_form_fields ON spacon.form_fields;
+DROP TABLE IF EXISTS spacon.user_team CASCADE;
+DROP TABLE IF EXISTS spacon.users CASCADE;
 DROP TYPE IF EXISTS form_type;
-DROP TRIGGER IF EXISTS update_updated_at_users ON users;
-DROP TABLE IF EXISTS triggers;
-DROP TRIGGER IF EXISTS update_updated_at_triggers ON triggers;
+DROP TRIGGER IF EXISTS update_updated_at_users ON spacon.users;
+DROP TABLE IF EXISTS spacon.triggers;
+DROP TRIGGER IF EXISTS update_updated_at_triggers ON spacon.triggers;
 DROP FUNCTION IF EXISTS update_updated_at_column();
 
