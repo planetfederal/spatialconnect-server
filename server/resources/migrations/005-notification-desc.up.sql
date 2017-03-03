@@ -1,4 +1,4 @@
---  Copyright  Copyright 2016-2017 Boundless, http://boundlessgeo.com
+--  Copyright 2016-2017 Boundless, http://boundlessgeo.com
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
 --  you may not use this file except in compliance with the License.
@@ -12,23 +12,23 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 
-CREATE TYPE message_type AS ENUM ('trigger');
+CREATE TYPE spacon.message_type AS ENUM ('trigger');
 
-CREATE TABLE messages (
+CREATE TABLE spacon.messages (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     info json,
-    type message_type,
+    type spacon.message_type,
     created_at timestamp DEFAULT NOW()
 ) WITH (
     OIDS=FALSE
 );
 
-ALTER TABLE notifications ADD COLUMN recipient text;
-ALTER TABLE notifications ADD COLUMN message_id UUID;
-ALTER TABLE notifications ADD CONSTRAINT notifications_messages_fkey
-    FOREIGN KEY (message_id) REFERENCES public.messages (id) MATCH SIMPLE
+ALTER TABLE spacon.notifications ADD COLUMN recipient text;
+ALTER TABLE spacon.notifications ADD COLUMN message_id UUID;
+ALTER TABLE spacon.notifications ADD CONSTRAINT notifications_messages_fkey
+    FOREIGN KEY (message_id) REFERENCES spacon.messages (id) MATCH SIMPLE
     ON UPDATE CASCADE ON DELETE CASCADE;
-ALTER TABLE notifications DROP COLUMN IF EXISTS device_id;
-ALTER TABLE notifications DROP COLUMN IF EXISTS trigger_id;
-ALTER TABLE notifications ADD COLUMN sent timestamp DEFAULT NULL;
-ALTER TABLE notifications ADD COLUMN delivered timestamp DEFAULT NULL;
+ALTER TABLE spacon.notifications DROP COLUMN IF EXISTS device_id;
+ALTER TABLE spacon.notifications DROP COLUMN IF EXISTS trigger_id;
+ALTER TABLE spacon.notifications ADD COLUMN sent timestamp DEFAULT NULL;
+ALTER TABLE spacon.notifications ADD COLUMN delivered timestamp DEFAULT NULL;

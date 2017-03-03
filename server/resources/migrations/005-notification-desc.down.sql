@@ -1,4 +1,4 @@
---  Copyright  Copyright 2016-2017 Boundless, http://boundlessgeo.com
+--  Copyright 2016-2017 Boundless, http://boundlessgeo.com
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
 --  you may not use this file except in compliance with the License.
@@ -12,6 +12,6 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 
-ALTER TABLE notifications DROP COLUMN IF EXISTS lhs;
-ALTER TABLE notifications DROP COLUMN IF EXISTS rhs;
-ALTER TABLE notifications DROP COLUMN IF EXISTS recipients;
+ALTER TABLE spacon.notifications DROP COLUMN IF EXISTS lhs;
+ALTER TABLE spacon.notifications DROP COLUMN IF EXISTS rhs;
+ALTER TABLE spacon.notifications DROP COLUMN IF EXISTS recipients;

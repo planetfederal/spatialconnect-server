@@ -1,4 +1,4 @@
---  Copyright  Copyright 2016-2017 Boundless, http://boundlessgeo.com
+--  Copyright 2016-2017 Boundless, http://boundlessgeo.com
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
 --  you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 
-CREATE TABLE IF NOT EXISTS public.notifications
+CREATE TABLE IF NOT EXISTS spacon.notifications
 (
   id SERIAL PRIMARY KEY,
   trigger_id UUID,
@@ -21,15 +21,13 @@ CREATE TABLE IF NOT EXISTS public.notifications
   deleted_at timestamp with time zone,
   device_id integer UNIQUE,
   CONSTRAINT notifications_triggers_fkey FOREIGN KEY (trigger_id)
-    REFERENCES public.triggers (id) MATCH SIMPLE
+    REFERENCES spacon.triggers(id) MATCH SIMPLE
     ON UPDATE CASCADE ON DELETE SET NULL
 )
 WITH (
   OIDS=FALSE
 );
-ALTER TABLE public.notifications
-  OWNER TO spacon;
 
 CREATE TRIGGER update_updated_at_notifications
-    BEFORE UPDATE ON notifications FOR EACH ROW EXECUTE
-    PROCEDURE update_updated_at_column();
+    BEFORE UPDATE ON spacon.notifications FOR EACH ROW EXECUTE
+    PROCEDURE spacon.update_updated_at_column();

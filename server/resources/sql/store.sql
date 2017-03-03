@@ -1,24 +1,23 @@
 -- name: store-list-query
 -- gets all the stores
 SELECT *
-FROM stores
+FROM spacon.stores
 WHERE deleted_at IS NULL;
 
 -- name: find-by-id-query
 -- gets store by id
 SELECT *
-FROM stores
+FROM spacon.stores
 WHERE id = :id AND deleted_at IS NULL
 
 -- name: insert-store<!
 -- creates a new store
-INSERT INTO
-stores ( name,  store_type,  version,  uri,  options,        style,        default_layers,  team_id, created_at, updated_at)
+INSERT INTO spacon.stores ( name,  store_type,  version,  uri,  options,        style,        default_layers,  team_id, created_at, updated_at)
 VALUES (:name, :store_type, :version, :uri, :options::json, :style::json, :default_layers, :team_id, NOW(),      NOW())
 
 -- name: update-store<!
 -- updates store
-UPDATE stores SET
+UPDATE spacon.stores SET
 name = :name,
 store_type = :store_type,
 version = :version,
@@ -32,4 +31,4 @@ WHERE id = :id
 
 -- name: delete-store!
 -- deletes the store
-UPDATE stores SET deleted_at = NOW() WHERE id = :id
+UPDATE spacon.stores SET deleted_at = NOW() WHERE id = :id

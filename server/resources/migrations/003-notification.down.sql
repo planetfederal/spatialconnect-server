@@ -1,4 +1,4 @@
---  Copyright  Copyright 2016-2017 Boundless, http://boundlessgeo.com
+--  Copyright 2016-2017 Boundless, http://boundlessgeo.com
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
 --  you may not use this file except in compliance with the License.
@@ -12,5 +12,5 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 
-DROP TABLE IF EXISTS notifications;
-DROP TRIGGER IF EXISTS update_updated_at_notifications ON notifications;
+DROP TABLE IF EXISTS spacon.notifications;
+DROP TRIGGER IF EXISTS update_updated_at_notifications ON spacon.notifications;
