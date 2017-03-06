@@ -20,7 +20,7 @@
         team (clojure.spec/exercise-fn `spacon.components.team.db/create)
         store (clojure.spec/exercise-fn `spacon.components.store.db/create)
         form (clojure.spec/exercise-fn `spacon.components.form.db/add-form-with-fields)
-        dev (clojure.spec/exercise-fn `spacon.components.device.db/create)
+        dev (clojure.spec/exercise-fn `spacon.components.device.db/create)]
     (+ (count org) (count team) (count store) (count form) (count dev))))
 
 (defn -main
