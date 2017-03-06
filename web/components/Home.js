@@ -3,7 +3,7 @@ import reduce from 'lodash/reduce';
 import { Link } from 'react-router';
 import PropertyListItem from './PropertyListItem';
 
-const Home = ({ teams, stores, forms, spatial_triggers, device_locations, userTeams }) => (
+const Home = ({ teams, stores, forms, device_locations, userTeams }) => (
   <div className="wrapper">
     <section className="main">
       <p>Welcome to the spatialconnect dashboard.</p>
@@ -23,9 +23,6 @@ const Home = ({ teams, stores, forms, spatial_triggers, device_locations, userTe
               name={'Form Submissions'}
               value={reduce(forms, (r, v) => r + v.metadata.count, 0)}
             />
-            <PropertyListItem
-              name={'Spatial Triggers'} value={Object.keys(spatial_triggers).length}
-            />
             <PropertyListItem name={'Connected Devices'} value={device_locations.length} />
           </div>
         </div>
@@ -37,7 +34,6 @@ const Home = ({ teams, stores, forms, spatial_triggers, device_locations, userTe
 Home.propTypes = {
   stores: PropTypes.object.isRequired,
   forms: PropTypes.object.isRequired,
-  spatial_triggers: PropTypes.object.isRequired,
   device_locations: PropTypes.array.isRequired,
   teams: PropTypes.array.isRequired,
   userTeams: PropTypes.array.isRequired,

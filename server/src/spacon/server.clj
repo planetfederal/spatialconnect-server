@@ -24,7 +24,6 @@
             [spacon.components.config.core :as config]
             [spacon.components.store.core :as store]
             [spacon.components.location.core :as location]
-            [spacon.components.trigger.core :as trigger]
             [spacon.components.mqtt.core :as mqtt]
             [spacon.components.notification.core :as notification]
             [spacon.components.form.core :as form]
@@ -59,13 +58,12 @@
      :device (component/using (device/make-device-component) [:mqtt])
      :config (component/using (config/make-config-component) [:mqtt])
      :notify (component/using (notification/make-notification-component) [:mqtt])
-     :trigger (component/using (trigger/make-trigger-component) [:notify])
-     :store (component/using (store/make-store-component) [:mqtt :trigger])
-     :location (component/using (location/make-location-component) [:mqtt :trigger])
-     :form (component/using (form/make-form-component) [:mqtt :trigger])
+     :store (component/using (store/make-store-component) [:mqtt])
+     :location (component/using (location/make-location-component) [:mqtt])
+     :form (component/using (form/make-form-component) [:mqtt])
      :http-service (component/using
                     (http/make-http-service-component http-config)
-                    [:ping :user :team :device :location :trigger
+                    [:ping :user :team :device :location
                      :store :config :form :mqtt :notify])
      :server (component/using (new-spacon-server) [:http-service]))))
 
