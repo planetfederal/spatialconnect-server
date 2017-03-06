@@ -19,11 +19,8 @@ import FormsContainer from './containers/FormsContainer';
 import FormDetailsContainer from './containers/FormDetailsContainer';
 import DataStoresDetailsContainer from './containers/DataStoresDetailsContainer';
 import DataContainer from './containers/DataContainer';
-import TriggersContainer from './containers/TriggersContainer';
-import TriggerDetailsContainer from './containers/TriggerDetailsContainer';
 import TeamsContainer from './containers/TeamsContainer';
 import TeamDetailsContainer from './containers/TeamDetailsContainer';
-import NotificationContainer from './containers/NotificationContainer';
 
 import './style/Globals.less';
 
@@ -80,14 +77,6 @@ render(
             component={requireAuthentication(FormDetailsContainer)}
           />
         </Route>
-        <Route
-          path="/triggers" name="Triggers" component={requireAuthentication(TriggersContainer)}
-        >
-          <Route
-            path="/triggers/:id" staticName
-            component={requireAuthentication(TriggerDetailsContainer)}
-          />
-        </Route>
         <Route path="/data" name="Data" component={requireAuthentication(DataContainer)} />
         <Route path="/teams" name="Teams" component={requireAuthentication(TeamsContainer)}>
           <Route
@@ -96,11 +85,6 @@ render(
             component={requireAuthentication(TeamDetailsContainer)}
           />
         </Route>
-        <Route
-          path="/notifications/:id"
-          staticName
-          component={requireAuthentication(NotificationContainer)}
-        />
       </Route>
     </Router>
   </Provider>,

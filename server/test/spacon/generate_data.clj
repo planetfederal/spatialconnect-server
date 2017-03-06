@@ -21,8 +21,7 @@
         store (clojure.spec/exercise-fn `spacon.components.store.db/create)
         form (clojure.spec/exercise-fn `spacon.components.form.db/add-form-with-fields)
         dev (clojure.spec/exercise-fn `spacon.components.device.db/create)
-        trigger (clojure.spec/exercise-fn `spacon.components.trigger.db/create)]
-    (+ (count org) (count team) (count store) (count form) (count dev) (count trigger))))
+    (+ (count org) (count team) (count store) (count form) (count dev))))
 
 (defn -main
   "The entry-point for 'lein generate-data'"

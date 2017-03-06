@@ -19,7 +19,6 @@
             [clojure.spec :as s]
             [clojure.spec.gen :as gen]
             [spacon.components.mqtt.core :as mqttapi]
-            [spacon.components.trigger.core :as triggerapi]
             [clojure.tools.logging :as log]
             [cljts.io :as jtsio]
             [clojure.data.json :as json]))
@@ -76,7 +75,6 @@
                json/write-str
                jtsio/read-feature
                .getDefaultGeometry)]
-    (do (triggerapi/test-value (:trigger-comp form-comp) "FORM_STORE" gj))
     (formmodel/add-form-data form-data form-id device-id)))
 
 (defn add-form-with-fields
@@ -96,7 +94,7 @@
 (defn mqtt->form-submit
   "MQTT message handler that submits new form data using the payload
   of the message body"
-  [trigger message]
+  [message]
   (log/debug "Handling form submission")
   (let [p (:payload message)
         form-id (:form_id p)
@@ -106,16 +104,15 @@
                json/write-str
                jtsio/read-feature
                .getDefaultGeometry)]
-    (triggerapi/test-value trigger "FORM_STORE" gj)
     (log/debug "Submitting form data")
     (formmodel/add-form-data form-data form-id device-identifier)))
 
-(defrecord FormComponent [mqtt trigger]
+(defrecord FormComponent [mqtt]
   component/Lifecycle
   (start [this]
     (log/debug "Starting Form Component")
-    (mqttapi/subscribe mqtt "/store/form" (partial mqtt->form-submit trigger))
-    (assoc this :mqtt-comp mqtt :trigger-comp trigger))
+    (mqttapi/subscribe mqtt "/store/form" mqtt->form-submit)
+    (assoc this :mqtt-comp mqtt))
   (stop [this]
     (log/debug "Starting Form Component")
     this))
