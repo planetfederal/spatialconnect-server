@@ -1,4 +1,4 @@
-(defproject spacon "0.8.0-SNAPSHOT"
+(defproject spacon "0.9.0-SNAPSHOT"
   :description "SpatialConnect Server"
   :url "http://github.com/boundlessgeo/spatialconnect-server"
   :license {:name "Apache License, Version 2.0"
