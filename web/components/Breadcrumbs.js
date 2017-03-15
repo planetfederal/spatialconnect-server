@@ -20,12 +20,6 @@ class Breadcrumbs extends Component {
           route.name = form.form_label;
         }
       }
-      if (route.path === '/triggers/:id') {
-        const trigger = find(sc.triggers.spatial_triggers, { id: params.id });
-        if (trigger) {
-          route.name = trigger.name;
-        }
-      }
       if (route.path === '/teams/:id') {
         const team = find(sc.teams.teams, { id: +params.id });
         if (team) {

@@ -25,7 +25,6 @@ export class FormList extends Component {
 
     this.toggleForm = this.toggleForm.bind(this);
     this.toggleDeviceLocations = this.toggleDeviceLocations.bind(this);
-    this.toggleSpatialTriggers = this.toggleSpatialTriggers.bind(this);
   }
 
   toggleForm(form) {
@@ -38,10 +37,6 @@ export class FormList extends Component {
 
   toggleDeviceLocations() {
     this.props.dataActions.toggleDeviceLocations(!this.props.deviceLocationsOn);
-  }
-
-  toggleSpatialTriggers() {
-    this.props.dataActions.toggleSpatialTriggers(!this.props.spatialTriggersOn);
   }
 
   render() {
@@ -65,23 +60,13 @@ export class FormList extends Component {
           count={this.props.device_locations.length}
           onClick={this.toggleDeviceLocations}
         />
-        <FormListItem
-          key={'spatial_triggers'}
-          active={this.props.spatialTriggersOn}
-          title={'Spatial Triggers'}
-          count={Object.keys(this.props.spatial_triggers).length}
-          onClick={this.toggleSpatialTriggers}
-        />
-
       </div>
     );
   }
 }
 
 FormList.propTypes = {
-  spatialTriggersOn: PropTypes.bool.isRequired,
   deviceLocationsOn: PropTypes.bool.isRequired,
-  spatial_triggers: PropTypes.object.isRequired,
   device_locations: PropTypes.array.isRequired,
   formData: PropTypes.array.isRequired,
   form_ids: PropTypes.array.isRequired,

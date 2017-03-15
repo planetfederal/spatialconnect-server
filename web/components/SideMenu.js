@@ -20,7 +20,6 @@ const SideMenu = ({ isAuthenticated, actions, userName,
         <nav>
           <SideMenuItem path={'/stores'} name={'Stores'} onClick={closeMenu} />
           <SideMenuItem path={'/forms'} name={'Forms'} onClick={closeMenu} />
-          <SideMenuItem path={'/triggers'} name={'Triggers'} onClick={closeMenu} />
           <SideMenuItem path={'/data'} name={'Data'} onClick={closeMenu} />
           <div className="side-menu-separator" />
           <div className="side-menu-item">

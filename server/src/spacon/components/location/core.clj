@@ -14,12 +14,9 @@
 
 (ns spacon.components.location.core
   (:require [com.stuartsierra.component :as component]
-            [spacon.components.http.intercept :as intercept]
-            [spacon.components.http.response :as response]
             [clojure.data.json :as json]
             [yesql.core :refer [defqueries]]
             [spacon.components.mqtt.core :as mqttapi]
-            [spacon.components.trigger.core :as triggerapi]
             [spacon.components.location.db :as locationmodel]
             [clojure.tools.logging :as log]
             [cljts.io :as jtsio]))
@@ -44,21 +41,16 @@
 (defn- update-device-location
   "MQTT message handler that persists the device location
   of the message body, then tests it against the triggers"
-  [trigger message]
+  [message]
   (log/debugf "Received device location update message %s" (:payload message))
   (let [loc (:payload message)]
-    (locationmodel/upsert-gj loc)
-    (let [gj (-> (:payload message)
-                 json/write-str
-                 jtsio/read-feature
-                 .getDefaultGeometry)]
-      (triggerapi/test-value trigger "location" gj))))
+    (locationmodel/upsert-gj loc)))
 
-(defrecord LocationComponent [mqtt trigger]
+(defrecord LocationComponent [mqtt]
   component/Lifecycle
   (start [this]
     (log/debug "Starting Location Component")
-    (mqttapi/subscribe mqtt "/store/tracking" (partial update-device-location trigger))
+    (mqttapi/subscribe mqtt "/store/tracking" update-device-location)
     this)
   (stop [this]
     (log/debug "Stopping Location Component")
