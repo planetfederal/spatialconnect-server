@@ -5,7 +5,7 @@ using the SpatialConnect libraries.  It's also the API that powers the
 dashboard web application.
 
 ## Version
-0.9
+0.10
 
 ## Running with Docker
 
