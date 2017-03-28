@@ -1,3 +1,4 @@
+(ns spacon.processor)
 ;; Copyright 2016-2017 Boundless, http://boundlessgeo.com
 ;;
 ;; Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,19 +31,8 @@
             [spacon.components.kafka.core :as kafka]
             [clojure.tools.logging :as log]))
 
-(defrecord SpaconServer [http-service]
-  component/Lifecycle
-  (start [component]
-    (log/info "Starting SpaconServer Component")
-    (let [server (server/create-server (:service-def http-service))]
-      (server/start server)
-      (assoc component :http-server server)))
-  (stop [component]
-    (log/info "Stopping SpaconServer Component")
-    (update-in component [:http-server] server/stop)))
-
 (defrecord SpaconProcessor
-  component/Lifecycle 
+  component/Lifecycle
   (start [this]
     (log/info "Starting SpaconProcessor Component")
     this)
@@ -50,34 +40,27 @@
     (log/info "Stopping SpaconProcessor Component")
     this))
 
-(defn new-spacon-server []
-  (map->SpaconServer {}))
 
 (defn new-spacon-processor []
   (map->SpaconProcessor {}))
 
-(defn make-spacon-server
+(defn make-spacon-processor
   "Returns a new instance of the system"
   [config-options]
   (log/debug "Making server config with these options" config-options)
   (let [{:keys [http-config mqtt-config kafka-producer-config kafka-consumer-config]} config-options]
     (component/system-map
-     :user (user/make-user-component)
-     :team (team/make-team-component)
-     :mqtt (mqtt/make-mqtt-component mqtt-config)
-     :kafka (kafka/make-kafka-component kafka-producer-config kafka-consumer-config)
-     :ping (component/using (ping/make-ping-component) [:mqtt :kafka])
-     :device (component/using (device/make-device-component) [:mqtt])
-     :config (component/using (config/make-config-component) [:mqtt])
-     :notify (component/using (notification/make-notification-component) [:mqtt])
-     :store (component/using (store/make-store-component) [:mqtt])
-     :location (component/using (location/make-location-component) [:mqtt])
-     :form (component/using (form/make-form-component) [:mqtt])
-     :http-service (component/using
-                    (http/make-http-service-component http-config)
-                    [:ping :user :team :device :location
-                     :store :config :form :mqtt :notify])
-     :server (component/using (new-spacon-server) [:http-service]))))
+      :user (user/make-user-component)
+      :team (team/make-team-component)
+      :kafka (kafka/make-kafka-component kafka-producer-config kafka-consumer-config)
+      :ping (component/using (ping/make-ping-component) [:mqtt :kafka])
+      :device (component/using (device/make-device-component) [:mqtt])
+      :config (component/using (config/make-config-component) [:mqtt])
+      :notify (component/using (notification/make-notification-component) [:mqtt])
+      :store (component/using (store/make-store-component) [:mqtt])
+      :location (component/using (location/make-location-component) [:mqtt])
+      :form (component/using (form/make-form-component) [:mqtt])
+      :server (component/using (new-spacon-server) [:http-service]))))
 
 (defn -main
   "The entry-point for 'lein run'"
@@ -87,9 +70,9 @@
     (spacon.db.conn/migrate))
   ;; create global uncaught exception handler so threads don't silently die
   (Thread/setDefaultUncaughtExceptionHandler
-   (reify Thread$UncaughtExceptionHandler
-     (uncaughtException [_ thread ex]
-       (log/error ex "Uncaught exception on thread" (.getName thread)))))
+    (reify Thread$UncaughtExceptionHandler
+      (uncaughtException [_ thread ex]
+        (log/error ex "Uncaught exception on thread" (.getName thread)))))
   (System/setProperty "javax.net.ssl.trustStore"
                       (or (System/getenv "TRUST_STORE")
                           "tls/test-cacerts.jks"))
@@ -109,10 +92,10 @@
                       (or (System/getenv "KEY_STORE_PASSWORD")
                           "somepass"))
   (component/start-system
-   (make-spacon-server {:http-config {::server/allowed-origins {:allowed-origins [(System/getenv "ALLOWED_ORIGINS")]}}
-                        :mqtt-config {:broker-url (System/getenv "MQTT_BROKER_URL")}
-                        :kafka-producer-config {:servers (System/getenv "BOOTSTRAP_SERVERS")
-                                                :timeout-ms 2000}
-                        :kafka-consumer-config {:servers (System/getenv "BOOTSTRAP_SERVERS")
-                                                :group-id (System/getenv "GROUP_ID")}})))
+    (make-spacon-server {:http-config {::server/allowed-origins {:allowed-origins [(System/getenv "ALLOWED_ORIGINS")]}}
+                         :mqtt-config {:broker-url (System/getenv "MQTT_BROKER_URL")}
+                         :kafka-producer-config {:servers (System/getenv "BOOTSTRAP_SERVERS")
+                                                 :timeout-ms 2000}
+                         :kafka-consumer-config {:servers (System/getenv "BOOTSTRAP_SERVERS")
+                                                 :group-id (System/getenv "GROUP_ID")}})))
 

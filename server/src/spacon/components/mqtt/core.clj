@@ -16,67 +16,94 @@
   (:require [com.stuartsierra.component :as component]
             [clojurewerkz.machine-head.client :as mh]
             [spacon.entity.scmessage :as scm]
-            [spacon.components.http.intercept :as intercept]
-            [spacon.components.http.response :as response]
             [clojure.core.async :as async]
             [spacon.components.http.auth :refer [get-token]]
-            [clojure.tools.logging :as log]))
+            [clojure.tools.logging :as log])
+  (:import [org.apache.kafka.clients.producer KafkaProducer]
+           [org.apache.kafka.clients.consumer ConsumerConfig KafkaConsumer]
+           [org.apache.kafka.common.serialization Serializer StringSerializer Deserializer StringDeserializer]))
 
 (def client-id "spacon-server")
 
-(def topics
+(def commands
   "Map of topics as keys and message handler functions as values"
   (ref {}))
 
-(defn- add-topic
+(defn- add-command
   "Transactionally adds topic to topics ref"
-  [topic fn]
-  (log/trace "Adding topic" topic)
+  [cmd fn]
+  (log/trace "Adding command " cmd)
   (dosync
-   (commute topics assoc (keyword topic) fn)))
+   (commute commands assoc (keyword cmd) fn)))
 
-(defn- remove-topic
-  "Transactionally removes topic from topics ref"
-  [topic]
-  (log/trace "Removing topic" topic)
+(defn- remove-command
+  "Transactionally removes command from commands ref"
+  [cmd]
+  (log/trace "Removing command " cmd)
   (dosync
-   (commute topics dissoc (keyword topic))))
-
-(defn connectmqtt
-  "Connect to mqtt broker at url
-   Example url: ssl://broker.hostname.domain:port"
-  [url]
-  (log/debug "Connecting MQTT Client at" url)
-  (mh/connect url client-id))
+   (commute commands dissoc (keyword cmd))))
 
 ; publishes message on the send channel
-(defn- publish [mqtt topic message]
-  (log/tracef "Publishing to topic %s %nmessage: %s" topic message)
-  (async/go (async/>!! (:publish-channel mqtt) {:topic topic :message (scm/message->bytes message)})))
+(defn- publish [pub-chan message]
+  (async/go (async/>!! pub-chan (scm/message->bytes message))))
 
 ; receive message on subscribe channel
-(defn- receive [mqtt topic message]
+(defn- receive [rec-chan topic message]
   (log/tracef "Received message on topic %s %nmessage:%s" topic message)
   (if (nil? message)
     (log/debug "Nil message on topic " topic)
-    (async/go (async/>!! (:subscribe-channel mqtt) {:topic topic :message (scm/from-bytes message)}))))
+    (async/go (async/>!! rec-chan (scm/from-bytes message)))))
 
 (defn subscribe
   "Subscribe to mqtt topic with message handler function f"
-  [mqtt topic f]
-  (log/debug "Subscribing to topic" topic)
-  (add-topic topic f)
+  [kafka-comp cmd f]
+  (log/debug "Subscribing to command " cmd)
+  (add-command cmd f)
   (mh/subscribe (:conn mqtt) {topic 2} (fn [^String topic _ ^bytes payload]
                                          (receive mqtt topic payload))))
 
 (defn unsubscribe
   "Unsubscribe to mqtt topic"
-  [mqtt topic]
-  (log/debug "Unsubscribing to topic" topic)
-  (remove-topic topic)
-  (mh/unsubscribe (:conn mqtt) topic))
+  [mqtt cmd]
+  (log/debug "Unsubscribing to command" cmd)
+  (remove-command cmd))
 
-(defn- process-publish-channel [mqtt chan]
+(defn construct-producer
+  "Construct and return a KafkaProducer using the producer-config map
+  (See https://kafka.apache.org/documentation.html#producerconfigs
+  for more details about the config)"
+  [producer-config]
+  (let [{:keys [servers timeout-ms client-id config key-serializer value-serializer]
+         :or   {config           {}
+                key-serializer   (StringSerializer.)
+                value-serializer (StringSerializer.)
+                client-id        (str "sc-producer-" (.getHostName (java.net.InetAddress/getLocalHost)))}}
+        producer-config]
+    (KafkaProducer. ^java.util.Map
+                    (assoc config
+                      "request.timeout.ms" (str timeout-ms)
+                      "bootstrap.servers" servers
+                      "client.id" client-id
+                      "acks" "all")
+                    ^Serializer key-serializer
+                    ^Serializer value-serializer)))
+
+(defn construct-consumer
+  [consumer-config]
+  (let [{:keys [servers client-id key-deserializer value-deserializer]
+         :or   {client-id        (str "sc-consumer-" (.getHostName (java.net.InetAddress/getLocalHost)))
+                servers          "localhost:9092"
+                key-deserializer   (StringDeserializer.)
+                value-deserializer (StringDeserializer.)}} consumer-config]
+    (KafkaConsumer. ^java.util.Map
+                    (assoc {}
+                      ConsumerConfig/CLIENT_ID_CONFIG client-id
+                      ConsumerConfig/GROUP_ID_CONFIG client-id
+                      ConsumerConfig/BOOTSTRAP_SERVERS_CONFIG servers)
+                    ^Deserializer key-deserializer
+                    ^Deserializer value-deserializer)))
+
+(defn- process-send-topic [producer chan]
   (async/go (while true
               (let [v (async/<!! chan)
                     t (:topic v)
@@ -88,41 +115,42 @@
                     (log/error "Could not publish message b/c"
                                (.getLocalizedMessage e))))))))
 
-(defn- process-subscribe-channel [chan]
+(defn- process-receive-topic [consumer chan]
   (async/go (while true
               (let [v (async/<! chan)
                     t (:topic v)
                     m (:message v)
-                    f ((keyword t) @topics)]
-
+                    f ((keyword t) @commands)]
                 (if-not (or (nil? m) (nil? f))
                   (f m)
                   (log/debug "Nil value on Subscribe Channel"))))))
 
-(defn publish-scmessage [mqtt topic message]
-  (publish mqtt topic message))
+(defn publish-scmessage [kafka-comp message]
+  (publish (:producer kafka-comp) message))
 
-(defn publish-map [mqtt topic m]
-  (publish mqtt topic (scm/map->SCMessage {:payload m})))
+(defn publish-map [kafka-comp m]
+  (publish (:producer kafka-comp) (scm/map->SCMessage {:payload m})))
 
-(defrecord MqttComponent [mqtt-config]
+(defrecord KafkaComponent [producer-config consumer-config]
   component/Lifecycle
   (start [this]
-    (log/debug "Starting MQTT Component")
-    (let [url (or (:broker-url mqtt-config) "tcp://localhost:1883")
-          m (connectmqtt url)
-          pub-chan (async/chan)
-          sub-chan (async/chan)
-          c (assoc this :conn m :publish-channel pub-chan :subscribe-channel sub-chan)]
-      (process-publish-channel c pub-chan)
-      (process-subscribe-channel sub-chan)
-      c))
+    (log/debug "Starting Kafka Component")
+    (let [producer (construct-producer producer-config)
+          consumer (construct-consumer consumer-config)
+          rec-chan (async/chan)
+          pub-chan (async/chan)]
+      (process-receive-topic consumer rec-chan)
+      (process-send-topic producer pub-chan)
+
+      (assoc this :publish-channel pub-chan)))
   (stop [this]
     (log/debug "Stopping MQTT Component")
     (async/close! (:publish-channel this))
     (async/close! (:subscribe-channel this))
-    (mh/disconnect (:conn this))
+    (mh/disconnect (:producer this))
     this))
 
-(defn make-mqtt-component [mqtt-config]
-  (map->MqttComponent {:mqtt-config mqtt-config}))
+(defn make-kafka-component
+  [producer-config consumer-config]
+  (map->KafkaComponent {:producer-config producer-config
+                        :consumer-config consumer-config}))

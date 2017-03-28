@@ -21,40 +21,7 @@
            [org.apache.kafka.clients.consumer Consumer ConsumerConfig KafkaConsumer]
            [org.apache.kafka.common.serialization Serializer StringSerializer Deserializer StringDeserializer]))
 
-(defn construct-producer
-  "Construct and return a KafkaProducer using the producer-config map
-  (See https://kafka.apache.org/documentation.html#producerconfigs
-  for more details about the config)"
-  [producer-config]
-  (let [{:keys [servers timeout-ms client-id config key-serializer value-serializer]
-         :or   {config           {}
-                key-serializer   (StringSerializer.)
-                value-serializer (StringSerializer.)
-                client-id        (str "sc-producer-" (.getHostName (java.net.InetAddress/getLocalHost)))}}
-        producer-config]
-    (KafkaProducer. ^java.util.Map
-     (assoc config
-            "request.timeout.ms" (str timeout-ms)
-            "bootstrap.servers" servers
-            "client.id" client-id
-            "acks" "all")
-                    ^Serializer key-serializer
-                    ^Serializer value-serializer)))
 
-(defn construct-consumer
-  [consumer-config]
-  (let [{:keys [servers client-id key-deserializer value-deserializer]
-         :or   {client-id        (str "sc-consumer-" (.getHostName (java.net.InetAddress/getLocalHost)))
-                servers          "localhost:9092"
-                key-deserializer   (StringDeserializer.)
-                value-deserializer (StringDeserializer.)}} consumer-config]
-    (KafkaConsumer. ^java.util.Map
-     (assoc {}
-            ConsumerConfig/CLIENT_ID_CONFIG client-id
-            ConsumerConfig/GROUP_ID_CONFIG client-id
-            ConsumerConfig/BOOTSTRAP_SERVERS_CONFIG servers)
-                    ^Deserializer key-deserializer
-                    ^Deserializer value-deserializer)))
 
 (defrecord KafkaComponent [producer-config consumer-config]
   component/Lifecycle
@@ -108,4 +75,5 @@
    (let [^Consumer consumer (:consumer kafka-comp)]
      (.subscribe consumer #{topic})
      (while true
-       (-> (.poll consumer 100) f)))))
+       (-> (.poll consumer 100) f))
+     )))
