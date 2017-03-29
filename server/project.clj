@@ -34,7 +34,8 @@
                  [com.draines/postal "2.0.2"]
                  [org.clojure/tools.logging "0.3.1"]
                  [org.apache.kafka/kafka-clients "0.10.1.1"]
-                 [org.apache.kafka/kafka-streams "0.10.0.0-cp1" :exclusions [org.slf4j/slf4j-log4j12]]
+                 [org.apache.kafka/kafka-streams "0.10.0.0-cp1"
+                  :exclusions [org.slf4j/slf4j-log4j12]]
                  [clj-time "0.13.0"]
                  [ymilky/franzy "0.0.1"]]
 
@@ -63,7 +64,10 @@
   ;:java-agents [[org.mortbay.jetty.alpn/jetty-alpn-agent "2.0.3"]]
   :profiles {:dev {:source-paths ["dev"]
                    :resource-paths ["config", "resources"]
-                   :dependencies [[io.pedestal/pedestal.service-tools "0.5.1"]
+                   :dependencies [[io.pedestal/pedestal.service-tools
+                                   "0.5.1"]
+                                  [jonase/eastwood "0.2.1" :exclusions
+                                   [org.clojure/clojure]]
                                   [org.clojure/test.check "0.9.0"]]
                    :plugins [[test2junit "1.2.2"]]}
              :uberjar {:aot :all

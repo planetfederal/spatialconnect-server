@@ -41,20 +41,8 @@
     (log/info "Stopping SpaconServer Component")
     (update-in component [:http-server] server/stop)))
 
-(defrecord SpaconProcessor
-  component/Lifecycle 
-  (start [this]
-    (log/info "Starting SpaconProcessor Component")
-    this)
-  (stop [this]
-    (log/info "Stopping SpaconProcessor Component")
-    this))
-
 (defn new-spacon-server []
   (map->SpaconServer {}))
-
-(defn new-spacon-processor []
-  (map->SpaconProcessor {}))
 
 (defn make-spacon-server
   "Returns a new instance of the system"
@@ -64,9 +52,8 @@
     (component/system-map
      :user (user/make-user-component)
      :team (team/make-team-component)
-     :mqtt (mqtt/make-mqtt-component mqtt-config)
      :kafka (kafka/make-kafka-component kafka-producer-config kafka-consumer-config)
-     :ping (component/using (ping/make-ping-component) [:mqtt :kafka])
+     :ping (component/using (ping/make-ping-component) [:kafka])
      :device (component/using (device/make-device-component) [:mqtt])
      :config (component/using (config/make-config-component) [:mqtt])
      :notify (component/using (notification/make-notification-component) [:mqtt])
