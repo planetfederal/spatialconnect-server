@@ -51,11 +51,12 @@ First startup the database container:
 docker-compose up -d postgis
 ```
 
-Then create the database and database user.  (You may need to wait a few seconds for the db container to fully start)
+Then create the database, database user, and schema.  (You may need to wait a few seconds for the db container to fully start)
 
 ```
 docker-compose run -e PGHOST=postgis -e PGUSER=postgres --rm postgis createuser spacon
 docker-compose run -e PGHOST=postgis -e PGUSER=postgres --rm postgis createdb spacon -O spacon
+docker-compose run -e PGHOST=postgis -e PGUSER=spacon --rm postgis psql -d spacon -c "CREATE SCHEMA spacon;"
 ```
 
 Then add the required extensions to our database.
