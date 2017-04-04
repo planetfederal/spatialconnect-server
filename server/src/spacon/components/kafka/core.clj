@@ -14,17 +14,19 @@
 
 (ns spacon.components.kafka.core
   (:require [com.stuartsierra.component :as component]
-            [clojurewerkz.machine-head.client :as mh]
-            [spacon.entity.scmessage :as scm]
-            [clojure.data.json :as json ]
             [clojure.core.async :as async]
+            [clojure.walk :refer [keywordize-keys]]
             [spacon.components.http.auth :refer [get-token]]
-            [clojure.tools.logging :as log])
+            [clojure.tools.logging :as log]
+            [spacon.specs.message]
+            [clojure.spec :as spec]
+            [clojure.data.json :as json]
+            [clojure.spec :as s])
   (:import [org.apache.kafka.clients.producer ProducerRecord KafkaProducer Callback
-            RecordMetadata Producer]
+                                              RecordMetadata Producer]
            [org.apache.kafka.clients.consumer Consumer ConsumerConfig KafkaConsumer]
            [org.apache.kafka.common.serialization Serializer StringSerializer
-            Deserializer StringDeserializer]))
+                                                  Deserializer StringDeserializer]))
 
 (def client-id "spacon-server")
 (def spacon-response-topic "spacon-response")
@@ -39,25 +41,14 @@
   [cmd fn]
   (log/trace "Adding command " cmd)
   (dosync
-   (commute commands assoc (keyword cmd) fn)))
+    (commute commands assoc (keyword cmd) fn)))
 
 (defn- remove-command
   "Transactionally removes command from commands ref"
   [cmd]
   (log/trace "Removing command " cmd)
   (dosync
-   (commute commands dissoc (keyword cmd))))
-
-; publishes message on the send channel
-(defn- publish [pub-chan message]
-  (async/go (async/>!! pub-chan (json/write-str message))))
-
-; receive message on subscribe channel
-(defn- receive [rec-chan topic message]
-  (log/tracef "Received message on topic %s %nmessage:%s" topic message)
-  (if (nil? message)
-    (log/debug "Nil message on topic " topic)
-    (async/go (async/>!! rec-chan (json/read-str message)))))
+    (commute commands dissoc (keyword cmd))))
 
 ;; todo: write specs for valid records that we accept
 ;; for instance, restrict the topics and keys that can be sent
@@ -65,13 +56,14 @@
 (defn- producer-record
   "Constructs a ProducerRecord from a map"
   [record]
-  (let [{:keys [topic partition key value]} record]
+  (let [{:keys [topic partition key value]} record
+        value-str (json/write-str value)]
     (cond
-      (and partition key) (ProducerRecord. topic (int partition) key value)
-      key (ProducerRecord. topic key value)
+      (and partition key) (ProducerRecord. topic (int partition) key value-str)
+      key (ProducerRecord. topic key value-str)
       :else (ProducerRecord. topic value))))
 
-(defn send!
+(defn- send!
   "Sends a record (a map of :topic, :value and optionally :key, :partition) using
   the given Producer component. Returns ch (a promise-chan unless otherwise specified)
   where record metadata will be put after it's successfuly sent."
@@ -92,27 +84,48 @@
                   (async/put! ch (or ret e))))))
      ch)))
 
+(defn- record->map
+  "This takes a kafka ConsumerRecord from LYRS and returns
+  a map representation"
+  [r]
+  (keywordize-keys (json/read-str (.value r))))
+
+(defn- map->record
+  "This takes a SC message and prepares it for transmission
+  to LYRS "
+  [m]
+  (json/write-str m))
+
 (defn- listen
-  ([kafka-comp f]
-   (let [^Consumer consumer (:consumer kafka-comp)]
-     (.subscribe consumer #{spacon-receive-topic})
-     (while true
-       (-> (.poll consumer 100) f)))))
+  [^Consumer consumer output-chan topic]
+  (do
+    (.subscribe consumer #{topic})
+    (async/go-loop []
+      (if-let [crecords (.poll consumer 1000)]
+        (if-not (.isEmpty crecords)
+          (let [records (.iterator crecords)]
+            (loop [record (.next records)]
+              (let [r (record->map record)]
+                (if (s/conform :spacon.specs.message/connect-message r)
+                  (async/put! output-chan r))
+                (if (.hasNext records)
+                  (recur (.next records)))))))
+      (.commitSync consumer))
+      (recur))))
 
 (defn subscribe
-  "Subscribe to mqtt topic with message handler function f"
+  "Subscribe to kafka topic with message handler function f"
   [kafka-comp cmd f]
   (log/debug "Subscribing to command " cmd)
-  (add-command cmd f)
-  (listen kafka-comp cmd))
+  (add-command cmd f))
 
 (defn unsubscribe
-  "Unsubscribe to mqtt topic"
-  [mqtt cmd]
+  "Unsubscribe to kafka topic"
+  [kafka cmd]
   (log/debug "Unsubscribing to command" cmd)
   (remove-command cmd))
 
-(defn construct-producer
+(defn- construct-producer
   "Construct and return a KafkaProducer using the producer-config map
   (See https://kafka.apache.org/documentation.html#producerconfigs
   for more details about the config)"
@@ -121,7 +134,8 @@
          :or   {config           {}
                 key-serializer   (StringSerializer.)
                 value-serializer (StringSerializer.)
-                client-id        (str "sc-producer-" (.getHostName (java.net.InetAddress/getLocalHost)))}}
+                client-id        (str "sc-producer-"
+                                      (.getHostName (java.net.InetAddress/getLocalHost)))}}
         producer-config]
     (KafkaProducer. ^java.util.Map
                     (assoc config
@@ -132,11 +146,12 @@
                     ^Serializer key-serializer
                     ^Serializer value-serializer)))
 
-(defn construct-consumer
+(defn- construct-consumer
   [consumer-config]
   (let [{:keys [servers client-id key-deserializer value-deserializer]
-         :or   {client-id        (str "sc-consumer-" (.getHostName (java.net.InetAddress/getLocalHost)))
-                servers          "localhost:9092"
+         :or   {client-id          (str "sc-consumer-"
+                                        (.getHostName (java.net.InetAddress/getLocalHost)))
+                servers            "localhost:9092"
                 key-deserializer   (StringDeserializer.)
                 value-deserializer (StringDeserializer.)}} consumer-config]
     (KafkaConsumer. ^java.util.Map
@@ -147,54 +162,46 @@
                     ^Deserializer key-deserializer
                     ^Deserializer value-deserializer)))
 
-(defn- process-send-topic [producer chan]
-  (async/go (while true
-              (let [v (async/<!! chan)
-                    t (:topic v)
-                    m (:message v)]
-                (try
-                  (if-not (or (nil? t) (nil? m))
-                    (println "Couldnt Run"))
-                  (catch Exception e
-                    (log/error "Could not publish message b/c"
-                               (.getLocalizedMessage e))))))))
-
-(defn- process-receive-topic [consumer chan]
+(defn- process-receive-topic
   "This will take the incoming commands and execute the value against the
   function in the commands ref"
-  (async/go (while true
-              (let [v (async/<! chan)
-                    t (:topic v)
-                    m (:message v)
-                    f ((keyword t) @commands)]
-                (if-not (or (nil? m) (nil? f))
-                  (f m)
-                  (log/debug "Nil value on Subscribe Channel"))))))
+  [chan]
+  (async/go
+    (while true
+      (let [v (async/<! chan)]
+        (println v)
+        (let [p (:payload v)
+              f ((keyword (:command v)) @commands)]
+        (if-not (or (nil? p) (nil? f))
+          (f p)
+          (log/debug "Nil value on Subscribe Channel"))
+        )))
+    ))
 
 ;; PUBLIC COMPONENT API
-(defn publish-scmessage [kafka-comp message]
-  (publish (:producer kafka-comp) message))
+(defn publish [kafka-comp m]
+  (send! kafka-comp m))
 
 (defn publish-map [kafka-comp m]
-  (publish (:producer kafka-comp) (scm/map->SCMessage {:payload m})))
+  (publish kafka-comp m))
 
 (defrecord KafkaComponent [producer-config consumer-config]
   component/Lifecycle
   (start [this]
     (log/debug "Starting Kafka Component")
-    (let [producer (construct-producer producer-config)
-          consumer (construct-consumer consumer-config)
-          rec-chan (async/chan)
-          pub-chan (async/chan)]
-      (process-receive-topic consumer rec-chan)
-      (process-send-topic producer pub-chan)
-      (assoc this :publish-channel pub-chan :subscribe-channel rec-chan
+    (let [consumer (construct-consumer consumer-config)
+          producer (construct-producer producer-config)
+          rec-chan (async/chan)]
+      (process-receive-topic rec-chan)
+      (listen consumer rec-chan spacon-receive-topic)
+      (log/debug "Kafka Component Started")
+      (assoc this :subscribe-channel rec-chan
                   :producer producer :consumer consumer)))
   (stop [this]
     (log/debug "Stopping Kafka Component")
     (async/close! (:publish-channel this))
     (async/close! (:subscribe-channel this))
-    ( (:publish-channel))
+    ((:publish-channel))
     this))
 
 (defn make-kafka-component

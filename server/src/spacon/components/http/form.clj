@@ -3,9 +3,8 @@
             [clojure.tools.logging :as log]
             [spacon.components.http.intercept :refer [common-interceptors]]
             [spacon.components.form.core :as formapi]
-            [spacon.components.mqtt.core :as mqttapi]
+            [spacon.components.kafka.core :as kafkaapi]
             [spacon.components.http.auth :refer [check-auth]]
-            [spacon.entity.scmessage :as scmessage]
             [clojure.spec :as s])
   (:import (java.net URLDecoder)
            (com.boundlessgeo.spatialconnect.schema SCCommand)))
@@ -42,7 +41,7 @@
 (defn http-post-form
   "Creates a new form using the json body then publishes a
   config update message about the newly added form"
-  [form-comp mqtt-comp request]
+  [form-comp kafka-comp request]
   (let [f (:json-params request)
         form (if (not (contains? f :version))
                (assoc f :version 1)
@@ -51,11 +50,9 @@
     (if (s/valid? :spacon.specs.form/form-spec form)
       (let [new-form (formapi/add-form-with-fields form-comp form)]
         (log/debug "Added new form")
-        (mqttapi/publish-scmessage mqtt-comp
-                                   "/config/update"
-                                   (scmessage/map->SCMessage
+        (kafkaapi/publish kafka-comp
                                     {:action (.value SCCommand/CONFIG_ADD_FORM)
-                                     :payload new-form}))
+                                     :payload new-form})
         (response/ok new-form))
       (let [reason (s/explain-str :spacon.specs.form/form-spec form)
             err-msg "Failed to create new form"]
@@ -65,7 +62,7 @@
 (defn http-delete-form-by-key
   "Deletes all forms matching the form-key then publishes a
   config update message about the deleted form"
-  [form-comp mqtt-comp request]
+  [form-comp kafka-comp request]
   (log/debug "Deleting form")
   (let [form-key (URLDecoder/decode (get-in request [:path-params :form-key])
                                     "UTF-8")
@@ -76,11 +73,9 @@
         (response/bad-request err-msg))
       (if (== (count (map (partial formapi/delete-form form-comp) forms)) (count forms))
         (do
-          (mqttapi/publish-scmessage mqtt-comp
-                                     "/config/update"
-                                     (scmessage/map->SCMessage
+          (kafkaapi/publish kafka-comp
                                       {:action (.value SCCommand/CONFIG_REMOVE_FORM)
-                                       :payload {:form_key form-key}}))
+                                       :payload {:form_key form-key}})
           (response/ok "success"))
         (let [err-msg (str "Failed to delete all form versions for form-key" form-key)]
           (log/error err-msg)
@@ -103,13 +98,13 @@
   (let [form-id (get-in request [:path-params :form-id])]
     (response/ok (formapi/get-form-data form-comp form-id))))
 
-(defn routes [form-comp mqtt]
+(defn routes [form-comp kafka]
   #{["/api/forms"                :get
      (conj common-interceptors check-auth (partial http-get-all-forms form-comp)) :route-name :all-forms]
     ["/api/forms"                :post
-     (conj common-interceptors check-auth (partial http-post-form form-comp mqtt)) :route-name :create-form]
+     (conj common-interceptors check-auth (partial http-post-form form-comp kafka)) :route-name :create-form]
     ["/api/forms/:form-key"      :delete
-     (conj common-interceptors check-auth (partial http-delete-form-by-key form-comp mqtt)) :route-name :delete-form]
+     (conj common-interceptors check-auth (partial http-delete-form-by-key form-comp kafka)) :route-name :delete-form]
     ["/api/forms/:form-key"      :get
      (conj common-interceptors check-auth (partial http-get-form form-comp)) :route-name :get-form]
     ;; todo: need to figure out why forms causes a route conflict

@@ -16,7 +16,7 @@
   (:require [com.stuartsierra.component :as component]
             [spacon.components.http.intercept :as intercept]
             [spacon.components.http.response :as response]
-            [spacon.components.mqtt.core :as mqttapi]
+            [spacon.components.kafka.core :as kafkaapi]
             [clojure.data.json :as json]
             [clojure.tools.logging :as log]
             [spacon.components.kafka.core :as kafka]
@@ -24,10 +24,10 @@
             [clj-time.local :as l])
   (:import [java.util.concurrent Executors TimeUnit]))
 
-(defn- send-ping [kafka-producer]
+(defn- send-ping [kafka-comp]
   (let [ping-msg (json/write-str {:type "ping"
                                   :timestamp (l/format-local-time (l/local-now) :date-time-no-ms)})]
-    (kafka/send! kafka-producer {:topic "test"
+    (kafkaapi/publish kafka-comp {:topic "test"
                                  :value ping-msg
                                  :key "anykey"
                                  :partition 0})))
@@ -38,18 +38,17 @@
   (let [pool (Executors/newScheduledThreadPool 1)]
     (.scheduleAtFixedRate pool #(send-ping kafka-comp) 0 5 TimeUnit/SECONDS)))
 
-(defn mqtt-ping
-  "Responds with pong as a way to ensure mqtt broker is reachable"
-  [mqttcomp message]
-  (mqttapi/publish-scmessage mqttcomp
-                             (:reply_to message)
+(defn kafka-ping
+  "Responds with pong as a way to ensure kafka broker is reachable"
+  [kafkacomp message]
+  (kafkaapi/publish kafkacomp
                              (assoc message :payload {:result "pong"})))
 
-(defrecord PingComponent [mqtt kafka]
+(defrecord PingComponent [kafka]
   component/Lifecycle
   (start [this]
     (log/debug "Starting Ping Component")
-    (mqttapi/subscribe mqtt "/ping" (partial mqtt-ping mqtt))
+    (kafkaapi/subscribe kafka "/ping" (partial kafka-ping kafka))
     (ping-kafka kafka)
     this)
   (stop [this]

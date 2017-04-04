@@ -16,7 +16,7 @@
   (:require [com.stuartsierra.component :as component]
             [spacon.components.store.db :as storemodel]
             [spacon.components.device.db :as devicemodel]
-            [spacon.components.mqtt.core :as mqttapi]
+            [spacon.components.kafka.core :as kafkaapi]
             [spacon.components.http.auth :refer [token->user check-auth]]
             [spacon.components.form.db :as formmodel]
             [clojure.tools.logging :as log]))
@@ -34,32 +34,32 @@
                        (> (.indexOf teams (:team_id f)) -1))
                      (formmodel/all))}))
 
-(defn- mqtt->config
-  "MQTT message handler that receives the request for a config
+(defn- kafka->config
+  "kafka message handler that receives the request for a config
    from a device and responds by publishing the requested config
    on its reply-to topic"
-  [config-comp mqtt-comp message]
+  [config-comp kafka-comp message]
   (log/debug "Received request for config" message)
   (let [topic (:reply-to message)
         jwt   (:jwt message)
         user  (token->user jwt)
         cfg   (create-config config-comp user)]
     (log/debug "Sending config to" user)
-    (mqttapi/publish-scmessage mqtt-comp topic (assoc message :payload cfg))))
+    (kafkaapi/publish-map kafka-comp (assoc message :payload cfg))))
 
-(defn- mqtt->register
-  "MQTT message handler that registers a device"
+(defn- kafka->register
+  "kafka message handler that registers a device"
   [message]
   (let [device (:payload message)]
     (log/debug "Registering device" device)
     (devicemodel/create device)))
 
-(defrecord ConfigComponent [mqtt]
+(defrecord ConfigComponent [kafka]
   component/Lifecycle
   (start [this]
     (log/debug "Starting Config Component")
-    (mqttapi/subscribe mqtt "/config/register" mqtt->register)
-    (mqttapi/subscribe mqtt "/config" (partial mqtt->config this mqtt))
+    (kafkaapi/subscribe kafka "/config/register" kafka->register)
+    (kafkaapi/subscribe kafka "/config" (partial kafka->config this kafka))
     this)
   (stop [this]
     (log/debug "Stopping Config Component")

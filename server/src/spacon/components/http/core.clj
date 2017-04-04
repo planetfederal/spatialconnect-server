@@ -22,7 +22,6 @@
    [spacon.components.http.config :as config-http]
    [spacon.components.http.device :as device-http]
    [spacon.components.http.location :as location-http]
-   [spacon.components.http.mqtt :as mqtt-http]
    [spacon.components.http.notification :as notif-http]
    [spacon.components.http.store :as store-http]
    [spacon.components.http.ping :as ping-http]
@@ -30,7 +29,7 @@
    [spacon.components.http.team :as team-http]
    [clojure.tools.logging :as log]))
 
-(defrecord HttpService [http-config ping user team device location store config form mqtt notify]
+(defrecord HttpService [http-config ping user team device location store config kafka form notify]
   component/Lifecycle
   (start [this]
     (log/debug "Starting HttpService component")
@@ -42,10 +41,9 @@
                                       (team-http/routes team)
                                       (device-http/routes device)
                                       (location-http/routes location)
-                                      (store-http/routes mqtt store)
+                                      (store-http/routes kafka store)
                                       (config-http/routes config)
-                                      (mqtt-http/routes mqtt)
-                                      (form-http/routes form mqtt)
+                                      (form-http/routes form kafka)
                                       (notif-http/routes notify)))]
       (assoc this :service-def (merge http-config
                                       {:env                     :prod

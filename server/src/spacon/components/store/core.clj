@@ -18,7 +18,7 @@
             [clj-http.client :as client]
             [cljts.io :as jtsio]
             [spacon.specs.store]
-            [spacon.components.mqtt.core :as mqttapi]
+            [spacon.components.kafka.core :as kafkaapi]
             [spacon.entity.scmessage :as scm]
             [overtone.at-at :refer [every, mk-pool, stop, stop-and-reset-pool!]]
             [clojure.tools.logging :as log])

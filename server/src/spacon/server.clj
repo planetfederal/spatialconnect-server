@@ -24,7 +24,7 @@
             [spacon.components.config.core :as config]
             [spacon.components.store.core :as store]
             [spacon.components.location.core :as location]
-            [spacon.components.mqtt.core :as mqtt]
+            [spacon.components.kafka.core :as kafka]
             [spacon.components.notification.core :as notification]
             [spacon.components.form.core :as form]
             [spacon.components.kafka.core :as kafka]
@@ -48,22 +48,22 @@
   "Returns a new instance of the system"
   [config-options]
   (log/debug "Making server config with these options" config-options)
-  (let [{:keys [http-config mqtt-config kafka-producer-config kafka-consumer-config]} config-options]
+  (let [{:keys [http-config kafka-config kafka-producer-config kafka-consumer-config]} config-options]
     (component/system-map
      :user (user/make-user-component)
      :team (team/make-team-component)
      :kafka (kafka/make-kafka-component kafka-producer-config kafka-consumer-config)
      :ping (component/using (ping/make-ping-component) [:kafka])
-     :device (component/using (device/make-device-component) [:mqtt])
-     :config (component/using (config/make-config-component) [:mqtt])
-     :notify (component/using (notification/make-notification-component) [:mqtt])
-     :store (component/using (store/make-store-component) [:mqtt])
-     :location (component/using (location/make-location-component) [:mqtt])
-     :form (component/using (form/make-form-component) [:mqtt])
+     :device (component/using (device/make-device-component) [:kafka])
+     :config (component/using (config/make-config-component) [:kafka])
+     :notify (component/using (notification/make-notification-component) [:kafka])
+     :store (component/using (store/make-store-component) [:kafka])
+     :location (component/using (location/make-location-component) [:kafka])
+     :form (component/using (form/make-form-component) [:kafka])
      :http-service (component/using
                     (http/make-http-service-component http-config)
                     [:ping :user :team :device :location
-                     :store :config :form :mqtt :notify])
+                     :store :config :form :kafka :notify])
      :server (component/using (new-spacon-server) [:http-service]))))
 
 (defn -main
@@ -97,7 +97,7 @@
                           "somepass"))
   (component/start-system
    (make-spacon-server {:http-config {::server/allowed-origins {:allowed-origins [(System/getenv "ALLOWED_ORIGINS")]}}
-                        :mqtt-config {:broker-url (System/getenv "MQTT_BROKER_URL")}
+                        :kafka-config {:broker-url (System/getenv "kafka_BROKER_URL")}
                         :kafka-producer-config {:servers (System/getenv "BOOTSTRAP_SERVERS")
                                                 :timeout-ms 2000}
                         :kafka-consumer-config {:servers (System/getenv "BOOTSTRAP_SERVERS")

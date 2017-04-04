@@ -39,7 +39,7 @@
   [device-comp id]
   (devicemodel/delete id))
 
-(defrecord DeviceComponent [mqtt]
+(defrecord DeviceComponent [kafka]
   component/Lifecycle
   (start [this]
     (log/debug "Starting Device Component")

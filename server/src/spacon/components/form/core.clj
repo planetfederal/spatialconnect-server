@@ -15,10 +15,10 @@
 (ns spacon.components.form.core
   (:require [com.stuartsierra.component :as component]
             [spacon.components.form.db :as formmodel]
-            [spacon.components.mqtt.core :as mqttapi]
+            [spacon.components.kafka.core :as kafkaapi]
             [clojure.spec :as s]
             [clojure.spec.gen :as gen]
-            [spacon.components.mqtt.core :as mqttapi]
+            [spacon.components.kafka.core :as kafkaapi]
             [clojure.tools.logging :as log]
             [cljts.io :as jtsio]
             [clojure.data.json :as json]))
@@ -91,8 +91,8 @@
       (fn [feature] (assoc feature :properties (make-properties-from-fields form-fields)))
       (s/gen :spacon.specs.geojson/pointfeature-spec)))))
 
-(defn mqtt->form-submit
-  "MQTT message handler that submits new form data using the payload
+(defn kafka->form-submit
+  "kafka message handler that submits new form data using the payload
   of the message body"
   [message]
   (log/debug "Handling form submission")
@@ -107,12 +107,12 @@
     (log/debug "Submitting form data")
     (formmodel/add-form-data form-data form-id device-identifier)))
 
-(defrecord FormComponent [mqtt]
+(defrecord FormComponent [kafka]
   component/Lifecycle
   (start [this]
     (log/debug "Starting Form Component")
-    (mqttapi/subscribe mqtt "/store/form" mqtt->form-submit)
-    (assoc this :mqtt-comp mqtt))
+    (kafkaapi/subscribe kafka "/store/form" kafka->form-submit)
+    (assoc this :kafka-comp kafka))
   (stop [this]
     (log/debug "Starting Form Component")
     this))
