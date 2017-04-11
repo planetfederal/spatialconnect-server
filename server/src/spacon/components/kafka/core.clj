@@ -18,8 +18,7 @@
             [clojure.walk :refer [keywordize-keys]]
             [spacon.components.http.auth :refer [get-token]]
             [clojure.tools.logging :as log]
-            [spacon.specs.message]
-            [clojure.spec :as spec]
+            [spacon.specs.connectmessage]
             [clojure.data.json :as json]
             [clojure.spec :as s])
   (:import [org.apache.kafka.clients.producer ProducerRecord KafkaProducer Callback
@@ -29,26 +28,26 @@
                                                   Deserializer StringDeserializer]))
 
 (def client-id "spacon-server")
-(def spacon-response-topic "spacon-response")
-(def spacon-receive-topic "spacon-receive")
+(def spacon-topic "spacon")
+(def spacon-replyto-topic "spacon_replyto")
 
-(def commands
+(def actions
   "Map of topics as keys and message handler functions as values"
   (ref {}))
 
-(defn- add-command
+(defn- add-action
   "Transactionally adds topic to topics ref"
   [cmd fn]
   (log/trace "Adding command " cmd)
   (dosync
-    (commute commands assoc (keyword cmd) fn)))
+    (commute actions assoc (keyword cmd) fn)))
 
-(defn- remove-command
+(defn- remove-action
   "Transactionally removes command from commands ref"
   [cmd]
   (log/trace "Removing command " cmd)
   (dosync
-    (commute commands dissoc (keyword cmd))))
+    (commute actions dissoc (keyword cmd))))
 
 ;; todo: write specs for valid records that we accept
 ;; for instance, restrict the topics and keys that can be sent
@@ -56,12 +55,9 @@
 (defn- producer-record
   "Constructs a ProducerRecord from a map"
   [record]
-  (let [{:keys [topic partition key value]} record
-        value-str (json/write-str value)]
-    (cond
-      (and partition key) (ProducerRecord. topic (int partition) key value-str)
-      key (ProducerRecord. topic key value-str)
-      :else (ProducerRecord. topic value))))
+  (let [value (json/write-str record)
+        topic spacon-replyto-topic]
+    (ProducerRecord. topic value)))
 
 (defn- send!
   "Sends a record (a map of :topic, :value and optionally :key, :partition) using
@@ -79,7 +75,7 @@
                 (let [ret (when rm
                             {:offset    (.offset rm)
                              :partition (.partition rm)
-                             :topic     spacon-response-topic
+                             :topic     spacon-replyto-topic
                              :timestamp (.timestamp rm)})]
                   (async/put! ch (or ret e))))))
      ch)))
@@ -88,7 +84,14 @@
   "This takes a kafka ConsumerRecord from LYRS and returns
   a map representation"
   [r]
-  (keywordize-keys (json/read-str (.value r))))
+  (try
+    (let [data (-> (.value r) json/read-str keywordize-keys :data)]
+      (assoc data :payload (if (empty? (:payload data))
+                             {}
+                             (-> (:payload data) json/read-str keywordize-keys))))
+  (catch Exception e
+    (log/error e)
+    nil)))
 
 (defn- map->record
   "This takes a SC message and prepares it for transmission
@@ -105,25 +108,26 @@
         (if-not (.isEmpty crecords)
           (let [records (.iterator crecords)]
             (loop [record (.next records)]
-              (let [r (record->map record)]
-                (if (s/conform :spacon.specs.message/connect-message r)
-                  (async/put! output-chan r))
-                (if (.hasNext records)
-                  (recur (.next records)))))))
-      (.commitSync consumer))
+              (if-let [r (record->map record)]
+                (if (s/valid? :spacon.specs.connectmessage/connect-message r)
+                  (async/put! output-chan r)
+                  (log/error (s/explain :spacon.specs.connectmessage/connect-message r))))
+              (if (.hasNext records)
+                (recur (.next records))))))
+        (.commitSync consumer))
       (recur))))
 
 (defn subscribe
   "Subscribe to kafka topic with message handler function f"
   [kafka-comp cmd f]
   (log/debug "Subscribing to command " cmd)
-  (add-command cmd f))
+  (add-action cmd f))
 
 (defn unsubscribe
   "Unsubscribe to kafka topic"
   [kafka cmd]
   (log/debug "Unsubscribing to command" cmd)
-  (remove-command cmd))
+  (remove-action cmd))
 
 (defn- construct-producer
   "Construct and return a KafkaProducer using the producer-config map
@@ -166,17 +170,12 @@
   "This will take the incoming commands and execute the value against the
   function in the commands ref"
   [chan]
-  (async/go
-    (while true
-      (let [v (async/<! chan)]
-        (println v)
-        (let [p (:payload v)
-              f ((keyword (:command v)) @commands)]
-        (if-not (or (nil? p) (nil? f))
-          (f p)
-          (log/debug "Nil value on Subscribe Channel"))
-        )))
-    ))
+  (async/go-loop []
+    (let [connect-message (async/<! chan)]
+      (if-let [func ((keyword (:action connect-message)) @actions)]
+        (func connect-message)
+        (log/debug "function not present for " (:action connect-message))))
+    (recur)))
 
 ;; PUBLIC COMPONENT API
 (defn publish [kafka-comp m]
@@ -193,7 +192,7 @@
           producer (construct-producer producer-config)
           rec-chan (async/chan)]
       (process-receive-topic rec-chan)
-      (listen consumer rec-chan spacon-receive-topic)
+      (listen consumer rec-chan spacon-topic)
       (log/debug "Kafka Component Started")
       (assoc this :subscribe-channel rec-chan
                   :producer producer :consumer consumer)))

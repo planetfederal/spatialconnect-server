@@ -21,8 +21,7 @@
             [clojure.spec.gen :as gen]
             [clojure.spec :as spec]
             [spacon.components.mqtt.core :as mqttapi]
-            [spacon.entity.scmessage :as scm]
-            [clojure.walk :refer [keywordize-keys]])
+            [spacon.entity.scmessage :as scm])
   (:import (com.boundlessgeo.spatialconnect.schema SCCommand)))
 
 (use-fixtures :once utils/setup-fixtures)

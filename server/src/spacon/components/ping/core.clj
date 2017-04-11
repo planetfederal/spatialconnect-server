@@ -36,7 +36,7 @@
   "Sends a record to kafka every 5 seconds as a heartbeat."
   [kafka-comp]
   (let [pool (Executors/newScheduledThreadPool 1)]
-    (.scheduleAtFixedRate pool #(send-ping kafka-comp) 0 5 TimeUnit/SECONDS)))
+    (.scheduleAtFixedRate pool #(send-ping kafka-comp) 0 20 TimeUnit/SECONDS)))
 
 (defn kafka-ping
   "Responds with pong as a way to ensure kafka broker is reachable"
@@ -49,7 +49,6 @@
   (start [this]
     (log/debug "Starting Ping Component")
     (kafkaapi/subscribe kafka "/ping" (partial kafka-ping kafka))
-    (ping-kafka kafka)
     this)
   (stop [this]
     (log/debug "Stopping Ping Component")

@@ -19,7 +19,9 @@
             [spacon.components.kafka.core :as kafkaapi]
             [spacon.components.http.auth :refer [token->user check-auth]]
             [spacon.components.form.db :as formmodel]
-            [clojure.tools.logging :as log]))
+            [clojure.tools.logging :as log]
+            [spacon.specs.connectmessage]
+            [clojure.spec :as s]))
 
 (defn create-config
   "Returns a map of the config by fetching the stores and forms
@@ -38,19 +40,19 @@
   "kafka message handler that receives the request for a config
    from a device and responds by publishing the requested config
    on its reply-to topic"
-  [config-comp kafka-comp message]
-  (log/debug "Received request for config" message)
-  (let [topic (:reply-to message)
-        jwt   (:jwt message)
-        user  (token->user jwt)
-        cfg   (create-config config-comp user)]
-    (log/debug "Sending config to" user)
-    (kafkaapi/publish-map kafka-comp (assoc message :payload cfg))))
+  [config-comp kafka-comp connect-message]
+  (if (s/valid? :spacon.specs.connectmessage/connect-message connect-message)
+    (do (log/debug "Received request for config" connect-message)
+      (let [user  (token->user (:jwt connect-message))
+            cfg   (create-config config-comp user)]
+      (log/debug "Sending config to" user)
+      (kafkaapi/publish-map kafka-comp (assoc connect-message :payload cfg))))
+    (log/error (s/explain :spacon.specs.message/connect-message connect-message))))
 
 (defn- kafka->register
   "kafka message handler that registers a device"
-  [message]
-  (let [device (:payload message)]
+  [connect-message]
+  (let [device (:payload connect-message)]
     (log/debug "Registering device" device)
     (devicemodel/create device)))
 
@@ -58,8 +60,8 @@
   component/Lifecycle
   (start [this]
     (log/debug "Starting Config Component")
-    (kafkaapi/subscribe kafka "/config/register" kafka->register)
-    (kafkaapi/subscribe kafka "/config" (partial kafka->config this kafka))
+    (kafkaapi/subscribe kafka "v1/CONFIG_REGISTER_DEVICE" kafka->register)
+    (kafkaapi/subscribe kafka "v1/CONFIG_FULL" (partial kafka->config this kafka))
     this)
   (stop [this]
     (log/debug "Stopping Config Component")
