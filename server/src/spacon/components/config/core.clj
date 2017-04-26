@@ -60,8 +60,8 @@
   component/Lifecycle
   (start [this]
     (log/debug "Starting Config Component")
-    (queueapi/sub queue "v1/CONFIG_REGISTER_DEVICE" queue->register)
-    (queueapi/sub queue "v1/CONFIG_FULL" (partial queue->config this queue))
+    (queueapi/subscribe queue "v1/CONFIG_REGISTER_DEVICE" queue->register)
+    (queueapi/subscribe queue "v1/CONFIG_FULL" (partial queue->config this queue))
     this)
   (stop [this]
     (log/debug "Stopping Config Component")

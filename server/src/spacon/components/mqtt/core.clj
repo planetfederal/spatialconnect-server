@@ -127,7 +127,7 @@
     this)
   (publish [this connectMessage]
     (publish this (:to connectMessage) (:payload connectMessage)))
-  (sub [this topic f]
+  (subscribe [this topic f]
     (subscribe this topic f))
   (unsubscribe [this topic]
     (unsubscribe this topic)))
