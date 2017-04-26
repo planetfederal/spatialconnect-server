@@ -15,12 +15,13 @@
 (ns spacon.components.mqtt.core
   (:require [com.stuartsierra.component :as component]
             [clojurewerkz.machine-head.client :as mh]
-            [spacon.entity.scmessage :as scm]
+            [spacon.entity.connectmessage :as cm]
             [spacon.components.http.intercept :as intercept]
             [spacon.components.http.response :as response]
             [clojure.core.async :as async]
             [spacon.components.http.auth :refer [get-token]]
-            [clojure.tools.logging :as log]))
+            [clojure.tools.logging :as log]
+            [spacon.components.queue.protocol :as queue]))
 
 (def client-id "spacon-server")
 
@@ -33,14 +34,14 @@
   [topic fn]
   (log/trace "Adding topic" topic)
   (dosync
-   (commute topics assoc (keyword topic) fn)))
+    (commute topics assoc (keyword topic) fn)))
 
 (defn- remove-topic
   "Transactionally removes topic from topics ref"
   [topic]
   (log/trace "Removing topic" topic)
   (dosync
-   (commute topics dissoc (keyword topic))))
+    (commute topics dissoc (keyword topic))))
 
 (defn connectmqtt
   "Connect to mqtt broker at url
@@ -52,14 +53,14 @@
 ; publishes message on the send channel
 (defn- publish [mqtt topic message]
   (log/tracef "Publishing to topic %s %nmessage: %s" topic message)
-  (async/go (async/>!! (:publish-channel mqtt) {:topic topic :message (scm/message->bytes message)})))
+  (async/go (async/>!! (:publish-channel mqtt) {:topic topic :message (cm/message->bytes message)})))
 
 ; receive message on subscribe channel
 (defn- receive [mqtt topic message]
   (log/tracef "Received message on topic %s %nmessage:%s" topic message)
   (if (nil? message)
     (log/debug "Nil message on topic " topic)
-    (async/go (async/>!! (:subscribe-channel mqtt) {:topic topic :message (scm/from-bytes message)}))))
+    (async/go (async/>!! (:subscribe-channel mqtt) {:topic topic :message (cm/from-bytes message)}))))
 
 (defn subscribe
   "Subscribe to mqtt topic with message handler function f"
@@ -103,10 +104,11 @@
   (publish mqtt topic message))
 
 (defn publish-map [mqtt topic m]
-  (publish mqtt topic (scm/map->SCMessage {:payload m})))
+  (publish mqtt topic (cm/map->ConnectMessage {:payload m})))
 
 (defrecord MqttComponent [mqtt-config]
   component/Lifecycle
+  queue/IQueue
   (start [this]
     (log/debug "Starting MQTT Component")
     (let [url (or (:broker-url mqtt-config) "tcp://localhost:1883")
@@ -122,7 +124,14 @@
     (async/close! (:publish-channel this))
     (async/close! (:subscribe-channel this))
     (mh/disconnect (:conn this))
-    this))
+    this)
+  (publish [this connectMessage]
+    (publish this (:to connectMessage) (:payload connectMessage)))
+  (sub [this topic f]
+    (subscribe this topic f))
+  (unsubscribe [this topic]
+    (unsubscribe this topic)))
+
 
 (defn make-mqtt-component [mqtt-config]
   (map->MqttComponent {:mqtt-config mqtt-config}))

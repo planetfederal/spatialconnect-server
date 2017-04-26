@@ -23,7 +23,7 @@
             [spacon.specs.geojson]
             [clojure.spec.gen :as gen]
             [clojure.spec :as spec])
-  (:import (com.boundlessgeo.spatialconnect.schema SCCommand)))
+  (:import (com.boundlessgeo.schema SCCommand)))
 
 (use-fixtures :once utils/setup-fixtures)
 

@@ -22,7 +22,7 @@
             [clojure.data.json :as json]
             [clojure.walk :refer [keywordize-keys]])
   (:import (java.net URLEncoder URLDecoder)
-           (com.boundlessgeo.spatialconnect.schema SCCommand)))
+           (com.boundlessgeo.schema SCCommand)))
 
 (use-fixtures :once utils/setup-fixtures)
 

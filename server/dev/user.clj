@@ -17,9 +17,30 @@
             [clojure.repl :refer :all]
             [com.stuartsierra.component :as component]
             [io.pedestal.http :as server]
-            [spacon.server :refer [make-spacon-server]]
+            [spacon.server :refer [make-spacon-server-mqtt make-spacon-server-kafka]]
             [clojure.tools.logging :as log]))
 
+(defn start-mqtt-system []
+  (log/info "starting mqtt system")
+  (make-spacon-server-mqtt {:http-config {:env                     :dev
+                                          ::server/join?           false
+                                          ::server/allowed-origins {:creds true
+                                                                    :allowed-origins (constantly true)}}
+                            :mqtt-config {:broker-url (or (System/getenv "MQTT_BROKER_URL")
+                                                          "tcp://localhost:1883")}})
+  )
+
+(defn start-kafka-system []
+  (log/info "starting kafka system")
+  (make-spacon-server-kafka {:http-config {::server/allowed-origins {:allowed-origins [(System/getenv "ALLOWED_ORIGINS")]}}
+                             :kafka-config {:broker-url (System/getenv "kafka_BROKER_URL")}
+                             :kafka-producer-config {:servers  (or (System/getenv "BOOTSTRAP_SERVERS")
+                                                                   "localhost:9092")
+                                                     :timeout-ms 2000}
+                             :kafka-consumer-config {:servers  (or (System/getenv "BOOTSTRAP_SERVERS")
+                                                                   "localhost:9092")
+                                                     :group-id (or (System/getenv "GROUP_ID")
+                                                                   "sc-consumers")}}))
 (defn init-dev []
   (log/info "Initializing dev system for repl")
   (spacon.db.conn/migrate)
@@ -41,19 +62,11 @@
   (System/setProperty "javax.net.ssl.keyStorePassword"
                       (or (System/getenv "KEY_STORE_PASSWORD")
                           "somepass"))
-  (make-spacon-server {:http-config {:env                     :dev
-                                     ::server/join?           false
-                                     ::server/allowed-origins {:creds true
-                                                               :allowed-origins (constantly true)}}
-                       :mqtt-config {:broker-url (or (System/getenv "MQTT_BROKER_URL")
-                                                     "tcp://localhost:1883")}
-                       :kafka-producer-config {:servers  (or (System/getenv "BOOTSTRAP_SERVERS")
-                                                             "localhost:9092")
-                                               :timeout-ms 2000}
-                       :kafka-consumer-config {:servers  (or (System/getenv "BOOTSTRAP_SERVERS")
-                                                             "localhost:9092")
-                                               :group-id (or (System/getenv "GROUP_ID")
-                                                             "sc-consumers")}}))
+
+
+  (if (= "mqtt" (System/getenv "QUEUE_TYPE"))
+    (start-mqtt-system)
+    (start-kafka-system)))
 
 (def system-val nil)
 

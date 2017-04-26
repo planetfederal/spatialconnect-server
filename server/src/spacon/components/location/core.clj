@@ -16,7 +16,7 @@
   (:require [com.stuartsierra.component :as component]
             [clojure.data.json :as json]
             [yesql.core :refer [defqueries]]
-            [spacon.components.mqtt.core :as mqttapi]
+            [spacon.components.queue.protocol :as queueapi]
             [spacon.components.location.db :as locationmodel]
             [clojure.tools.logging :as log]
             [cljts.io :as jtsio]))
@@ -39,18 +39,18 @@
   (location->geojson (locationmodel/all)))
 
 (defn- update-device-location
-  "MQTT message handler that persists the device location
+  "kafka message handler that persists the device location
   of the message body, then tests it against the triggers"
   [message]
   (log/debugf "Received device location update message %s" (:payload message))
   (let [loc (:payload message)]
     (locationmodel/upsert-gj loc)))
 
-(defrecord LocationComponent [mqtt]
+(defrecord LocationComponent [queue]
   component/Lifecycle
   (start [this]
     (log/debug "Starting Location Component")
-    (mqttapi/subscribe mqtt "/store/tracking" update-device-location)
+    (queueapi/sub queue "/store/tracking" update-device-location)
     this)
   (stop [this]
     (log/debug "Stopping Location Component")

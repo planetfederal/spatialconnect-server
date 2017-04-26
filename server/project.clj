@@ -4,6 +4,7 @@
   :license {:name "Apache License, Version 2.0"
             :url "https://www.apache.org/licenses/LICENSE-2.0"}
   :dependencies [[org.clojure/clojure "1.9.0-alpha14"]
+                 [org.clojure/core.async "0.3.442"]
                  [org.clojure/data.json "0.2.6"]
                  [io.pedestal/pedestal.service "0.5.1"]
                  [io.pedestal/pedestal.jetty "0.5.1"]
@@ -20,7 +21,7 @@
                  [org.slf4j/log4j-over-slf4j "1.7.21"]
                  [com.stuartsierra/component "0.3.1"]
                  [clojurewerkz/machine_head "1.0.0-beta9"]
-                 [com.boundlessgeo.spatialconnect/schema "0.7"]
+                 [com.boundlessgeo/schema "0.8"]
                  ; todo: the protobuf dependency should be packaged into the schema artifact
                  [com.google.protobuf/protobuf-java "3.1.0"]
                  [buddy "1.1.0"]
@@ -30,11 +31,12 @@
                  [overtone/at-at "1.2.0"]
                  [clj-http "2.3.0"]
                  [com.gfredericks/test.chuck "0.2.7"]
-                 [jonase/eastwood "0.2.3" :exclusions [org.clojure/clojure]]
                  [com.draines/postal "2.0.2"]
                  [org.clojure/tools.logging "0.3.1"]
+                 [funcool/cats "2.0.0"]
                  [org.apache.kafka/kafka-clients "0.10.1.1"]
-                 [org.apache.kafka/kafka-streams "0.10.0.0-cp1" :exclusions [org.slf4j/slf4j-log4j12]]
+                 [org.apache.kafka/kafka-streams "0.10.0.0-cp1"
+                  :exclusions [org.slf4j/slf4j-log4j12]]
                  [clj-time "0.13.0"]
                  [ymilky/franzy "0.0.1"]]
 
@@ -48,7 +50,6 @@
   :plugins [[lein-environ "1.0.3"]
             [lein-cljfmt "0.5.6"]
             [ragtime/ragtime.lein "0.3.6"]
-            [jonase/eastwood "0.2.3"]
             [lein-codox "0.10.2"]
             [lein-cloverage "1.0.9"]]
 
@@ -63,9 +64,13 @@
   ;:java-agents [[org.mortbay.jetty.alpn/jetty-alpn-agent "2.0.3"]]
   :profiles {:dev {:source-paths ["dev"]
                    :resource-paths ["config", "resources"]
-                   :dependencies [[io.pedestal/pedestal.service-tools "0.5.1"]
+                   :dependencies [[io.pedestal/pedestal.service-tools
+                                   "0.5.1"]
+                                   [jonase/eastwood "0.2.1" :exclusions
+                                   [org.clojure/clojure]]
                                   [org.clojure/test.check "0.9.0"]]
-                   :plugins [[test2junit "1.2.2"]]}
+                   :plugins [[test2junit "1.2.2"]
+                             [lein-autoreload "0.1.1"]]}
              :uberjar {:aot :all
                        :dependencies [[org.clojure/test.check "0.9.0"]]}}
   :test2junit-output-dir "target/test-results"

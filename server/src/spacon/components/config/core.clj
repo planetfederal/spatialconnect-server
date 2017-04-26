@@ -16,10 +16,12 @@
   (:require [com.stuartsierra.component :as component]
             [spacon.components.store.db :as storemodel]
             [spacon.components.device.db :as devicemodel]
-            [spacon.components.mqtt.core :as mqttapi]
+            [spacon.components.queue.protocol :as queueapi]
             [spacon.components.http.auth :refer [token->user check-auth]]
             [spacon.components.form.db :as formmodel]
-            [clojure.tools.logging :as log]))
+            [clojure.tools.logging :as log]
+            [spacon.specs.connectmessage]
+            [clojure.spec :as s]))
 
 (defn create-config
   "Returns a map of the config by fetching the stores and forms
@@ -34,32 +36,32 @@
                        (> (.indexOf teams (:team_id f)) -1))
                      (formmodel/all))}))
 
-(defn- mqtt->config
-  "MQTT message handler that receives the request for a config
+(defn- queue->config
+  "kafka message handler that receives the request for a config
    from a device and responds by publishing the requested config
    on its reply-to topic"
-  [config-comp mqtt-comp message]
-  (log/debug "Received request for config" message)
-  (let [topic (:reply-to message)
-        jwt   (:jwt message)
-        user  (token->user jwt)
-        cfg   (create-config config-comp user)]
-    (log/debug "Sending config to" user)
-    (mqttapi/publish-scmessage mqtt-comp topic (assoc message :payload cfg))))
+  [config-comp queue-comp connect-message]
+  (if (s/valid? :spacon.specs.connectmessage/connect-message connect-message)
+    (do (log/debug "Received request for config" connect-message)
+      (let [user  (token->user (:jwt connect-message))
+            cfg   (create-config config-comp user)]
+      (log/debug "Sending config to" user)
+      (queueapi/publish queue-comp (assoc connect-message :payload cfg))))
+    (log/error (s/explain :spacon.specs.message/connect-message connect-message))))
 
-(defn- mqtt->register
-  "MQTT message handler that registers a device"
-  [message]
-  (let [device (:payload message)]
+(defn- queue->register
+  "kafka message handler that registers a device"
+  [connect-message]
+  (let [device (:payload connect-message)]
     (log/debug "Registering device" device)
     (devicemodel/create device)))
 
-(defrecord ConfigComponent [mqtt]
+(defrecord ConfigComponent [queue]
   component/Lifecycle
   (start [this]
     (log/debug "Starting Config Component")
-    (mqttapi/subscribe mqtt "/config/register" mqtt->register)
-    (mqttapi/subscribe mqtt "/config" (partial mqtt->config this mqtt))
+    (queueapi/sub queue "v1/CONFIG_REGISTER_DEVICE" queue->register)
+    (queueapi/sub queue "v1/CONFIG_FULL" (partial queue->config this queue))
     this)
   (stop [this]
     (log/debug "Stopping Config Component")
