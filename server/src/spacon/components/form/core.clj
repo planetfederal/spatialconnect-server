@@ -18,7 +18,6 @@
             [spacon.components.queue.protocol :as queueapi]
             [clojure.spec :as s]
             [clojure.spec.gen :as gen]
-            [spacon.components.kafka.core :as kafkaapi]
             [clojure.tools.logging :as log]
             [cljts.io :as jtsio]
             [clojure.data.json :as json]))
