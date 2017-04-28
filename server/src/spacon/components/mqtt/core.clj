@@ -24,6 +24,12 @@
             [spacon.components.queue.protocol :as queue]))
 
 (def client-id "spacon-server")
+(def action-topic {:register-device "/config/register"
+                     :full-config "/config"
+                     :config-update "/config"
+                     :store-form "/store/form"
+                     :ping "/ping"
+                     :location-tracking "/store/tracking"})
 
 (def topics
   "Map of topics as keys and message handler functions as values"
@@ -57,7 +63,7 @@
 
 ; receive message on subscribe channel
 (defn- receive [mqtt topic message]
-  (log/tracef "Received message on topic %s %nmessage:%s" topic message)
+  (log/tracef "Received message on topic %s %nmessage:%s" topic (cm/from-bytes message))
   (if (nil? message)
     (log/debug "Nil message on topic " topic)
     (async/go (async/>!! (:subscribe-channel mqtt) {:topic topic :message (cm/from-bytes message)}))))
@@ -126,11 +132,11 @@
     (mh/disconnect (:conn this))
     this)
   (publish [this connectMessage]
-    (publish this (:to connectMessage) (:payload connectMessage)))
-  (subscribe [this topic f]
-    (subscribe this topic f))
-  (unsubscribe [this topic]
-    (unsubscribe this topic)))
+    (publish this (:to connectMessage) connectMessage))
+  (subscribe [this action f]
+    (subscribe this (get action-topic action) f))
+  (unsubscribe [this action]
+    (unsubscribe this action)))
 
 
 (defn make-mqtt-component [mqtt-config]

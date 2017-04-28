@@ -16,5 +16,5 @@
 
 (defprotocol IQueue
   (publish [this connectMessage])
-  (subscribe [this topic fn])
-  (unsubscribe [this topic]))
+  (subscribe [this action fn])
+  (unsubscribe [this action]))

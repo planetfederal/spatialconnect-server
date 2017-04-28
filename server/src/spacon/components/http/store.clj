@@ -6,7 +6,7 @@
             [clojure.spec :as s]
             [clojure.tools.logging :as log]
             [spacon.components.store.core :as storeapi]
-            [spacon.components.kafka.core :as kafkaapi])
+            [spacon.components.queue.protocol :as queueapi])
   (:import (com.boundlessgeo.schema SCCommand)))
 
 (defn http-get-store
@@ -23,15 +23,16 @@
 (defn http-put-store
   "Updates a store using the json body then publishes
   a config update message about the newly updated store"
-  [kafka-comp store-comp request]
+  [queue-comp store-comp request]
   (log/debug "Updating store")
   (let [store (:json-params request)
         id (get-in request [:path-params :id])]
     (if (s/valid? :spacon.specs.store/store-spec store)
       (let [updated-store (storeapi/modify store-comp id store)]
         (do
-          (if-not (empty? kafka-comp) (kafkaapi/publish kafka-comp 
-                                                                 {:action  (.value SCCommand/CONFIG_UPDATE_STORE)
+          (if-not (empty? queue-comp) (queueapi/publish queue-comp
+                                                                 {:to :config-update
+                                                                  :action  (.value SCCommand/CONFIG_UPDATE_STORE)
                                                                   :payload updated-store}))
           (response/ok updated-store)))
       (let [err-msg "Failed to update store"]
@@ -41,15 +42,16 @@
 (defn http-post-store
   "Creates a new store using the json body then publishes
   a config update message about the newly updated store"
-  [kafka-comp store-comp request]
+  [queue-comp store-comp request]
   (let [store (:json-params request)]
     (log/debug "Validating store")
     (if (s/valid? :spacon.specs.store/store-spec store)
       (let [new-store (storeapi/create store-comp store)]
         (log/debug "Added new store")
         (do
-          (if-not (empty? kafka-comp) (kafkaapi/publish kafka-comp "/config/update"
-                                                                 {:action  (.value SCCommand/CONFIG_ADD_STORE)
+          (if-not (empty? queue-comp) (queueapi/publish queue-comp
+                                                                 {:to :config-update
+                                                                  :action  (.value SCCommand/CONFIG_ADD_STORE)
                                                                   :payload new-store}))
           (response/ok new-store)))
       (let [err-msg "Failed to create new store"]
@@ -59,7 +61,7 @@
 (defn http-delete-store
   "Deletes a store by id then publishes a config update message about
   the delted store"
-  [kafka-comp store-comp request]
+  [queue-comp store-comp request]
   (log/debug "Deleting store")
   (let [id (get-in request [:path-params :id])
         store (storeapi/find-by-id store-comp id)]
@@ -69,8 +71,9 @@
         (response/bad-request err-msg))
       (do
         (storeapi/delete store-comp id)
-        (if-not (empty? kafka-comp) (kafkaapi/publish kafka-comp 
-                                                               {:action  (.value SCCommand/CONFIG_REMOVE_STORE)
+        (if-not (empty? queue-comp) (queueapi/publish queue-comp
+                                                               {:to :config-update
+                                                                :action  (.value SCCommand/CONFIG_REMOVE_STORE)
                                                                 :payload {:id id}}))
         (response/ok "success")))))
 

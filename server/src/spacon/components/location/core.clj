@@ -50,7 +50,7 @@
   component/Lifecycle
   (start [this]
     (log/debug "Starting Location Component")
-    (queueapi/subscribe queue "/store/tracking" update-device-location)
+    (queueapi/subscribe queue :location-tracking update-device-location)
     this)
   (stop [this]
     (log/debug "Stopping Location Component")

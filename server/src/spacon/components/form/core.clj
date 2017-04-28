@@ -111,7 +111,7 @@
   component/Lifecycle
   (start [this]
     (log/debug "Starting Form Component")
-    (queueapi/subscribe queue "/store/form" queue->form-submit)
+    (queueapi/subscribe queue :store-form queue->form-submit)
     (assoc this :queue-comp queue))
   (stop [this]
     (log/debug "Starting Form Component")

@@ -37,7 +37,7 @@
                      (formmodel/all))}))
 
 (defn- queue->config
-  "kafka message handler that receives the request for a config
+  "Queue message handler that receives the request for a config
    from a device and responds by publishing the requested config
    on its reply-to topic"
   [config-comp queue-comp connect-message]
@@ -47,10 +47,10 @@
             cfg   (create-config config-comp user)]
       (log/debug "Sending config to" user)
       (queueapi/publish queue-comp (assoc connect-message :payload cfg))))
-    (log/error (s/explain :spacon.specs.message/connect-message connect-message))))
+    (log/error (s/explain :spacon.specs.connectmessage/connect-message connect-message))))
 
 (defn- queue->register
-  "kafka message handler that registers a device"
+  "Queue message handler that registers a device"
   [connect-message]
   (let [device (:payload connect-message)]
     (log/debug "Registering device" device)
@@ -60,8 +60,8 @@
   component/Lifecycle
   (start [this]
     (log/debug "Starting Config Component")
-    (queueapi/subscribe queue "v1/CONFIG_REGISTER_DEVICE" queue->register)
-    (queueapi/subscribe queue "v1/CONFIG_FULL" (partial queue->config this queue))
+    (queueapi/subscribe queue :register-device queue->register)
+    (queueapi/subscribe queue :full-config (partial queue->config this queue))
     this)
   (stop [this]
     (log/debug "Stopping Config Component")

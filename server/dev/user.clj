@@ -27,8 +27,7 @@
                                           ::server/allowed-origins {:creds true
                                                                     :allowed-origins (constantly true)}}
                             :mqtt-config {:broker-url (or (System/getenv "MQTT_BROKER_URL")
-                                                          "tcp://localhost:1883")}})
-  )
+                                                          "tcp://localhost:1883")}}))
 
 (defn start-kafka-system []
   (log/info "starting kafka system")

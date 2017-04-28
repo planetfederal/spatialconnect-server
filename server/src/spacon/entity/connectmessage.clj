@@ -24,7 +24,8 @@
         p (.getPayload cm)
         payload (if (blank? p) {} (keywordize-keys (json/read-str p)))]
     (try
-      {:correlation-id (.getCorrelationId cm)
+      {:context (.getContext cm)
+       :correlationId (.getCorrelationId cm)
        :jwt (.getJwt cm)
        :to (.getTo cm)
        :action (.getAction cm)
@@ -33,8 +34,9 @@
         (log/error "Could not parse protobuf into map b/c"
                    (.getLocalizedMessage e))))))
 
-(defn- make-protobuf [correlation-id jwt to action payload]
+(defn- make-protobuf [context correlation-id jwt to action payload]
   (-> (ConnectMessagePbf$ConnectMessage/newBuilder)
+      (.setContext context)
       (.setTo to)
       (.setJwt jwt)
       (.setAction action)
@@ -53,8 +55,9 @@
   "Serializes an ConnectMessage record into a protobuf byte array"
   [message]
   (.toByteArray (make-protobuf
-                  (or (get message :correlation-id) -1)
+                  (or (get message :context) "")
+                  (or (get message :correlationId) -1)
                   (or (get message :jwt) "")
                   (or (get message :to) "")
-                  (or (get message :action) -1)
+                  (or (get message :action) "v1/NO_ACTION")
                   (json/write-str (or (get message :payload) "{}")))))

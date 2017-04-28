@@ -47,7 +47,7 @@
   component/Lifecycle
   (start [this]
     (log/debug "Starting Ping Component")
-    (queueapi/subscribe queue "/ping" (partial queue-ping queue))
+    (queueapi/subscribe queue :ping (partial queue-ping queue))
     this)
   (stop [this]
     (log/debug "Stopping Ping Component")
