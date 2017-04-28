@@ -48,6 +48,7 @@ services:
     ports:
       - '8085:8085'
     environment:
+      - BOOTSTRAP_SERVERS=kafka:9092
       - DB_HOST=postgis
       - MQTT_BROKER_URL=ssl://mosquitto:8884
       - VIRTUAL_HOST=spatialconnect-server
