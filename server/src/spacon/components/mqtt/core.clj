@@ -30,7 +30,7 @@
 (defonce conn (atom nil))
 (def action-topic {:register-device "/config/register"
                      :full-config "/config"
-                     :config-update "/config"
+                     :config-update "/config/update"
                      :store-form "/store/form"
                      :ping "/ping"
                      :location-tracking "/store/tracking"})
