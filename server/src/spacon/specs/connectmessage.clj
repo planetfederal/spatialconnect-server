@@ -9,6 +9,6 @@
 (s/def ::action string?)
 
 (s/def ::connect-message (s/keys :req-un [::to ::correlationId ::jwt
-                                        ::context ::action]
+                                          ::context ::action]
                                  :opt-un [::payload]))
 

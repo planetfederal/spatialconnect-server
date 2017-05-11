@@ -31,6 +31,12 @@
 (def client-id "spacon-server")
 (def spacon-topic "spacon")
 (def spacon-replyto-topic "spacon_replyto")
+(def action-topic {:register-device "v1/CONFIG_REGISTER_DEVICE"
+                   :full-config "v1/CONFIG_FULL"
+                   :config-update "v1/CONFIG_UPDATE"
+                   :store-form "v1/FORM_UPDATE"
+                   :ping "v1/PING"
+                   :location-tracking "/store/tracking"})
 
 (def actions
   "Map of topics as keys and message handler functions as values"
@@ -86,10 +92,7 @@
   a map representation"
   [r]
   (try
-    (let [data (-> (.value r) json/read-str keywordize-keys :data)]
-      (assoc data :payload (if (empty? (:payload data))
-                             {}
-                             (-> (:payload data) json/read-str keywordize-keys))))
+    (keywordize-keys (json/read-str (.value r)))
   (catch Exception e
     (log/error e)
     nil)))
@@ -120,9 +123,9 @@
 
 (defn subscribe
   "Subscribe to kafka topic with message handler function f"
-  [kafka-comp cmd f]
-  (log/debug "Subscribing to command " cmd)
-  (add-action cmd f))
+  [kafka-comp topic f]
+  (log/debug "Subscribing to topic " topic)
+  (add-action topic f))
 
 (defn unsubscribe
   "Unsubscribe to kafka topic"
@@ -187,6 +190,7 @@
 
 (defrecord KafkaComponent [producer-config consumer-config]
   component/Lifecycle
+  queue/IQueue
   (start [this]
     (log/debug "Starting Kafka Component")
     (let [consumer (construct-consumer consumer-config)
@@ -202,7 +206,13 @@
     (async/close! (:publish-channel this))
     (async/close! (:subscribe-channel this))
     ((:publish-channel))
-    this))
+    this)
+  (publish [this connectMessage]
+    (publish this connectMessage))
+  (subscribe [this action f]
+    (subscribe this (get action-topic action) f))
+  (unsubscribe [this action]
+    (unsubscribe this action)))
 
 (defn make-kafka-component
   [producer-config consumer-config]
