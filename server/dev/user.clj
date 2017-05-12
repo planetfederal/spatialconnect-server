@@ -63,9 +63,9 @@
                           "somepass"))
 
 
-  (if (= "mqtt" (System/getenv "QUEUE_TYPE"))
-    (start-mqtt-system)
-    (start-kafka-system)))
+  (if (= "kafka" (System/getenv "QUEUE_TYPE"))
+    (start-kafka-system)
+    (start-mqtt-system)))
 
 (def system-val nil)
 

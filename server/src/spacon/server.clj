@@ -130,7 +130,7 @@
   (System/setProperty "javax.net.ssl.keyStorePassword"
                       (or (System/getenv "KEY_STORE_PASSWORD")
                           "somepass"))
-  (if (= "mqtt" (System/getenv "QUEUE_TYPE"))
-    (start-mqtt-system)
-    (start-kafka-system)))
+  (if (= "kafka" (System/getenv "QUEUE_TYPE"))
+    (start-kafka-system)
+    (start-mqtt-system)))
 
