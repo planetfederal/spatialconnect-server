@@ -1,4 +1,4 @@
-(ns spacon.specs.connectmessage
+(ns spacon.specs.msg
   (:require [clojure.spec :as s]))
 
 (s/def ::to string?)
@@ -8,7 +8,7 @@
 (s/def ::payload (s/or :empty empty? :not-empty map?))
 (s/def ::action string?)
 
-(s/def ::connect-message (s/keys :req-un [::to ::correlationId ::jwt
+(s/def ::msg (s/keys :req-un [::to ::correlationId ::jwt
                                           ::context ::action]
                                  :opt-un [::payload]))
 

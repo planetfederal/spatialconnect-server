@@ -20,7 +20,7 @@
             [spacon.components.http.auth :refer [token->user check-auth]]
             [spacon.components.form.db :as formmodel]
             [clojure.tools.logging :as log]
-            [spacon.specs.connectmessage]
+            [spacon.specs.msg]
             [clojure.spec :as s]))
 
 (defn create-config
@@ -40,19 +40,19 @@
   "Queue message handler that receives the request for a config
    from a device and responds by publishing the requested config
    on its reply-to topic"
-  [config-comp queue-comp connect-message]
-  (if (s/valid? :spacon.specs.connectmessage/connect-message connect-message)
-    (do (log/debug "Received request for config" connect-message)
-      (let [user  (token->user (:jwt connect-message))
+  [config-comp queue-comp msg]
+  (if (s/valid? :spacon.specs.msg/msg msg)
+    (do (log/debug "Received request for config" msg)
+      (let [user  (token->user (:jwt msg))
             cfg   (create-config config-comp user)]
       (log/debug "Sending config to" user)
-      (queueapi/publish queue-comp (assoc connect-message :payload cfg))))
-    (log/error (s/explain :spacon.specs.connectmessage/connect-message connect-message))))
+      (queueapi/publish queue-comp (assoc msg :payload cfg))))
+    (log/error (s/explain :spacon.specs.msg/msg msg))))
 
 (defn- queue->register
   "Queue message handler that registers a device"
-  [connect-message]
-  (let [device (:payload connect-message)]
+  [msg]
+  (let [device (:payload msg)]
     (log/debug "Registering device" device)
     (devicemodel/create device)))
 

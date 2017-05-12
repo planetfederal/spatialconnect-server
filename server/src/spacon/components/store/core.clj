@@ -21,7 +21,7 @@
             [spacon.components.kafka.core :as kafkaapi]
             [overtone.at-at :refer [every, mk-pool, stop, stop-and-reset-pool!]]
             [clojure.tools.logging :as log])
-  (:import (com.boundlessgeo.schema SCCommand)))
+  (:import (com.boundlessgeo.schema Actions)))
 
 (defn feature-collection->geoms
   "Given a geojson feature collection, return a list of the features' geometries"

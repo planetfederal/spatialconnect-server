@@ -18,7 +18,7 @@
             [clojure.walk :refer [keywordize-keys]]
             [spacon.components.http.auth :refer [get-token]]
             [clojure.tools.logging :as log]
-            [spacon.specs.connectmessage]
+            [spacon.specs.msg]
             [clojure.data.json :as json]
             [clojure.spec :as s]
             [spacon.components.queue.protocol :as queue])
@@ -113,9 +113,9 @@
           (let [records (.iterator crecords)]
             (loop [record (.next records)]
               (if-let [r (record->map record)]
-                (if (s/valid? :spacon.specs.connectmessage/connect-message r)
+                (if (s/valid? :spacon.specs.msg/msg r)
                   (async/put! output-chan r)
-                  (log/error (s/explain :spacon.specs.connectmessage/connect-message r))))
+                  (log/error (s/explain :spacon.specs.msg/msg r))))
               (if (.hasNext records)
                 (recur (.next records))))))
         (.commitSync consumer))
@@ -207,8 +207,8 @@
     (async/close! (:subscribe-channel this))
     ((:publish-channel))
     this)
-  (publish [this connectMessage]
-    (publish this connectMessage))
+  (publish [this msg]
+    (publish this msg))
   (subscribe [this action f]
     (subscribe this (get action-topic action) f))
   (unsubscribe [this action]

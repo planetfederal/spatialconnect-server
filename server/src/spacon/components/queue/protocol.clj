@@ -15,6 +15,6 @@
 (ns spacon.components.queue.protocol)
 
 (defprotocol IQueue
-  (publish [this connectMessage])
+  (publish [this msg])
   (subscribe [this action fn])
   (unsubscribe [this action]))

@@ -7,7 +7,7 @@
             [spacon.components.http.auth :refer [check-auth]]
             [clojure.spec :as s])
   (:import (java.net URLDecoder)
-           (com.boundlessgeo.schema SCCommand)))
+           (com.boundlessgeo.schema Actions)))
 
 (defn http-get-sample-form-data
   "Generates a sample form submission for a given form"
@@ -51,7 +51,7 @@
       (let [new-form (formapi/add-form-with-fields form-comp form)]
         (log/debug "Added new form")
         (kafkaapi/publish kafka-comp
-                                    {:action (.value SCCommand/CONFIG_ADD_FORM)
+                                    {:action (.value Actions/CONFIG_ADD_FORM)
                                      :payload new-form})
         (response/ok new-form))
       (let [reason (s/explain-str :spacon.specs.form/form-spec form)
@@ -74,7 +74,7 @@
       (if (== (count (map (partial formapi/delete-form form-comp) forms)) (count forms))
         (do
           (kafkaapi/publish kafka-comp
-                                      {:action (.value SCCommand/CONFIG_REMOVE_FORM)
+                                      {:action (.value Actions/CONFIG_REMOVE_FORM)
                                        :payload {:form_key form-key}})
           (response/ok "success"))
         (let [err-msg (str "Failed to delete all form versions for form-key" form-key)]

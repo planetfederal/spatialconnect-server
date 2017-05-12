@@ -15,7 +15,7 @@
 (ns spacon.components.mqtt.core
   (:require [com.stuartsierra.component :as component]
             [clojurewerkz.machine-head.client :as mh]
-            [spacon.entity.connectmessage :as cm]
+            [spacon.entity.msg :as msg]
             [spacon.components.http.intercept :as intercept]
             [spacon.components.http.response :as response]
             [clojure.core.async :as async]
@@ -72,14 +72,14 @@
 ; publishes message on the send channel
 (defn- publish [mqtt topic message]
   (log/debugf "Publishing to topic %s %nmessage: %s" topic message)
-  (async/go (async/>!! (:publish-channel mqtt) {:topic topic :message (cm/message->bytes message)})))
+  (async/go (async/>!! (:publish-channel mqtt) {:topic topic :message (msg/message->bytes message)})))
 
 ; receive message on subscribe channel
 (defn- receive [mqtt topic message]
-  (log/tracef "Received message on topic: %nmessage: %s" topic (cm/from-bytes message))
+  (log/tracef "Received message on topic: %nmessage: %s" topic (msg/from-bytes message))
   (if (nil? message)
     (log/debug "Nil message on topic " topic)
-    (async/go (async/>!! (:subscribe-channel mqtt) {:topic topic :message (cm/from-bytes message)}))))
+    (async/go (async/>!! (:subscribe-channel mqtt) {:topic topic :message (msg/from-bytes message)}))))
 
 (defn reconnect [reason]
   (let [url (or (System/getenv "MQTT_BROKER_URL") "tcp://localhost:1883")]
@@ -135,7 +135,7 @@
   (publish mqtt topic message))
 
 (defn publish-map [mqtt topic m]
-  (publish mqtt topic (cm/map->ConnectMessage {:payload m})))
+  (publish mqtt topic (msg/map->Msg {:payload m})))
 
 (defrecord MqttComponent [mqtt-config]
   component/Lifecycle
@@ -156,8 +156,8 @@
     (async/close! (:subscribe-channel this))
     (mh/disconnect @conn)
     this)
-  (publish [this connectMessage]
-    (publish this (:to connectMessage) connectMessage))
+  (publish [this msg]
+    (publish this (:to msg) msg))
   (subscribe [this action f]
     (subscribe this (get action-topic action) f))
   (unsubscribe [this action]

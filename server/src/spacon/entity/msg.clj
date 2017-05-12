@@ -12,30 +12,30 @@
 ;; See the License for the specific language governing permissions and
 ;; limitations under the License.
 
-(ns spacon.entity.connectmessage
+(ns spacon.entity.msg
   (:require [clojure.data.json :as json]
             [clojure.string :refer [blank?]]
             [clojure.walk :refer [keywordize-keys]]
             [clojure.tools.logging :as log])
-  (:import (com.boundlessgeo.schema ConnectMessagePbf$ConnectMessage)))
+  (:import (com.boundlessgeo.schema MessagePbf$Msg)))
 
 (defn- bytes->map [proto]
-  (let [cm (ConnectMessagePbf$ConnectMessage/parseFrom proto)
-        p (.getPayload cm)
+  (let [msg (MessagePbf$Msg/parseFrom proto)
+        p (.getPayload msg)
         payload (if (blank? p) {} (keywordize-keys (json/read-str p)))]
     (try
-      {:context (.getContext cm)
-       :correlationId (.getCorrelationId cm)
-       :jwt (.getJwt cm)
-       :to (.getTo cm)
-       :action (.getAction cm)
+      {:context (.getContext msg)
+       :correlationId (.getCorrelationId msg)
+       :jwt (.getJwt msg)
+       :to (.getTo msg)
+       :action (.getAction msg)
        :payload payload}
       (catch Exception e
         (log/error "Could not parse protobuf into map b/c"
                    (.getLocalizedMessage e))))))
 
 (defn- make-protobuf [context correlation-id jwt to action payload]
-  (-> (ConnectMessagePbf$ConnectMessage/newBuilder)
+  (-> (MessagePbf$Msg/newBuilder)
       (.setContext context)
       (.setTo to)
       (.setJwt jwt)
@@ -44,15 +44,15 @@
       (.setCorrelationId correlation-id)
       (.build)))
 
-(defrecord ConnectMessage [correlation-id jwt to action payload])
+(defrecord Msg [correlation-id jwt to action payload])
 
 (defn from-bytes
   "Deserializes the protobuf byte array into an ConnectMessage record"
   [b]
-  (map->ConnectMessage (bytes->map b)))
+  (map->Msg (bytes->map b)))
 
 (defn message->bytes
-  "Serializes an ConnectMessage record into a protobuf byte array"
+  "Serializes an Msg record into a protobuf byte array"
   [message]
   (.toByteArray (make-protobuf
                   (or (get message :context) "")
