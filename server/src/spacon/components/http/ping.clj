@@ -24,4 +24,5 @@
 
 (defn routes
   [queue-comp]
-  #{["/api/ping/queue" :post (conj intercept/common-interceptors (partial pong-queue queue-comp)) :route-name :pong-queue]})
+  #{["/api/ping" :get (conj intercept/common-interceptors `pong)]
+    ["/api/ping/queue" :post (conj intercept/common-interceptors (partial pong-queue queue-comp)) :route-name :pong-queue]})

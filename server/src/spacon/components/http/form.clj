@@ -3,7 +3,7 @@
             [clojure.tools.logging :as log]
             [spacon.components.http.intercept :refer [common-interceptors]]
             [spacon.components.form.core :as formapi]
-            [spacon.components.kafka.core :as kafkaapi]
+            [spacon.components.queue.protocol :as queueapi]
             [spacon.components.http.auth :refer [check-auth]]
             [clojure.spec :as s])
   (:import (java.net URLDecoder)
@@ -41,7 +41,7 @@
 (defn http-post-form
   "Creates a new form using the json body then publishes a
   config update message about the newly added form"
-  [form-comp kafka-comp request]
+  [form-comp queue-comp request]
   (let [f (:json-params request)
         form (if (not (contains? f :version))
                (assoc f :version 1)
@@ -50,7 +50,7 @@
     (if (s/valid? :spacon.specs.form/form-spec form)
       (let [new-form (formapi/add-form-with-fields form-comp form)]
         (log/debug "Added new form")
-        (kafkaapi/publish kafka-comp
+        (queueapi/publish queue-comp
                                     {:action (.value Actions/CONFIG_ADD_FORM)
                                      :payload new-form})
         (response/ok new-form))
@@ -62,7 +62,7 @@
 (defn http-delete-form-by-key
   "Deletes all forms matching the form-key then publishes a
   config update message about the deleted form"
-  [form-comp kafka-comp request]
+  [form-comp queue-comp request]
   (log/debug "Deleting form")
   (let [form-key (URLDecoder/decode (get-in request [:path-params :form-key])
                                     "UTF-8")
@@ -73,7 +73,7 @@
         (response/bad-request err-msg))
       (if (== (count (map (partial formapi/delete-form form-comp) forms)) (count forms))
         (do
-          (kafkaapi/publish kafka-comp
+          (queueapi/publish queue-comp
                                       {:action (.value Actions/CONFIG_REMOVE_FORM)
                                        :payload {:form_key form-key}})
           (response/ok "success"))
@@ -98,13 +98,13 @@
   (let [form-id (get-in request [:path-params :form-id])]
     (response/ok (formapi/get-form-data form-comp form-id))))
 
-(defn routes [form-comp kafka]
+(defn routes [form-comp queue]
   #{["/api/forms"                :get
      (conj common-interceptors check-auth (partial http-get-all-forms form-comp)) :route-name :all-forms]
     ["/api/forms"                :post
-     (conj common-interceptors check-auth (partial http-post-form form-comp kafka)) :route-name :create-form]
+     (conj common-interceptors check-auth (partial http-post-form form-comp queue)) :route-name :create-form]
     ["/api/forms/:form-key"      :delete
-     (conj common-interceptors check-auth (partial http-delete-form-by-key form-comp kafka)) :route-name :delete-form]
+     (conj common-interceptors check-auth (partial http-delete-form-by-key form-comp queue)) :route-name :delete-form]
     ["/api/forms/:form-key"      :get
      (conj common-interceptors check-auth (partial http-get-form form-comp)) :route-name :get-form]
     ;; todo: need to figure out why forms causes a route conflict
