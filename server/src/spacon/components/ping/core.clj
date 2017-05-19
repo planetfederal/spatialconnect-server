@@ -16,41 +16,38 @@
   (:require [com.stuartsierra.component :as component]
             [spacon.components.http.intercept :as intercept]
             [spacon.components.http.response :as response]
-            [spacon.components.mqtt.core :as mqttapi]
+            [spacon.components.queue.protocol :as queueapi]
             [clojure.data.json :as json]
             [clojure.tools.logging :as log]
-            [spacon.components.kafka.core :as kafka]
             [clojure.core.async :as async]
             [clj-time.local :as l])
   (:import [java.util.concurrent Executors TimeUnit]))
 
-(defn- send-ping [kafka-producer]
+(defn- send-ping [queue-comp]
   (let [ping-msg (json/write-str {:type "ping"
                                   :timestamp (l/format-local-time (l/local-now) :date-time-no-ms)})]
-    (kafka/send! kafka-producer {:topic "test"
+    (queueapi/publish queue-comp {:topic "test"
                                  :value ping-msg
                                  :key "anykey"
                                  :partition 0})))
 
-(defn- ping-kafka
-  "Sends a record to kafka every 5 seconds as a heartbeat."
-  [kafka-comp]
+(defn- ping-queue
+  "Sends a record to queue every 5 seconds as a heartbeat."
+  [queue-comp]
   (let [pool (Executors/newScheduledThreadPool 1)]
-    (.scheduleAtFixedRate pool #(send-ping kafka-comp) 0 5 TimeUnit/SECONDS)))
+    (.scheduleAtFixedRate pool #(send-ping queue-comp) 0 20 TimeUnit/SECONDS)))
 
-(defn mqtt-ping
-  "Responds with pong as a way to ensure mqtt broker is reachable"
-  [mqttcomp message]
-  (mqttapi/publish-scmessage mqttcomp
-                             (:reply_to message)
+(defn queue-ping
+  "Responds with pong as a way to ensure queue broker is reachable"
+  [queue-comp message]
+  (queueapi/publish queue-comp
                              (assoc message :payload {:result "pong"})))
 
-(defrecord PingComponent [mqtt kafka]
+(defrecord PingComponent [queue]
   component/Lifecycle
   (start [this]
     (log/debug "Starting Ping Component")
-    (mqttapi/subscribe mqtt "/ping" (partial mqtt-ping mqtt))
-    (ping-kafka kafka)
+    (queueapi/subscribe queue :ping (partial queue-ping queue))
     this)
   (stop [this]
     (log/debug "Stopping Ping Component")

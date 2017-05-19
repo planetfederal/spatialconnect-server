@@ -21,9 +21,8 @@
             [clojure.spec.gen :as gen]
             [clojure.spec :as spec]
             [spacon.components.mqtt.core :as mqttapi]
-            [spacon.entity.scmessage :as scm]
-            [clojure.walk :refer [keywordize-keys]])
-  (:import (com.boundlessgeo.spatialconnect.schema SCCommand)))
+            [spacon.entity.msg :as msg])
+  (:import (com.boundlessgeo.schema Actions)))
 
 (use-fixtures :once utils/setup-fixtures)
 
@@ -84,7 +83,7 @@
       (let [mqtt (:mqtt user/system-val)
             msg-handler (fn [form-key m]
                           (is (= form-key (get-in m [:payload :form_key])))
-                          (is (= (.value SCCommand/CONFIG_ADD_FORM) (:action m))))]
+                          (is (= (.value Actions/CONFIG_ADD_FORM) (:action m))))]
         (mqttapi/subscribe mqtt "/config/update" (partial msg-handler (:form_key test-form)))
         (utils/request-post "/api/forms" test-form)
         (Thread/sleep 1000)))
@@ -96,7 +95,7 @@
             msg-handler (fn [form-key m]
                           (is (= form-key (get-in m [:payload :form_key])))
                           ;; todo: we never update a form...we only add new ones with a newer version
-                          (is (= (.value SCCommand/CONFIG_ADD_FORM) (:action m))))]
+                          (is (= (.value Actions/CONFIG_ADD_FORM) (:action m))))]
         (mqttapi/subscribe mqtt "/config/update" (partial msg-handler (:form_key updated-form)))
         (utils/request-post "/api/forms" updated-form)
         (Thread/sleep 1000)))
@@ -106,7 +105,7 @@
             form (-> (utils/request-get "/api/forms") :result first)
             msg-handler (fn [form-key m]
                           (is (= form-key (get-in m [:payload :form_key])))
-                          (is (= (.value SCCommand/CONFIG_REMOVE_FORM) (:action m))))]
+                          (is (= (.value Actions/CONFIG_REMOVE_FORM) (:action m))))]
         (mqttapi/subscribe mqtt "/config/update" (partial msg-handler (:form_key form)))
         (utils/request-delete (str "/api/forms/" (:form_key form)))
         (Thread/sleep 1000)))))
@@ -130,7 +129,7 @@
           id (-> (utils/request-get "/api/forms") :result first :id)
           feature (gen/generate (spec/gen :spacon.specs.geojson/feature-spec))
           form-data {:form_id id :feature feature}
-          m (scm/map->SCMessage {:action (.value SCCommand/DATASERVICE_CREATEFEATURE)
+          m (msg/map->Msg {:action (.value Actions/DATASERVICE_CREATEFEATURE)
                                  :payload form-data})]
       (mqttapi/publish-scmessage mqtt "/store/form" m)
       (Thread/sleep 1000)

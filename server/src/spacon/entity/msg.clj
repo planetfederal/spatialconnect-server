@@ -12,50 +12,52 @@
 ;; See the License for the specific language governing permissions and
 ;; limitations under the License.
 
-(ns spacon.entity.scmessage
+(ns spacon.entity.msg
   (:require [clojure.data.json :as json]
             [clojure.string :refer [blank?]]
             [clojure.walk :refer [keywordize-keys]]
             [clojure.tools.logging :as log])
-  (:import (com.boundlessgeo.spatialconnect.schema
-            SCMessageOuterClass$SCMessage)))
+  (:import (com.boundlessgeo.schema MessagePbf$Msg)))
 
 (defn- bytes->map [proto]
-  (let [scm (SCMessageOuterClass$SCMessage/parseFrom proto)
-        p (.getPayload scm)
+  (let [msg (MessagePbf$Msg/parseFrom proto)
+        p (.getPayload msg)
         payload (if (blank? p) {} (keywordize-keys (json/read-str p)))]
     (try
-      {:correlation-id (.getCorrelationId scm)
-       :jwt (.getJwt scm)
-       :reply-to (.getReplyTo scm)
-       :action (.getAction scm)
+      {:context (.getContext msg)
+       :correlationId (.getCorrelationId msg)
+       :jwt (.getJwt msg)
+       :to (.getTo msg)
+       :action (.getAction msg)
        :payload payload}
       (catch Exception e
         (log/error "Could not parse protobuf into map b/c"
                    (.getLocalizedMessage e))))))
 
-(defn- make-protobuf [correlation-id jwt reply-to action payload]
-  (-> (SCMessageOuterClass$SCMessage/newBuilder)
-      (.setReplyTo reply-to)
+(defn- make-protobuf [context correlation-id jwt to action payload]
+  (-> (MessagePbf$Msg/newBuilder)
+      (.setContext context)
+      (.setTo to)
       (.setJwt jwt)
       (.setAction action)
       (.setPayload payload)
       (.setCorrelationId correlation-id)
       (.build)))
 
-(defrecord SCMessage [correlation-id jwt reply-to action payload])
+(defrecord Msg [correlation-id jwt to action payload])
 
 (defn from-bytes
-  "Deserializes the protobuf byte array into an SCMessage record"
+  "Deserializes the protobuf byte array into an ConnectMessage record"
   [b]
-  (map->SCMessage (bytes->map b)))
+  (map->Msg (bytes->map b)))
 
 (defn message->bytes
-  "Serializes an SCMessage record into a protobuf byte array"
+  "Serializes an Msg record into a protobuf byte array"
   [message]
   (.toByteArray (make-protobuf
-                 (or (get message :correlation-id) -1)
-                 (or (get message :jwt) "")
-                 (or (get message :reply-to) "")
-                 (or (get message :action) -1)
-                 (json/write-str (or (get message :payload) "{}")))))
+                  (or (get message :context) "")
+                  (or (get message :correlationId) -1)
+                  (or (get message :jwt) "")
+                  (or (get message :to) "")
+                  (or (get message :action) "v1/NO_ACTION")
+                  (json/write-str (or (get message :payload) "{}")))))

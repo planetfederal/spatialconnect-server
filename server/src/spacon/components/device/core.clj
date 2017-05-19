@@ -17,7 +17,7 @@
             [spacon.components.http.intercept :as intercept]
             [yesql.core :refer [defqueries]]
             [spacon.components.device.db :as devicemodel]
-            [clojure.tools.logging :as log]))
+           [clojure.tools.logging :as log]))
 
 (defn all
   [device-comp]
@@ -39,7 +39,7 @@
   [device-comp id]
   (devicemodel/delete id))
 
-(defrecord DeviceComponent [mqtt]
+(defrecord DeviceComponent [queue]
   component/Lifecycle
   (start [this]
     (log/debug "Starting Device Component")

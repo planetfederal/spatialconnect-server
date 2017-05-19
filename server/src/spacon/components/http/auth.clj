@@ -56,18 +56,6 @@
       (response/unauthorized "Authentication failed")
       (response/ok {:token (get-token user)}))))
 
-(defn authorize-user
-  ;; Currently, this is used by the mqtt broker to ensure that only authenticated users are able to connect to the
-  ;; broker.  Eventually we will want to use this handler to ensure that a user has permission to subscribe or publish
-  ;; to a specific topic.
-  [request]
-  (let [auth-data (try (some->> (proto/-parse oauth-backend request)
-                                (proto/-authenticate oauth-backend request))
-                       (catch Exception _))]
-    (if (:user auth-data)
-      (response/ok "User authorized!")
-      (response/unauthorized "User not authorized!"))))
-
 (def check-auth
   ;; interceptor to check for Authorization: Token <a token created from get-token>
   {:name :check-auth
@@ -86,5 +74,4 @@
                                              :error "Request failed auth check."}})))))})
 
 (defn routes []
-  #{["/api/authenticate" :post (conj intercept/common-interceptors `authenticate-user)]
-    ["/api/authorize"    :post (conj intercept/common-interceptors `authorize-user)]})
+  #{["/api/authenticate" :post (conj intercept/common-interceptors `authenticate-user)]})
