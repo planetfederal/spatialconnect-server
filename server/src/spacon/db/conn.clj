@@ -44,6 +44,9 @@
       :min-pool-size     2
       :initial-pool-size 2})))
 
+(defqueries "sql/schema.sql" {:connection db-spec})
+(defn create-spacon-schema [] (create-spacon-schema!))
+
 (defn loadconfig []
   (log/debug "Loading database migration config")
   {:datastore  (jdbc/sql-database db-spec {:migrations-table "spacon.migrations"})
