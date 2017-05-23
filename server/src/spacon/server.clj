@@ -96,16 +96,17 @@
 (defn start-kafka-system []
   (component/start-system
     (make-spacon-server-kafka {:http-config {::server/allowed-origins {:allowed-origins [(System/getenv "ALLOWED_ORIGINS")]}}
-                         :kafka-config {:broker-url (System/getenv "kafka_BROKER_URL")}
-                         :kafka-producer-config {:servers (System/getenv "BOOTSTRAP_SERVERS")
-                                                 :timeout-ms 2000}
-                         :kafka-consumer-config {:servers (System/getenv "BOOTSTRAP_SERVERS")
-                                                 :group-id (System/getenv "GROUP_ID")}})))
+                               :kafka-config {:broker-url (System/getenv "kafka_BROKER_URL")}
+                               :kafka-producer-config {:servers (System/getenv "BOOTSTRAP_SERVERS")
+                                                       :timeout-ms 2000}
+                               :kafka-consumer-config {:servers (System/getenv "BOOTSTRAP_SERVERS")
+                                                       :group-id (System/getenv "GROUP_ID")}})))
 (defn -main
   "The entry-point for 'lein run'"
   [& _]
   (log/info "Configuring the server...")
   (if (= "true" (System/getenv "AUTO_MIGRATE"))
+    (spacon.db.conn/create-spacon-schema)
     (spacon.db.conn/migrate))
   ;; create global uncaught exception handler so threads don't silently die
   (Thread/setDefaultUncaughtExceptionHandler
