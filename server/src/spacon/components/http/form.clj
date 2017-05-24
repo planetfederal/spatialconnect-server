@@ -5,6 +5,7 @@
             [spacon.components.form.core :as formapi]
             [spacon.components.queue.protocol :as queueapi]
             [spacon.components.http.auth :refer [check-auth]]
+            [spacon.entity.msg :as msg]
             [clojure.spec :as s])
   (:import (java.net URLDecoder)
            (com.boundlessgeo.schema Actions)))
@@ -50,9 +51,10 @@
     (if (s/valid? :spacon.specs.form/form-spec form)
       (let [new-form (formapi/add-form-with-fields form-comp form)]
         (log/debug "Added new form")
-        (queueapi/publish queue-comp
-                                    {:action (.value Actions/CONFIG_ADD_FORM)
-                                     :payload new-form})
+        (queueapi/publish queue-comp (msg/map->Msg
+                                       {:to :config-update
+                                        :action (.value Actions/CONFIG_ADD_FORM)
+                                        :payload new-form}))
         (response/ok new-form))
       (let [reason (s/explain-str :spacon.specs.form/form-spec form)
             err-msg "Failed to create new form"]
@@ -73,9 +75,10 @@
         (response/bad-request err-msg))
       (if (== (count (map (partial formapi/delete-form form-comp) forms)) (count forms))
         (do
-          (queueapi/publish queue-comp
-                                      {:action (.value Actions/CONFIG_REMOVE_FORM)
-                                       :payload {:form_key form-key}})
+          (queueapi/publish queue-comp (msg/map->Msg
+                                         {:to :config-update
+                                          :action (.value Actions/CONFIG_REMOVE_FORM)
+                                          :payload {:form_key form-key}}))
           (response/ok "success"))
         (let [err-msg (str "Failed to delete all form versions for form-key" form-key)]
           (log/error err-msg)

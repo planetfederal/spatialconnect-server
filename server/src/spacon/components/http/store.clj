@@ -6,7 +6,8 @@
             [clojure.spec :as s]
             [clojure.tools.logging :as log]
             [spacon.components.store.core :as storeapi]
-            [spacon.components.queue.protocol :as queueapi])
+            [spacon.components.queue.protocol :as queueapi]
+            [spacon.entity.msg :as msg])
   (:import (com.boundlessgeo.schema Actions)))
 
 (defn http-get-store
@@ -31,9 +32,10 @@
       (let [updated-store (storeapi/modify store-comp id store)]
         (do
           (if-not (empty? queue-comp) (queueapi/publish queue-comp
-                                                                 {:to :config-update
-                                                                  :action  (.value Actions/CONFIG_UPDATE_STORE)
-                                                                  :payload updated-store}))
+                                                        (msg/map->Msg
+                                                          { :to :config-update
+                                                            :action  (.value Actions/CONFIG_UPDATE_STORE)
+                                                            :payload updated-store})))
           (response/ok updated-store)))
       (let [err-msg "Failed to update store"]
         (log/error (str err-msg "b/c" (s/explain-str :spacon.specs.store/store-spec store)))
@@ -50,9 +52,10 @@
         (log/debug "Added new store")
         (do
           (if-not (empty? queue-comp) (queueapi/publish queue-comp
-                                                                 {:to :config-update
-                                                                  :action  (.value Actions/CONFIG_ADD_STORE)
-                                                                  :payload new-store}))
+                                                        (msg/map->Msg
+                                                          {:to :config-update
+                                                           :action  (.value Actions/CONFIG_ADD_STORE)
+                                                           :payload new-store})))
           (response/ok new-store)))
       (let [err-msg "Failed to create new store"]
         (log/error (str err-msg "b/c" (s/explain-str :spacon.specs.store/store-spec store)))
@@ -72,9 +75,10 @@
       (do
         (storeapi/delete store-comp id)
         (if-not (empty? queue-comp) (queueapi/publish queue-comp
-                                                               {:to :config-update
-                                                                :action  (.value Actions/CONFIG_REMOVE_STORE)
-                                                                :payload {:id id}}))
+                                                      (msg/map->Msg
+                                                        {:to :config-update
+                                                         :action  (.value Actions/CONFIG_REMOVE_STORE)
+                                                         :payload {:id id}})))
         (response/ok "success")))))
 
 (defn http-get-all-stores
