@@ -1,0 +1,8 @@
+{
+   "db_username": "spacondev",
+   "db_name": "spacondev",
+   "postgis": true,
+   "db_encoding": "UTF-8",
+   "owner_email": "api@boundlessgeo.com",
+   "owner_name": "boundless"
+}
