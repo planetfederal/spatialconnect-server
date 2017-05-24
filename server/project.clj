@@ -6,7 +6,6 @@
   :dependencies [[org.clojure/clojure "1.9.0-alpha14"]
                  [org.clojure/core.async "0.3.442"]
                  [org.clojure/data.json "0.2.6"]
-                 [org.clojure/java.jdbc "0.7.0-alpha3"]
                  [io.pedestal/pedestal.service "0.5.1"]
                  [io.pedestal/pedestal.jetty "0.5.1"]
                  [ragtime "0.5.3"]
