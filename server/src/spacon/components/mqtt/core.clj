@@ -81,10 +81,16 @@
     (log/debug "Nil message on topic " topic)
     (async/go (async/>!! (:subscribe-channel mqtt) {:topic topic :message (msg/from-bytes message)}))))
 
-(defn reconnect [reason]
+(defn reconnect [mqtt-comp reason ]
   (let [url (or (System/getenv "MQTT_BROKER_URL") "tcp://localhost:1883")]
-    (log/debugf "%s%nConnection lost. Attempting reconnect to %s" reason url)
-    (connectmqtt url)))
+    (log/debugf "Connection lost (%s). Attempting reconnect to %s" reason url)
+    (connectmqtt url)
+    (doall (map (fn [t]
+                  (mh/subscribe @conn {(subs (str t) 1) 2}
+                                (fn [^String topic _ ^bytes payload]
+                                  (receive mqtt-comp topic payload))
+                                {:on-connection-lost (partial reconnect mqtt-comp) }))
+                (keys @topics)))))
 
 (defn subscribe
   "Subscribe to mqtt topic with message handler function f"
@@ -94,7 +100,7 @@
   (mh/subscribe @conn {topic 2}
                 (fn [^String topic _ ^bytes payload]
                   (receive mqtt topic payload))
-                {:on-connection-lost reconnect}))
+                {:on-connection-lost (partial reconnect mqtt) }))
 
 (defn unsubscribe
   "Unsubscribe to mqtt topic"
@@ -111,7 +117,7 @@
                 (try
                   (if-not (mh/connected? @conn)
                     (do
-                      (reconnect nil)
+                      (reconnect mqtt nil)
                       (if-not (or (nil? t) (nil? m))
                         (mh/publish @conn t m)))
                     (if-not (or (nil? t) (nil? m))
