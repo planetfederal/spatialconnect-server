@@ -163,7 +163,8 @@
     (mh/disconnect @conn)
     this)
   (publish [this msg]
-    (publish this (:to msg) msg))
+    (let [topic (or (get action-topic (:to msg)) (:to msg))]
+      (publish this topic (assoc-in msg [:to] topic))))
   (subscribe [this action f]
     (subscribe this (get action-topic action) f))
   (unsubscribe [this action]

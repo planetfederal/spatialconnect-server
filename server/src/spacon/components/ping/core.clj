@@ -20,16 +20,19 @@
             [clojure.data.json :as json]
             [clojure.tools.logging :as log]
             [clojure.core.async :as async]
-            [clj-time.local :as l])
+            [clj-time.local :as l]
+            [spacon.entity.msg :as msg])
   (:import [java.util.concurrent Executors TimeUnit]))
 
 (defn- send-ping [queue-comp]
   (let [ping-msg (json/write-str {:type "ping"
                                   :timestamp (l/format-local-time (l/local-now) :date-time-no-ms)})]
-    (queueapi/publish queue-comp {:topic "test"
-                                 :value ping-msg
-                                 :key "anykey"
-                                 :partition 0})))
+    (queueapi/publish queue-comp
+                      (msg/map->Msg
+                        {:topic "test"
+                         :value ping-msg
+                         :key "anykey"
+                         :partition 0}))))
 
 (defn- ping-queue
   "Sends a record to queue every 5 seconds as a heartbeat."
