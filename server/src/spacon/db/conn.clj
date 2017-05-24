@@ -14,10 +14,10 @@
 
 (ns spacon.db.conn
   (:import com.mchange.v2.c3p0.ComboPooledDataSource)
-  (:require [yesql.core :refer [defqueries]]
-            [ragtime.jdbc :as jdbc]
+  (:require [ragtime.jdbc :as jdbc]
             [ragtime.repl :as repl]
             [clojure.data.json :as json]
+            [clojure.java.jdbc :as sql]
             [jdbc.pool.c3p0 :as pool]
             [clojure.tools.logging :as log]))
 
@@ -49,9 +49,14 @@
   {:datastore  (jdbc/sql-database db-spec {:migrations-table "spacon.migrations"})
    :migrations (jdbc/load-resources "migrations")})
 
+(defn create-schema []
+  (log/debug "Creating schema if it doesnt exist")
+  (sql/execute! db-spec ["CREATE SCHEMA IF NOT EXISTS spacon"])
+  (repl/migrate (loadconfig)))
+
 (defn migrate []
   (log/debug "Running database migration")
-  (repl/migrate (loadconfig)))
+  (repl/migrate (create-schema)))
 
 (defn rollback []
   (log/debug "Rolling back database migration")
