@@ -14,8 +14,7 @@
 
 (ns spacon.db.conn
   (:import com.mchange.v2.c3p0.ComboPooledDataSource)
-  (:require [yesql.core :refer [defqueries]]
-            [ragtime.jdbc :as jdbc]
+  (:require [ragtime.jdbc :as jdbc]
             [ragtime.repl :as repl]
             [clojure.data.json :as json]
             [jdbc.pool.c3p0 :as pool]
@@ -44,11 +43,13 @@
       :min-pool-size     2
       :initial-pool-size 2})))
 
-(defqueries "sql/schema.sql" {:connection db-spec})
-(defn create-spacon-schema [] (create-spacon-schema!))
+(defn create-schema []
+  (log/debug "Creating schema if it doesnt exist")
+  (clojure.java.jdbc/execute! db-spec ["CREATE SCHEMA IF NOT EXISTS spacon"]))
 
 (defn loadconfig []
   (log/debug "Loading database migration config")
+  (create-schema)
   {:datastore  (jdbc/sql-database db-spec {:migrations-table "spacon.migrations"})
    :migrations (jdbc/load-resources "migrations")})
 

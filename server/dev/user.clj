@@ -42,7 +42,6 @@
                                                                    "sc-consumers")}}))
 (defn init-dev []
   (log/info "Initializing dev system for repl")
-  (spacon.db.conn/create-spacon-schema)
   (spacon.db.conn/migrate)
   (System/setProperty "javax.net.ssl.trustStore"
                       (or (System/getenv "TRUST_STORE")
@@ -87,4 +86,3 @@
 (defn reset []
   (stop)
   (go))
-

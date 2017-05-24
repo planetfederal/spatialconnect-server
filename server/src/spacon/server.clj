@@ -106,7 +106,6 @@
   [& _]
   (log/info "Configuring the server...")
   (if (= "true" (System/getenv "AUTO_MIGRATE"))
-    (spacon.db.conn/create-spacon-schema)
     (spacon.db.conn/migrate))
   ;; create global uncaught exception handler so threads don't silently die
   (Thread/setDefaultUncaughtExceptionHandler
@@ -134,4 +133,3 @@
   (if (= "kafka" (System/getenv "QUEUE_TYPE"))
     (start-kafka-system)
     (start-mqtt-system)))
-
