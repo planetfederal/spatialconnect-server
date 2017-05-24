@@ -21,7 +21,6 @@
             [clojure.core.async :as async]
             [spacon.components.http.auth :refer [get-token]]
             [clojure.tools.logging :as log]
-            [spacon.components.config.core :as configapi]
             [spacon.components.queue.protocol :as queue])
   (:import (org.eclipse.paho.client.mqttv3 MqttException)
            (java.net InetAddress)))
