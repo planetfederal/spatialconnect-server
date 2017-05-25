@@ -370,12 +370,10 @@ export function loadForms() {
     return request
       .get(`${API_URL}forms`)
       .set('Authorization', `Token ${token}`)
-      .then(res => {
-        dispatch(receiveForms(res.body.result));
-      })
-      .catch(err => {
-        throw new Error(err);
-      });
+      .then(
+        res => dispatch(receiveForms(res.body.result)),
+        error => dispatch({ type: LOAD_FAIL, error: 'Unable to load forms.' })
+      );
   };
 }
 
@@ -387,12 +385,10 @@ export function loadForm(form_key) {
     request
       .get(`${API_URL}forms/${form_key}`)
       .set('Authorization', `Token ${token}`)
-      .end((err, res) => {
-        if (err) {
-          throw new Error(res);
-        }
-        dispatch(receiveForm(res.body.result));
-      });
+      .then(
+        res => dispatch(receiveForm(res.body.result)),
+        error => dispatch({ type: LOAD_FAIL, error: 'Unable to load form.' })
+      );
   };
 }
 

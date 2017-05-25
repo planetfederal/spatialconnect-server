@@ -113,7 +113,7 @@ export function loadDataStore(storeId) {
       .set('Authorization', `Token ${token}`)
       .then(
         res => dispatch(receiveStore(res.body.result)),
-        error => dispatch({ type: LOAD_FAIL, error })
+        error => dispatch({ type: LOAD_FAIL, payload: { error: 'Unable to load store.' } })
       );
   };
 }
@@ -128,7 +128,7 @@ export function loadDataStores() {
       .set('Authorization', `Token ${token}`)
       .then(
         res => dispatch(receiveStores(res.body.result)),
-        error => dispatch({ type: LOAD_FAIL, error })
+        error => dispatch({ type: LOAD_FAIL, payload: { error: 'Unable to load stores.' } })
       );
   };
 }

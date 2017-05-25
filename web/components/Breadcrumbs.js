@@ -9,21 +9,15 @@ class Breadcrumbs extends Component {
     const routes = this.props.routes.map(route => {
       if (route.path === '/stores/:id') {
         const store = find(sc.dataStores.stores, { id: params.id });
-        if (store) {
-          route.name = store.name;
-        }
+        route.name = store ? store.name : 'Not Found';
       }
       if (route.path === '/forms/:form_key') {
         const form = sc.forms.forms[params.form_key];
-        if (form) {
-          route.name = form.form_label;
-        }
+        route.name = form ? form.form_label : 'Not Found';
       }
       if (route.path === '/teams/:id') {
         const team = find(sc.teams.teams, { id: +params.id });
-        if (team) {
-          route.name = team.name;
-        }
+        route.name = team ? team.name : 'Not Found';
       }
       if (route.path === '/notifications/:id') {
         route.name = 'Notification';
