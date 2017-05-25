@@ -71,10 +71,7 @@ class DataMap extends Component {
               ? <tr>
                   <td>Time Recorded:</td>
                   <td>
-                    {dateFormat(
-                      f.metadata.updated_at,
-                      'dddd, MMMM Do YYYY, h:mm:ss a',
-                    )}
+                    {dateFormat(f.metadata.updated_at, 'dddd, MMMM Do YYYY, h:mm:ss a')}
                   </td>
                 </tr>
               : null}
@@ -158,13 +155,13 @@ class DataMap extends Component {
         popup.setPosition(c);
         if (gj.id.indexOf('form_submission') > -1) {
           const data = this.props.formData.filter(
-            fd => fd.id === +gj.id.replace('form_submission.', ''),
+            fd => fd.id === +gj.id.replace('form_submission.', '')
           );
           this.setState({ activeFeature: data[0] });
         }
         if (gj.id.indexOf('device_location') > -1) {
           const data = this.props.device_locations.filter(
-            fd => fd.id === +gj.id.replace('device_location.', ''),
+            fd => fd.id === +gj.id.replace('device_location.', '')
           );
           this.setState({ deviceLocationActive: data[0] });
         }
@@ -237,9 +234,7 @@ class DataMap extends Component {
     if (this.state.activeFeature) {
       table = this.makePopupTableFormSubmission(this.state.activeFeature);
     } else if (this.state.deviceLocationActive) {
-      table = DataMap.makePopupTableDeviceLocation(
-        this.state.deviceLocationActive,
-      );
+      table = DataMap.makePopupTableDeviceLocation(this.state.deviceLocationActive);
     } else {
       table = <table />;
     }

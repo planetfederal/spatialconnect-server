@@ -33,10 +33,7 @@ class FormPreview extends Component {
   }
 
   template(locals) {
-    const inputs = sortBy(
-      this.props.form.fields,
-      'position',
-    ).map((field, idx) => (
+    const inputs = sortBy(this.props.form.fields, 'position').map((field, idx) => (
       <Field
         field={field}
         updateActiveField={this.props.updateActiveField}

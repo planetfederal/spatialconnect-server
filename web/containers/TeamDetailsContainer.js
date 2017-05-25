@@ -9,11 +9,7 @@ const TeamDetailsContainer = props => (
   <div>
     {!!props.team &&
       <div>
-        <Team
-          team={props.team}
-          userTeams={props.auth.user.teams}
-          teamActions={props.teamActions}
-        />
+        <Team team={props.team} userTeams={props.auth.user.teams} teamActions={props.teamActions} />
         <div className="btn-toolbar">
           <button
             className="btn btn-danger"
@@ -46,6 +42,4 @@ const mapDispatchToProps = dispatch => ({
   teamActions: bindActionCreators(teamActions, dispatch),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(
-  TeamDetailsContainer,
-);
+export default connect(mapStateToProps, mapDispatchToProps)(TeamDetailsContainer);

@@ -59,8 +59,7 @@ export class DataStoreForm extends Component {
       polling: props.store.options && props.store.options.polling
         ? props.store.options.polling
         : null,
-      show_polling: props.store.store_type === 'geojson' ||
-        props.store.store_type === 'wfs',
+      show_polling: props.store.store_type === 'geojson' || props.store.store_type === 'wfs',
     };
 
     this.onStoreTypeChange = this.onStoreTypeChange.bind(this);
@@ -96,10 +95,7 @@ export class DataStoreForm extends Component {
         this.props.actions.addStoreError('default_layers', 'Loading layers...');
         this.props.actions.getWFSLayers(uri);
       } else {
-        this.props.actions.addStoreError(
-          'default_layers',
-          'Enter a URI to load layer list.',
-        );
+        this.props.actions.addStoreError('default_layers', 'Enter a URI to load layer list.');
       }
     }
     if (this.state.store_type !== 'wfs') {
@@ -240,9 +236,7 @@ export class DataStoreForm extends Component {
             <option value="gpkg">GeoPackage</option>
             <option value="wfs">WFS</option>
           </select>
-          {errors.store_type
-            ? <p className="text-danger">{errors.store_type}</p>
-            : ''}
+          {errors.store_type ? <p className="text-danger">{errors.store_type}</p> : ''}
         </div>
         <div className="form-group">
           <label htmlFor="store-version">Version:</label>
@@ -254,9 +248,7 @@ export class DataStoreForm extends Component {
             maxLength={15}
             onChange={this.onVersionChange}
           />
-          {errors.version
-            ? <p className="text-danger">{errors.version}</p>
-            : ''}
+          {errors.version ? <p className="text-danger">{errors.version}</p> : ''}
         </div>
         <div className="form-group">
           <label htmlFor="store-uri">URI:</label>
@@ -283,9 +275,7 @@ export class DataStoreForm extends Component {
                   <option value={layer} key={uniqueId()}>{layer}</option>
                 ))}
               </select>
-              {errors.default_layers
-                ? <p className="text-danger">{errors.default_layers}</p>
-                : ''}
+              {errors.default_layers ? <p className="text-danger">{errors.default_layers}</p> : ''}
             </div>
           : ''}
         {this.state.show_polling
@@ -300,9 +290,7 @@ export class DataStoreForm extends Component {
                 maxLength={5}
                 onChange={this.onPollingChange}
               />
-              {errors.polling
-                ? <p className="text-danger">{errors.polling}</p>
-                : ''}
+              {errors.polling ? <p className="text-danger">{errors.polling}</p> : ''}
             </div>
           : ''}
         <div className="form-group">

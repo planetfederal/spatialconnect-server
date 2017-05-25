@@ -69,13 +69,8 @@ class DataStoresContainer extends Component {
         <section className="main">
           {selectedTeamId
             ? <div>
-                {loading
-                  ? <p>Fetching Data Stores...</p>
-                  : this.renderStoreForm()}
-                <DataStoresList
-                  dataStores={stores}
-                  selectedTeamId={selectedTeamId}
-                />
+                {loading ? <p>Fetching Data Stores...</p> : this.renderStoreForm()}
+                <DataStoresList dataStores={stores} selectedTeamId={selectedTeamId} />
               </div>
             : <p><Link to="/teams">Join</Link> a team to view Stores.</p>}
         </section>
@@ -107,6 +102,4 @@ const mapDispatchToProps = dispatch => ({
 });
 
 // connect this "smart" container component to the redux store
-export default connect(mapStateToProps, mapDispatchToProps)(
-  DataStoresContainer,
-);
+export default connect(mapStateToProps, mapDispatchToProps)(DataStoresContainer);

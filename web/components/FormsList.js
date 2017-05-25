@@ -14,10 +14,7 @@ const FormItem = ({ form }) => (
       <PropertyListItem name={'Team'} value={form.team_name} />
       {form.metadata
         ? <div>
-            <PropertyListItem
-              name={'Number of Records'}
-              value={form.metadata.count}
-            />
+            <PropertyListItem name={'Number of Records'} value={form.metadata.count} />
             {form.metadata.lastActivity
               ? <PropertyListItem
                   name={'Last Activity'}

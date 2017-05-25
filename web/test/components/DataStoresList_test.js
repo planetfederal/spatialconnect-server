@@ -31,8 +31,6 @@ describe('DataStoresList', () => {
 
   it('should set the dataStore prop of the data store', () => {
     const { component } = setup({ dataStores });
-    expect(component.find(DataStoreItem).at(0).props().store).toBe(
-      dataStores[0],
-    );
+    expect(component.find(DataStoreItem).at(0).props().store).toBe(dataStores[0]);
   });
 });

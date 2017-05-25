@@ -11,12 +11,13 @@
     "build:cf": "NODE_ENV=cf webpack",
     "build:devio": "NODE_ENV=devio webpack",
     "build": "NODE_ENV=production webpack",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged",
+    "format": "prettier --single-quote --trailing-comma es5 --print-width 100 --write \"{,!(node_modules|public)/**/}*.js\""
   },
   "lint-staged": {
     "gitDir": "../",
     "*.js": [
-      "./node_modules/.bin/prettier --single-quote --trailing-comma all --write",
+      "./node_modules/.bin/prettier --single-quote --trailing-comma es5 --print-width 100 --write",
       "git add"
     ]
   },

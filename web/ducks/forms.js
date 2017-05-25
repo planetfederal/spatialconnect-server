@@ -109,14 +109,12 @@ const formReducer = (state = {}, action) => {
       const fieldToRemove = find(state.fields, { id: action.fieldId });
       return {
         ...state,
-        fields: state.fields
-          .filter(field => field.id !== action.fieldId)
-          .map(field => {
-            if (field.position > fieldToRemove.position) {
-              return { ...field, position: field.position - 1 };
-            }
-            return field;
-          }),
+        fields: state.fields.filter(field => field.id !== action.fieldId).map(field => {
+          if (field.position > fieldToRemove.position) {
+            return { ...field, position: field.position - 1 };
+          }
+          return field;
+        }),
         deletedFields: state.deletedFields.concat(action.fieldId),
       };
     }
@@ -255,7 +253,7 @@ export function addField(payload) {
         field_key: `field_${position + 1}`,
         field_label: payload.field_label,
       },
-      payload.options,
+      payload.options
     );
     dispatch({
       type: ADD_FIELD,
@@ -406,13 +404,7 @@ export function addForm(form) {
       ...form,
       team_id: sc.auth.selectedTeamId,
     };
-    const f = pick(newForm, [
-      'form_key',
-      'form_label',
-      'version',
-      'fields',
-      'team_id',
-    ]);
+    const f = pick(newForm, ['form_key', 'form_label', 'version', 'fields', 'team_id']);
     return request
       .post(`${API_URL}forms`)
       .set('Authorization', `Token ${token}`)
@@ -440,13 +432,7 @@ export function saveForm(form) {
       ...form,
       team_id: sc.auth.selectedTeamId,
     };
-    const f = pick(newForm, [
-      'form_key',
-      'form_label',
-      'version',
-      'fields',
-      'team_id',
-    ]);
+    const f = pick(newForm, ['form_key', 'form_label', 'version', 'fields', 'team_id']);
     return request
       .post(`${API_URL}forms`)
       .set('Authorization', `Token ${token}`)

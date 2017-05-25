@@ -12,16 +12,12 @@ const NotificationItem = ({ notification }) => (
       <PropertyListItem name={'Type'} value={notification.type} />
       <PropertyListItem
         name={'Sent'}
-        value={
-          notification.sent ? format(notification.sent, dateFormat) : 'Not Sent'
-        }
+        value={notification.sent ? format(notification.sent, dateFormat) : 'Not Sent'}
       />
       <PropertyListItem
         name={'Delivered'}
         value={
-          notification.delivered
-            ? format(notification.delivered, dateFormat)
-            : 'Not Delivered'
+          notification.delivered ? format(notification.delivered, dateFormat) : 'Not Delivered'
         }
       />
     </div>

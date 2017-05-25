@@ -29,10 +29,7 @@ const FormInfoBar = ({ form, updateActiveForm, saveForm, edited }) => (
         </div>
       : null}
     <div className="form-tools">
-      <button
-        className="btn btn-sc"
-        onClick={() => updateActiveForm(form.form_key)}
-      >
+      <button className="btn btn-sc" onClick={() => updateActiveForm(form.form_key)}>
         Edit
       </button>
       <button

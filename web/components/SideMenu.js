@@ -33,13 +33,8 @@ const SideMenu = ({
             <SideMenuItem path={'/teams'} name={'Teams'} onClick={closeMenu} />
             <div className="side-menu-item-inner">
               {!!teams.length &&
-                <select
-                  className="form-control sc-dropdown"
-                  onChange={changeTeam}
-                >
-                  {teams.map(team => (
-                    <option value={team.id} key={team.id}>{team.name}</option>
-                  ))}
+                <select className="form-control sc-dropdown" onChange={changeTeam}>
+                  {teams.map(team => <option value={team.id} key={team.id}>{team.name}</option>)}
                 </select>}
             </div>
           </div>

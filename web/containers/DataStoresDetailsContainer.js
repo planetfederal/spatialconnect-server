@@ -43,14 +43,7 @@ class DataStoresDetailsContainer extends Component {
   }
 
   render() {
-    const {
-      store,
-      loading,
-      loaded,
-      error,
-      storeErrors,
-      layerList,
-    } = this.props;
+    const { store, loading, loaded, error, storeErrors, layerList } = this.props;
     let el = <div />;
     if (loading) {
       el = <p>Fetching Store...</p>;
@@ -118,6 +111,4 @@ const mapDispatchToProps = dispatch => ({
 });
 
 // connect this "smart" container component to the redux store
-export default connect(mapStateToProps, mapDispatchToProps)(
-  DataStoresDetailsContainer,
-);
+export default connect(mapStateToProps, mapDispatchToProps)(DataStoresDetailsContainer);

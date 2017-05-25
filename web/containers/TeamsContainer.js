@@ -31,10 +31,7 @@ class TeamsContainer extends Component {
                 addTeamError={this.props.addTeamError}
               />
             : <div className="btn-toolbar">
-                <button
-                  className="btn btn-sc"
-                  onClick={this.props.teamActions.addTeamToggle}
-                >
+                <button className="btn btn-sc" onClick={this.props.teamActions.addTeamToggle}>
                   Create Team
                 </button>
               </div>}

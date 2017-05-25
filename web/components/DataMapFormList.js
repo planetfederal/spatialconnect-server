@@ -3,10 +3,7 @@ import classNames from 'classnames';
 import values from 'lodash/values';
 
 const FormListItem = ({ active, onClick, title, count }) => (
-  <div
-    className={classNames('data-form-list-item', { active })}
-    onClick={onClick}
-  >
+  <div className={classNames('data-form-list-item', { active })} onClick={onClick}>
     <input type="checkbox" checked={active} />
     <h4>{title}</h4><div className="count">({count})</div>
   </div>
@@ -44,8 +41,7 @@ export class FormList extends Component {
       <div className="data-form-list">
 
         {values(this.props.forms).map(f => {
-          const count = this.props.formData.filter(fd => fd.form_id === f.id)
-            .length;
+          const count = this.props.formData.filter(fd => fd.form_id === f.id).length;
           const active = this.props.form_ids.indexOf(f.id) >= 0;
           return (
             <FormListItem

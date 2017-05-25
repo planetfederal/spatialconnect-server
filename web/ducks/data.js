@@ -97,7 +97,7 @@ export function getFormData(form) {
           const _f = f;
           _f.form = form;
           return _f;
-        }),
+        })
       );
   };
 }
@@ -119,9 +119,9 @@ export function loadFormDataAll() {
               ...f,
               form_id: form.id,
               form_key: form.form_key,
-            })),
+            }))
           );
-      }),
+      })
     )
       .then(formData => flatten(formData))
       .then(formData => {

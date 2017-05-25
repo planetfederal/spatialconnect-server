@@ -78,9 +78,8 @@ export function loadTeams() {
       .get(`${API_URL}teams`)
       .set('Authorization', `Token ${token}`)
       .then(
-        res =>
-          dispatch({ type: LOAD_TEAMS, payload: { teams: res.body.result } }),
-        error => dispatch({ type: LOAD_FAIL, error }),
+        res => dispatch({ type: LOAD_TEAMS, payload: { teams: res.body.result } }),
+        error => dispatch({ type: LOAD_FAIL, error })
       );
   };
 }
@@ -94,9 +93,8 @@ export function loadTeam(id) {
       .get(`${API_URL}teams/${id}`)
       .set('Authorization', `Token ${token}`)
       .then(
-        res =>
-          dispatch({ type: LOAD_TEAM, payload: { team: res.body.result } }),
-        error => dispatch({ type: LOAD_FAIL, error }),
+        res => dispatch({ type: LOAD_TEAM, payload: { team: res.body.result } }),
+        error => dispatch({ type: LOAD_FAIL, error })
       );
   };
 }
@@ -118,8 +116,7 @@ export function createTeam(team) {
           dispatch(loadTeams());
           dispatch(addTeamToggle());
         },
-        error =>
-          dispatch({ type: CREATE_FAIL, payload: { error: error.message } }),
+        error => dispatch({ type: CREATE_FAIL, payload: { error: error.message } })
       );
   };
 }

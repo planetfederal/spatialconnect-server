@@ -108,17 +108,11 @@ class FieldOptions extends Component {
 
   makeOptionInputs(field) {
     const options = fieldOptions.map((o, i) =>
-      this.makeOptionInput(field, o, field[o], i, this.props.updateFieldOption),
+      this.makeOptionInput(field, o, field[o], i, this.props.updateFieldOption)
     );
     if (field.constraints) {
       const constraints = fieldConstraints[field.type].map((o, i) =>
-        this.makeOptionInput(
-          field,
-          o,
-          field.constraints[o],
-          i,
-          this.props.updateFieldConstraint,
-        ),
+        this.makeOptionInput(field, o, field.constraints[o], i, this.props.updateFieldConstraint)
       );
       return options.concat(constraints);
     }
@@ -135,10 +129,7 @@ class FieldOptions extends Component {
           <div className="form-pane-title"><h5>Field Options</h5></div>
           <div className="form-pane-wrapper">
             {optionInputs}
-            <button
-              className="btn btn-danger"
-              onClick={() => this.removeField(field)}
-            >
+            <button className="btn btn-danger" onClick={() => this.removeField(field)}>
               Delete Field
             </button>
           </div>

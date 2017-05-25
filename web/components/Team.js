@@ -19,16 +19,10 @@ class Team extends Component {
           </Link>
         </h4>
         {this.belongs()
-          ? <a
-              onClick={() =>
-                this.props.teamActions.removeUserTeam(this.props.team.id)}
-            >
+          ? <a onClick={() => this.props.teamActions.removeUserTeam(this.props.team.id)}>
               Leave
             </a>
-          : <a
-              onClick={() =>
-                this.props.teamActions.addUserTeam(this.props.team.id)}
-            >
+          : <a onClick={() => this.props.teamActions.addUserTeam(this.props.team.id)}>
               Join
             </a>}
       </div>

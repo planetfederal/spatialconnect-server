@@ -17,11 +17,7 @@ class SignIn extends Component {
 
   login(e) {
     e.preventDefault();
-    this.props.actions.loginUser(
-      this.state.email,
-      this.state.password,
-      this.state.redirectTo,
-    );
+    this.props.actions.loginUser(this.state.email, this.state.password, this.state.redirectTo);
   }
 
   emailChange(event) {

@@ -113,7 +113,7 @@ export function loadDataStore(storeId) {
       .set('Authorization', `Token ${token}`)
       .then(
         res => dispatch(receiveStore(res.body.result)),
-        error => dispatch({ type: LOAD_FAIL, error }),
+        error => dispatch({ type: LOAD_FAIL, error })
       );
   };
 }
@@ -128,7 +128,7 @@ export function loadDataStores() {
       .set('Authorization', `Token ${token}`)
       .then(
         res => dispatch(receiveStores(res.body.result)),
-        error => dispatch({ type: LOAD_FAIL, error }),
+        error => dispatch({ type: LOAD_FAIL, error })
       );
   };
 }
@@ -174,7 +174,7 @@ export function updateDataStores(values) {
         .put(`${API_URL}stores/${value.id}`)
         .set('Authorization', `Token ${token}`)
         .send(value)
-        .promise(),
+        .promise()
     ).then(() => dispatch(loadDataStores()));
   };
 }
@@ -229,7 +229,7 @@ export function getWFSLayers(uri) {
         () => {
           dispatch(updateWFSLayerList([]));
           dispatch(addStoreError('default_layers', 'Could Not Find Layers'));
-        },
+        }
       );
   };
 }

@@ -142,7 +142,7 @@ describe('dataStores reducer', () => {
       reducer(initialState, {
         type: dataStores.LOAD_SUCCESS,
         stores: mockDataStores,
-      }),
+      })
     ).toEqual({
       loading: false,
       loaded: true,

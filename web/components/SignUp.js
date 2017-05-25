@@ -18,11 +18,7 @@ class SignUp extends Component {
 
   submit(e) {
     e.preventDefault();
-    this.props.actions.signUpUser(
-      this.state.name,
-      this.state.email,
-      this.state.password,
-    );
+    this.props.actions.signUpUser(this.state.name, this.state.email, this.state.password);
   }
 
   emailChange(event) {
