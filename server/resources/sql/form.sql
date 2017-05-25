@@ -109,3 +109,8 @@ WHERE form_id = :form_id GROUP BY updated_at ORDER BY updated_at DESC LIMIT 1;
 -- Gets the data submissions for a form
 SELECT * FROM spacon.form_data
 WHERE form_id = :form_id;
+
+-- name: get-form-data-all-query
+-- Gets the data submissions for a form for all versions
+SELECT * FROM spacon.form_data
+WHERE form_id IN (SELECT id FROM spacon.forms WHERE form_key = :form_key)

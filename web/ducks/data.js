@@ -90,7 +90,7 @@ export function getFormData(form) {
     const { sc } = getState();
     const token = sc.auth.token;
     return request
-      .get(`${API_URL}form/${form.id}/results`)
+      .get(`${API_URL}forms/${form.form_key}/results`)
       .set('Authorization', `Token ${token}`)
       .then(res => res.body.result)
       .then(data =>
@@ -112,7 +112,7 @@ export function loadFormDataAll() {
       forms.map(form => {
         dispatch(addFormId(form.id));
         return request
-          .get(`${API_URL}form/${form.id}/results`)
+          .get(`${API_URL}forms/${form.form_key}/results`)
           .set('Authorization', `Token ${token}`)
           .then(res => res.body.result)
           .then(data =>
