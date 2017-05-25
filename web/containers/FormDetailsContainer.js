@@ -80,58 +80,61 @@ class FormDetailsContainer extends Component {
   }
 
   render() {
-    const { form, activeForm, activeField, savedForm } = this.props;
-    if (!form) {
-      return <div className="form-details">Fetching Form...</div>;
+    const { form, loading, error, activeForm, activeField, savedForm } = this.props;
+    if (error) {
+      return <div className="form-loading">Form Not Found</div>;
     }
-    return (
-      <div className="form-details">
-        <Modal isOpen={this.state.modalIsOpen} className="sc-modal" overlayClassName="sc-overlay">
-          <h3>Errors</h3>
-          {this.state.validationErrors
-            ? this.state.validationErrors.map(e => <ErrorMessage key={uniqueId()} error={e} />)
-            : <div />}
-          <button className="btn btn-sc" onClick={this.closeModal}>
-            Dismiss
-          </button>
-        </Modal>
-        <FormInfoBar
-          form={form}
-          saved_form={savedForm}
-          updateActiveForm={this.props.actions.updateActiveForm}
-          saveForm={this.saveForm}
-          edited={this.state.edited}
-        />
-        <div className="form-builder">
-          <FormControls
+    if (form) {
+      return (
+        <div className="form-details">
+          <Modal isOpen={this.state.modalIsOpen} className="sc-modal" overlayClassName="sc-overlay">
+            <h3>Errors</h3>
+            {this.state.validationErrors
+              ? this.state.validationErrors.map(e => <ErrorMessage key={uniqueId()} error={e} />)
+              : <div />}
+            <button className="btn btn-sc" onClick={this.closeModal}>
+              Dismiss
+            </button>
+          </Modal>
+          <FormInfoBar
             form={form}
-            addField={options => this.props.actions.addField(options)}
-            updateForm={newForm => this.props.actions.updateForm(newForm)}
+            saved_form={savedForm}
+            updateActiveForm={this.props.actions.updateActiveForm}
+            saveForm={this.saveForm}
+            edited={this.state.edited}
           />
-          <FormPreview
-            form={form}
-            updateActiveField={this.props.actions.updateActiveField}
-            updateFormValue={this.props.actions.updateFormValue}
-            swapFieldOrder={this.props.actions.swapFieldOrder}
-          />
-          {activeForm !== false
-            ? <FormOptions
-                form={form}
-                updateFormName={this.props.actions.updateFormName}
-                deleteForm={this.props.actions.deleteForm}
-              />
-            : <FieldOptions
-                form={form}
-                activeField={activeField}
-                updateFieldOption={this.props.actions.updateFieldOption}
-                updateFieldConstraint={this.props.actions.updateFieldConstraint}
-                removeField={this.props.actions.removeField}
-                changeFieldName={this.props.actions.changeFieldName}
-                changeRequired={this.props.actions.changeRequired}
-              />}
+          <div className="form-builder">
+            <FormControls
+              form={form}
+              addField={options => this.props.actions.addField(options)}
+              updateForm={newForm => this.props.actions.updateForm(newForm)}
+            />
+            <FormPreview
+              form={form}
+              updateActiveField={this.props.actions.updateActiveField}
+              updateFormValue={this.props.actions.updateFormValue}
+              swapFieldOrder={this.props.actions.swapFieldOrder}
+            />
+            {activeForm !== false
+              ? <FormOptions
+                  form={form}
+                  updateFormName={this.props.actions.updateFormName}
+                  deleteForm={this.props.actions.deleteForm}
+                />
+              : <FieldOptions
+                  form={form}
+                  activeField={activeField}
+                  updateFieldOption={this.props.actions.updateFieldOption}
+                  updateFieldConstraint={this.props.actions.updateFieldConstraint}
+                  removeField={this.props.actions.removeField}
+                  changeFieldName={this.props.actions.changeFieldName}
+                  changeRequired={this.props.actions.changeRequired}
+                />}
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
+    return <div className="form-loading">Fetching Form...</div>;
   }
 }
 
@@ -149,6 +152,7 @@ const mapStateToProps = (state, ownProps) => ({
   loading: state.sc.forms.loading,
   forms: state.sc.forms.forms,
   form: state.sc.forms.forms[ownProps.params.form_key],
+  error: state.sc.forms.error,
   saved_forms: state.sc.forms.saved_forms,
   savedForm: state.sc.forms.saved_forms[ownProps.params.form_key],
   activeForm: state.sc.forms.activeForm,

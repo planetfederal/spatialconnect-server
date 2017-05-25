@@ -10,6 +10,7 @@ export const REMOVE_FORM_ID = 'sc/data/REMOVE_FORM_ID';
 export const LOAD_DEVICE_LOCATIONS = 'sc/data/LOAD_DEVICE_LOCATIONS';
 export const TOGGLE_DEVICE_LOCATIONS = 'sc/data/TOGGLE_DEVICE_LOCATIONS';
 export const TOGGLE_SPATIAL_TRIGGERS = 'sc/data/TOGGLE_SPATIAL_TRIGGERS';
+export const LOAD_FAIL = 'sc/data/LOAD_FAIL';
 
 const initialState = {
   formData: [],
@@ -141,11 +142,18 @@ export function loadDeviceLocations() {
       .get(`${API_URL}locations`)
       .set('Authorization', `Token ${token}`)
       .then(res => res.body.result)
-      .then(data => {
-        dispatch({
-          type: LOAD_DEVICE_LOCATIONS,
-          payload: { device_locations: data.features },
-        });
-      });
+      .then(
+        data => {
+          dispatch({
+            type: LOAD_DEVICE_LOCATIONS,
+            payload: { device_locations: data.features },
+          });
+        },
+        error => {
+          dispatch({
+            type: LOAD_FAIL,
+          });
+        }
+      );
   };
 }

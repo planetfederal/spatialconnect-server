@@ -1,6 +1,6 @@
 {
   "name": "spatialconnect-server-dashboard",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "Dashboard for SpatialConnect",
   "scripts": {
     "test": "./node_modules/.bin/karma start",
@@ -50,6 +50,7 @@
     "react-dnd-html5-backend": "^2.1.2",
     "react-dom": "^0.14.7",
     "react-dropzone": "3.7.3",
+    "react-ionicons": "1.5.7",
     "react-modal": "1.4.0",
     "react-redux": "^4.4.5",
     "react-router": "^2.4.0",

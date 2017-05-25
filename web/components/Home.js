@@ -6,7 +6,7 @@ import PropertyListItem from './PropertyListItem';
 const Home = ({ teams, stores, forms, device_locations, userTeams }) => (
   <div className="wrapper">
     <section className="main">
-      <p>Welcome to the spatialconnect dashboard.</p>
+      <p>Welcome to the Expedited Field Capability dashboard.</p>
       {userTeams.length === 0 &&
         <div className="alert alert-warning" role="alert">
           <p>You do not belong to any teams.</p>
