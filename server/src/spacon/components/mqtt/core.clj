@@ -30,10 +30,11 @@
   "Map of keys and values from VCAP_SERVICES mqtt environment variable"
   (or (some-> (System/getenv "VCAP_SERVICES")
               (json/read-str :key-fn clojure.core/keyword) :p-rabbitmq first :credentials :protocols :mqtt)
-              {:username
-               :password
-               :host
-               :port}))
+                {:username :username
+                 :password :password
+                 :host :host
+                 :port :port
+                 :ssl :ssl}))
 
 (def mqtt-connect-ops
   "Map of authentication keys and values for mqtt connect options"
@@ -43,7 +44,7 @@
 (def vcap_tcp
   "When vcap_mqtt exists it returns a formated tcp connection"
   (when (some? vcap_mqtt)
-        (format "%s://%s:%s" "tcp" (:host vcap_mqtt) (:port vcap_mqtt))))
+        (format "%s://%s:%s" (if (:ssl vcap_mqtt) "ssl" "tcp") (:host vcap_mqtt) (:port vcap_mqtt))))
 
 (def client-id (or (System/getenv "MQTT_CLIENT_ID")
                    (subs (str "sc-" (InetAddress/getLocalHost)) 0 22 )))
