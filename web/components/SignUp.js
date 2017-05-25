@@ -2,7 +2,6 @@ import React, { Component, PropTypes } from 'react';
 import { Link } from 'react-router';
 
 class SignUp extends Component {
-
   constructor(props) {
     super(props);
     this.state = {
@@ -19,7 +18,11 @@ class SignUp extends Component {
 
   submit(e) {
     e.preventDefault();
-    this.props.actions.signUpUser(this.state.name, this.state.email, this.state.password);
+    this.props.actions.signUpUser(
+      this.state.name,
+      this.state.email,
+      this.state.password,
+    );
   }
 
   emailChange(event) {
@@ -35,9 +38,7 @@ class SignUp extends Component {
   }
 
   renderErrorView() {
-    return (
-      <p>Error: {this.props.signUpError}</p>
-    );
+    return <p>Error: {this.props.signUpError}</p>;
   }
 
   render() {
@@ -45,57 +46,63 @@ class SignUp extends Component {
       <section className="main">
         <div className="side-form">
           {!!this.props.signUpError &&
-            <div className="alert alert-danger">{ this.renderErrorView() }</div>
-          }
-          {this.props.signUpSuccess ?
-            <div className="alert alert-info">
-              <p>Sign up successful. <Link to="/login">Sign in</Link> with your new account.</p>
-            </div> :
-            <form role="form">
-              <div className="form-group">
-                <label htmlFor="name">Name</label>
-                <input
-                  type="text"
-                  id="name"
-                  className="form-control"
-                  value={this.state.name}
-                  onChange={this.nameChange}
-                  disabled={this.props.isSigningUp}
-                  placeholder="Name"
-                />
+            <div className="alert alert-danger">{this.renderErrorView()}</div>}
+          {this.props.signUpSuccess
+            ? <div className="alert alert-info">
+                <p>
+                  Sign up successful.
+                  {' '}
+                  <Link to="/login">Sign in</Link>
+                  {' '}
+                  with your new account.
+                </p>
               </div>
-              <div className="form-group">
-                <label htmlFor="email">Email</label>
-                <input
-                  type="email"
-                  id="email"
-                  className="form-control"
-                  value={this.state.email}
-                  onChange={this.emailChange}
+            : <form role="form">
+                <div className="form-group">
+                  <label htmlFor="name">Name</label>
+                  <input
+                    type="text"
+                    id="name"
+                    className="form-control"
+                    value={this.state.name}
+                    onChange={this.nameChange}
+                    disabled={this.props.isSigningUp}
+                    placeholder="Name"
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="email">Email</label>
+                  <input
+                    type="email"
+                    id="email"
+                    className="form-control"
+                    value={this.state.email}
+                    onChange={this.emailChange}
+                    disabled={this.props.isSigningUp}
+                    placeholder="Email"
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="password">Password</label>
+                  <input
+                    type="password"
+                    id="password"
+                    className="form-control"
+                    value={this.state.password}
+                    onChange={this.passwordChange}
+                    disabled={this.props.isSigningUp}
+                    placeholder="Password"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="btn btn-sc"
                   disabled={this.props.isSigningUp}
-                  placeholder="Email"
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="password">Password</label>
-                <input
-                  type="password"
-                  id="password"
-                  className="form-control"
-                  value={this.state.password}
-                  onChange={this.passwordChange}
-                  disabled={this.props.isSigningUp}
-                  placeholder="Password"
-                />
-              </div>
-              <button
-                type="submit"
-                className="btn btn-sc"
-                disabled={this.props.isSigningUp}
-                onClick={this.submit}
-              >Sign Up</button>
-            </form>
-          }
+                  onClick={this.submit}
+                >
+                  Sign Up
+                </button>
+              </form>}
         </div>
       </section>
     );

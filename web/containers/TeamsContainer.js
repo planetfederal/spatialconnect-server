@@ -6,7 +6,6 @@ import TeamForm from '../components/TeamForm';
 import * as teamActions from '../ducks/teams';
 
 class TeamsContainer extends Component {
-
   componentDidMount() {
     this.props.teamActions.loadTeams();
   }
@@ -24,18 +23,21 @@ class TeamsContainer extends Component {
     return (
       <div className="wrapper">
         <section className="main">
-          {(this.props.addingTeam || this.props.addTeamError) ?
-            <TeamForm
-              teams={this.props.teams}
-              cancel={this.props.teamActions.addTeamToggle}
-              create={this.props.teamActions.createTeam}
-              addTeamError={this.props.addTeamError}
-            /> :
-            <div className="btn-toolbar">
-              <button className="btn btn-sc" onClick={this.props.teamActions.addTeamToggle}>
-                Create Team
-              </button>
-            </div>}
+          {this.props.addingTeam || this.props.addTeamError
+            ? <TeamForm
+                teams={this.props.teams}
+                cancel={this.props.teamActions.addTeamToggle}
+                create={this.props.teamActions.createTeam}
+                addTeamError={this.props.addTeamError}
+              />
+            : <div className="btn-toolbar">
+                <button
+                  className="btn btn-sc"
+                  onClick={this.props.teamActions.addTeamToggle}
+                >
+                  Create Team
+                </button>
+              </div>}
           <TeamList
             teams={this.props.teams}
             userTeams={this.props.auth.user.teams}
@@ -53,9 +55,7 @@ TeamsContainer.propTypes = {
   auth: PropTypes.object.isRequired,
   teams: PropTypes.array.isRequired,
   addingTeam: PropTypes.bool.isRequired,
-  addTeamError: PropTypes.oneOfType([
-    PropTypes.bool, PropTypes.string,
-  ]),
+  addTeamError: PropTypes.oneOfType([PropTypes.bool, PropTypes.string]),
 };
 
 const mapStateToProps = state => ({

@@ -24,7 +24,6 @@ export const validate = (form, forms) => {
 };
 
 export class FormCreate extends Component {
-
   constructor(props) {
     super(props);
     this.state = {
@@ -70,28 +69,37 @@ export class FormCreate extends Component {
         <div className="form-group">
           <label htmlFor="form-name">Form Name:</label>
           <input
-            id="form-name" type="text" className="form-control"
+            id="form-name"
+            type="text"
+            className="form-control"
             value={this.state.form_label}
             onChange={this.onFormLabelChange}
           />
-          {this.state.errors.form_label ?
-            <p className="text-danger">{this.state.errors.form_label}</p> : ''}
+          {this.state.errors.form_label
+            ? <p className="text-danger">{this.state.errors.form_label}</p>
+            : ''}
         </div>
         <div className="form-group">
           <label htmlFor="form-key">Form Key:</label>
           <input
-            id="form-key" type="text" className="form-control"
+            id="form-key"
+            type="text"
+            className="form-control"
             value={this.state.form_key}
             onChange={this.onFormKeyChange}
           />
-          {this.state.errors.form_key ?
-            <p className="text-danger">{this.state.errors.form_key}</p> : ''}
+          {this.state.errors.form_key
+            ? <p className="text-danger">{this.state.errors.form_key}</p>
+            : ''}
         </div>
-        {(this.props.addFormError && !Object.keys(this.state.errors).length) ?
-          <p className="text-danger">{this.props.addFormError}</p> : ''}
+        {this.props.addFormError && !Object.keys(this.state.errors).length
+          ? <p className="text-danger">{this.props.addFormError}</p>
+          : ''}
         <div className="btn-toolbar">
           <button className="btn btn-sc" onClick={this.save}>Create</button>
-          <button className="btn btn-default" onClick={this.props.cancel}>Cancel</button>
+          <button className="btn btn-default" onClick={this.props.cancel}>
+            Cancel
+          </button>
         </div>
       </div>
     );

@@ -2,7 +2,9 @@ import React, { Component, PropTypes } from 'react';
 import '../style/FormDetails.less';
 
 const AddFieldControl = ({ text, onClick, options }) => (
-  <button className="btn btn-sc" onClick={() => onClick(options)}>{text}</button>
+  <button className="btn btn-sc" onClick={() => onClick(options)}>
+    {text}
+  </button>
 );
 
 AddFieldControl.propTypes = {
@@ -11,16 +13,16 @@ AddFieldControl.propTypes = {
   options: PropTypes.object.isRequired,
 };
 
-const fieldDefaults = (fieldType) => {
+const fieldDefaults = fieldType => {
   const fieldConstraints = {
     string: { pattern: '' },
     number: { integer: false },
-    boolean: { },
-    date: { },
+    boolean: {},
+    date: {},
     slider: { minimum: '0', maximum: '100', initial_value: '0' },
     counter: { minimum: '0', maximum: '100', initial_value: '0' },
     select: { options: [] },
-    photo: { },
+    photo: {},
   };
   return {
     type: fieldType,
@@ -30,7 +32,6 @@ const fieldDefaults = (fieldType) => {
 };
 
 class FormControls extends Component {
-
   constructor(props) {
     super(props);
     this.addField = this.addField.bind(this);

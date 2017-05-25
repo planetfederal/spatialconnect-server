@@ -58,7 +58,8 @@ export default function reducer(state = initialState, action = {}) {
         addingTeam: !state.addingTeam,
         addTeamError: false,
       };
-    default: return state;
+    default:
+      return state;
   }
 }
 
@@ -77,7 +78,8 @@ export function loadTeams() {
       .get(`${API_URL}teams`)
       .set('Authorization', `Token ${token}`)
       .then(
-        res => dispatch({ type: LOAD_TEAMS, payload: { teams: res.body.result } }),
+        res =>
+          dispatch({ type: LOAD_TEAMS, payload: { teams: res.body.result } }),
         error => dispatch({ type: LOAD_FAIL, error }),
       );
   };
@@ -92,7 +94,8 @@ export function loadTeam(id) {
       .get(`${API_URL}teams/${id}`)
       .set('Authorization', `Token ${token}`)
       .then(
-        res => dispatch({ type: LOAD_TEAM, payload: { team: res.body.result } }),
+        res =>
+          dispatch({ type: LOAD_TEAM, payload: { team: res.body.result } }),
         error => dispatch({ type: LOAD_FAIL, error }),
       );
   };
@@ -115,7 +118,8 @@ export function createTeam(team) {
           dispatch(loadTeams());
           dispatch(addTeamToggle());
         },
-        error => dispatch({ type: CREATE_FAIL, payload: { error: error.message } }),
+        error =>
+          dispatch({ type: CREATE_FAIL, payload: { error: error.message } }),
       );
   };
 }
@@ -130,11 +134,10 @@ export function addUserTeam(teamId) {
       .post(`${API_URL}user-team`)
       .set('Authorization', `Token ${token}`)
       .send({ userId, teamId })
-      .then(
-        () => {
-          dispatch(authActions.joinTeam(team));
-          return dispatch(loadTeams());
-        });
+      .then(() => {
+        dispatch(authActions.joinTeam(team));
+        return dispatch(loadTeams());
+      });
   };
 }
 
@@ -148,11 +151,10 @@ export function removeUserTeam(teamId) {
       .delete(`${API_URL}user-team`)
       .set('Authorization', `Token ${token}`)
       .send({ userId, teamId })
-      .then(
-        () => {
-          dispatch(authActions.leaveTeam(team));
-          return dispatch(loadTeams());
-        });
+      .then(() => {
+        dispatch(authActions.leaveTeam(team));
+        return dispatch(loadTeams());
+      });
   };
 }
 
@@ -163,10 +165,9 @@ export function deleteTeam(teamId) {
     return request
       .delete(`${API_URL}teams/${teamId}`)
       .set('Authorization', `Token ${token}`)
-      .then(
-        () => {
-          dispatch(loadTeams());
-          return dispatch(push('/teams'));
-        });
+      .then(() => {
+        dispatch(loadTeams());
+        return dispatch(push('/teams'));
+      });
   };
 }

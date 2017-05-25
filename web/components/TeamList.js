@@ -5,7 +5,12 @@ const TeamList = ({ teams, userTeams, teamActions }) => (
   <div>
     <div className="form-list">
       {teams.map(team => (
-        <Team key={team.id} team={team} userTeams={userTeams} teamActions={teamActions} />
+        <Team
+          key={team.id}
+          team={team}
+          userTeams={userTeams}
+          teamActions={teamActions}
+        />
       ))}
     </div>
   </div>

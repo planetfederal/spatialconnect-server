@@ -13,7 +13,6 @@ transform.registerType('date', t.Date);
 transform.registerType('time', t.Date);
 
 class FormPreview extends Component {
-
   static onSubmit(e) {
     e.preventDefault();
   }
@@ -34,7 +33,10 @@ class FormPreview extends Component {
   }
 
   template(locals) {
-    const inputs = sortBy(this.props.form.fields, 'position').map((field, idx) => (
+    const inputs = sortBy(
+      this.props.form.fields,
+      'position',
+    ).map((field, idx) => (
       <Field
         field={field}
         updateActiveField={this.props.updateActiveField}
@@ -46,7 +48,7 @@ class FormPreview extends Component {
         id={field.id}
         index={idx}
       />
-      ));
+    ));
     return (
       <fieldset>
         {inputs}

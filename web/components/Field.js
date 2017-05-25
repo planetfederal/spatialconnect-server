@@ -77,17 +77,28 @@ function collectTarget(connect) {
 }
 
 class Field extends Component {
-
   render() {
-    const { field, form, id, input, connectDragSource, connectDropTarget } = this.props;
-    return connectDragSource(connectDropTarget(
-      <div
-        className={classNames('field-wrap', { active: id === form.activeField })}
-        onClick={() => this.props.updateActiveField(form.form_key, field.field_key)}
-      >
-        {input}
-      </div>,
-    ));
+    const {
+      field,
+      form,
+      id,
+      input,
+      connectDragSource,
+      connectDropTarget,
+    } = this.props;
+    return connectDragSource(
+      connectDropTarget(
+        <div
+          className={classNames('field-wrap', {
+            active: id === form.activeField,
+          })}
+          onClick={() =>
+            this.props.updateActiveField(form.form_key, field.field_key)}
+        >
+          {input}
+        </div>,
+      ),
+    );
   }
 }
 
@@ -100,7 +111,6 @@ Field.propTypes = {
   form: PropTypes.object.isRequired,
   id: PropTypes.number.isRequired,
 };
-
 
 export default flow(
   DragSource(ItemTypes.FIELD, fieldSource, collectSource),

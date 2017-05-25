@@ -12,15 +12,20 @@ const FormItem = ({ form }) => (
     <div className="properties">
       <PropertyListItem name={'Version'} value={form.version} />
       <PropertyListItem name={'Team'} value={form.team_name} />
-      {form.metadata ?
-        <div>
-          <PropertyListItem name={'Number of Records'} value={form.metadata.count} />
-          {form.metadata.lastActivity ?
+      {form.metadata
+        ? <div>
             <PropertyListItem
-              name={'Last Activity'} value={format(form.metadata.lastActivity, DATE_FORMAT)}
+              name={'Number of Records'}
+              value={form.metadata.count}
             />
+            {form.metadata.lastActivity
+              ? <PropertyListItem
+                  name={'Last Activity'}
+                  value={format(form.metadata.lastActivity, DATE_FORMAT)}
+                />
+              : null}
+          </div>
         : null}
-        </div> : null }
     </div>
   </div>
 );
@@ -31,7 +36,7 @@ FormItem.propTypes = {
 
 const FormsList = ({ forms, selectedTeamId }) => (
   <div className="form-list">
-    {Object.keys(forms).map((key) => {
+    {Object.keys(forms).map(key => {
       const form = forms[key];
       if (selectedTeamId === form.team_id) {
         return <FormItem form={form} key={form.id} />;

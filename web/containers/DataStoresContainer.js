@@ -8,7 +8,6 @@ import DataStoresList from '../components/DataStoresList';
 import { DataStoreForm } from '../components/DataStoreForm';
 
 class DataStoresContainer extends Component {
-
   constructor(props) {
     super(props);
     this.state = {
@@ -38,18 +37,20 @@ class DataStoresContainer extends Component {
   }
 
   renderStoreForm() {
-    return this.state.addingNewDataStore ?
-      <DataStoreForm
-        onSubmit={this.submitNewDataStore}
-        cancel={this.addNewDataStoreCancel}
-        actions={this.props.actions}
-        errors={this.props.storeErrors}
-        layerList={this.props.layerList}
-        store={emptyStore}
-      /> :
-      <div className="btn-toolbar">
-        <button className="btn btn-sc" onClick={this.addNewDataStore}>Create Store</button>
-      </div>;
+    return this.state.addingNewDataStore
+      ? <DataStoreForm
+          onSubmit={this.submitNewDataStore}
+          cancel={this.addNewDataStoreCancel}
+          actions={this.props.actions}
+          errors={this.props.storeErrors}
+          layerList={this.props.layerList}
+          store={emptyStore}
+        />
+      : <div className="btn-toolbar">
+          <button className="btn btn-sc" onClick={this.addNewDataStore}>
+            Create Store
+          </button>
+        </div>;
   }
 
   render() {
@@ -66,10 +67,17 @@ class DataStoresContainer extends Component {
     return (
       <div className="wrapper">
         <section className="main">
-          {selectedTeamId ? <div>
-            {loading ? <p>Fetching Data Stores...</p> : this.renderStoreForm() }
-            <DataStoresList dataStores={stores} selectedTeamId={selectedTeamId} />
-          </div> : <p><Link to="/teams">Join</Link> a team to view Stores.</p>}
+          {selectedTeamId
+            ? <div>
+                {loading
+                  ? <p>Fetching Data Stores...</p>
+                  : this.renderStoreForm()}
+                <DataStoresList
+                  dataStores={stores}
+                  selectedTeamId={selectedTeamId}
+                />
+              </div>
+            : <p><Link to="/teams">Join</Link> a team to view Stores.</p>}
         </section>
       </div>
     );
@@ -98,5 +106,7 @@ const mapDispatchToProps = dispatch => ({
   actions: bindActionCreators(dataStoresActions, dispatch),
 });
 
-  // connect this "smart" container component to the redux store
-export default connect(mapStateToProps, mapDispatchToProps)(DataStoresContainer);
+// connect this "smart" container component to the redux store
+export default connect(mapStateToProps, mapDispatchToProps)(
+  DataStoresContainer,
+);

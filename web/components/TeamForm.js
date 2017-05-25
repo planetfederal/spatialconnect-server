@@ -15,7 +15,6 @@ const validate = (team, teams) => {
 };
 
 class TeamForm extends Component {
-
   constructor(props) {
     super(props);
     this.state = {
@@ -48,18 +47,24 @@ class TeamForm extends Component {
         <div className="form-group">
           <label htmlFor="form-name">Team Name:</label>
           <input
-            id="team-name" type="text" className="form-control"
+            id="team-name"
+            type="text"
+            className="form-control"
             value={this.state.teamName}
             onChange={this.onNameChange}
           />
-          {this.state.errors.teamName ?
-            <p className="text-danger">{this.state.errors.teamName}</p> : ''}
+          {this.state.errors.teamName
+            ? <p className="text-danger">{this.state.errors.teamName}</p>
+            : ''}
         </div>
-        {(this.props.addTeamError && !Object.keys(this.state.errors).length) ?
-          <p className="text-danger">{this.props.addTeamError}</p> : ''}
+        {this.props.addTeamError && !Object.keys(this.state.errors).length
+          ? <p className="text-danger">{this.props.addTeamError}</p>
+          : ''}
         <div className="btn-toolbar">
           <button className="btn btn-sc" onClick={this.save}>Create</button>
-          <button className="btn btn-default" onClick={this.props.cancel}>Cancel</button>
+          <button className="btn btn-default" onClick={this.props.cancel}>
+            Cancel
+          </button>
         </div>
       </div>
     );
@@ -70,10 +75,7 @@ TeamForm.propTypes = {
   create: PropTypes.func.isRequired,
   cancel: PropTypes.func.isRequired,
   teams: PropTypes.array.isRequired,
-  addTeamError: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.bool,
-  ]),
+  addTeamError: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
 };
 
 export default TeamForm;

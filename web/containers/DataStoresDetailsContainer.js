@@ -7,7 +7,6 @@ import { DataStoreForm } from '../components/DataStoreForm';
 import * as storeActions from '../ducks/dataStores';
 
 class DataStoresDetailsContainer extends Component {
-
   constructor(props) {
     super(props);
     this.state = {
@@ -44,7 +43,14 @@ class DataStoresDetailsContainer extends Component {
   }
 
   render() {
-    const { store, loading, loaded, error, storeErrors, layerList } = this.props;
+    const {
+      store,
+      loading,
+      loaded,
+      error,
+      storeErrors,
+      layerList,
+    } = this.props;
     let el = <div />;
     if (loading) {
       el = <p>Fetching Store...</p>;
@@ -55,20 +61,24 @@ class DataStoresDetailsContainer extends Component {
       if (loaded && store) {
         this.title = store.name;
         if (this.state.editingDataStore) {
-          el = (<DataStoreForm
-            store={store}
-            errors={storeErrors}
-            layerList={layerList}
-            actions={this.props.actions}
-            onSubmit={this.updateStore}
-            cancel={this.editStoreCancel}
-          />);
+          el = (
+            <DataStoreForm
+              store={store}
+              errors={storeErrors}
+              layerList={layerList}
+              actions={this.props.actions}
+              onSubmit={this.updateStore}
+              cancel={this.editStoreCancel}
+            />
+          );
         } else {
-          el = (<DataStoreDetails
-            store={store}
-            editStore={this.editStore}
-            deleteStore={this.deleteStore}
-          />);
+          el = (
+            <DataStoreDetails
+              store={store}
+              editStore={this.editStore}
+              deleteStore={this.deleteStore}
+            />
+          );
         }
       }
     }
@@ -107,5 +117,7 @@ const mapDispatchToProps = dispatch => ({
   actions: bindActionCreators(storeActions, dispatch),
 });
 
-  // connect this "smart" container component to the redux store
-export default connect(mapStateToProps, mapDispatchToProps)(DataStoresDetailsContainer);
+// connect this "smart" container component to the redux store
+export default connect(mapStateToProps, mapDispatchToProps)(
+  DataStoresDetailsContainer,
+);

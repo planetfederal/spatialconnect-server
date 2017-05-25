@@ -17,13 +17,14 @@ const TeamDetailsContainer = props => (
         <div className="btn-toolbar">
           <button
             className="btn btn-danger"
-            onClick={() => { props.teamActions.deleteTeam(props.team.id); }}
+            onClick={() => {
+              props.teamActions.deleteTeam(props.team.id);
+            }}
           >
             Delete Team
           </button>
         </div>
-      </div>
-    }
+      </div>}
   </div>
 );
 
@@ -45,4 +46,6 @@ const mapDispatchToProps = dispatch => ({
   teamActions: bindActionCreators(teamActions, dispatch),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(TeamDetailsContainer);
+export default connect(mapStateToProps, mapDispatchToProps)(
+  TeamDetailsContainer,
+);

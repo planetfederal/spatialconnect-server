@@ -2,14 +2,15 @@ import React, { Component, PropTypes } from 'react';
 import classNames from 'classnames';
 import values from 'lodash/values';
 
-const FormListItem = ({ active, onClick, title, count }) =>
+const FormListItem = ({ active, onClick, title, count }) => (
   <div
     className={classNames('data-form-list-item', { active })}
     onClick={onClick}
   >
     <input type="checkbox" checked={active} />
     <h4>{title}</h4><div className="count">({count})</div>
-  </div>;
+  </div>
+);
 
 FormListItem.propTypes = {
   active: PropTypes.bool.isRequired,
@@ -19,7 +20,6 @@ FormListItem.propTypes = {
 };
 
 export class FormList extends Component {
-
   constructor(props) {
     super(props);
 
@@ -43,16 +43,22 @@ export class FormList extends Component {
     return (
       <div className="data-form-list">
 
-        {values(this.props.forms)
-          .map((f) => {
-            const count = this.props.formData.filter(fd => fd.form_id === f.id).length;
-            const active = this.props.form_ids.indexOf(f.id) >= 0;
-            return (<FormListItem
-              key={f.id} active={active} title={f.form_label} count={count}
-              onClick={() => { this.toggleForm(f); }}
-            />);
-          })
-        }
+        {values(this.props.forms).map(f => {
+          const count = this.props.formData.filter(fd => fd.form_id === f.id)
+            .length;
+          const active = this.props.form_ids.indexOf(f.id) >= 0;
+          return (
+            <FormListItem
+              key={f.id}
+              active={active}
+              title={f.form_label}
+              count={count}
+              onClick={() => {
+                this.toggleForm(f);
+              }}
+            />
+          );
+        })}
         <FormListItem
           key={'device_locations'}
           active={this.props.deviceLocationsOn}

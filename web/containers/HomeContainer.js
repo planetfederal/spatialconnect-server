@@ -15,9 +15,7 @@ class HomeContainer extends Component {
     this.props.teamActions.loadTeams();
   }
   render() {
-    return (
-      <Home {...this.props} />
-    );
+    return <Home {...this.props} />;
   }
 }
 

@@ -15,8 +15,11 @@ import FieldOptions from '../components/FieldOptions';
 
 const ErrorMessage = ({ error }) => (
   <p>
-    {error.property.split('.').length ?
-    last(error.property.split('.')) : error.property} {error.message}
+    {error.property.split('.').length
+      ? last(error.property.split('.'))
+      : error.property}
+    {' '}
+    {error.message}
   </p>
 );
 
@@ -25,7 +28,6 @@ ErrorMessage.propTypes = {
 };
 
 class FormDetailsContainer extends Component {
-
   static checkEditStatus(props) {
     let edited = false;
     if (props.savedForm && props.form) {
@@ -92,10 +94,14 @@ class FormDetailsContainer extends Component {
           overlayClassName="sc-overlay"
         >
           <h3>Errors</h3>
-          {this.state.validationErrors ? this.state.validationErrors.map(e =>
-            <ErrorMessage key={uniqueId()} error={e} />) : <div />
-          }
-          <button className="btn btn-sc" onClick={this.closeModal}>Dismiss</button>
+          {this.state.validationErrors
+            ? this.state.validationErrors.map(e => (
+                <ErrorMessage key={uniqueId()} error={e} />
+              ))
+            : <div />}
+          <button className="btn btn-sc" onClick={this.closeModal}>
+            Dismiss
+          </button>
         </Modal>
         <FormInfoBar
           form={form}
@@ -116,22 +122,21 @@ class FormDetailsContainer extends Component {
             updateFormValue={this.props.actions.updateFormValue}
             swapFieldOrder={this.props.actions.swapFieldOrder}
           />
-          {activeForm !== false ?
-            <FormOptions
-              form={form}
-              updateFormName={this.props.actions.updateFormName}
-              deleteForm={this.props.actions.deleteForm}
-            /> :
-            <FieldOptions
-              form={form}
-              activeField={activeField}
-              updateFieldOption={this.props.actions.updateFieldOption}
-              updateFieldConstraint={this.props.actions.updateFieldConstraint}
-              removeField={this.props.actions.removeField}
-              changeFieldName={this.props.actions.changeFieldName}
-              changeRequired={this.props.actions.changeRequired}
-            />
-          }
+          {activeForm !== false
+            ? <FormOptions
+                form={form}
+                updateFormName={this.props.actions.updateFormName}
+                deleteForm={this.props.actions.deleteForm}
+              />
+            : <FieldOptions
+                form={form}
+                activeField={activeField}
+                updateFieldOption={this.props.actions.updateFieldOption}
+                updateFieldConstraint={this.props.actions.updateFieldConstraint}
+                removeField={this.props.actions.removeField}
+                changeFieldName={this.props.actions.changeFieldName}
+                changeRequired={this.props.actions.changeRequired}
+              />}
         </div>
       </div>
     );
@@ -162,5 +167,7 @@ const mapDispatchToProps = dispatch => ({
   actions: bindActionCreators(formActions, dispatch),
 });
 
-  // connect this "smart" container component to the redux store
-export default connect(mapStateToProps, mapDispatchToProps)(FormDetailsContainer);
+// connect this "smart" container component to the redux store
+export default connect(mapStateToProps, mapDispatchToProps)(
+  FormDetailsContainer,
+);

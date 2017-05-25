@@ -28,67 +28,85 @@ describe('dataStores async action creators', () => {
   before(() => {
     this.server = sinon.fakeServer.create();
     this.server.autoRespond = true;
-    this.server.respondWith('GET', `${API_URL}stores`,
-      [200, { 'Content-Type': 'application/json' }, JSON.stringify(mockDataStores)],
-    );
-    this.server.respondWith('POST', `${API_URL}stores`,
-      [200, { 'Content-Type': 'application/json' }, JSON.stringify([mockDataStores[0]])],
-    );
-    this.server.respondWith('PUT', `${API_URL}stores/1`,
-      [200, { 'Content-Type': 'application/json' }, JSON.stringify([mockDataStores[0]])],
-    );
+    this.server.respondWith('GET', `${API_URL}stores`, [
+      200,
+      { 'Content-Type': 'application/json' },
+      JSON.stringify(mockDataStores),
+    ]);
+    this.server.respondWith('POST', `${API_URL}stores`, [
+      200,
+      { 'Content-Type': 'application/json' },
+      JSON.stringify([mockDataStores[0]]),
+    ]);
+    this.server.respondWith('PUT', `${API_URL}stores/1`, [
+      200,
+      { 'Content-Type': 'application/json' },
+      JSON.stringify([mockDataStores[0]]),
+    ]);
   });
 
   after(() => {
     this.server.restore();
   });
 
-  it('should emit a LOAD_SUCCESS after stores are fetch successfully', (done) => {
+  it('should emit a LOAD_SUCCESS after stores are fetch successfully', done => {
     const expectedActions = [
       { type: dataStores.LOAD },
       { type: dataStores.LOAD_SUCCESS, stores: mockDataStores },
     ];
     const store = mockStore({ stores: mockDataStores });
-    store.dispatch(dataStores.loadDataStores())
+    store
+      .dispatch(dataStores.loadDataStores())
       .then(() => {
         expect(store.getActions()).toEqual(expectedActions);
-      }).then(done).catch(done);
+      })
+      .then(done)
+      .catch(done);
   });
 
-  it('should emit a LOAD_SUCCESS after a new store is added', (done) => {
+  it('should emit a LOAD_SUCCESS after a new store is added', done => {
     const expectedActions = [
       { type: dataStores.LOAD },
       { type: dataStores.LOAD_SUCCESS, stores: [mockDataStores[0]] },
     ];
     const store = mockStore({ stores: [] });
-    store.dispatch(dataStores.submitNewDataStore(mockDataStores[0]))
+    store
+      .dispatch(dataStores.submitNewDataStore(mockDataStores[0]))
       .then(() => {
         expect(store.getActions()).toEqual(expectedActions);
-      }).then(done).catch(done);
+      })
+      .then(done)
+      .catch(done);
   });
 
-  it('should emit a LOAD_SUCCESS after a store is updated', (done) => {
+  it('should emit a LOAD_SUCCESS after a store is updated', done => {
     const expectedActions = [
       { type: dataStores.LOAD },
       { type: dataStores.LOAD_SUCCESS, stores: [mockDataStores[0]] },
     ];
     const store = mockStore({ stores: [] });
-    store.dispatch(dataStores.updateDataStore(1, mockDataStores[0]))
+    store
+      .dispatch(dataStores.updateDataStore(1, mockDataStores[0]))
       .then(() => {
         expect(store.getActions()).toEqual(expectedActions);
-      }).then(done).catch(done);
+      })
+      .then(done)
+      .catch(done);
   });
 
-  it('should emit a LOAD_SUCCESS after multiple stores are updated', (done) => {
+  it('should emit a LOAD_SUCCESS after multiple stores are updated', done => {
     const expectedActions = [
       { type: dataStores.LOAD },
       { type: dataStores.LOAD_SUCCESS, stores: mockDataStores },
     ];
     const store = mockStore({ stores: [] });
-    store.dispatch(dataStores.updateDataStores(mockDataStores))
+    store
+      .dispatch(dataStores.updateDataStores(mockDataStores))
       .then(() => {
         expect(store.getActions()).toEqual(expectedActions);
-      }).then(done).catch(done);
+      })
+      .then(done)
+      .catch(done);
   });
 });
 

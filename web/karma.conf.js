@@ -2,30 +2,26 @@
 var webpack = require('webpack');
 var path = require('path');
 
-module.exports = function (config) {
+module.exports = function(config) {
   config.set({
     browsers: ['PhantomJS'],
     singleRun: true,
     frameworks: ['mocha'],
-    files: [
-      'test/test_index.js'
-    ],
+    files: ['test/test_index.js'],
     preprocessors: {
-      'test/test_index.js': ['webpack']
+      'test/test_index.js': ['webpack'],
     },
     reporters: ['mocha'],
     webpackServer: {
-      noInfo: true
+      noInfo: true,
     },
     webpack: {
       plugins: [
         new webpack.IgnorePlugin(/react\/lib\/ReactContext/),
-        new webpack.IgnorePlugin(/react\/lib\/ExecutionEnvironment/)
+        new webpack.IgnorePlugin(/react\/lib\/ExecutionEnvironment/),
       ],
       module: {
-        noParse: [
-           /\/sinon\.js/,
-        ],
+        noParse: [/\/sinon\.js/],
         loaders: [
           {
             test: /\.js$/,
@@ -33,20 +29,20 @@ module.exports = function (config) {
             include: __dirname,
             loader: 'babel',
           },
-          { test: /\.json$/, loader: "json" },
+          { test: /\.json$/, loader: 'json' },
           {
             test: /\.less$/,
-            loader: "style-loader!css-loader!less-loader"
-          }
-        ]
+            loader: 'style-loader!css-loader!less-loader',
+          },
+        ],
       },
       resolve: {
         alias: {
           config: path.join(__dirname, 'config', 'test'),
-          sinon: 'sinon/pkg/sinon.js'
-        }
+          sinon: 'sinon/pkg/sinon.js',
+        },
       },
-      watch: true
-    }
+      watch: true,
+    },
   });
 };

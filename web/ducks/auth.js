@@ -10,7 +10,8 @@ export const SIGNUP_USER_REQUEST = 'sc/auth/SIGNUP_USER_REQUEST';
 export const SIGNUP_USER_FAILURE = 'sc/auth/SIGNUP_USER_FAILURE';
 export const SIGNUP_USER_SUCCESS = 'sc/auth/SIGNUP_USER_SUCCESS';
 export const LOGOUT_USER = 'sc/auth/LOGOUT_USER';
-export const FETCH_PROTECTED_DATA_REQUEST = 'sc/auth/FETCH_PROTECTED_DATA_REQUEST';
+export const FETCH_PROTECTED_DATA_REQUEST =
+  'sc/auth/FETCH_PROTECTED_DATA_REQUEST';
 export const RECEIVE_PROTECTED_DATA = 'sc/auth/RECEIVE_PROTECTED_DATA';
 export const CHANGE_TEAM = 'sc/auth/CHANGE_TEAM';
 export const LOAD_TEAMS = 'sc/auth/LOAD_TEAMS';
@@ -45,8 +46,9 @@ export default function reducer(state = initialState, action = {}) {
         isAuthenticated: true,
         token: action.token,
         user: action.user,
-        selectedTeamId: action.user.teams && action.user.teams.length ?
-          action.user.teams[0].id : null,
+        selectedTeamId: action.user.teams && action.user.teams.length
+          ? action.user.teams[0].id
+          : null,
         statusText: null,
       };
     case LOGIN_USER_FAILURE:
@@ -98,10 +100,14 @@ export default function reducer(state = initialState, action = {}) {
           ...state.user,
           teams: state.user.teams.concat(action.payload.team),
         },
-        selectedTeamId: state.selectedTeamId ? state.selectedTeamId : action.payload.team.id,
+        selectedTeamId: state.selectedTeamId
+          ? state.selectedTeamId
+          : action.payload.team.id,
       };
     case LEAVE_TEAM: {
-      const teams = state.user.teams.filter(t => t.id !== action.payload.team.id);
+      const teams = state.user.teams.filter(
+        t => t.id !== action.payload.team.id,
+      );
       return {
         ...state,
         user: {
@@ -111,7 +117,8 @@ export default function reducer(state = initialState, action = {}) {
         selectedTeamId: teams.length ? state.selectedTeamId : null,
       };
     }
-    default: return state;
+    default:
+      return state;
   }
 }
 
@@ -170,47 +177,50 @@ export function logout() {
 }
 
 export function logoutAndRedirect() {
-  return (dispatch) => {
+  return dispatch => {
     dispatch(logout());
     dispatch(push('/login'));
   };
 }
 
 export function loginUser(email, password, redirect = '/') {
-  return (dispatch) => {
+  return dispatch => {
     dispatch(loginUserRequest());
     return request
       .post(`${API_URL}authenticate`)
       .send({ email, password })
-      .then((response) => {
-        try {
-          if (response.body.result.token) {
-            dispatch(loginUserSuccess(response.body.result.token));
-            dispatch(push(redirect));
+      .then(
+        response => {
+          try {
+            if (response.body.result.token) {
+              dispatch(loginUserSuccess(response.body.result.token));
+              dispatch(push(redirect));
+            } else {
+              dispatch(loginUserFailure('Login unsuccessful.'));
+            }
+          } catch (e) {
+            dispatch(loginUserFailure('Invalid token'));
+          }
+        },
+        response => {
+          if (response.body.error) {
+            dispatch(loginUserFailure(response.body.error));
           } else {
             dispatch(loginUserFailure('Login unsuccessful.'));
           }
-        } catch (e) {
-          dispatch(loginUserFailure('Invalid token'));
-        }
-      }, (response) => {
-        if (response.body.error) {
-          dispatch(loginUserFailure(response.body.error));
-        } else {
-          dispatch(loginUserFailure('Login unsuccessful.'));
-        }
-      });
+        },
+      );
   };
 }
 
 export function signUpUser(name, email, password) {
-  return (dispatch) => {
+  return dispatch => {
     dispatch(signUpUserRequest());
     return request
       .post(`${API_URL}users`)
       .send({ name, email, password })
       .then(() => dispatch(signUpUserSuccess()))
-      .catch((response) => {
+      .catch(response => {
         if (response.body.error.errors) {
           dispatch(signUpUserFailure(response.body.error.errors[0].message));
         } else if (response.body.error.message) {
