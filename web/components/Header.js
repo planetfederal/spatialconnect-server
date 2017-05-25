@@ -5,14 +5,13 @@ import Breadcrumbs from './Breadcrumbs';
 const Header = props => (
   <header>
     <div className="header-title">
-      <span className="menu" onClick={props.toggleMenu}>&#9776;</span>
+      <span className="menu" onClick={props.toggleMenu}>☰</span>
       <Link to="/">spatialconnect</Link>
     </div>
     {props.isAuthenticated &&
       <nav>
         <Breadcrumbs {...props} />
-      </nav>
-    }
+      </nav>}
   </header>
 );
 

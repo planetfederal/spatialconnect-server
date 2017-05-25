@@ -1,7 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 
 class SignIn extends Component {
-
   constructor(props) {
     super(props);
     const redirectRoute = this.props.location.query.redirect || '/';
@@ -33,8 +32,9 @@ class SignIn extends Component {
     return (
       <section className="main">
         <div className="side-form">
-          {this.props.statusText ?
-            <div className="alert alert-danger">{this.props.statusText}</div> : ''}
+          {this.props.statusText
+            ? <div className="alert alert-danger">{this.props.statusText}</div>
+            : ''}
           <form role="form">
             <div className="form-group">
               <label htmlFor="email">Email</label>
@@ -63,7 +63,9 @@ class SignIn extends Component {
               className="btn btn-sc"
               disabled={this.props.isAuthenticating}
               onClick={this.login}
-            >Sign In</button>
+            >
+              Sign In
+            </button>
           </form>
         </div>
       </section>
@@ -73,10 +75,7 @@ class SignIn extends Component {
 
 SignIn.propTypes = {
   isAuthenticating: PropTypes.bool.isRequired,
-  statusText: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.bool,
-  ]),
+  statusText: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
   location: PropTypes.object.isRequired,
   actions: PropTypes.object.isRequired,
 };

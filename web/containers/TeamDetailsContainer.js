@@ -9,21 +9,18 @@ const TeamDetailsContainer = props => (
   <div>
     {!!props.team &&
       <div>
-        <Team
-          team={props.team}
-          userTeams={props.auth.user.teams}
-          teamActions={props.teamActions}
-        />
+        <Team team={props.team} userTeams={props.auth.user.teams} teamActions={props.teamActions} />
         <div className="btn-toolbar">
           <button
             className="btn btn-danger"
-            onClick={() => { props.teamActions.deleteTeam(props.team.id); }}
+            onClick={() => {
+              props.teamActions.deleteTeam(props.team.id);
+            }}
           >
             Delete Team
           </button>
         </div>
-      </div>
-    }
+      </div>}
   </div>
 );
 

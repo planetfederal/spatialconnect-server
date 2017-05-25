@@ -7,7 +7,6 @@ import FormsList from '../components/FormsList';
 import { FormCreate } from '../components/FormCreate';
 
 class FormsContainer extends Component {
-
   constructor(props) {
     super(props);
     this.state = {
@@ -51,20 +50,23 @@ class FormsContainer extends Component {
     return (
       <div className="wrapper">
         <section className="main">
-          {selectedTeamId ? <div>
-            {this.state.addingNewForm || addFormError ?
-              <FormCreate
-                onSubmit={this.submitNewForm}
-                cancel={this.addNewFormCancel}
-                forms={forms}
-                addFormError={addFormError}
-              /> :
-              <div className="btn-toolbar">
-                <button className="btn btn-sc" onClick={this.addNewForm}>Create Form</button>
+          {selectedTeamId
+            ? <div>
+                {this.state.addingNewForm || addFormError
+                  ? <FormCreate
+                      onSubmit={this.submitNewForm}
+                      cancel={this.addNewFormCancel}
+                      forms={forms}
+                      addFormError={addFormError}
+                    />
+                  : <div className="btn-toolbar">
+                      <button className="btn btn-sc" onClick={this.addNewForm}>
+                        Create Form
+                      </button>
+                    </div>}
+                <FormsList forms={forms} selectedTeamId={selectedTeamId} />
               </div>
-            }
-            <FormsList forms={forms} selectedTeamId={selectedTeamId} />
-          </div> : <p><Link to="/teams">Join</Link> a team to view Forms.</p>}
+            : <p><Link to="/teams">Join</Link> a team to view Forms.</p>}
         </section>
         {children}
       </div>
@@ -91,5 +93,5 @@ const mapDispatchToProps = dispatch => ({
   actions: bindActionCreators(formActions, dispatch),
 });
 
-  // connect this "smart" container component to the redux store
+// connect this "smart" container component to the redux store
 export default connect(mapStateToProps, mapDispatchToProps)(FormsContainer);

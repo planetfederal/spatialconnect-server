@@ -55,7 +55,7 @@ const formReducer = (state = {}, action) => {
     case UPDATE_FIELD_OPTION:
       return {
         ...state,
-        fields: state.fields.map((field) => {
+        fields: state.fields.map(field => {
           if (field.id === action.fieldId) {
             return {
               ...field,
@@ -68,7 +68,7 @@ const formReducer = (state = {}, action) => {
     case UPDATE_FIELD_CONSTRAINT:
       return {
         ...state,
-        fields: state.fields.map((field) => {
+        fields: state.fields.map(field => {
           if (field.id === action.fieldId) {
             return {
               ...field,
@@ -89,7 +89,7 @@ const formReducer = (state = {}, action) => {
     case SWAP_FIELD_ORDER:
       return {
         ...state,
-        fields: state.fields.map((field) => {
+        fields: state.fields.map(field => {
           if (field.position === action.indexOne) {
             return {
               ...field,
@@ -109,13 +109,12 @@ const formReducer = (state = {}, action) => {
       const fieldToRemove = find(state.fields, { id: action.fieldId });
       return {
         ...state,
-        fields: state.fields.filter(field => field.id !== action.fieldId)
-          .map((field) => {
-            if (field.position > fieldToRemove.position) {
-              return { ...field, position: field.position - 1 };
-            }
-            return field;
-          }),
+        fields: state.fields.filter(field => field.id !== action.fieldId).map(field => {
+          if (field.position > fieldToRemove.position) {
+            return { ...field, position: field.position - 1 };
+          }
+          return field;
+        }),
         deletedFields: state.deletedFields.concat(action.fieldId),
       };
     }
@@ -206,7 +205,8 @@ export default function reducer(state = initialState, action = {}) {
         },
       };
     }
-    default: return state;
+    default:
+      return state;
   }
 }
 
@@ -246,12 +246,15 @@ export function addField(payload) {
   return (dispatch, getState) => {
     const { sc } = getState();
     const position = sc.forms.forms[payload.form_key].fields.length;
-    const field = merge({
-      id: position + 1,
-      position,
-      field_key: `field_${position + 1}`,
-      field_label: payload.field_label,
-    }, payload.options);
+    const field = merge(
+      {
+        id: position + 1,
+        position,
+        field_key: `field_${position + 1}`,
+        field_label: payload.field_label,
+      },
+      payload.options
+    );
     dispatch({
       type: ADD_FIELD,
       form_key: payload.form_key,
@@ -266,7 +269,7 @@ export function addField(payload) {
 }
 
 export function updateFieldOption(form_key, fieldId, option, value) {
-  return (dispatch) => {
+  return dispatch => {
     if (option === 'field_key') {
       dispatch(updateActiveField(form_key, value));
     }
@@ -307,7 +310,7 @@ export function updateActiveForm(form_key) {
 }
 
 export function updateActiveField(form_key, field_key) {
-  return (dispatch) => {
+  return dispatch => {
     dispatch(updateActiveForm(false));
     dispatch({
       type: UPDATE_ACTIVE_FIELD,
@@ -326,7 +329,7 @@ export function updateSavedForm(form_key, form) {
 }
 
 export function removeField(form_key, fieldId) {
-  return (dispatch) => {
+  return dispatch => {
     dispatch({
       type: REMOVE_FIELD,
       form_key,
@@ -367,10 +370,10 @@ export function loadForms() {
     return request
       .get(`${API_URL}forms`)
       .set('Authorization', `Token ${token}`)
-      .then((res) => {
+      .then(res => {
         dispatch(receiveForms(res.body.result));
       })
-      .catch((err) => {
+      .catch(err => {
         throw new Error(err);
       });
   };
@@ -406,12 +409,12 @@ export function addForm(form) {
       .post(`${API_URL}forms`)
       .set('Authorization', `Token ${token}`)
       .send(f)
-      .then((res) => {
+      .then(res => {
         dispatch(updateSavedForm(res.body.result.form_key, res.body.result));
         dispatch(receiveForm(res.body.result));
         dispatch(addFormError(false));
       })
-      .catch((error) => {
+      .catch(error => {
         if (error.body.error.errors) {
           dispatch(addFormError(error.body.error.errors[0].message));
         } else {
@@ -434,7 +437,7 @@ export function saveForm(form) {
       .post(`${API_URL}forms`)
       .set('Authorization', `Token ${token}`)
       .send(f)
-      .then((res) => {
+      .then(res => {
         dispatch(updateSavedForm(res.body.result.form_key, res.body.result));
         dispatch(receiveForm(res.body.result));
       });

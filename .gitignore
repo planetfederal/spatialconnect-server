@@ -87,4 +87,4 @@ server/test.js
 web/public/index.html
 
 # ignore kafka & zookeeper data
-data
+/data

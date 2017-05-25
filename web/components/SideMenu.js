@@ -13,11 +13,18 @@ SideMenuItem.propTypes = {
   onClick: PropTypes.func.isRequired,
 };
 
-const SideMenu = ({ isAuthenticated, actions, userName,
-  closeMenu, menuOpen, changeTeam, teams }) => (
-    <div className={`side-menu ${menuOpen ? 'open' : 'closed'}`}>
-      {isAuthenticated ?
-        <nav>
+const SideMenu = ({
+  isAuthenticated,
+  actions,
+  userName,
+  closeMenu,
+  menuOpen,
+  changeTeam,
+  teams,
+}) => (
+  <div className={`side-menu ${menuOpen ? 'open' : 'closed'}`}>
+    {isAuthenticated
+      ? <nav>
           <SideMenuItem path={'/stores'} name={'Stores'} onClick={closeMenu} />
           <SideMenuItem path={'/forms'} name={'Forms'} onClick={closeMenu} />
           <SideMenuItem path={'/data'} name={'Data'} onClick={closeMenu} />
@@ -27,15 +34,15 @@ const SideMenu = ({ isAuthenticated, actions, userName,
             <div className="side-menu-item-inner">
               {!!teams.length &&
                 <select className="form-control sc-dropdown" onChange={changeTeam}>
-                  {teams.map(team => (
-                    <option value={team.id} key={team.id}>{team.name}</option>
-                ))}
+                  {teams.map(team => <option value={team.id} key={team.id}>{team.name}</option>)}
                 </select>}
             </div>
           </div>
           <SideMenuItem path={'/user'} name={userName} onClick={closeMenu} />
           <SideMenuItem
-            path={'/login'} name={'Sign Out'} onClick={() => {
+            path={'/login'}
+            name={'Sign Out'}
+            onClick={() => {
               actions.logoutAndRedirect();
               closeMenu();
             }}
@@ -46,12 +53,11 @@ const SideMenu = ({ isAuthenticated, actions, userName,
             <span>{`v${VERSION}`}</span>
           </div>
         </nav>
-        : <nav>
+      : <nav>
           <SideMenuItem path={'/login'} name={'Sign In'} onClick={closeMenu} />
           <SideMenuItem path={'/signup'} name={'Sign Up'} onClick={closeMenu} />
-        </nav>
-      }
-    </div>
+        </nav>}
+  </div>
 );
 
 SideMenu.propTypes = {

@@ -23,7 +23,8 @@ export default function reducer(state = initialState, action = {}) {
         ...state,
         open: true,
       };
-    default: return state;
+    default:
+      return state;
   }
 }
 
@@ -44,4 +45,3 @@ export function openMenu() {
     type: OPEN_MENU,
   };
 }
-

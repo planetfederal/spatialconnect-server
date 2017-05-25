@@ -51,7 +51,8 @@ export default function reducer(state = initialState, action = {}) {
         ...state,
         spatialTriggersOn: action.payload.spatialTriggersOn,
       };
-    default: return state;
+    default:
+      return state;
   }
 }
 
@@ -91,11 +92,13 @@ export function getFormData(form) {
       .get(`${API_URL}form/${form.id}/results`)
       .set('Authorization', `Token ${token}`)
       .then(res => res.body.result)
-      .then(data => data.map((f) => {
-        const _f = f;
-        _f.form = form;
-        return _f;
-      }));
+      .then(data =>
+        data.map(f => {
+          const _f = f;
+          _f.form = form;
+          return _f;
+        })
+      );
   };
 }
 
@@ -105,7 +108,7 @@ export function loadFormDataAll() {
     const token = state.sc.auth.token;
     const forms = values(state.sc.forms.forms);
     return Promise.all(
-      forms.map((form) => {
+      forms.map(form => {
         dispatch(addFormId(form.id));
         return request
           .get(`${API_URL}form/${form.id}/results`)
@@ -116,17 +119,17 @@ export function loadFormDataAll() {
               ...f,
               form_id: form.id,
               form_key: form.form_key,
-            })),
+            }))
           );
-      }),
+      })
     )
-    .then(formData => flatten(formData))
-    .then((formData) => {
-      dispatch({
-        type: LOAD_FORM_DATA_ALL,
-        payload: { formData },
+      .then(formData => flatten(formData))
+      .then(formData => {
+        dispatch({
+          type: LOAD_FORM_DATA_ALL,
+          payload: { formData },
+        });
       });
-    });
   };
 }
 
@@ -138,7 +141,7 @@ export function loadDeviceLocations() {
       .get(`${API_URL}locations`)
       .set('Authorization', `Token ${token}`)
       .then(res => res.body.result)
-      .then((data) => {
+      .then(data => {
         dispatch({
           type: LOAD_DEVICE_LOCATIONS,
           payload: { device_locations: data.features },

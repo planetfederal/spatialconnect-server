@@ -13,7 +13,6 @@ transform.registerType('date', t.Date);
 transform.registerType('time', t.Date);
 
 class FormPreview extends Component {
-
   static onSubmit(e) {
     e.preventDefault();
   }
@@ -46,7 +45,7 @@ class FormPreview extends Component {
         id={field.id}
         index={idx}
       />
-      ));
+    ));
     return (
       <fieldset>
         {inputs}
