@@ -1,6 +1,6 @@
 {
   "name": "spatialconnect-server-dashboard",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "Dashboard for SpatialConnect",
   "scripts": {
     "test": "./node_modules/.bin/karma start",
