@@ -21,9 +21,29 @@
             [clojure.core.async :as async]
             [spacon.components.http.auth :refer [get-token]]
             [clojure.tools.logging :as log]
-            [spacon.components.queue.protocol :as queue])
+            [spacon.components.queue.protocol :as queue]
+            [clojure.data.json :as json])
   (:import (org.eclipse.paho.client.mqttv3 MqttException)
            (java.net InetAddress)))
+
+(def vcap_mqtt
+  "Map of keys and values from VCAP_SERVICES mqtt environment variable"
+  (or (some-> (System/getenv "VCAP_SERVICES")
+              (json/read-str :key-fn clojure.core/keyword) :p-rabbitmq first :credentials :protocols :mqtt)
+              {:username
+               :password
+               :host
+               :port}))
+
+(def mqtt-connect-ops
+  "Map of authentication keys and values for mqtt connect options"
+  {:username (or (System/getenv "MQTT_USERNAME") (:username vcap_mqtt))
+   :password (or (System/getenv "MQTT_PASSWORD") (:password vcap_mqtt))})
+
+(def vcap_tcp
+  "When vcap_mqtt exists it returns a formated tcp connection"
+  (when (some? vcap_mqtt)
+        (format "%s://%s:%s" "tcp" (:host vcap_mqtt) (:port vcap_mqtt))))
 
 (def client-id (or (System/getenv "MQTT_CLIENT_ID")
                    (subs (str "sc-" (InetAddress/getLocalHost)) 0 22 )))
@@ -61,7 +81,7 @@
     (log/debugf "Connecting MQTT Client to %s" url)
     (try
       (do
-        (reset! conn (mh/connect url client-id))
+        (reset! conn (mh/connect url client-id mqtt-connect-ops))
         (log/infof "MQTT Client connected to %s" url))
       (catch MqttException e
         (do
@@ -82,7 +102,7 @@
     (async/go (async/>!! (:subscribe-channel mqtt) {:topic topic :message (msg/from-bytes message)}))))
 
 (defn reconnect [mqtt-comp reason ]
-  (let [url (or (System/getenv "MQTT_BROKER_URL") "tcp://localhost:1883")]
+  (let [url (or (System/getenv "MQTT_BROKER_URL") vcap_tcp "tcp://localhost:1883")]
     (log/debugf "Connection lost (%s). Attempting reconnect to %s" reason url)
     (connectmqtt url)
     (doall (map (fn [t]
@@ -148,7 +168,7 @@
   queue/IQueue
   (start [this]
     (log/debug "Starting MQTT Component")
-    (let [url (or (:broker-url mqtt-config) "tcp://localhost:1883")
+    (let [url (or (:broker-url mqtt-config) vcap_tcp "tcp://localhost:1883")
           m (connectmqtt url)
           pub-chan (async/chan)
           sub-chan (async/chan)

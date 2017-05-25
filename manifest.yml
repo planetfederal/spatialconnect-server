@@ -5,6 +5,7 @@
 # pushd web && npm install && npm run build:devio && popd
 # pushd server && lein uberjar && popd
 # if ! cf s | grep 'efc-db-test'; then cf cs pg_95_XL_DEV_SHARED_001 large-dev-100 efc-db-test -c cf/efc-db.json; fi
+# if ! cf S | grep 'efc-mqtt-test'; then cf cs p-rabbitmq standard efc-mqtt-test; fi
 # cf push
 #############
 ---
@@ -32,3 +33,4 @@ applications:
       TRUST_STORE: /app/server/tls/test-cacerts.jks
     services:
       - efc-db-test
+      - efc-mqtt-test
