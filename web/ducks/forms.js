@@ -1,7 +1,6 @@
 import * as request from 'superagent-bluebird-promise';
 import { API_URL } from 'config';
 import { push } from 'react-router-redux';
-import uuid from 'uuid';
 import find from 'lodash/find';
 import merge from 'lodash/merge';
 import keyBy from 'lodash/keyBy';
@@ -251,7 +250,7 @@ export function addField(payload) {
       {
         id: position + 1,
         position,
-        field_key: 'f_' + uuid().replace(/-/g, '_'),
+        field_key: `field_${position + 1}`,
         field_label: payload.field_label,
       },
       payload.options

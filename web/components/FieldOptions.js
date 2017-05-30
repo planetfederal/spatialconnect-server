@@ -46,7 +46,10 @@ class FieldOptions extends Component {
       value = e.target.value.split('\n');
     } else if (option === 'field_label') {
       value = e.target.value;
-      //updater(this.props.form.form_key, field.id, 'field_key', toKey(value));
+      const key = toKey(value);
+      if (key) {
+        updater(this.props.form.form_key, field.id, 'field_key', toKey(value));
+      }
     } else {
       value = e.target.value;
     }
@@ -107,9 +110,9 @@ class FieldOptions extends Component {
   }
 
   makeOptionInputs(field) {
-    const options = fieldOptions.map((o, i) =>
-      this.makeOptionInput(field, o, field[o], i, this.props.updateFieldOption)
-    );
+    const options = fieldOptions
+      .filter(o => o !== 'field_key')
+      .map((o, i) => this.makeOptionInput(field, o, field[o], i, this.props.updateFieldOption));
     if (field.constraints) {
       const constraints = fieldConstraints[field.type].map((o, i) =>
         this.makeOptionInput(field, o, field.constraints[o], i, this.props.updateFieldConstraint)

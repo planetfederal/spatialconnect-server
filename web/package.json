@@ -61,14 +61,13 @@
     "redux-mock-store": "^1.0.2",
     "redux-thunk": "^2.0.1",
     "sinon": "^1.17.4",
-    "spatialconnect-form-schema": "2.3.1",
+    "spatialconnect-form-schema": "2.3.3",
     "style-loader": "0.13.1",
     "superagent": "3.3.2",
     "superagent-bluebird-promise": "^3.0.0",
     "tcomb-form": "^0.9.4",
     "tcomb-form-templates-bootstrap": "^0.2.1",
     "tcomb-json-schema": "^0.3.0",
-    "uuid": "3.0.1",
     "webpack": "^1.13.3",
     "webpack-dev-server": "^1.16.2"
   }
