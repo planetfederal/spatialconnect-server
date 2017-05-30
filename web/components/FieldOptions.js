@@ -46,7 +46,7 @@ class FieldOptions extends Component {
       value = e.target.value.split('\n');
     } else if (option === 'field_label') {
       value = e.target.value;
-      updater(this.props.form.form_key, field.id, 'field_key', toKey(value));
+      //updater(this.props.form.form_key, field.id, 'field_key', toKey(value));
     } else {
       value = e.target.value;
     }
