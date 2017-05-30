@@ -65,8 +65,13 @@
 
 (defn get-form-data
   "Retrieves data for a specific form"
-  [form-comp form-id]
-  (formmodel/get-form-data form-id))
+  [form-comp form-key]
+  (formmodel/get-form-data form-key))
+
+(defn get-form-data-version
+  "Retrieves data for a specific form"
+  [form-comp form-key form-version]
+  (formmodel/get-form-data-version form-key form-version))
 
 (defn add-form-data
   [form-comp form-data form-id device-id]
