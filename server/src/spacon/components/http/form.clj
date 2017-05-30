@@ -101,6 +101,14 @@
   (let [form-key (get-in request [:path-params :form-key])]
     (response/ok (formapi/get-form-data form-comp form-key))))
 
+(defn http-get-form-results-version
+  "Gets the form submissions for given form version"
+  [form-comp request]
+  (log/debug "Fetching form data")
+  (let [form-key (get-in request [:path-params :form-key])
+        form-version (get-in request [:path-params :form-version])]
+    (response/ok (formapi/get-form-data-version form-comp form-key form-version))))
+
 (defn routes [form-comp queue]
   #{["/api/forms"                :get
      (conj common-interceptors check-auth (partial http-get-all-forms form-comp)) :route-name :all-forms]
@@ -113,6 +121,9 @@
     ["/api/forms/:form-key/results" :get
      (conj common-interceptors check-auth (partial http-get-form-results form-comp))
      :route-name :form-results]
+    ["/api/forms/:form-key/results/:form-version" :get
+     (conj common-interceptors check-auth (partial http-get-form-results-version form-comp))
+     :route-name :form-results-version]
     ;; todo: need to figure out why forms causes a route conflict
     ["/api/form/:form-id/submit"  :post
      (conj common-interceptors check-auth (partial http-submit-form-data form-comp))
