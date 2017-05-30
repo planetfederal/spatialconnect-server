@@ -20,7 +20,8 @@
             [clojure.spec.gen :as gen]
             [clojure.tools.logging :as log]
             [cljts.io :as jtsio]
-            [clojure.data.json :as json]))
+            [clojure.data.json :as json]
+            [spacon.entity.msg :as msg]))
 
 (defn delete-form
   [form-comp form]
@@ -98,7 +99,7 @@
 (defn queue->form-submit
   "queue message handler that submits new form data using the payload
   of the message body"
-  [message]
+  [queue-comp message]
   (log/debug "Handling form submission")
   (let [p (:payload message)
         form-id (:form_id p)
@@ -109,13 +110,23 @@
                jtsio/read-feature
                .getDefaultGeometry)]
     (log/debug "Submitting form data")
-    (formmodel/add-form-data form-data form-id device-identifier)))
+    (try
+      (formmodel/add-form-data form-data form-id device-identifier)
+      (queueapi/publish queue-comp (msg/map->Msg
+                                     {:to (:to message)
+                                      :correlationId (:correlationId message)
+                                      :payload {:result true :error nil}}))
+      (catch Exception e
+        (queueapi/publish queue-comp (msg/map->Msg
+                                       {:to (:to message)
+                                        :correlationId (:correlationId message)
+                                        :payload {:result false :error (.getMessage e) }}))))))
 
 (defrecord FormComponent [queue]
   component/Lifecycle
   (start [this]
     (log/debug "Starting Form Component")
-    (queueapi/subscribe queue :store-form queue->form-submit)
+    (queueapi/subscribe queue :store-form (partial queue->form-submit queue))
     (assoc this :queue-comp queue))
   (stop [this]
     (log/debug "Starting Form Component")
