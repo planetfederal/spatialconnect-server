@@ -19,7 +19,8 @@
             [spacon.components.queue.protocol :as queueapi]
             [spacon.components.location.db :as locationmodel]
             [clojure.tools.logging :as log]
-            [cljts.io :as jtsio]))
+            [cljts.io :as jtsio]
+            [spacon.entity.msg :as msg]))
 
 (defn location->geojson
   "Given list of locations, returns a lazy sequence of geojson
@@ -41,16 +42,26 @@
 (defn- update-device-location
   "kafka message handler that persists the device location
   of the message body, then tests it against the triggers"
-  [message]
+  [queue-comp message]
   (log/debugf "Received device location update message %s" (:payload message))
   (let [loc (:payload message)]
-    (locationmodel/upsert-gj loc)))
+    (try
+      (locationmodel/upsert-gj loc)
+      (queueapi/publish queue-comp (msg/map->Msg
+                                     {:to (:to message)
+                                      :correlationId (:correlationId message)
+                                      :payload {:result true :error nil}}))
+      (catch Exception e
+        (queueapi/publish queue-comp (msg/map->Msg
+                                       {:to (:to message)
+                                        :correlationId (:correlationId message)
+                                        :payload {:result false :error (.getMessage e) }}))))))
 
 (defrecord LocationComponent [queue]
   component/Lifecycle
   (start [this]
     (log/debug "Starting Location Component")
-    (queueapi/subscribe queue :location-tracking update-device-location)
+    (queueapi/subscribe queue :location-tracking (partial update-device-location queue))
     this)
   (stop [this]
     (log/debug "Stopping Location Component")
