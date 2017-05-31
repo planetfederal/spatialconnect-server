@@ -29,7 +29,16 @@ export const isEmail = email => {
   return re.test(email);
 };
 
-export const toKey = s => s.toLowerCase().replace(/ /g, '_');
+export const toKey = s => {
+  let key = s.toLowerCase();
+  key = key.replace(/ /g, '_'); //convert spaces to underscores
+  key = key.replace(/[^a-z0-9_]/g, ''); //remove all special characters
+  while (/^[0-9_]*$/.test(key[0])) {
+    //remove leading numbers and underscores
+    key = key.substring(1);
+  }
+  return key;
+};
 
 export const initForm = teams => form => {
   const team = find(teams, { id: form.team_id });
