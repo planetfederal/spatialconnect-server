@@ -21,7 +21,8 @@
             [clojure.tools.logging :as log]
             [cljts.io :as jtsio]
             [clojure.data.json :as json]
-            [spacon.entity.msg :as msg]))
+            [spacon.entity.msg :as msg]
+            [cats.monad.exception :as exc]))
 
 (defn delete-form
   [form-comp form]
@@ -96,6 +97,17 @@
       (fn [feature] (assoc feature :properties (make-properties-from-fields form-fields)))
       (s/gen :spacon.specs.geojson/pointfeature-spec)))))
 
+(defn- reply
+  [queue-comp message result]
+  (queueapi/publish queue-comp (msg/map->Msg
+                                 {:to (:to message)
+                                  :correlationId (:correlationId message)
+                                  :payload result})))
+(defn add-form-data
+  [form-data form-id device-identifier queue-comp message]
+  (formmodel/add-form-data form-data form-id device-identifier)
+  (reply {:result true :error nil} queue-comp message))
+
 (defn queue->form-submit
   "queue message handler that submits new form data using the payload
   of the message body"
@@ -110,17 +122,9 @@
                jtsio/read-feature
                .getDefaultGeometry)]
     (log/debug "Submitting form data")
-    (try
-      (formmodel/add-form-data form-data form-id device-identifier)
-      (queueapi/publish queue-comp (msg/map->Msg
-                                     {:to (:to message)
-                                      :correlationId (:correlationId message)
-                                      :payload {:result true :error nil}}))
-      (catch Exception e
-        (queueapi/publish queue-comp (msg/map->Msg
-                                       {:to (:to message)
-                                        :correlationId (:correlationId message)
-                                        :payload {:result false :error (.getMessage e) }}))))))
+    (exc/try-or-recover (add-form-data form-data form-id device-identifier queue-comp message)
+                        (fn [e]
+                          (reply {:result false :error (.getMessage e)} queue-comp message)))))
 
 (defrecord FormComponent [queue]
   component/Lifecycle
