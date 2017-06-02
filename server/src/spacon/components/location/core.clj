@@ -15,12 +15,14 @@
 (ns spacon.components.location.core
   (:require [com.stuartsierra.component :as component]
             [clojure.data.json :as json]
+            [clojure.spec :as s]
             [yesql.core :refer [defqueries]]
             [spacon.components.queue.protocol :as queueapi]
             [spacon.components.location.db :as locationmodel]
             [clojure.tools.logging :as log]
             [cljts.io :as jtsio]
-            [spacon.entity.msg :as msg]))
+            [spacon.entity.msg :as msg]
+            [spacon.specs.geojson]))
 
 (defn location->geojson
   "Given list of locations, returns a lazy sequence of geojson
@@ -45,17 +47,15 @@
   [queue-comp message]
   (log/debugf "Received device location update message %s" (:payload message))
   (let [loc (:payload message)]
-    (try
-      (locationmodel/upsert-gj loc)
+    (let [valid-feature (if (s/valid? :spacon.specs.geojson/pointfeature-spec loc)
+                          (do
+                            (locationmodel/upsert-gj loc)
+                            {:result true :error nil})
+                          {:result false :error (s/explain-str :spacon.specs.geojson/pointfeature-spec loc)})]
       (queueapi/publish queue-comp (msg/map->Msg
                                      {:to (:to message)
                                       :correlationId (:correlationId message)
-                                      :payload {:result true :error nil}}))
-      (catch Exception e
-        (queueapi/publish queue-comp (msg/map->Msg
-                                       {:to (:to message)
-                                        :correlationId (:correlationId message)
-                                        :payload {:result false :error (.getMessage e) }}))))))
+                                      :payload valid-feature})))))
 
 (defrecord LocationComponent [queue]
   component/Lifecycle

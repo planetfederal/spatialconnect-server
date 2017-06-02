@@ -22,7 +22,7 @@
             [cljts.io :as jtsio]
             [clojure.data.json :as json]
             [spacon.entity.msg :as msg]
-            [cats.monad.exception :as exc]))
+            [spacon.specs.geojson]))
 
 (defn delete-form
   [form-comp form]
@@ -97,18 +97,7 @@
       (fn [feature] (assoc feature :properties (make-properties-from-fields form-fields)))
       (s/gen :spacon.specs.geojson/pointfeature-spec)))))
 
-(defn- reply
-  [queue-comp message result]
-  (queueapi/publish queue-comp (msg/map->Msg
-                                 {:to (:to message)
-                                  :correlationId (:correlationId message)
-                                  :payload result})))
-(defn add-form-data
-  [form-data form-id device-identifier queue-comp message]
-  (formmodel/add-form-data form-data form-id device-identifier)
-  (reply {:result true :error nil} queue-comp message))
-
-(defn queue->form-submit
+(defn- queue->form-submit
   "queue message handler that submits new form data using the payload
   of the message body"
   [queue-comp message]
@@ -121,10 +110,16 @@
                json/write-str
                jtsio/read-feature
                .getDefaultGeometry)]
-    (log/debug "Submitting form data")
-    (exc/try-or-recover (add-form-data form-data form-id device-identifier queue-comp message)
-                        (fn [e]
-                          (reply {:result false :error (.getMessage e)} queue-comp message)))))
+    (let [valid-feature (if (s/valid? :spacon.specs.geojson/pointfeature-spec form-data)
+                  (do
+                    (log/debug "Submitting form data")
+                    (formmodel/add-form-data form-data form-id device-identifier)
+                    {:result true :error nil})
+                  {:result false :error (s/explain-str :spacon.specs.geojson/pointfeature-spec form-data)})]
+      (queueapi/publish queue-comp (msg/map->Msg
+                                     {:to (:to message)
+                                      :correlationId (:correlationId message)
+                                      :payload valid-feature})))))
 
 (defrecord FormComponent [queue]
   component/Lifecycle
