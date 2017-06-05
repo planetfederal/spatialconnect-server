@@ -20,7 +20,9 @@
             [clojure.spec.gen :as gen]
             [clojure.tools.logging :as log]
             [cljts.io :as jtsio]
-            [clojure.data.json :as json]))
+            [clojure.data.json :as json]
+            [spacon.entity.msg :as msg]
+            [spacon.specs.geojson]))
 
 (defn delete-form
   [form-comp form]
@@ -95,10 +97,10 @@
       (fn [feature] (assoc feature :properties (make-properties-from-fields form-fields)))
       (s/gen :spacon.specs.geojson/pointfeature-spec)))))
 
-(defn queue->form-submit
+(defn- queue->form-submit
   "queue message handler that submits new form data using the payload
   of the message body"
-  [message]
+  [queue-comp message]
   (log/debug "Handling form submission")
   (let [p (:payload message)
         form-id (:form_id p)
@@ -108,14 +110,22 @@
                json/write-str
                jtsio/read-feature
                .getDefaultGeometry)]
-    (log/debug "Submitting form data")
-    (formmodel/add-form-data form-data form-id device-identifier)))
+    (let [valid-feature (if (s/valid? :spacon.specs.geojson/pointfeature-spec form-data)
+                  (do
+                    (log/debug "Submitting form data")
+                    (formmodel/add-form-data form-data form-id device-identifier)
+                    {:result true :error nil})
+                  {:result false :error (s/explain-str :spacon.specs.geojson/pointfeature-spec form-data)})]
+      (queueapi/publish queue-comp (msg/map->Msg
+                                     {:to (:to message)
+                                      :correlationId (:correlationId message)
+                                      :payload valid-feature})))))
 
 (defrecord FormComponent [queue]
   component/Lifecycle
   (start [this]
     (log/debug "Starting Form Component")
-    (queueapi/subscribe queue :store-form queue->form-submit)
+    (queueapi/subscribe queue :store-form (partial queue->form-submit queue))
     (assoc this :queue-comp queue))
   (stop [this]
     (log/debug "Starting Form Component")
