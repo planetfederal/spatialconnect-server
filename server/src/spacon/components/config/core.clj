@@ -45,9 +45,9 @@
     (do (log/debug "Received request for config" msg)
       (let [user  (token->user (:jwt msg))
             cfg   (create-config config-comp user)]
-      (log/debug "Sending config to" user)
-      (queueapi/publish queue-comp (assoc msg :payload cfg))))
-    (log/error (s/explain :spacon.specs.msg/msg msg))))
+        (log/debug "Sending config to" user)
+        (queueapi/publish queue-comp (assoc msg :payload cfg))))
+    (log/errorf "config message was invalid b/c %s" (s/explain :spacon.specs.msg/msg msg))))
 
 (defn- queue->register
   "Queue message handler that registers a device"
