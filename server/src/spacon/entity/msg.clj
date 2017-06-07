@@ -34,17 +34,17 @@
         (log/error "Could not parse protobuf into map b/c"
                    (.getLocalizedMessage e))))))
 
-(defn- make-protobuf [context correlation-id jwt to action payload]
+(defn- make-protobuf [context correlationId jwt to action payload]
   (-> (MessagePbf$Msg/newBuilder)
       (.setContext context)
       (.setTo to)
       (.setJwt jwt)
       (.setAction action)
       (.setPayload payload)
-      (.setCorrelationId correlation-id)
+      (.setCorrelationId correlationId)
       (.build)))
 
-(defrecord Msg [correlation-id jwt to action payload])
+(defrecord Msg [correlationId jwt to action payload])
 
 (defn from-bytes
   "Deserializes the protobuf byte array into an ConnectMessage record"
