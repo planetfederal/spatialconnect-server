@@ -16,6 +16,7 @@ First you have to install [Docker](https://docs.docker.com/engine/installation/)
 You can build the spatialconnect-server Docker container like this
 
 ```
+# run this from the server directory
 docker build -t boundlessgeo/spatialconnect-server .
 ```
 
