@@ -1,0 +1,8 @@
+{
+  "build":"docker-compose up -d postgis",
+  "install":"npm i",
+  "unit_test":"cd server; lein test; cd ..; cd web; npm test",
+  "integration_test":"",
+  "run":"cd web; npm run start:local; cd ../server; lein run",
+  "release":""
+}
