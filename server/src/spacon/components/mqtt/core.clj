@@ -29,11 +29,11 @@
                    (subs (str "sc-" (InetAddress/getLocalHost)) 0 22)))
 (defonce conn (atom nil))
 (def action-topic {:register-device "/config/register"
-                     :full-config "/config"
-                     :config-update "/config/update"
-                     :store-form "/store/form"
-                     :ping "/ping"
-                     :location-tracking "/store/tracking"})
+                   :full-config "/config"
+                   :config-update "/config/update"
+                   :store-form "/store/form"
+                   :ping "/ping"
+                   :location-tracking "/store/tracking"})
 
 (def topics
   "Map of topics as keys and message handler functions as values"
@@ -44,14 +44,14 @@
   [topic fn]
   (log/trace "Adding topic" topic)
   (dosync
-    (commute topics assoc (keyword topic) fn)))
+   (commute topics assoc (keyword topic) fn)))
 
 (defn- remove-topic
   "Transactionally removes topic from topics ref"
   [topic]
   (log/trace "Removing topic" topic)
   (dosync
-    (commute topics dissoc (keyword topic))))
+   (commute topics dissoc (keyword topic))))
 
 (defn connectmqtt
   "Connect to mqtt broker at url
@@ -88,13 +88,13 @@
      (do (connectmqtt (:broker-url mqtt-comp))))
    (log/debug "Subscribing to topic" topic)
    (mh/subscribe @conn {topic 2}
-                (fn [^String topic _ ^bytes payload]
-                  (receive mqtt-comp topic payload))
-                {:on-connection-lost (partial subscribe-mqtt mqtt-comp (:broker-url mqtt-comp))}))
+                 (fn [^String topic _ ^bytes payload]
+                   (receive mqtt-comp topic payload))
+                 {:on-connection-lost (partial subscribe-mqtt mqtt-comp (:broker-url mqtt-comp))}))
   ([mqtt-comp]
    (doall (map (fn [topic-key]
-                  (let [topic (subs (str topic-key) 1)]
-                    (subscribe-mqtt mqtt-comp topic)))
+                 (let [topic (subs (str topic-key) 1)]
+                   (subscribe-mqtt mqtt-comp topic)))
                (keys @topics)))))
 
 (defn subscribe [mqtt-comp topic func]
@@ -142,7 +142,6 @@
     (subscribe this (get action-topic action) f))
   (unsubscribe [this action]
     (unsubscribe this action)))
-
 
 (defn make-mqtt-component [mqtt-config]
   (map->MqttComponent {:mqtt-config mqtt-config}))

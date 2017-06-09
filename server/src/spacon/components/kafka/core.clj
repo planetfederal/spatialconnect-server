@@ -23,10 +23,10 @@
             [clojure.spec :as s]
             [spacon.components.queue.protocol :as queue])
   (:import [org.apache.kafka.clients.producer ProducerRecord KafkaProducer Callback
-                                              RecordMetadata Producer]
+            RecordMetadata Producer]
            [org.apache.kafka.clients.consumer Consumer ConsumerConfig KafkaConsumer]
            [org.apache.kafka.common.serialization Serializer StringSerializer
-                                                  Deserializer StringDeserializer]))
+            Deserializer StringDeserializer]))
 
 (def client-id "spacon-server")
 (def spacon-topic "spacon")
@@ -47,14 +47,14 @@
   [cmd fn]
   (log/trace "Adding command " cmd)
   (dosync
-    (commute actions assoc (keyword cmd) fn)))
+   (commute actions assoc (keyword cmd) fn)))
 
 (defn- remove-action
   "Transactionally removes command from commands ref"
   [cmd]
   (log/trace "Removing command " cmd)
   (dosync
-    (commute actions dissoc (keyword cmd))))
+   (commute actions dissoc (keyword cmd))))
 
 ;; todo: write specs for valid records that we accept
 ;; for instance, restrict the topics and keys that can be sent
@@ -93,9 +93,9 @@
   [r]
   (try
     (keywordize-keys (json/read-str (.value r)))
-   (catch Exception e
-     (log/error e)
-     nil)))
+    (catch Exception e
+      (log/error e)
+      nil)))
 
 (defn- map->record
   "This takes a SC message and prepares it for transmission
@@ -146,11 +146,11 @@
                                       (.getHostName (java.net.InetAddress/getLocalHost)))}}
         producer-config]
     (KafkaProducer. ^java.util.Map
-                    (assoc config
-                      "request.timeout.ms" (str timeout-ms)
-                      "bootstrap.servers" servers
-                      "client.id" client-id
-                      "acks" "all")
+     (assoc config
+            "request.timeout.ms" (str timeout-ms)
+            "bootstrap.servers" servers
+            "client.id" client-id
+            "acks" "all")
                     ^Serializer key-serializer
                     ^Serializer value-serializer)))
 
@@ -163,10 +163,10 @@
                 key-deserializer   (StringDeserializer.)
                 value-deserializer (StringDeserializer.)}} consumer-config]
     (KafkaConsumer. ^java.util.Map
-                    (assoc {}
-                      ConsumerConfig/CLIENT_ID_CONFIG client-id
-                      ConsumerConfig/GROUP_ID_CONFIG client-id
-                      ConsumerConfig/BOOTSTRAP_SERVERS_CONFIG servers)
+     (assoc {}
+            ConsumerConfig/CLIENT_ID_CONFIG client-id
+            ConsumerConfig/GROUP_ID_CONFIG client-id
+            ConsumerConfig/BOOTSTRAP_SERVERS_CONFIG servers)
                     ^Deserializer key-deserializer
                     ^Deserializer value-deserializer)))
 
@@ -200,7 +200,7 @@
       (listen consumer rec-chan spacon-topic)
       (log/debug "Kafka Component Started")
       (assoc this :subscribe-channel rec-chan
-                  :producer producer :consumer consumer)))
+             :producer producer :consumer consumer)))
   (stop [this]
     (log/debug "Stopping Kafka Component")
     (async/close! (:publish-channel this))

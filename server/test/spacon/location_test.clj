@@ -34,7 +34,7 @@
           device-id (->> (utils/request-get "/api/devices") :result first :identifier)
           payload (assoc loc :metadata {:client device-id})
           m (msg/map->Msg {:action (.value Actions/NO_ACTION)
-                                 :payload payload})]
+                           :payload payload})]
       (mqttapi/publish-scmessage mqtt "/store/tracking" m)
       (Thread/sleep 2000)
       (let [res (utils/request-get "/api/locations")

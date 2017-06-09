@@ -36,7 +36,6 @@
       [])
     []))
 
-
 (defn create [store-comp s]
   (storemodel/create s))
 

@@ -21,7 +21,7 @@
             [clojure.tools.logging :as log]))
 
 (defn- send->device [queue device-id message]
-  (:to (str "/notify/" device-id) message )
+  (:to (str "/notify/" device-id) message)
   (queueapi/publish queue message))
 
 (defn- send->devices [queue devices message]
@@ -29,7 +29,7 @@
          (send->device queue device-id message)) devices))
 
 (defn- send->all [queue message]
-  (:to "/notify/" message )
+  (:to "/notify/" message)
   (queueapi/publish queue message))
 
 (defn- send->mobile [queue message]

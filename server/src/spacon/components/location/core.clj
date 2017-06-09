@@ -53,9 +53,9 @@
                             {:result true :error nil})
                           {:result false :error (s/explain-str :spacon.specs.geojson/pointfeature-spec loc)})]
       (queueapi/publish queue-comp (msg/map->Msg
-                                     {:to (:to message)
-                                      :correlationId (:correlationId message)
-                                      :payload valid-feature})))))
+                                    {:to (:to message)
+                                     :correlationId (:correlationId message)
+                                     :payload valid-feature})))))
 
 (defrecord LocationComponent [queue]
   component/Lifecycle

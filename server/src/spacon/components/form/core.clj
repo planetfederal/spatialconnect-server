@@ -111,15 +111,15 @@
                jtsio/read-feature
                .getDefaultGeometry)]
     (let [valid-feature (if (s/valid? :spacon.specs.geojson/pointfeature-spec form-data)
-                  (do
-                    (log/debug "Submitting form data")
-                    (formmodel/add-form-data form-data form-id device-identifier)
-                    {:result true :error nil})
-                  {:result false :error (s/explain-str :spacon.specs.geojson/pointfeature-spec form-data)})]
+                          (do
+                            (log/debug "Submitting form data")
+                            (formmodel/add-form-data form-data form-id device-identifier)
+                            {:result true :error nil})
+                          {:result false :error (s/explain-str :spacon.specs.geojson/pointfeature-spec form-data)})]
       (queueapi/publish queue-comp (msg/map->Msg
-                                     {:to (:to message)
-                                      :correlationId (:correlationId message)
-                                      :payload valid-feature})))))
+                                    {:to (:to message)
+                                     :correlationId (:correlationId message)
+                                     :payload valid-feature})))))
 
 (defrecord FormComponent [queue]
   component/Lifecycle
