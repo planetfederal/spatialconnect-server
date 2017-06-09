@@ -20,19 +20,20 @@
   (:import (com.boundlessgeo.schema MessagePbf$Msg)))
 
 (defn- bytes->map [proto]
-  (let [msg (MessagePbf$Msg/parseFrom proto)
-        p (.getPayload msg)
-        payload (if (blank? p) {} (keywordize-keys (json/read-str p)))]
-    (try
+  (try
+    (let [msg (MessagePbf$Msg/parseFrom proto)
+          p (.getPayload msg)
+          payload (if (blank? p) {} (keywordize-keys (json/read-str p)))]
       {:context (.getContext msg)
        :correlationId (.getCorrelationId msg)
        :jwt (.getJwt msg)
        :to (.getTo msg)
        :action (.getAction msg)
-       :payload payload}
-      (catch Exception e
+       :payload payload})
+    (catch Exception e
         (log/error "Could not parse protobuf into map b/c"
-                   (.getLocalizedMessage e))))))
+                   (.getLocalizedMessage e))
+        nil)))
 
 (defn- make-protobuf [context correlationId jwt to action payload]
   (-> (MessagePbf$Msg/newBuilder)
@@ -49,7 +50,9 @@
 (defn from-bytes
   "Deserializes the protobuf byte array into an ConnectMessage record"
   [b]
-  (map->Msg (bytes->map b)))
+  (if-let [map (bytes->map b)]
+    (map->Msg map)
+    nil))
 
 (defn message->bytes
   "Serializes an Msg record into a protobuf byte array"

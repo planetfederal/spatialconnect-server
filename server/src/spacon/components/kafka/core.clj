@@ -93,9 +93,9 @@
   [r]
   (try
     (keywordize-keys (json/read-str (.value r)))
-  (catch Exception e
-    (log/error e)
-    nil)))
+   (catch Exception e
+     (log/error e)
+     nil)))
 
 (defn- map->record
   "This takes a SC message and prepares it for transmission

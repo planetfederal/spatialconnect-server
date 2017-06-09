@@ -66,7 +66,7 @@
                    :resource-paths ["config", "resources"]
                    :dependencies [[io.pedestal/pedestal.service-tools
                                    "0.5.1"]
-                                   [jonase/eastwood "0.2.1" :exclusions
+                                  [jonase/eastwood "0.2.1" :exclusions
                                    [org.clojure/clojure]]
                                   [org.clojure/test.check "0.9.0"]]
                    :plugins [[test2junit "1.2.2"]
