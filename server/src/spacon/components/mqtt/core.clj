@@ -72,13 +72,15 @@
 ; publishes message on the send channel
 (defn- publish [mqtt topic message]
   (log/debugf "Publishing to topic %s %nmessage: %s" topic message)
+  (prn message)
   (async/go (async/>!! (:publish-channel mqtt) {:topic topic :message (msg/message->bytes message)})))
 
 ; receive message on subscribe channel
 (defn- receive [mqtt topic message]
-  (log/tracef "Received message on topic: %nmessage: %s" topic (msg/from-bytes message))
+  (log/debugf "Received message on topic: %nmessage: %s" topic (msg/from-bytes message))
+  (prn (msg/from-bytes message))
   (if (nil? message)
-    (log/debug "Nil message on topic " topic)
+    (log/debugf "Nil message on topic " topic)
     (async/go (async/>!! (:subscribe-channel mqtt) {:topic topic :message (msg/from-bytes message)}))))
 
 (defn reconnect [mqtt-comp reason ]
@@ -132,10 +134,11 @@
                     t (:topic v)
                     m (:message v)
                     f ((keyword t) @topics)]
-
+                (log/debugf "inside let process-subscribe-channel")
+                (log/debugf t)
                 (if-not (or (nil? m) (nil? f))
                   (f m)
-                  (log/debug "Nil value on Subscribe Channel"))))))
+                  (log/debugf "Nil value on Subscribe Channel"))))))
 
 (defn publish-scmessage [mqtt topic message]
   (publish mqtt topic message))

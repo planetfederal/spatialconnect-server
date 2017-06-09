@@ -27,7 +27,7 @@
   "Returns a map of the config by fetching the stores and forms
   for teams that user belongs to"
   [config-comp user]
-  (log/debug "Creating config for user" user)
+  (log/debugf "Creating config for user" user)
   (let [teams (map :id (:teams user))]
     {:stores (filter (fn [s]
                        (> (.indexOf teams (:team_id s)) -1))
@@ -42,10 +42,10 @@
    on its reply-to topic"
   [config-comp queue-comp msg]
   (if (s/valid? :spacon.specs.msg/msg msg)
-    (do (log/debug "Received request for config" msg)
+    (do (log/debugf "Received request for config" msg)
       (let [user  (token->user (:jwt msg))
             cfg   (create-config config-comp user)]
-        (log/debug "Sending config to" user)
+        (log/debugf "Sending config to" user)
         (queueapi/publish queue-comp (assoc msg :payload cfg))))
     (log/errorf "config message was invalid b/c %s" (s/explain :spacon.specs.msg/msg msg))))
 
@@ -53,7 +53,7 @@
   "Queue message handler that registers a device"
   [msg]
   (let [device (:payload msg)]
-    (log/debug "Registering device" device)
+    (log/debugf "Registering device" device)
     (devicemodel/create device)))
 
 (defrecord ConfigComponent [queue]
