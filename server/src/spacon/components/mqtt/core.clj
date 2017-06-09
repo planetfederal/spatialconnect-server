@@ -113,7 +113,7 @@
   (log/debugf "Publishing to topic %s %nmessage: %s" topic message)
   (prn message)
   (try
-    (mh/publish (:conn mqtt-comp) topic message)
+    (mh/publish (:conn mqtt-comp) topic (msg/message->bytes message))
     (catch Exception e
       (log/error "Could not publish b/c" (.getLocalizedMessage e)))))
 
