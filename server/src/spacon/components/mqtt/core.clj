@@ -18,15 +18,15 @@
             [spacon.entity.msg :as msg]
             [spacon.components.http.intercept :as intercept]
             [spacon.components.http.response :as response]
-            [clojure.core.async :as async]
             [spacon.components.http.auth :refer [get-token]]
             [clojure.tools.logging :as log]
-            [spacon.components.queue.protocol :as queue])
+            [spacon.components.queue.protocol :as queue]
+            [clojure.core.async :as async])
   (:import (org.eclipse.paho.client.mqttv3 MqttException)
            (java.net InetAddress)))
 
 (def client-id (or (System/getenv "MQTT_CLIENT_ID")
-                   (subs (str "sc-" (InetAddress/getLocalHost)) 0 22 )))
+                   (subs (str "sc-" (InetAddress/getLocalHost)) 0 22)))
 (defonce conn (atom nil))
 (def action-topic {:register-device "/config/register"
                      :full-config "/config"
@@ -69,82 +69,59 @@
           ; wait 4 seconds befor trying again
           (Thread/sleep 4000))))))
 
-; publishes message on the send channel
-(defn- publish [mqtt topic message]
-  (log/debugf "Publishing to topic %s %nmessage: %s" topic message)
-  (prn message)
-  (async/go (async/>!! (:publish-channel mqtt) {:topic topic :message (msg/message->bytes message)})))
-
 ; receive message on subscribe channel
-(defn- receive [mqtt topic message]
-  (log/debugf "Received message on topic: %nmessage: %s" topic (msg/from-bytes message))
-  (prn (msg/from-bytes message))
-  (if (nil? message)
-    (log/debugf "Nil message on topic " topic)
-    (async/go (async/>!! (:subscribe-channel mqtt) {:topic topic :message (msg/from-bytes message)}))))
+(defn- receive [_ topic message]
+  (if-let [msg (msg/from-bytes message)]
+    (do
+      (log/debugf "Received message on topic: %nmessage: %s" topic (msg/from-bytes msg))
+      (let [func ((keyword topic) @topics)]
+        (func msg)))
+    (log/error "Received invalid protobuf from mqtt on topic:" topic)))
 
-(defn reconnect [mqtt-comp reason ]
-  (let [url (or (System/getenv "MQTT_BROKER_URL") "tcp://localhost:1883")]
-    (log/debugf "Connection lost (%s). Attempting reconnect to %s" reason url)
-    (connectmqtt url)
-    (doall (map (fn [t]
-                  (mh/subscribe @conn {(subs (str t) 1) 2}
-                                (fn [^String topic _ ^bytes payload]
-                                  (receive mqtt-comp topic payload))
-                                {:on-connection-lost (partial reconnect mqtt-comp) }))
-                (keys @topics)))))
-
-(defn subscribe
+(defn- subscribe-mqtt
   "Subscribe to mqtt topic with message handler function f"
-  [mqtt topic f]
-  (log/debug "Subscribing to topic" topic)
-  (add-topic topic f)
-  (mh/subscribe @conn {topic 2}
+  ([mqtt-comp broker-url disconnect-reason]
+   (log/error "Disconnect from " broker-url (.getLocalizedMessage disconnect-reason))
+   (subscribe-mqtt mqtt-comp))
+  ([mqtt-comp topic]
+   (if (or (nil? @conn) (not (mh/connected? @conn)))
+     (do (connectmqtt (:broker-url mqtt-comp))))
+   (log/debug "Subscribing to topic" topic)
+   (mh/subscribe @conn {topic 2}
                 (fn [^String topic _ ^bytes payload]
-                  (receive mqtt topic payload))
-                {:on-connection-lost (partial reconnect mqtt) }))
+                  (receive mqtt-comp topic payload))
+                {:on-connection-lost (partial subscribe-mqtt mqtt-comp (:broker-url mqtt-comp))}))
+  ([mqtt-comp]
+   (doall (map (fn [topic-key]
+                  (let [topic (subs (str topic-key) 1)]
+                    (subscribe-mqtt mqtt-comp topic)))
+               (keys @topics)))))
+
+(defn subscribe [mqtt-comp topic func]
+  (add-topic topic func)
+  (subscribe-mqtt mqtt-comp topic))
 
 (defn unsubscribe
   "Unsubscribe to mqtt topic"
-  [mqtt topic]
+  [_ topic]
   (log/debug "Unsubscribing to topic" topic)
   (remove-topic topic)
   (mh/unsubscribe @conn topic))
 
-(defn- process-publish-channel [mqtt chan]
-  (async/go (while true
-              (let [v (async/<!! chan)
-                    t (:topic v)
-                    m (:message v)]
-                (try
-                  (if-not (mh/connected? @conn)
-                    (do
-                      (reconnect mqtt nil)
-                      (if-not (or (nil? t) (nil? m))
-                        (mh/publish @conn t m)))
-                    (if-not (or (nil? t) (nil? m))
-                      (mh/publish @conn t m)))
-                  (catch Exception e
-                    (log/error "Could not publish message b/c"
-                               (.getLocalizedMessage e))))))))
+; publishes message on the send channel
+(defn- publish [mqtt-comp topic message]
+  (log/debugf "Publishing to topic %s %nmessage: %s" topic message)
+  (prn message)
+  (try
+    (mh/publish (:conn mqtt-comp) topic message)
+    (catch Exception e
+      (log/error "Could not publish b/c" (.getLocalizedMessage e)))))
 
-(defn- process-subscribe-channel [chan]
-  (async/go (while true
-              (let [v (async/<! chan)
-                    t (:topic v)
-                    m (:message v)
-                    f ((keyword t) @topics)]
-                (log/debugf "inside let process-subscribe-channel")
-                (log/debugf t)
-                (if-not (or (nil? m) (nil? f))
-                  (f m)
-                  (log/debugf "Nil value on Subscribe Channel"))))))
+(defn publish-scmessage [mqtt-comp topic message]
+  (publish mqtt-comp topic message))
 
-(defn publish-scmessage [mqtt topic message]
-  (publish mqtt topic message))
-
-(defn publish-map [mqtt topic m]
-  (publish mqtt topic (msg/map->Msg {:payload m})))
+(defn publish-map [mqtt-comp topic m]
+  (publish mqtt-comp topic (msg/map->Msg {:payload m})))
 
 (defrecord MqttComponent [mqtt-config]
   component/Lifecycle
@@ -152,17 +129,10 @@
   (start [this]
     (log/debug "Starting MQTT Component")
     (let [url (or (:broker-url mqtt-config) "tcp://localhost:1883")
-          m (connectmqtt url)
-          pub-chan (async/chan)
-          sub-chan (async/chan)
-          c (assoc this :conn m :publish-channel pub-chan :subscribe-channel sub-chan)]
-      (process-publish-channel c pub-chan)
-      (process-subscribe-channel sub-chan)
-      c))
+          m (connectmqtt url)]
+      (assoc this :conn m :broker-url url)))
   (stop [this]
     (log/debug "Stopping MQTT Component")
-    (async/close! (:publish-channel this))
-    (async/close! (:subscribe-channel this))
     (mh/disconnect @conn)
     this)
   (publish [this msg]
