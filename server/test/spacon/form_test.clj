@@ -130,7 +130,7 @@
           feature (gen/generate (spec/gen :spacon.specs.geojson/feature-spec))
           form-data {:form_id id :feature feature}
           m (msg/map->Msg {:action (.value Actions/DATASERVICE_CREATEFEATURE)
-                                 :payload form-data})]
+                           :payload form-data})]
       (mqttapi/publish-scmessage mqtt "/store/form" m)
       (Thread/sleep 1000)
       (let [res (utils/request-get (format "/api/form/%s/results" id))

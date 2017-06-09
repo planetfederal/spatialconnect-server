@@ -60,12 +60,9 @@
                           "pkcs12"))
   (System/setProperty "javax.net.ssl.keyStorePassword"
                       (or (System/getenv "KEY_STORE_PASSWORD")
-                          "somepass"))
-
-
-  (if (= "kafka" (System/getenv "QUEUE_TYPE"))
-    (start-kafka-system)
-    (start-mqtt-system)))
+                          "somepass")) (if (= "kafka" (System/getenv "QUEUE_TYPE"))
+                                         (start-kafka-system)
+                                         (start-mqtt-system)))
 
 (def system-val nil)
 

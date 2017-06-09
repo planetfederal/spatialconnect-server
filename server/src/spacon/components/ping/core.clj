@@ -29,10 +29,10 @@
                                   :timestamp (l/format-local-time (l/local-now) :date-time-no-ms)})]
     (queueapi/publish queue-comp
                       (msg/map->Msg
-                        {:topic "test"
-                         :value ping-msg
-                         :key "anykey"
-                         :partition 0}))))
+                       {:topic "test"
+                        :value ping-msg
+                        :key "anykey"
+                        :partition 0}))))
 
 (defn- ping-queue
   "Sends a record to queue every 5 seconds as a heartbeat."
@@ -44,7 +44,7 @@
   "Responds with pong as a way to ensure queue broker is reachable"
   [queue-comp message]
   (queueapi/publish queue-comp
-                             (assoc message :payload {:result "pong"})))
+                    (assoc message :payload {:result "pong"})))
 
 (defrecord PingComponent [queue]
   component/Lifecycle

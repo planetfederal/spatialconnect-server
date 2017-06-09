@@ -33,9 +33,9 @@
         (do
           (if-not (empty? queue-comp) (queueapi/publish queue-comp
                                                         (msg/map->Msg
-                                                          { :to :config-update
-                                                            :action  (.value Actions/CONFIG_UPDATE_STORE)
-                                                            :payload updated-store})))
+                                                         {:to :config-update
+                                                          :action  (.value Actions/CONFIG_UPDATE_STORE)
+                                                          :payload updated-store})))
           (response/ok updated-store)))
       (let [err-msg "Failed to update store"]
         (log/error (str err-msg "b/c" (s/explain-str :spacon.specs.store/store-spec store)))
@@ -53,9 +53,9 @@
         (do
           (if-not (empty? queue-comp) (queueapi/publish queue-comp
                                                         (msg/map->Msg
-                                                          {:to :config-update
-                                                           :action  (.value Actions/CONFIG_ADD_STORE)
-                                                           :payload new-store})))
+                                                         {:to :config-update
+                                                          :action  (.value Actions/CONFIG_ADD_STORE)
+                                                          :payload new-store})))
           (response/ok new-store)))
       (let [err-msg "Failed to create new store"]
         (log/error (str err-msg "b/c" (s/explain-str :spacon.specs.store/store-spec store)))
@@ -76,9 +76,9 @@
         (storeapi/delete store-comp id)
         (if-not (empty? queue-comp) (queueapi/publish queue-comp
                                                       (msg/map->Msg
-                                                        {:to :config-update
-                                                         :action  (.value Actions/CONFIG_REMOVE_STORE)
-                                                         :payload {:id id}})))
+                                                       {:to :config-update
+                                                        :action  (.value Actions/CONFIG_REMOVE_STORE)
+                                                        :payload {:id id}})))
         (response/ok "success")))))
 
 (defn http-get-all-stores

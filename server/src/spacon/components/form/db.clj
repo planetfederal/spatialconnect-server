@@ -50,8 +50,8 @@
 
 (defn get-form-data-version [form-key form-version]
   (map sanitize (get-form-data-version-query
-                  {:form_key form-key
-                   :form_version (Integer/parseInt form-version)})))
+                 {:form_key form-key
+                  :form_version (Integer/parseInt form-version)})))
 
 (defn form-fields
   "Gets the fields for a specific form"

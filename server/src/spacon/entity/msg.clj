@@ -31,9 +31,9 @@
        :action (.getAction msg)
        :payload payload})
     (catch Exception e
-        (log/error "Could not parse protobuf into map b/c"
-                   (.getLocalizedMessage e))
-        nil)))
+      (log/error "Could not parse protobuf into map b/c"
+                 (.getLocalizedMessage e))
+      nil)))
 
 (defn- make-protobuf [context correlationId jwt to action payload]
   (-> (MessagePbf$Msg/newBuilder)
@@ -58,9 +58,9 @@
   "Serializes an Msg record into a protobuf byte array"
   [message]
   (.toByteArray (make-protobuf
-                  (or (get message :context) "")
-                  (or (get message :correlationId) -1)
-                  (or (get message :jwt) "")
-                  (or (get message :to) "")
-                  (or (get message :action) "v1/NO_ACTION")
-                  (json/write-str (or (get message :payload) "{}")))))
+                 (or (get message :context) "")
+                 (or (get message :correlationId) -1)
+                 (or (get message :jwt) "")
+                 (or (get message :to) "")
+                 (or (get message :action) "v1/NO_ACTION")
+                 (json/write-str (or (get message :payload) "{}")))))

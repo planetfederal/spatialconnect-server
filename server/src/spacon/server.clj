@@ -50,21 +50,21 @@
   (log/debug "Making server config with these options" config-options)
   (let [{:keys [http-config mqtt-config]} config-options]
     (component/system-map
-      :user (user/make-user-component)
-      :team (team/make-team-component)
-      :queue (mqtt/make-mqtt-component mqtt-config)
-      :ping (component/using (ping/make-ping-component) [:queue])
-      :device (component/using (device/make-device-component) [:queue])
-      :config (component/using (config/make-config-component) [:queue])
-      :notify (component/using (notification/make-notification-component) [:queue])
-      :store (component/using (store/make-store-component) [:queue])
-      :location (component/using (location/make-location-component) [:queue])
-      :form (component/using (form/make-form-component) [:queue])
-      :http-service (component/using
-                      (http/make-http-service-component http-config)
-                      [:ping :user :team :device :location
-                       :store :config :form :queue :notify])
-      :server (component/using (new-spacon-server) [:http-service]))))
+     :user (user/make-user-component)
+     :team (team/make-team-component)
+     :queue (mqtt/make-mqtt-component mqtt-config)
+     :ping (component/using (ping/make-ping-component) [:queue])
+     :device (component/using (device/make-device-component) [:queue])
+     :config (component/using (config/make-config-component) [:queue])
+     :notify (component/using (notification/make-notification-component) [:queue])
+     :store (component/using (store/make-store-component) [:queue])
+     :location (component/using (location/make-location-component) [:queue])
+     :form (component/using (form/make-form-component) [:queue])
+     :http-service (component/using
+                    (http/make-http-service-component http-config)
+                    [:ping :user :team :device :location
+                     :store :config :form :queue :notify])
+     :server (component/using (new-spacon-server) [:http-service]))))
 
 (defn make-spacon-server-kafka
   "Returns a new instance of the system using kafka"
@@ -72,35 +72,35 @@
   (log/debug "Making server config with these options" config-options)
   (let [{:keys [http-config kafka-config kafka-producer-config kafka-consumer-config]} config-options]
     (component/system-map
-      :user (user/make-user-component)
-      :team (team/make-team-component)
-      :queue (kafka/make-kafka-component kafka-producer-config kafka-consumer-config)
-      :ping (component/using (ping/make-ping-component) [:queue])
-      :device (component/using (device/make-device-component) [:queue])
-      :config (component/using (config/make-config-component) [:queue])
-      :notify (component/using (notification/make-notification-component) [:queue])
-      :store (component/using (store/make-store-component) [:queue])
-      :location (component/using (location/make-location-component) [:queue])
-      :form (component/using (form/make-form-component) [:queue])
-      :http-service (component/using
-                      (http/make-http-service-component http-config)
-                      [:ping :user :team :device :location
-                       :store :config :form :queue :notify])
-      :server (component/using (new-spacon-server) [:http-service]))))
+     :user (user/make-user-component)
+     :team (team/make-team-component)
+     :queue (kafka/make-kafka-component kafka-producer-config kafka-consumer-config)
+     :ping (component/using (ping/make-ping-component) [:queue])
+     :device (component/using (device/make-device-component) [:queue])
+     :config (component/using (config/make-config-component) [:queue])
+     :notify (component/using (notification/make-notification-component) [:queue])
+     :store (component/using (store/make-store-component) [:queue])
+     :location (component/using (location/make-location-component) [:queue])
+     :form (component/using (form/make-form-component) [:queue])
+     :http-service (component/using
+                    (http/make-http-service-component http-config)
+                    [:ping :user :team :device :location
+                     :store :config :form :queue :notify])
+     :server (component/using (new-spacon-server) [:http-service]))))
 
 (defn start-mqtt-system []
   (component/start-system
-    (make-spacon-server-mqtt {:http-config {::server/allowed-origins {:allowed-origins [(System/getenv "ALLOWED_ORIGINS")]}}
-                              :mqtt-config {:broker-url (System/getenv "MQTT_BROKER_URL")}})))
+   (make-spacon-server-mqtt {:http-config {::server/allowed-origins {:allowed-origins [(System/getenv "ALLOWED_ORIGINS")]}}
+                             :mqtt-config {:broker-url (System/getenv "MQTT_BROKER_URL")}})))
 
 (defn start-kafka-system []
   (component/start-system
-    (make-spacon-server-kafka {:http-config {::server/allowed-origins {:allowed-origins [(System/getenv "ALLOWED_ORIGINS")]}}
-                               :kafka-config {:broker-url (System/getenv "kafka_BROKER_URL")}
-                               :kafka-producer-config {:servers (System/getenv "BOOTSTRAP_SERVERS")
-                                                       :timeout-ms 2000}
-                               :kafka-consumer-config {:servers (System/getenv "BOOTSTRAP_SERVERS")
-                                                       :group-id (System/getenv "GROUP_ID")}})))
+   (make-spacon-server-kafka {:http-config {::server/allowed-origins {:allowed-origins [(System/getenv "ALLOWED_ORIGINS")]}}
+                              :kafka-config {:broker-url (System/getenv "kafka_BROKER_URL")}
+                              :kafka-producer-config {:servers (System/getenv "BOOTSTRAP_SERVERS")
+                                                      :timeout-ms 2000}
+                              :kafka-consumer-config {:servers (System/getenv "BOOTSTRAP_SERVERS")
+                                                      :group-id (System/getenv "GROUP_ID")}})))
 (defn -main
   "The entry-point for 'lein run'"
   [& _]

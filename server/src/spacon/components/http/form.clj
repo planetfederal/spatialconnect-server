@@ -52,9 +52,9 @@
       (let [new-form (formapi/add-form-with-fields form-comp form)]
         (log/debug "Added new form")
         (queueapi/publish queue-comp (msg/map->Msg
-                                       {:to :config-update
-                                        :action (.value Actions/CONFIG_ADD_FORM)
-                                        :payload new-form}))
+                                      {:to :config-update
+                                       :action (.value Actions/CONFIG_ADD_FORM)
+                                       :payload new-form}))
         (response/ok new-form))
       (let [reason (s/explain-str :spacon.specs.form/form-spec form)
             err-msg "Failed to create new form"]
@@ -76,9 +76,9 @@
       (if (== (count (map (partial formapi/delete-form form-comp) forms)) (count forms))
         (do
           (queueapi/publish queue-comp (msg/map->Msg
-                                         {:to :config-update
-                                          :action (.value Actions/CONFIG_REMOVE_FORM)
-                                          :payload {:form_key form-key}}))
+                                        {:to :config-update
+                                         :action (.value Actions/CONFIG_REMOVE_FORM)
+                                         :payload {:form_key form-key}}))
           (response/ok "success"))
         (let [err-msg (str "Failed to delete all form versions for form-key" form-key)]
           (log/error err-msg)
