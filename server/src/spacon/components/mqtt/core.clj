@@ -109,11 +109,11 @@
   (mh/unsubscribe @conn topic))
 
 ; publishes message on the send channel
-(defn- publish [mqtt-comp topic message]
+(defn- publish [_ topic message]
   (log/debugf "Publishing to topic %s %nmessage: %s" topic message)
   (prn message)
   (try
-    (mh/publish (:conn mqtt-comp) topic (msg/message->bytes message))
+    (mh/publish @conn topic (msg/message->bytes message))
     (catch Exception e
       (log/error "Could not publish b/c" (.getLocalizedMessage e)))))
 
