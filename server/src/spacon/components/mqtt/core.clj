@@ -86,10 +86,10 @@
   ([mqtt-comp topic]
    (if (or (nil? @conn) (not (mh/connected? @conn)))
      (do (connectmqtt (:broker-url mqtt-comp))))
-   (log/debug "Subscribing to topic" topic)
+   (log/debugf "Subscribing to topic" topic)
    (mh/subscribe @conn {topic 2}
                  (fn [^String topic _ ^bytes payload]
-                   (receive mqtt-comp topic payload))
+                   (async/go (receive mqtt-comp topic payload)))
                  {:on-connection-lost (partial subscribe-mqtt mqtt-comp (:broker-url mqtt-comp))}))
   ([mqtt-comp]
    (doall (map (fn [topic-key]
