@@ -8,19 +8,28 @@ class Breadcrumbs extends Component {
     const { sc, params } = this.props;
     const routes = this.props.routes.map(route => {
       if (route.path === '/stores/:id') {
-        const store = find(sc.dataStores.stores, { id: params.id });
-        route.name = store ? store.name : 'Not Found';
+        if (sc.dataStores.loading) {
+          route.name = ' ';
+        } else {
+          const store = find(sc.dataStores.stores, { id: params.id });
+          route.name = store ? store.name : 'Not Found';
+        }
       }
       if (route.path === '/forms/:form_key') {
-        const form = sc.forms.forms[params.form_key];
-        route.name = form ? form.form_label : 'Not Found';
+        if (sc.forms.loading) {
+          route.name = ' ';
+        } else {
+          const form = sc.forms.forms[params.form_key];
+          route.name = form ? form.form_label : 'Not Found';
+        }
       }
       if (route.path === '/teams/:id') {
-        const team = find(sc.teams.teams, { id: +params.id });
-        route.name = team ? team.name : 'Not Found';
-      }
-      if (route.path === '/notifications/:id') {
-        route.name = 'Notification';
+        if (sc.teams.loading) {
+          route.name = ' ';
+        } else {
+          const team = find(sc.teams.teams, { id: +params.id });
+          route.name = team ? team.name : 'Not Found';
+        }
       }
       return route;
     });

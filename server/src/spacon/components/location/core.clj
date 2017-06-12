@@ -34,7 +34,8 @@
           :geometry {:type        "Point"
                      :coordinates [(.getX (:geometry l)) (.getY (:geometry l))]}
           :metadata {:client     (:identifier l)
-                     :updated_at (:updated_at l)}})
+                     :updated_at (:updated_at l)
+                     :device_info (:device_info l)}})
        locations))
 
 (defn locations
