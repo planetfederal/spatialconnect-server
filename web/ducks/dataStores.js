@@ -47,7 +47,7 @@ export default function reducer(state = initialState, action = {}) {
         loaded: true,
         stores: {
           ...state.stores,
-          [action.payload.store.id]: action.payload.stores,
+          [action.payload.store.id]: action.payload.store,
         },
       };
     case LOAD_FAIL:

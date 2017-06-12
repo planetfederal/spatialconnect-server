@@ -80,8 +80,8 @@ class FormDetailsContainer extends Component {
   }
 
   render() {
-    const { form, loading, error, activeForm, activeField, savedForm } = this.props;
-    if (error) {
+    const { form, loading, loaded, error, activeForm, activeField, savedForm } = this.props;
+    if (error || (loaded && !form)) {
       return <div className="form-loading">Form Not Found</div>;
     }
     if (form) {
@@ -150,6 +150,7 @@ FormDetailsContainer.propTypes = {
 const mapStateToProps = (state, ownProps) => ({
   form_key: ownProps.params.form_key,
   loading: state.sc.forms.loading,
+  loaded: state.sc.forms.loaded,
   forms: state.sc.forms.forms,
   form: state.sc.forms.forms[ownProps.params.form_key],
   error: state.sc.forms.error,

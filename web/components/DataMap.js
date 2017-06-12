@@ -60,7 +60,7 @@ class DataMap extends Component {
         <p className="form-label">Device Location</p>
         <table className="table table-bordered table-striped">
           <tbody>
-            <tr><td>Identifier:</td><td>{f.metadata.identifier}</td></tr>
+            <tr><td>Identifier:</td><td>{f.metadata.client}</td></tr>
             {typeof f.metadata.device_info === 'string'
               ? <tr><td>Device Info:</td><td>{f.metadata.device_info}</td></tr>
               : null}
@@ -161,7 +161,7 @@ class DataMap extends Component {
         }
         if (gj.id.indexOf('device_location') > -1) {
           const data = this.props.device_locations.filter(
-            fd => fd.id === +gj.id.replace('device_location.', '')
+            fd => fd.id === gj.id.replace('device_location.', '')
           );
           this.setState({ deviceLocationActive: data[0] });
         }
@@ -220,7 +220,7 @@ class DataMap extends Component {
     if (props.deviceLocationsOn) {
       const deviceLocationFeatures = props.device_locations.map(f => {
         const feature = format.readFeature(f);
-        feature.setId(f.metadata.identifier);
+        feature.setId(`device_location.${f.id}`);
         feature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
         feature.setStyle(deviceStyle);
         return feature;
