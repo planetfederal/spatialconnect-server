@@ -101,6 +101,10 @@
                                         [:gfeature/id :gfeature/type
                                          :gfeature/properties :gjls/geometry]))
 
+(s/def ::nogeom-spec (s/keys :req-un
+                                   [:gfeature/id :gfeature/type
+                                    :gfeature/properties]))
+
 ; Single geojson feature
 (s/def ::feature-spec (s/keys :req-un
                               [:gfeature/id :gfeature/type
