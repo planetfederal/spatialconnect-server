@@ -110,8 +110,7 @@
                json/write-str
                jtsio/read-feature
                .getDefaultGeometry)]
-    (let [valid-feature (if (or (s/valid? :spacon.specs.geojson/pointfeature-spec form-data)
-                                (s/valid? :spacon.specs.geojson/nogeom-spec form-data))
+    (let [valid-feature (if (s/valid? :spacon.specs.geojson/pointfeature-spec form-data)
                           (do
                             (log/debug "Submitting form data")
                             (formmodel/add-form-data form-data form-id device-identifier)
