@@ -3,7 +3,7 @@ import { render } from 'react-dom';
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware, combineReducers } from 'redux';
 import thunk from 'redux-thunk';
-import { createLogger } from 'redux-logger';
+import logger from 'redux-logger';
 import { Router, Route, IndexRoute, browserHistory } from 'react-router';
 import { syncHistoryWithStore, routerReducer, routerMiddleware } from 'react-router-redux';
 import throttle from 'lodash/throttle';
@@ -35,7 +35,7 @@ const rootReducer = combineReducers({
 const middleware = routerMiddleware(browserHistory);
 const store = createStore(
   rootReducer,
-  applyMiddleware(middleware, thunk, createLogger()) // logger must be the last in the chain
+  applyMiddleware(middleware, thunk, logger) // logger must be the last in the chain
 );
 
 const persistedUser = loadState();
@@ -63,7 +63,7 @@ const history = syncHistoryWithStore(browserHistory, store);
 render(
   <Provider store={store}>
     <Router history={history}>
-      <Route path="/" name="Home" component={AppContainer}>
+      <Route path="/spacon" name="Home" component={AppContainer}>
         <IndexRoute component={requireAuthentication(HomeContainer)} />
         <Route path="/login" name="Login" component={SignInContainer} />
         <Route path="/signup" name="Sign Up" component={SignUpContainer} />

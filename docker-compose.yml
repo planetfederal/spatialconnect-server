@@ -28,29 +28,30 @@ services:
       - /var/run/docker.sock:/tmp/docker.sock:ro
 
   mosquitto:
-    image: boundlessgeo/mosquitto
+   # image: boundlessgeo/mosquitto:devio
+    image: toke/mosquitto
     ports:
       - '1883:1883'
-      - '8883:8883'
-      - '8884:8884'
+    #  - '8883:8883'
+    #  - '8884:8884'
 
   postgis:
     image: mdillon/postgis
     ports:
-      - '5432:5432'
+      - '5432'
 
   spatialconnect-server:
     build: .
     command: 'java -jar /opt/server/target/spacon-server.jar'
     depends_on:
       - mosquitto
-      - postgis
+#      - postgis
     ports:
       - '8085:8085'
     environment:
       - BOOTSTRAP_SERVERS=kafka:9092
-      - DB_HOST=postgis
-      - MQTT_BROKER_URL=ssl://mosquitto:8884
+      - DB_HOST=localhost
+      - MQTT_BROKER_URL=tcp://mosquitto:1883
       - VIRTUAL_HOST=spatialconnect-server
       - TRUST_STORE=/opt/server/tls/test-cacerts.jks
       - KEY_STORE=/opt/server/tls/test-keystore.p12
