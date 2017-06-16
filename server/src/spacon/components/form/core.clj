@@ -112,7 +112,7 @@
                .getDefaultGeometry)]
     (let [valid-feature (if (s/valid? :spacon.specs.geojson/pointfeature-spec form-data)
                           (do
-                            (log/debug "Submitting form data")
+                            (log/debugf "Submitting form data" form-data)
                             (formmodel/add-form-data form-data form-id device-identifier)
                             {:result true :error nil})
                           {:result false :error (s/explain-str :spacon.specs.geojson/pointfeature-spec form-data)})]
