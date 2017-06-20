@@ -98,9 +98,9 @@ DO UPDATE SET (
 -- name: add-form-data<!
 -- Adds form data submitted FROM spacon.a device
 INSERT INTO spacon.form_data (val,form_id,submission_id,layer_id,device_id)
-VALUES (:val::jsonb,:form_id,:submission_id,:layer_id,(SELECT id FROM spacon.devices WHERE identifier = :device_identifier));
+VALUES (:val::jsonb,:form_id,:submission_id,:layer_id,(SELECT id FROM spacon.devices WHERE identifier = :device_identifier))
 ON CONFLICT ON CONSTRAINT form_data_uq
-DO UPDATE SET updated_at = now(), val = :val;
+DO UPDATE SET updated_at = now(), val = :val::jsonb;
 
 -- name: form-data-stats-query
 -- Gets some metadata about the submissions for a form
