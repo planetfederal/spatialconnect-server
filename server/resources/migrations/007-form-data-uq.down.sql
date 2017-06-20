@@ -12,7 +12,7 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 
-alter table spacon.form_data drop column submission_id;
-alter table spacon.form_data drop column layer_id;
-
-alter table spacon.form_data drop constraint form_data_uq;
+alter table spacon.form_data
+drop column if exists submission_id,
+drop column if exists layer_id,
+drop constraint if exists form_data_uq;

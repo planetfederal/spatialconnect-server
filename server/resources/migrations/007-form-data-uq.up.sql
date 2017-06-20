@@ -12,9 +12,7 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 
-alter table spacon.form_data add column submission_id integer;
-alter table spacon.form_data add column layer_id text;
-
 alter table spacon.form_data
-add constraint form_data_uq
-unique (layer_id, submission_id);
+add column submission_id integer,
+add column layer_id text,
+add constraint form_data_uq unique (layer_id, submission_id);
