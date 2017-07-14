@@ -59,7 +59,7 @@ class FormPreview extends Component {
     if (form.fields.length === 0) {
       formEl = <div><p className="warning-message">Add fields.</p></div>;
     } else {
-      const { schema, options } = scformschema.translate(form);
+      const { schema, options } = scformschema.translate({ scSchema: form });
       options.template = locals => this.template(locals);
       formEl = (
         <form onSubmit={FormPreview.onSubmit}>
