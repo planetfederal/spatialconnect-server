@@ -33,6 +33,7 @@
                    :config-update "/config/update"
                    :store-form "/store/form"
                    :ping "/ping"
+                   :device-info "/device/info"
                    :location-tracking "/store/tracking"})
 
 (def topics

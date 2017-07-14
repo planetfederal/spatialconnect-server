@@ -17,6 +17,7 @@
             [spacon.components.http.intercept :as intercept]
             [yesql.core :refer [defqueries]]
             [spacon.components.device.db :as devicemodel]
+            [spacon.components.queue.protocol :as queueapi]
             [clojure.tools.logging :as log]))
 
 (defn all
@@ -39,10 +40,18 @@
   [device-comp id]
   (devicemodel/delete id))
 
+(defn- queue->update
+  "Queue message handler that updates device info"
+  [msg]
+  (let [device (:payload msg)]
+    (log/debugf "Updating device info" device)
+    (devicemodel/modify (:identifier device) device)))
+
 (defrecord DeviceComponent [queue]
   component/Lifecycle
   (start [this]
     (log/debug "Starting Device Component")
+    (queueapi/subscribe queue :device-info queue->update)
     this)
   (stop [this]
     (log/debug "Stopping Device Component")
