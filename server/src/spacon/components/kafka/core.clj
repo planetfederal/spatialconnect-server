@@ -36,6 +36,7 @@
                    :config-update "v1/CONFIG_UPDATE"
                    :store-form "v1/FORM_UPDATE"
                    :ping "v1/PING"
+                   :device-info "v1/DEVICE_INFO"
                    :location-tracking "/store/tracking"})
 
 (def actions
@@ -151,8 +152,8 @@
             "bootstrap.servers" servers
             "client.id" client-id
             "acks" "all")
-                    ^Serializer key-serializer
-                    ^Serializer value-serializer)))
+     ^Serializer key-serializer
+     ^Serializer value-serializer)))
 
 (defn- construct-consumer
   [consumer-config]
@@ -167,8 +168,8 @@
             ConsumerConfig/CLIENT_ID_CONFIG client-id
             ConsumerConfig/GROUP_ID_CONFIG client-id
             ConsumerConfig/BOOTSTRAP_SERVERS_CONFIG servers)
-                    ^Deserializer key-deserializer
-                    ^Deserializer value-deserializer)))
+     ^Deserializer key-deserializer
+     ^Deserializer value-deserializer)))
 
 (defn- process-receive-topic
   "This will take the incoming commands and execute the value against the

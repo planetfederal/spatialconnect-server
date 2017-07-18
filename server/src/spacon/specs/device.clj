@@ -24,6 +24,6 @@
 (s/def ::name non-empty-string)
 (s/def ::identifier non-empty-string)
 (s/def ::device_info (s/with-gen map?
-                       #(gen/fmap (fn [[t1 t2]]
-                                    {t1 t2}) (gen/tuple gen/keyword gen/string-alphanumeric))))
+                       #(gen/fmap (fn [[t1 t2 t3 t4]]
+                                    {t1 t2 t3 t4}) (gen/tuple gen/keyword gen/string-alphanumeric))))
 (s/def ::device-spec (s/keys :req-un [::name ::identifier ::device_info]))
