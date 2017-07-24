@@ -18,15 +18,38 @@
             [clojure.core.async :refer [chan <!! >!! close! go alt!]]
             [postal.core :refer [send-message]]
             [spacon.components.notification.db :as notifmodel]
-            [clojure.tools.logging :as log]))
+            [spacon.components.device.db :as devicemodel]
+            [clojure.tools.logging :as log]
+            [clojure.data.json :as json]
+            [clj-http.client :as httpclient]))
 
-(defn- send->device [queue device-id message]
-  (:to (str "/notify/" device-id) message)
-  (queueapi/publish queue message))
+(defn- send-push
+  "Send push notifications using FCM"
+  [push-message]
+  (httpclient/post "https://fcm.googleapis.com/fcm/send"
+             {:body (json/write-str push-message)
+              :headers {"Authorization" (str "key=" (System/getenv "FCM_SERVER_KEY"))}
+              :content-type :json}))
 
-(defn- send->devices [queue devices message]
-  (map (fn [device-id]
-         (send->device queue device-id message)) devices))
+(defn send->device
+  "Function used to send spacon notifications or push notificatons to all registered devices"
+  ([queue device-id message]
+   (:to (str "/notify/" device-id) message)
+   (queueapi/publish queue message))
+  ([device-token push-message]
+   (send-push (assoc push-message :to device-token))))
+
+(defn send->devices
+  "Function used to send spacon notifications or push notificatons to all registered devices"
+  ([queue devices message]
+   (map (fn [device-id]
+          (send->device queue device-id message)) devices))
+  ([push-message]
+   (let [all-devices (devicemodel/all)]
+     (doseq [device all-devices]
+       (let [token (:token (:device_info device))]
+         (if-not (clojure.string/blank? token)
+           (send-push (assoc push-message :to token))))))))
 
 (defn- send->all [queue message]
   (:to "/notify/" message)
