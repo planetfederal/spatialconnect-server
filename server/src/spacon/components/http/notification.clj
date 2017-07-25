@@ -9,12 +9,13 @@
     (response/ok (notifapi/find-notif-by-id notif-comp id))))
 
 (defn http-send-notif
-  "Send push notification json body"
+  "Send push notification, if :to is present just sent to device if not send to all devices"
   [notif-comp request]
   (let [notif-data (get-in request [:json-params])]
-    (notifapi/send->devices notif-data)
+    (if (nil? (:to notif-data))
+      (notifapi/notify notif-data)
+      (notifapi/notify-by-id notif-data))
     (response/ok "notification sent")))
-
 
 (defn routes [notif-comp]
   #{["/api/notifications/:id" :get (conj intercept/common-interceptors (partial http-get-notif notif-comp)) :route-name :get-notif]

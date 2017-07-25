@@ -31,15 +31,15 @@
               :headers {"Authorization" (str "key=" (System/getenv "FCM_SERVER_KEY"))}
               :content-type :json}))
 
-(defn send->device
-  "Function used to send spacon notifications or push notificatons to all registered devices"
+(defn- send->device
+  "Function used to send spacon notifications or push notificatons to one registered devices"
   ([queue device-id message]
    (:to (str "/notify/" device-id) message)
    (queueapi/publish queue message))
-  ([device-token push-message]
-   (send-push (assoc push-message :to device-token))))
+  ([push-message]
+   (send-push push-message)))
 
-(defn send->devices
+(defn- send->devices
   "Function used to send spacon notifications or push notificatons to all registered devices"
   ([queue devices message]
    (map (fn [device-id]
@@ -98,10 +98,20 @@
             :mobile (if-not (empty? kafka) (send->mobile kafka v)) ; For Signal that doesn't have an kafka component
             "default")))))
 
-(defn notify [notifcomp message message-type info]
-  (let [ids (map :id (notifmodel/create-notifications (:to message) message-type info))]
-    (go (>!! (:send-channel notifcomp)
-             (assoc message :notif-ids ids)))))
+(defn notify
+  ([notifcomp message message-type info]
+   (let [ids (map :id (notifmodel/create-notifications (:to message) message-type info))]
+     (go (>!! (:send-channel notifcomp)
+              (assoc message :notif-ids ids)))))
+  ([push-message]
+   (send->devices push-message)))
+
+(defn notify-by-id
+  [push-message]
+  (let [device (devicemodel/find-by-identifier (:to push-message))]
+    (let [token (:token (:device_info device))]
+      (if-not (clojure.string/blank? token)
+        (send-push (assoc push-message :to token))))))
 
 (defn find-notif-by-id
   [notif-comp id]
