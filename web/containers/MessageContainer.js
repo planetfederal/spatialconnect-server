@@ -2,38 +2,30 @@ import React, { Component, PropTypes } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import SendMessage from '../components/SendMessage';
-import * as messagesActions from '../ducks/auth';
+import * as messagesActions from '../ducks/messages';
 
-class MessageContainer extends Component {
-  state = { open: false };
-  open = () => this.setState({ open: true });
-  cancel = () => this.setState({ open: false });
-  render() {
-    return (
-      <div className="wrapper">
-        <section className="main">
-          {this.state.open
-            ? <SendMessage actions={this.props.actions} cancel={this.cancel} />
-            : <button type="submit" className="btn btn-sc" onClick={this.open}>
-                Notify All Devices
-              </button>}
-        </section>
-      </div>
-    );
-  }
-}
+const MessageContainer = props => (
+  <div className="wrapper">
+    <section className="main">
+      {props.sendAll
+        ? <SendMessage {...props} />
+        : <button type="submit" className="btn btn-sc" onClick={props.actions.sendAll}>
+            Notify All Devices
+          </button>}
+    </section>
+  </div>
+);
 
 MessageContainer.propTypes = {
   actions: PropTypes.object.isRequired,
 };
-//
-// const mapStateToProps = state => ({
-//   isAuthenticating: state.sc.auth.isAuthenticating,
-//   statusText: state.sc.auth.statusText,
-// });
+
+const mapStateToProps = state => ({
+  ...state.sc.messages,
+});
 
 const mapDispatchToProps = dispatch => ({
   actions: bindActionCreators(messagesActions, dispatch),
 });
 
-export default connect(null, mapDispatchToProps)(MessageContainer);
+export default connect(mapStateToProps, mapDispatchToProps)(MessageContainer);

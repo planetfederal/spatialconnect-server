@@ -33,7 +33,11 @@ class SendMessage extends Component {
   onSubmit = e => {
     e.preventDefault();
     if (this.validate()) {
-      console.log('submit');
+      const n = {
+        title: this.state.title,
+        body: this.state.body,
+      };
+      this.props.actions.sendNotification(n);
     }
   };
 
@@ -51,9 +55,7 @@ class SendMessage extends Component {
               value={this.state.title}
               onChange={this.onTitleChange}
             />
-            {this.state.errors.title
-              ? <p className="text-danger">{this.state.errors.title}</p>
-              : ''}
+            {!!this.state.errors.title && <p className="text-danger">{this.state.errors.title}</p>}
           </div>
           <div className="form-group">
             <label htmlFor="body">Body</label>
@@ -64,14 +66,18 @@ class SendMessage extends Component {
               onChange={this.onBodyChange}
               value={this.state.body}
             />
-            {this.state.errors.body ? <p className="text-danger">{this.state.errors.body}</p> : ''}
+            {!!this.state.errors.body && <p className="text-danger">{this.state.errors.body}</p>}
           </div>
           <div className="btn-toolbar">
-            <button className="btn btn-sc" onClick={this.onSubmit}>Send</button>
-            <button className="btn btn-default" onClick={this.props.cancel}>
+            <button className="btn btn-sc" onClick={this.onSubmit} disabled={this.props.sending}>
+              Send
+            </button>
+            <button className="btn btn-default" onClick={this.props.actions.cancel}>
               Cancel
             </button>
           </div>
+          {this.props.error && <p className="text-danger">Unable to send message.</p>}
+          {this.props.success && <p>Message sent.</p>}
         </form>
       </div>
     );
