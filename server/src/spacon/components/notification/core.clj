@@ -18,15 +18,38 @@
             [clojure.core.async :refer [chan <!! >!! close! go alt!]]
             [postal.core :refer [send-message]]
             [spacon.components.notification.db :as notifmodel]
-            [clojure.tools.logging :as log]))
+            [spacon.components.device.db :as devicemodel]
+            [clojure.tools.logging :as log]
+            [clojure.data.json :as json]
+            [clj-http.client :as httpclient]))
 
-(defn- send->device [queue device-id message]
-  (:to (str "/notify/" device-id) message)
-  (queueapi/publish queue message))
+(defn- send-push
+  "Send push notifications using FCM"
+  [push-message]
+  (httpclient/post "https://fcm.googleapis.com/fcm/send"
+             {:body (json/write-str push-message)
+              :headers {"Authorization" (str "key=" (System/getenv "FCM_SERVER_KEY"))}
+              :content-type :json}))
 
-(defn- send->devices [queue devices message]
-  (map (fn [device-id]
-         (send->device queue device-id message)) devices))
+(defn- send->device
+  "Function used to send spacon notifications or push notificatons to one registered devices"
+  ([queue device-id message]
+   (:to (str "/notify/" device-id) message)
+   (queueapi/publish queue message))
+  ([push-message]
+   (send-push push-message)))
+
+(defn- send->devices
+  "Function used to send spacon notifications or push notificatons to all registered devices"
+  ([queue devices message]
+   (map (fn [device-id]
+          (send->device queue device-id message)) devices))
+  ([push-message]
+   (let [all-devices (devicemodel/all)]
+     (doseq [device all-devices]
+       (let [token (:token (:device_info device))]
+         (if-not (clojure.string/blank? token)
+           (send-push (assoc push-message :to token))))))))
 
 (defn- send->all [queue message]
   (:to "/notify/" message)
@@ -75,10 +98,20 @@
             :mobile (if-not (empty? kafka) (send->mobile kafka v)) ; For Signal that doesn't have an kafka component
             "default")))))
 
-(defn notify [notifcomp message message-type info]
-  (let [ids (map :id (notifmodel/create-notifications (:to message) message-type info))]
-    (go (>!! (:send-channel notifcomp)
-             (assoc message :notif-ids ids)))))
+(defn notify
+  ([notifcomp message message-type info]
+   (let [ids (map :id (notifmodel/create-notifications (:to message) message-type info))]
+     (go (>!! (:send-channel notifcomp)
+              (assoc message :notif-ids ids)))))
+  ([push-message]
+   (send->devices push-message)))
+
+(defn notify-by-id
+  [push-message]
+  (let [device (devicemodel/find-by-identifier (:to push-message))]
+    (let [token (:token (:device_info device))]
+      (if-not (clojure.string/blank? token)
+        (send-push (assoc push-message :to token))))))
 
 (defn find-notif-by-id
   [notif-comp id]
