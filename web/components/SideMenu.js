@@ -28,6 +28,7 @@ const SideMenu = ({
           <SideMenuItem path={'/stores'} name={'Stores'} onClick={closeMenu} />
           <SideMenuItem path={'/forms'} name={'Forms'} onClick={closeMenu} />
           <SideMenuItem path={'/data'} name={'Data'} onClick={closeMenu} />
+          <SideMenuItem path={'/messages'} name={'Messages'} onClick={closeMenu} />
           <div className="side-menu-separator" />
           <div className="side-menu-item">
             <SideMenuItem path={'/teams'} name={'Teams'} onClick={closeMenu} />

@@ -21,6 +21,7 @@ import DataStoresDetailsContainer from './containers/DataStoresDetailsContainer'
 import DataContainer from './containers/DataContainer';
 import TeamsContainer from './containers/TeamsContainer';
 import TeamDetailsContainer from './containers/TeamDetailsContainer';
+import MessageContainer from './containers/MessageContainer';
 
 import './style/Globals.less';
 
@@ -89,6 +90,11 @@ render(
             component={requireAuthentication(TeamDetailsContainer)}
           />
         </Route>
+        <Route
+          path="/messages"
+          name="Messages"
+          component={requireAuthentication(MessageContainer)}
+        />
       </Route>
     </Router>
   </Provider>,
