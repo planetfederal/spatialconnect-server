@@ -39,7 +39,7 @@ class FormPreview extends Component {
         updateActiveField={this.props.updateActiveField}
         form={this.props.form}
         input={locals.inputs[field.field_key]}
-        key={`field.${field.field_key}.${uniqueId()}`}
+        key={`field.${field.field_key}`}
         moveField={this.moveField}
         position={field.position}
         id={field.id}
