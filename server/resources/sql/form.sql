@@ -97,8 +97,10 @@ DO UPDATE SET (
 
 -- name: add-form-data<!
 -- Adds form data submitted FROM spacon.a device
-INSERT INTO spacon.form_data (val,form_id,device_id)
-VALUES (:val::jsonb,:form_id,(SELECT id FROM spacon.devices WHERE identifier = :device_identifier));
+INSERT INTO spacon.form_data (val,form_id,submission_id,layer_id,device_id)
+VALUES (:val::jsonb,:form_id,:submission_id,:layer_id,(SELECT id FROM spacon.devices WHERE identifier = :device_identifier))
+ON CONFLICT ON CONSTRAINT form_data_uq
+DO UPDATE SET updated_at = now(), val = :val::jsonb;
 
 -- name: form-data-stats-query
 -- Gets some metadata about the submissions for a form
@@ -109,3 +111,13 @@ WHERE form_id = :form_id GROUP BY updated_at ORDER BY updated_at DESC LIMIT 1;
 -- Gets the data submissions for a form
 SELECT * FROM spacon.form_data
 WHERE form_id = :form_id;
+
+-- name: get-form-data-all-query
+-- Gets the data submissions for a form for all versions
+SELECT * FROM spacon.form_data
+WHERE form_id IN (SELECT id FROM spacon.forms WHERE form_key = :form_key)
+
+-- name: get-form-data-version-query
+-- Gets the data submissions for a form for a version
+SELECT * FROM spacon.form_data
+WHERE form_id = (SELECT id FROM spacon.forms WHERE form_key = :form_key AND version = :form_version)

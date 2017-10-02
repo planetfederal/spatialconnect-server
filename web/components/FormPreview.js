@@ -13,7 +13,6 @@ transform.registerType('date', t.Date);
 transform.registerType('time', t.Date);
 
 class FormPreview extends Component {
-
   static onSubmit(e) {
     e.preventDefault();
   }
@@ -40,13 +39,13 @@ class FormPreview extends Component {
         updateActiveField={this.props.updateActiveField}
         form={this.props.form}
         input={locals.inputs[field.field_key]}
-        key={`field.${field.field_key}.${uniqueId()}`}
+        key={`field.${field.field_key}`}
         moveField={this.moveField}
         position={field.position}
         id={field.id}
         index={idx}
       />
-      ));
+    ));
     return (
       <fieldset>
         {inputs}
@@ -60,7 +59,7 @@ class FormPreview extends Component {
     if (form.fields.length === 0) {
       formEl = <div><p className="warning-message">Add fields.</p></div>;
     } else {
-      const { schema, options } = scformschema.translate(form);
+      const { schema, options } = scformschema.translate({ scSchema: form });
       options.template = locals => this.template(locals);
       formEl = (
         <form onSubmit={FormPreview.onSubmit}>

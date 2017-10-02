@@ -12,9 +12,9 @@ export const validate = (form, forms) => {
   if (!form.form_key) {
     errors.form_key = 'Required';
   }
-  const regex = /^[a-z_]*$/;
+  const regex = /^[a-z_][a-zA-Z0-9_]*$/;
   if (!regex.test(form.form_key)) {
-    errors.form_key = 'Must only contain letters and underscores.';
+    errors.form_key = 'Must only contain letters, numbers, and underscores.';
   }
   const dupe = find(values(forms), { form_key: form.form_key });
   if (dupe) {
@@ -24,7 +24,6 @@ export const validate = (form, forms) => {
 };
 
 export class FormCreate extends Component {
-
   constructor(props) {
     super(props);
     this.state = {
@@ -34,7 +33,6 @@ export class FormCreate extends Component {
     };
 
     this.onFormLabelChange = this.onFormLabelChange.bind(this);
-    this.onFormKeyChange = this.onFormKeyChange.bind(this);
     this.save = this.save.bind(this);
   }
 
@@ -44,10 +42,6 @@ export class FormCreate extends Component {
       form_label: label,
       form_key: toKey(label),
     });
-  }
-
-  onFormKeyChange(e) {
-    this.setState({ form_key: e.target.value });
   }
 
   save() {
@@ -70,28 +64,24 @@ export class FormCreate extends Component {
         <div className="form-group">
           <label htmlFor="form-name">Form Name:</label>
           <input
-            id="form-name" type="text" className="form-control"
+            id="form-name"
+            type="text"
+            className="form-control"
             value={this.state.form_label}
             onChange={this.onFormLabelChange}
           />
-          {this.state.errors.form_label ?
-            <p className="text-danger">{this.state.errors.form_label}</p> : ''}
+          {this.state.errors.form_label
+            ? <p className="text-danger">{this.state.errors.form_label}</p>
+            : ''}
         </div>
-        <div className="form-group">
-          <label htmlFor="form-key">Form Key:</label>
-          <input
-            id="form-key" type="text" className="form-control"
-            value={this.state.form_key}
-            onChange={this.onFormKeyChange}
-          />
-          {this.state.errors.form_key ?
-            <p className="text-danger">{this.state.errors.form_key}</p> : ''}
-        </div>
-        {(this.props.addFormError && !Object.keys(this.state.errors).length) ?
-          <p className="text-danger">{this.props.addFormError}</p> : ''}
+        {this.props.addFormError && !Object.keys(this.state.errors).length
+          ? <p className="text-danger">{this.props.addFormError}</p>
+          : ''}
         <div className="btn-toolbar">
           <button className="btn btn-sc" onClick={this.save}>Create</button>
-          <button className="btn btn-default" onClick={this.props.cancel}>Cancel</button>
+          <button className="btn btn-default" onClick={this.props.cancel}>
+            Cancel
+          </button>
         </div>
       </div>
     );

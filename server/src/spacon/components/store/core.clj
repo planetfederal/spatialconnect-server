@@ -18,11 +18,10 @@
             [clj-http.client :as client]
             [cljts.io :as jtsio]
             [spacon.specs.store]
-            [spacon.components.mqtt.core :as mqttapi]
-            [spacon.entity.scmessage :as scm]
+            [spacon.components.kafka.core :as kafkaapi]
             [overtone.at-at :refer [every, mk-pool, stop, stop-and-reset-pool!]]
             [clojure.tools.logging :as log])
-  (:import (com.boundlessgeo.spatialconnect.schema SCCommand)))
+  (:import (com.boundlessgeo.schema Actions)))
 
 (defn feature-collection->geoms
   "Given a geojson feature collection, return a list of the features' geometries"
@@ -36,7 +35,6 @@
           result))
       [])
     []))
-
 
 (defn create [store-comp s]
   (storemodel/create s))

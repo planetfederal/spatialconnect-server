@@ -45,8 +45,9 @@ export default function reducer(state = initialState, action = {}) {
         isAuthenticated: true,
         token: action.token,
         user: action.user,
-        selectedTeamId: action.user.teams && action.user.teams.length ?
-          action.user.teams[0].id : null,
+        selectedTeamId: action.user.teams && action.user.teams.length
+          ? action.user.teams[0].id
+          : null,
         statusText: null,
       };
     case LOGIN_USER_FAILURE:
@@ -111,7 +112,8 @@ export default function reducer(state = initialState, action = {}) {
         selectedTeamId: teams.length ? state.selectedTeamId : null,
       };
     }
-    default: return state;
+    default:
+      return state;
   }
 }
 
@@ -170,19 +172,17 @@ export function logout() {
 }
 
 export function logoutAndRedirect() {
-  return (dispatch) => {
+  return dispatch => {
     dispatch(logout());
     dispatch(push('/login'));
   };
 }
 
 export function loginUser(email, password, redirect = '/') {
-  return (dispatch) => {
+  return dispatch => {
     dispatch(loginUserRequest());
-    return request
-      .post(`${API_URL}authenticate`)
-      .send({ email, password })
-      .then((response) => {
+    return request.post(`${API_URL}authenticate`).send({ email, password }).then(
+      response => {
         try {
           if (response.body.result.token) {
             dispatch(loginUserSuccess(response.body.result.token));
@@ -193,24 +193,26 @@ export function loginUser(email, password, redirect = '/') {
         } catch (e) {
           dispatch(loginUserFailure('Invalid token'));
         }
-      }, (response) => {
+      },
+      response => {
         if (response.body.error) {
           dispatch(loginUserFailure(response.body.error));
         } else {
           dispatch(loginUserFailure('Login unsuccessful.'));
         }
-      });
+      }
+    );
   };
 }
 
 export function signUpUser(name, email, password) {
-  return (dispatch) => {
+  return dispatch => {
     dispatch(signUpUserRequest());
     return request
       .post(`${API_URL}users`)
       .send({ name, email, password })
       .then(() => dispatch(signUpUserSuccess()))
-      .catch((response) => {
+      .catch(response => {
         if (response.body.error.errors) {
           dispatch(signUpUserFailure(response.body.error.errors[0].message));
         } else if (response.body.error.message) {

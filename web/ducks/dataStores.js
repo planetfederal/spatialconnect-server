@@ -47,7 +47,7 @@ export default function reducer(state = initialState, action = {}) {
         loaded: true,
         stores: {
           ...state.stores,
-          [action.payload.store.id]: action.payload.stores,
+          [action.payload.store.id]: action.payload.store,
         },
       };
     case LOAD_FAIL:
@@ -75,7 +75,8 @@ export default function reducer(state = initialState, action = {}) {
         ...state,
         layerList: action.payload.layerList,
       };
-    default: return state;
+    default:
+      return state;
   }
 }
 
@@ -85,7 +86,9 @@ export function receiveStores(stores) {
     const { sc } = getState();
     dispatch({
       type: LOAD_STORES,
-      payload: { stores: keyBy(stores.map(initStore(sc.auth.user.teams)), 'id') },
+      payload: {
+        stores: keyBy(stores.map(initStore(sc.auth.user.teams)), 'id'),
+      },
     });
   };
 }
@@ -110,7 +113,7 @@ export function loadDataStore(storeId) {
       .set('Authorization', `Token ${token}`)
       .then(
         res => dispatch(receiveStore(res.body.result)),
-        error => dispatch({ type: LOAD_FAIL, error }),
+        error => dispatch({ type: LOAD_FAIL, payload: { error: 'Unable to load store.' } })
       );
   };
 }
@@ -125,7 +128,7 @@ export function loadDataStores() {
       .set('Authorization', `Token ${token}`)
       .then(
         res => dispatch(receiveStores(res.body.result)),
-        error => dispatch({ type: LOAD_FAIL, error }),
+        error => dispatch({ type: LOAD_FAIL, payload: { error: 'Unable to load stores.' } })
       );
   };
 }
@@ -166,12 +169,13 @@ export function updateDataStores(values) {
   return (dispatch, getState) => {
     const { sc } = getState();
     const token = sc.auth.token;
-    return Promise.map(values, value => request
+    return Promise.map(values, value =>
+      request
         .put(`${API_URL}stores/${value.id}`)
         .set('Authorization', `Token ${token}`)
         .send(value)
-        .promise())
-        .then(() => dispatch(loadDataStores()));
+        .promise()
+    ).then(() => dispatch(loadDataStores()));
   };
 }
 
@@ -217,12 +221,15 @@ export function getWFSLayers(uri) {
     return request
       .get(`${API_URL}wfs/getCapabilities?url=${encodeURIComponent(uri)}`)
       .set('Authorization', `Token ${token}`)
-      .then((res) => {
-        dispatch(updateWFSLayerList(res.body.result));
-        dispatch(addStoreError('default_layers', false));
-      }, () => {
-        dispatch(updateWFSLayerList([]));
-        dispatch(addStoreError('default_layers', 'Could Not Find Layers'));
-      });
+      .then(
+        res => {
+          dispatch(updateWFSLayerList(res.body.result));
+          dispatch(addStoreError('default_layers', false));
+        },
+        () => {
+          dispatch(updateWFSLayerList([]));
+          dispatch(addStoreError('default_layers', 'Could Not Find Layers'));
+        }
+      );
   };
 }

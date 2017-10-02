@@ -7,13 +7,11 @@ import { FormList } from '../components/DataMapFormList';
 import DataMap from '../components/DataMap';
 
 class DataContainer extends Component {
-
   componentDidMount() {
     this.props.dataActions.loadDeviceLocations();
-    this.props.formActions.loadForms()
-      .then(() => {
-        this.props.dataActions.loadFormDataAll();
-      });
+    this.props.formActions.loadForms().then(() => {
+      this.props.dataActions.loadFormDataAll();
+    });
   }
 
   render() {

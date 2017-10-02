@@ -3,12 +3,12 @@
             [clojure.tools.logging :as log]
             [spacon.components.http.intercept :refer [common-interceptors]]
             [spacon.components.form.core :as formapi]
-            [spacon.components.mqtt.core :as mqttapi]
+            [spacon.components.queue.protocol :as queueapi]
             [spacon.components.http.auth :refer [check-auth]]
-            [spacon.entity.scmessage :as scmessage]
+            [spacon.entity.msg :as msg]
             [clojure.spec :as s])
   (:import (java.net URLDecoder)
-           (com.boundlessgeo.spatialconnect.schema SCCommand)))
+           (com.boundlessgeo.schema Actions)))
 
 (defn http-get-sample-form-data
   "Generates a sample form submission for a given form"
@@ -42,7 +42,7 @@
 (defn http-post-form
   "Creates a new form using the json body then publishes a
   config update message about the newly added form"
-  [form-comp mqtt-comp request]
+  [form-comp queue-comp request]
   (let [f (:json-params request)
         form (if (not (contains? f :version))
                (assoc f :version 1)
@@ -51,11 +51,10 @@
     (if (s/valid? :spacon.specs.form/form-spec form)
       (let [new-form (formapi/add-form-with-fields form-comp form)]
         (log/debug "Added new form")
-        (mqttapi/publish-scmessage mqtt-comp
-                                   "/config/update"
-                                   (scmessage/map->SCMessage
-                                    {:action (.value SCCommand/CONFIG_ADD_FORM)
-                                     :payload new-form}))
+        (queueapi/publish queue-comp (msg/map->Msg
+                                      {:to :config-update
+                                       :action (.value Actions/CONFIG_ADD_FORM)
+                                       :payload new-form}))
         (response/ok new-form))
       (let [reason (s/explain-str :spacon.specs.form/form-spec form)
             err-msg "Failed to create new form"]
@@ -65,7 +64,7 @@
 (defn http-delete-form-by-key
   "Deletes all forms matching the form-key then publishes a
   config update message about the deleted form"
-  [form-comp mqtt-comp request]
+  [form-comp queue-comp request]
   (log/debug "Deleting form")
   (let [form-key (URLDecoder/decode (get-in request [:path-params :form-key])
                                     "UTF-8")
@@ -76,11 +75,10 @@
         (response/bad-request err-msg))
       (if (== (count (map (partial formapi/delete-form form-comp) forms)) (count forms))
         (do
-          (mqttapi/publish-scmessage mqtt-comp
-                                     "/config/update"
-                                     (scmessage/map->SCMessage
-                                      {:action (.value SCCommand/CONFIG_REMOVE_FORM)
-                                       :payload {:form_key form-key}}))
+          (queueapi/publish queue-comp (msg/map->Msg
+                                        {:to :config-update
+                                         :action (.value Actions/CONFIG_REMOVE_FORM)
+                                         :payload {:form_key form-key}}))
           (response/ok "success"))
         (let [err-msg (str "Failed to delete all form versions for form-key" form-key)]
           (log/error err-msg)
@@ -100,25 +98,36 @@
   "Gets the form submissions for given form"
   [form-comp request]
   (log/debug "Fetching form data")
-  (let [form-id (get-in request [:path-params :form-id])]
-    (response/ok (formapi/get-form-data form-comp form-id))))
+  (let [form-key (get-in request [:path-params :form-key])]
+    (response/ok (formapi/get-form-data form-comp form-key))))
 
-(defn routes [form-comp mqtt]
+(defn http-get-form-results-version
+  "Gets the form submissions for given form version"
+  [form-comp request]
+  (log/debug "Fetching form data")
+  (let [form-key (get-in request [:path-params :form-key])
+        form-version (get-in request [:path-params :form-version])]
+    (response/ok (formapi/get-form-data-version form-comp form-key form-version))))
+
+(defn routes [form-comp queue]
   #{["/api/forms"                :get
      (conj common-interceptors check-auth (partial http-get-all-forms form-comp)) :route-name :all-forms]
     ["/api/forms"                :post
-     (conj common-interceptors check-auth (partial http-post-form form-comp mqtt)) :route-name :create-form]
+     (conj common-interceptors check-auth (partial http-post-form form-comp queue)) :route-name :create-form]
     ["/api/forms/:form-key"      :delete
-     (conj common-interceptors check-auth (partial http-delete-form-by-key form-comp mqtt)) :route-name :delete-form]
+     (conj common-interceptors check-auth (partial http-delete-form-by-key form-comp queue)) :route-name :delete-form]
     ["/api/forms/:form-key"      :get
      (conj common-interceptors check-auth (partial http-get-form form-comp)) :route-name :get-form]
+    ["/api/forms/:form-key/results" :get
+     (conj common-interceptors check-auth (partial http-get-form-results form-comp))
+     :route-name :form-results]
+    ["/api/forms/:form-key/results/:form-version" :get
+     (conj common-interceptors check-auth (partial http-get-form-results-version form-comp))
+     :route-name :form-results-version]
     ;; todo: need to figure out why forms causes a route conflict
     ["/api/form/:form-id/submit"  :post
      (conj common-interceptors check-auth (partial http-submit-form-data form-comp))
      :route-name :submit-form :constraints {:form-id #"[0-9]+"}]
-    ["/api/form/:form-id/results" :get
-     (conj common-interceptors check-auth (partial http-get-form-results form-comp))
-     :route-name :form-results :constraints {:form-id #"[0-9]+"}]
     ["/api/form/:form-id/sample" :get
      (conj common-interceptors check-auth (partial http-get-sample-form-data form-comp))
      :route-name :sample-form-data :constraints {:form-id #"[0-9]+"}]})

@@ -8,8 +8,7 @@ const fieldOptions = ['field_label', 'field_key', 'is_required'];
 const fieldConstraints = {
   string: ['initial_value', 'minimum_length', 'maximum_length', 'pattern'],
   select: ['options'],
-  number: ['initial_value',
-    'minimum', 'maximum', 'is_integer'],
+  number: ['initial_value', 'minimum', 'maximum', 'is_integer'],
   boolean: [],
   date: [],
   slider: ['initial_value', 'minimum', 'maximum'],
@@ -34,7 +33,6 @@ const fieldLabels = {
 };
 
 class FieldOptions extends Component {
-
   constructor(props) {
     super(props);
     this.removeField = this.removeField.bind(this);
@@ -48,28 +46,18 @@ class FieldOptions extends Component {
       value = e.target.value.split('\n');
     } else if (option === 'field_label') {
       value = e.target.value;
-      updater(
-        this.props.form.form_key,
-        field.id,
-        'field_key',
-        toKey(value),
-      );
+      const key = toKey(value);
+      if (key) {
+        updater(this.props.form.form_key, field.id, 'field_key', toKey(value));
+      }
     } else {
       value = e.target.value;
     }
-    updater(
-      this.props.form.form_key,
-      field.id,
-      option,
-      value,
-    );
+    updater(this.props.form.form_key, field.id, option, value);
   }
 
   removeField(field) {
-    this.props.removeField(
-      this.props.form.form_key,
-      field.id,
-    );
+    this.props.removeField(this.props.form.form_key, field.id);
   }
 
   makeOptionInput(field, option, value, i, updater) {
@@ -81,7 +69,9 @@ class FieldOptions extends Component {
               type="checkbox"
               id={option}
               checked={value && value === true}
-              onChange={(e) => { this.changeOption(field, option, e, updater); }}
+              onChange={e => {
+                this.changeOption(field, option, e, updater);
+              }}
             /> {fieldLabels[option]}
           </label>
         </div>
@@ -92,9 +82,12 @@ class FieldOptions extends Component {
         <div className="form-group" key={option + i}>
           <label htmlFor={option}>{fieldLabels[option]}</label>
           <textarea
-            className="form-control" rows="3"
+            className="form-control"
+            rows="3"
             id={option}
-            onChange={(e) => { this.changeOption(field, option, e, updater); }}
+            onChange={e => {
+              this.changeOption(field, option, e, updater);
+            }}
             value={value ? value.join('\n') : ''}
           />
         </div>
@@ -104,21 +97,25 @@ class FieldOptions extends Component {
       <div className="form-group" key={option + i}>
         <label htmlFor={option}>{fieldLabels[option]}</label>
         <input
-          type="text" className="form-control"
+          type="text"
+          className="form-control"
           id={option}
           value={value || ''}
-          onChange={(e) => { this.changeOption(field, option, e, updater); }}
+          onChange={e => {
+            this.changeOption(field, option, e, updater);
+          }}
         />
       </div>
     );
   }
 
   makeOptionInputs(field) {
-    const options = fieldOptions.map((o, i) =>
-      this.makeOptionInput(field, o, field[o], i, this.props.updateFieldOption));
+    const options = fieldOptions
+      .filter(o => o !== 'field_key')
+      .map((o, i) => this.makeOptionInput(field, o, field[o], i, this.props.updateFieldOption));
     if (field.constraints) {
       const constraints = fieldConstraints[field.type].map((o, i) =>
-        this.makeOptionInput(field, o, field.constraints[o], i, this.props.updateFieldConstraint),
+        this.makeOptionInput(field, o, field.constraints[o], i, this.props.updateFieldConstraint)
       );
       return options.concat(constraints);
     }

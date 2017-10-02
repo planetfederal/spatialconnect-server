@@ -22,7 +22,7 @@
             [clojure.data.json :as json]
             [clojure.walk :refer [keywordize-keys]])
   (:import (java.net URLEncoder URLDecoder)
-           (com.boundlessgeo.spatialconnect.schema SCCommand)))
+           (com.boundlessgeo.schema Actions)))
 
 (use-fixtures :once utils/setup-fixtures)
 
@@ -82,7 +82,7 @@
       (let [mqtt (:mqtt user/system-val)
             msg-handler (fn [name m]
                           (is (= name (get-in m [:payload :name])))
-                          (is (= (.value SCCommand/CONFIG_ADD_STORE) (:action m))))]
+                          (is (= (.value Actions/CONFIG_ADD_STORE) (:action m))))]
         (mqttapi/subscribe mqtt "/config/update" (partial msg-handler (:name test-store)))
         (utils/request-post "/api/stores" test-store)
         (Thread/sleep 1000)))
@@ -93,7 +93,7 @@
             updated-store (assoc store :name "foo")
             msg-handler (fn [id m]
                           (is (= id (get-in m [:payload :id])))
-                          (is (= (.value SCCommand/CONFIG_UPDATE_STORE) (:action m))))]
+                          (is (= (.value Actions/CONFIG_UPDATE_STORE) (:action m))))]
         (mqttapi/subscribe mqtt "/config/update" (partial msg-handler (:id store)))
         (utils/request-put (str "/api/stores/" (:id store)) updated-store)
         (Thread/sleep 1000)))
@@ -103,7 +103,7 @@
             store (-> (utils/request-get "/api/stores") :result first)
             msg-handler (fn [id m]
                           (is (= id (get-in m [:payload :id])))
-                          (is (= (.value SCCommand/CONFIG_REMOVE_STORE) (:action m))))]
+                          (is (= (.value Actions/CONFIG_REMOVE_STORE) (:action m))))]
         (mqttapi/subscribe mqtt "/config/update" (partial msg-handler (:id store)))
         (utils/request-delete (str "/api/stores/" (:id store)))
         (Thread/sleep 1000)))))

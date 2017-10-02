@@ -5,6 +5,7 @@ import auth from './auth';
 import data from './data';
 import menu from './menu';
 import teams from './teams';
+import messages from './messages';
 
 // http://redux.js.org/docs/api/combineReducers.html
 const appReducer = combineReducers({
@@ -14,6 +15,7 @@ const appReducer = combineReducers({
   data,
   menu,
   teams,
+  messages,
 });
 
 export default appReducer;

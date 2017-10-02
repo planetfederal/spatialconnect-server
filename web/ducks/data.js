@@ -10,6 +10,7 @@ export const REMOVE_FORM_ID = 'sc/data/REMOVE_FORM_ID';
 export const LOAD_DEVICE_LOCATIONS = 'sc/data/LOAD_DEVICE_LOCATIONS';
 export const TOGGLE_DEVICE_LOCATIONS = 'sc/data/TOGGLE_DEVICE_LOCATIONS';
 export const TOGGLE_SPATIAL_TRIGGERS = 'sc/data/TOGGLE_SPATIAL_TRIGGERS';
+export const LOAD_FAIL = 'sc/data/LOAD_FAIL';
 
 const initialState = {
   formData: [],
@@ -51,7 +52,8 @@ export default function reducer(state = initialState, action = {}) {
         ...state,
         spatialTriggersOn: action.payload.spatialTriggersOn,
       };
-    default: return state;
+    default:
+      return state;
   }
 }
 
@@ -88,14 +90,16 @@ export function getFormData(form) {
     const { sc } = getState();
     const token = sc.auth.token;
     return request
-      .get(`${API_URL}form/${form.id}/results`)
+      .get(`${API_URL}forms/${form.form_key}/results`)
       .set('Authorization', `Token ${token}`)
       .then(res => res.body.result)
-      .then(data => data.map((f) => {
-        const _f = f;
-        _f.form = form;
-        return _f;
-      }));
+      .then(data =>
+        data.map(f => {
+          const _f = f;
+          _f.form = form;
+          return _f;
+        })
+      );
   };
 }
 
@@ -105,10 +109,10 @@ export function loadFormDataAll() {
     const token = state.sc.auth.token;
     const forms = values(state.sc.forms.forms);
     return Promise.all(
-      forms.map((form) => {
+      forms.map(form => {
         dispatch(addFormId(form.id));
         return request
-          .get(`${API_URL}form/${form.id}/results`)
+          .get(`${API_URL}forms/${form.form_key}/results`)
           .set('Authorization', `Token ${token}`)
           .then(res => res.body.result)
           .then(data =>
@@ -116,17 +120,17 @@ export function loadFormDataAll() {
               ...f,
               form_id: form.id,
               form_key: form.form_key,
-            })),
+            }))
           );
-      }),
+      })
     )
-    .then(formData => flatten(formData))
-    .then((formData) => {
-      dispatch({
-        type: LOAD_FORM_DATA_ALL,
-        payload: { formData },
+      .then(formData => flatten(formData))
+      .then(formData => {
+        dispatch({
+          type: LOAD_FORM_DATA_ALL,
+          payload: { formData },
+        });
       });
-    });
   };
 }
 
@@ -138,11 +142,18 @@ export function loadDeviceLocations() {
       .get(`${API_URL}locations`)
       .set('Authorization', `Token ${token}`)
       .then(res => res.body.result)
-      .then((data) => {
-        dispatch({
-          type: LOAD_DEVICE_LOCATIONS,
-          payload: { device_locations: data.features },
-        });
-      });
+      .then(
+        data => {
+          dispatch({
+            type: LOAD_DEVICE_LOCATIONS,
+            payload: { device_locations: data.features },
+          });
+        },
+        error => {
+          dispatch({
+            type: LOAD_FAIL,
+          });
+        }
+      );
   };
 }

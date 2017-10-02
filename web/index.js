@@ -3,7 +3,7 @@ import { render } from 'react-dom';
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware, combineReducers } from 'redux';
 import thunk from 'redux-thunk';
-import createLogger from 'redux-logger';
+import { createLogger } from 'redux-logger';
 import { Router, Route, IndexRoute, browserHistory } from 'react-router';
 import { syncHistoryWithStore, routerReducer, routerMiddleware } from 'react-router-redux';
 import throttle from 'lodash/throttle';
@@ -21,6 +21,7 @@ import DataStoresDetailsContainer from './containers/DataStoresDetailsContainer'
 import DataContainer from './containers/DataContainer';
 import TeamsContainer from './containers/TeamsContainer';
 import TeamDetailsContainer from './containers/TeamDetailsContainer';
+import MessageContainer from './containers/MessageContainer';
 
 import './style/Globals.less';
 
@@ -35,7 +36,7 @@ const rootReducer = combineReducers({
 const middleware = routerMiddleware(browserHistory);
 const store = createStore(
   rootReducer,
-  applyMiddleware(middleware, thunk, createLogger()), // logger must be the last in the chain
+  applyMiddleware(middleware, thunk, createLogger()) // logger must be the last in the chain
 );
 
 const persistedUser = loadState();
@@ -45,12 +46,14 @@ if (token !== null && user !== null) {
   store.dispatch(loginPersistedUser(token, user));
 }
 
-store.subscribe(throttle(() => {
-  saveState({
-    user: store.getState().sc.auth.user,
-    token: store.getState().sc.auth.token,
-  });
-}, 1000));
+store.subscribe(
+  throttle(() => {
+    saveState({
+      user: store.getState().sc.auth.user,
+      token: store.getState().sc.auth.token,
+    });
+  }, 1000)
+);
 
 // create an enhanced history that syncs navigation events with the store
 const history = syncHistoryWithStore(browserHistory, store);
@@ -67,13 +70,15 @@ render(
         <Route path="/signup" name="Sign Up" component={SignUpContainer} />
         <Route path="/stores" name="Stores" component={requireAuthentication(DataStoresContainer)}>
           <Route
-            path="/stores/:id" staticName
+            path="/stores/:id"
+            staticName
             component={requireAuthentication(DataStoresDetailsContainer)}
           />
         </Route>
         <Route path="/forms" name="Forms" component={requireAuthentication(FormsContainer)}>
           <Route
-            path="/forms/:form_key" staticName
+            path="/forms/:form_key"
+            staticName
             component={requireAuthentication(FormDetailsContainer)}
           />
         </Route>
@@ -85,8 +90,13 @@ render(
             component={requireAuthentication(TeamDetailsContainer)}
           />
         </Route>
+        <Route
+          path="/messages"
+          name="Messages"
+          component={requireAuthentication(MessageContainer)}
+        />
       </Route>
     </Router>
   </Provider>,
-  document.getElementById('root'),
+  document.getElementById('root')
 );

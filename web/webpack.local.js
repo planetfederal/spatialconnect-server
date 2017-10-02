@@ -5,9 +5,7 @@ var pkg = require('./package.json');
 
 module.exports = {
   devtool: 'cheap-module-eval-source-map',
-  entry: [
-    path.join(__dirname, 'index'),
-  ],
+  entry: [path.join(__dirname, 'index')],
   output: {
     path: path.join(__dirname, 'public'),
     filename: 'spatialconnect.js',
@@ -42,13 +40,14 @@ module.exports = {
         loaders: ['babel'],
         exclude: /node_modules/,
         include: __dirname,
-      }, {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        loader: 'eslint-loader',
-      }, {
+      },
+      {
         test: /\.less$/,
         loader: 'style-loader!css-loader!less-loader',
+      },
+      {
+        test: /\.css$/,
+        loader: 'style-loader!css-loader',
       },
     ],
   },

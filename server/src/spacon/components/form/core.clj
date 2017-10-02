@@ -15,13 +15,14 @@
 (ns spacon.components.form.core
   (:require [com.stuartsierra.component :as component]
             [spacon.components.form.db :as formmodel]
-            [spacon.components.mqtt.core :as mqttapi]
+            [spacon.components.queue.protocol :as queueapi]
             [clojure.spec :as s]
             [clojure.spec.gen :as gen]
-            [spacon.components.mqtt.core :as mqttapi]
             [clojure.tools.logging :as log]
             [cljts.io :as jtsio]
-            [clojure.data.json :as json]))
+            [clojure.data.json :as json]
+            [spacon.entity.msg :as msg]
+            [spacon.specs.geojson]))
 
 (defn delete-form
   [form-comp form]
@@ -66,8 +67,13 @@
 
 (defn get-form-data
   "Retrieves data for a specific form"
-  [form-comp form-id]
-  (formmodel/get-form-data form-id))
+  [form-comp form-key]
+  (formmodel/get-form-data form-key))
+
+(defn get-form-data-version
+  "Retrieves data for a specific form"
+  [form-comp form-key form-version]
+  (formmodel/get-form-data-version form-key form-version))
 
 (defn add-form-data
   [form-comp form-data form-id device-id]
@@ -91,10 +97,10 @@
       (fn [feature] (assoc feature :properties (make-properties-from-fields form-fields)))
       (s/gen :spacon.specs.geojson/pointfeature-spec)))))
 
-(defn mqtt->form-submit
-  "MQTT message handler that submits new form data using the payload
+(defn- queue->form-submit
+  "queue message handler that submits new form data using the payload
   of the message body"
-  [message]
+  [queue-comp message]
   (log/debug "Handling form submission")
   (let [p (:payload message)
         form-id (:form_id p)
@@ -104,15 +110,23 @@
                json/write-str
                jtsio/read-feature
                .getDefaultGeometry)]
-    (log/debug "Submitting form data")
-    (formmodel/add-form-data form-data form-id device-identifier)))
+    (let [valid-feature (if (s/valid? :spacon.specs.geojson/pointfeature-spec form-data)
+                          (do
+                            (log/debug "Submitting form data")
+                            (formmodel/add-form-data form-data form-id device-identifier)
+                            {:result true :error nil})
+                          {:result false :error (s/explain-str :spacon.specs.geojson/pointfeature-spec form-data)})]
+      (queueapi/publish queue-comp (msg/map->Msg
+                                    {:to (:to message)
+                                     :correlationId (:correlationId message)
+                                     :payload valid-feature})))))
 
-(defrecord FormComponent [mqtt]
+(defrecord FormComponent [queue]
   component/Lifecycle
   (start [this]
     (log/debug "Starting Form Component")
-    (mqttapi/subscribe mqtt "/store/form" mqtt->form-submit)
-    (assoc this :mqtt-comp mqtt))
+    (queueapi/subscribe queue :store-form (partial queue->form-submit queue))
+    (assoc this :queue-comp queue))
   (stop [this]
     (log/debug "Starting Form Component")
     this))

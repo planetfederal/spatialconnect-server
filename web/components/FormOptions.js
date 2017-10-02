@@ -2,7 +2,6 @@ import React, { Component, PropTypes } from 'react';
 import '../style/FormDetails.less';
 
 class FormOptions extends Component {
-
   constructor(props) {
     super(props);
 
@@ -10,10 +9,7 @@ class FormOptions extends Component {
     this.changeLabel = this.changeLabel.bind(this);
   }
   changeLabel(e) {
-    this.props.updateFormName(
-      this.props.form.form_key,
-      e.target.value,
-    );
+    this.props.updateFormName(this.props.form.form_key, e.target.value);
   }
 
   deleteForm() {
@@ -29,12 +25,15 @@ class FormOptions extends Component {
           <div className="form-group">
             <label htmlFor="exampleInputEmail1">Form name</label>
             <input
-              type="text" className="form-control"
+              type="text"
+              className="form-control"
               value={form.form_label}
               onChange={this.changeLabel}
             />
           </div>
-          <button className="btn btn-danger" onClick={this.deleteForm}>Delete Form</button>
+          <button className="btn btn-danger" onClick={this.deleteForm}>
+            Delete Form
+          </button>
         </div>
       </div>
     );

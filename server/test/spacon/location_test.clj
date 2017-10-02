@@ -19,11 +19,11 @@
             [spacon.components.location.db :as locationmodel]
             [spacon.components.mqtt.core :as mqttapi]
             [clojure.data.json :as json]
-            [spacon.entity.scmessage :as scm]
+            [spacon.entity.msg :as msg]
             [spacon.specs.geojson]
             [clojure.spec.gen :as gen]
             [clojure.spec :as spec])
-  (:import (com.boundlessgeo.spatialconnect.schema SCCommand)))
+  (:import (com.boundlessgeo.schema Actions)))
 
 (use-fixtures :once utils/setup-fixtures)
 
@@ -33,8 +33,8 @@
           loc  (gen/generate (spec/gen :spacon.specs.geojson/pointfeature-spec))
           device-id (->> (utils/request-get "/api/devices") :result first :identifier)
           payload (assoc loc :metadata {:client device-id})
-          m (scm/map->SCMessage {:action (.value SCCommand/NO_ACTION)
-                                 :payload payload})]
+          m (msg/map->Msg {:action (.value Actions/NO_ACTION)
+                           :payload payload})]
       (mqttapi/publish-scmessage mqtt "/store/tracking" m)
       (Thread/sleep 2000)
       (let [res (utils/request-get "/api/locations")

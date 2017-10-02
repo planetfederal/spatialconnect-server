@@ -14,27 +14,52 @@
 
 (ns spacon.components.notification.core
   (:require [com.stuartsierra.component :as component]
-            [spacon.components.mqtt.core :as mqttapi]
+            [spacon.components.queue.protocol :as queueapi]
             [clojure.core.async :refer [chan <!! >!! close! go alt!]]
             [postal.core :refer [send-message]]
             [spacon.components.notification.db :as notifmodel]
-            [clojure.tools.logging :as log]))
+            [spacon.components.device.db :as devicemodel]
+            [clojure.tools.logging :as log]
+            [clojure.data.json :as json]
+            [clj-http.client :as httpclient]))
 
-(defn- send->device [mqtt device-id message]
-  (mqttapi/publish-map mqtt (str "/notify/" device-id) message))
+(defn- send-push
+  "Send push notifications using FCM"
+  [push-message]
+  (httpclient/post "https://fcm.googleapis.com/fcm/send"
+             {:body (json/write-str push-message)
+              :headers {"Authorization" (str "key=" (System/getenv "FCM_SERVER_KEY"))}
+              :content-type :json}))
 
-(defn- send->devices [mqtt devices message]
-  (map (fn [device-id]
-         (send->device mqtt device-id message)) devices))
+(defn- send->device
+  "Function used to send spacon notifications or push notificatons to one registered devices"
+  ([queue device-id message]
+   (:to (str "/notify/" device-id) message)
+   (queueapi/publish queue message))
+  ([push-message]
+   (send-push push-message)))
 
-(defn- send->all [mqtt message]
-  (mqttapi/publish-map mqtt "/notify" message))
+(defn- send->devices
+  "Function used to send spacon notifications or push notificatons to all registered devices"
+  ([queue devices message]
+   (map (fn [device-id]
+          (send->device queue device-id message)) devices))
+  ([push-message]
+   (let [all-devices (devicemodel/all)]
+     (doseq [device all-devices]
+       (let [token (:token (:device_info device))]
+         (if-not (clojure.string/blank? token)
+           (send-push (assoc push-message :to token))))))))
 
-(defn- send->mobile [mqtt message]
+(defn- send->all [queue message]
+  (:to "/notify/" message)
+  (queueapi/publish queue message))
+
+(defn- send->mobile [queue message]
   (case (count (:to message))
-    0 (send->all mqtt message)
-    1 (send->device mqtt (first (:to message)) message)
-    (send->devices mqtt (:to message) message))
+    0 (send->all queue message)
+    1 (send->device queue (first (:to message)) message)
+    (send->devices queue (:to message) message))
   (map notifmodel/mark-as-sent (:notif_id message)))
 
 (def conn {:host (or (System/getenv "SMTP_HOST")
@@ -65,30 +90,40 @@
                   (notifmodel/mark-as-sent id))
                 recipients))))
 
-(defn- process-channel [mqtt input-channel]
+(defn- process-channel [kafka input-channel]
   (go (while true
         (let [v (<!! input-channel)]
           (case (:output_type v)
             :email (send->email v)
-            :mobile (if-not (empty? mqtt) (send->mobile mqtt v)) ; For Signal that doesn't have an mqtt component
+            :mobile (if-not (empty? kafka) (send->mobile kafka v)) ; For Signal that doesn't have an kafka component
             "default")))))
 
-(defn notify [notifcomp message message-type info]
-  (let [ids (map :id (notifmodel/create-notifications (:to message) message-type info))]
-    (go (>!! (:send-channel notifcomp)
-             (assoc message :notif-ids ids)))))
+(defn notify
+  ([notifcomp message message-type info]
+   (let [ids (map :id (notifmodel/create-notifications (:to message) message-type info))]
+     (go (>!! (:send-channel notifcomp)
+              (assoc message :notif-ids ids)))))
+  ([push-message]
+   (send->devices push-message)))
+
+(defn notify-by-id
+  [push-message]
+  (let [device (devicemodel/find-by-identifier (:to push-message))]
+    (let [token (:token (:device_info device))]
+      (if-not (clojure.string/blank? token)
+        (send-push (assoc push-message :to token))))))
 
 (defn find-notif-by-id
   [notif-comp id]
   (notifmodel/find-notif-by-id id))
 
-(defrecord NotificationComponent [mqtt]
+(defrecord NotificationComponent [kafka]
   component/Lifecycle
   (start [this]
     (log/debug "Starting Notification Component")
     (let [c (chan)]
-      (process-channel mqtt c)
-      (assoc this :mqtt mqtt :send-channel c)))
+      (process-channel kafka c)
+      (assoc this :kafka kafka :send-channel c)))
   (stop [this]
     (log/debug "Stopping Notification Component")
     (close! (:send-channel this))

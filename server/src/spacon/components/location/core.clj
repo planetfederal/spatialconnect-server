@@ -15,11 +15,14 @@
 (ns spacon.components.location.core
   (:require [com.stuartsierra.component :as component]
             [clojure.data.json :as json]
+            [clojure.spec :as s]
             [yesql.core :refer [defqueries]]
-            [spacon.components.mqtt.core :as mqttapi]
+            [spacon.components.queue.protocol :as queueapi]
             [spacon.components.location.db :as locationmodel]
             [clojure.tools.logging :as log]
-            [cljts.io :as jtsio]))
+            [cljts.io :as jtsio]
+            [spacon.entity.msg :as msg]
+            [spacon.specs.geojson]))
 
 (defn location->geojson
   "Given list of locations, returns a lazy sequence of geojson
@@ -31,7 +34,8 @@
           :geometry {:type        "Point"
                      :coordinates [(.getX (:geometry l)) (.getY (:geometry l))]}
           :metadata {:client     (:identifier l)
-                     :updated_at (:updated_at l)}})
+                     :updated_at (:updated_at l)
+                     :device_info (:device_info l)}})
        locations))
 
 (defn locations
@@ -39,18 +43,26 @@
   (location->geojson (locationmodel/all)))
 
 (defn- update-device-location
-  "MQTT message handler that persists the device location
+  "kafka message handler that persists the device location
   of the message body, then tests it against the triggers"
-  [message]
+  [queue-comp message]
   (log/debugf "Received device location update message %s" (:payload message))
   (let [loc (:payload message)]
-    (locationmodel/upsert-gj loc)))
+    (let [valid-feature (if (s/valid? :spacon.specs.geojson/pointfeature-spec loc)
+                          (do
+                            (locationmodel/upsert-gj loc)
+                            {:result true :error nil})
+                          {:result false :error (s/explain-str :spacon.specs.geojson/pointfeature-spec loc)})]
+      (queueapi/publish queue-comp (msg/map->Msg
+                                    {:to (:to message)
+                                     :correlationId (:correlationId message)
+                                     :payload valid-feature})))))
 
-(defrecord LocationComponent [mqtt]
+(defrecord LocationComponent [queue]
   component/Lifecycle
   (start [this]
     (log/debug "Starting Location Component")
-    (mqttapi/subscribe mqtt "/store/tracking" update-device-location)
+    (queueapi/subscribe queue :location-tracking (partial update-device-location queue))
     this)
   (stop [this]
     (log/debug "Stopping Location Component")

@@ -4,9 +4,7 @@ var HtmlWebpackPlugin = require('html-webpack-plugin');
 var pkg = require('./package.json');
 
 module.exports = {
-  entry: [
-    path.join(__dirname, 'index'),
-  ],
+  entry: [path.join(__dirname, 'index')],
   output: {
     path: path.join(__dirname, 'public'),
     filename: 'spatialconnect.js',
@@ -18,7 +16,7 @@ module.exports = {
     new webpack.DefinePlugin({
       VERSION: JSON.stringify(pkg.version),
       'process.env': {
-        'NODE_ENV': JSON.stringify('production'),
+        NODE_ENV: JSON.stringify('production'),
       },
     }),
     new webpack.optimize.DedupePlugin(),
@@ -36,13 +34,14 @@ module.exports = {
         loaders: ['babel'],
         exclude: /node_modules/,
         include: __dirname,
-      }, {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        loader: 'eslint-loader',
-      }, {
+      },
+      {
         test: /\.less$/,
         loader: 'style-loader!css-loader!less-loader',
+      },
+      {
+        test: /\.css$/,
+        loader: 'style-loader!css-loader',
       },
     ],
   },

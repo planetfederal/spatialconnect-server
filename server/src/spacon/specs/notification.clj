@@ -12,7 +12,7 @@
 ;; See the License for the specific language governing permissions and
 ;; limitations under the License.
 
-(ns spacon.specs.device
+(ns spacon.specs.notification
   (:require [clojure.spec :as s]
             [clojure.test.check.generators :as gen]))
 
@@ -20,10 +20,11 @@
                         (s/and string? #(> (count %) 0))
                         #(gen/fmap identity gen/string-alphanumeric)))
 
-;;; specs about device data
-(s/def ::name non-empty-string)
-(s/def ::identifier non-empty-string)
-(s/def ::device_info (s/with-gen map?
-                       #(gen/fmap (fn [[t1 t2 t3 t4]]
-                                    {t1 t2 t3 t4}) (gen/tuple gen/keyword gen/string-alphanumeric))))
-(s/def ::device-spec (s/keys :req-un [::name ::identifier ::device_info]))
+;;; specs about push notification data
+(s/def :n/title non-empty-string)
+(s/def :n/body non-empty-string)
+(s/def :n/notification (s/keys :req-un [:n/title :n/body]))
+(s/def ::to non-empty-string)
+
+(s/def ::notify-spec (s/keys :req-un [:n/notification]
+                             :opt-un [::to]))

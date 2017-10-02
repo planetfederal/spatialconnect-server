@@ -78,10 +78,11 @@
                                :polygon :gj/polygon
                                :multipoint :gj/multipoint
                                :multilinestring :gj/multilinestring
-                               :multipolygon :gj/multipolygon))
-(s/def :gjpt/geometry :gj/point)
-(s/def :gjpl/geometry :gj/polygon)
-(s/def :gjls/geometry :gj/linestring)
+                               :multipolygon :gj/multipolygon
+                               :nil nil?))
+(s/def :gjpt/geometry (s/or :nil nil? :gjpt :gj/point))
+(s/def :gjpl/geometry (s/or :nil nil? :gjpl :gj/polygon))
+(s/def :gjls/geometry (s/or :nil nil? :gjls :gj/linestring))
 (s/def :gj/geometry :gj/geometrytypes)
 (s/def :gfeature/id (s/and string? #(> (count %) 0)))
 (s/def :gfeature/properties (s/with-gen
