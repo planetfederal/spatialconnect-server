@@ -206,7 +206,6 @@
     (log/debug "Stopping Kafka Component")
     (async/close! (:publish-channel this))
     (async/close! (:subscribe-channel this))
-    ((:publish-channel))
     this)
   (publish [this msg]
     (publish this msg))
