@@ -42,10 +42,10 @@
                  [clj-http "3.6.1"]]
 
 
-  :repositories  [["osgeo" "http://download.osgeo.org/webdav/geotools/"]
+  :repositories  [["osgeo" "https://download.osgeo.org/webdav/geotools/"]
                   ["boundlessgeo-releases" "https://repo.boundlessgeo.com/artifactory/release/"]
                   ["clojars" {:sign-releases false}]
-                  ["confluent" {:url "http://packages.confluent.io/maven/"}]
+                  ["confluent" {:url "https://packages.confluent.io/maven/"}]
                   ["project" "file:repo"]]
   :dev-dependencies [[lein-reload "1.0.0"]]
 
