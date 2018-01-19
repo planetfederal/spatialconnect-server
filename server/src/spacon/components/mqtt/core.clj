@@ -87,7 +87,7 @@
   ([mqtt-comp topic]
    (if (or (nil? @conn) (not (mh/connected? @conn)))
      (do (connectmqtt (:broker-url mqtt-comp))))
-   (log/debugf "Subscribing to topic" topic)
+   (log/debugf "Subscribing to topic %s" topic)
    (mh/subscribe @conn {topic 2}
                  (fn [^String topic _ ^bytes payload]
                    (async/go (receive mqtt-comp topic payload)))
