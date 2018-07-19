@@ -25,8 +25,7 @@
   (:import (org.eclipse.paho.client.mqttv3 MqttException)
            (java.net InetAddress)))
 
-(def client-id (or (System/getenv "MQTT_CLIENT_ID")
-                   (subs (str "sc-" (InetAddress/getLocalHost)) 0 22)))
+(def client-id (or (System/getenv "MQTT_CLIENT_ID") "default-client-id"))
 (defonce conn (atom nil))
 (def action-topic {:register-device "/config/register"
                    :full-config "/config"
@@ -74,10 +73,10 @@
 (defn- receive [_ topic message]
   (if-let [msg (msg/from-bytes message)]
     (do
-      (log/debugf "Received message on topic: %nmessage: %s" topic (msg/from-bytes msg))
+      (log/debugf "Received message on topic: %s message: %s" topic (msg/from-bytes msg))
       (let [func ((keyword topic) @topics)]
         (func msg)))
-    (log/error "Received invalid protobuf from mqtt on topic:" topic)))
+    (log/errorf "Received invalid protobuf from mqtt on topic: %s" topic)))
 
 (defn- subscribe-mqtt
   "Subscribe to mqtt topic with message handler function f"

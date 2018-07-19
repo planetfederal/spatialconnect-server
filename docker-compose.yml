@@ -27,12 +27,13 @@ services:
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
 
-  mosquitto:
-    image: boundlessgeo/mosquitto
+  mqtt:
+    image: quay.io/boundlessgeo/emq:latest
     ports:
       - '1883:1883'
-      - '8883:8883'
-      - '8884:8884'
+      - "18083:18083" # http (web dashboard)
+      # - '8883:8883'
+      # - '8884:8884'
 
   postgis:
     image: mdillon/postgis
@@ -40,20 +41,21 @@ services:
       - '5432:5432'
 
   spatialconnect-server:
-    build: .
-    command: 'java -jar /opt/server/target/spacon-server.jar'
+    build:
+      context: ./server
+    command: 'java -jar /spacon-server.jar'
     depends_on:
-      - mosquitto
+      - mqtt
       - postgis
     ports:
       - '8085:8085'
     environment:
       - BOOTSTRAP_SERVERS=kafka:9092
       - DB_HOST=postgis
-      - MQTT_BROKER_URL=ssl://mosquitto:8884
+      - MQTT_BROKER_URL=tcp://mqtt:1883
       - VIRTUAL_HOST=spatialconnect-server
-      - TRUST_STORE=/opt/server/tls/test-cacerts.jks
-      - KEY_STORE=/opt/server/tls/test-keystore.p12
+      # - TRUST_STORE=/opt/server/tls/test-cacerts.jks
+      # - KEY_STORE=/opt/server/tls/test-keystore.p12
 
   geoserver:
     image: kartoza/geoserver:latest

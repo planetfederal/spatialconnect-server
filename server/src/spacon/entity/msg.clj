@@ -31,8 +31,7 @@
        :action (.getAction msg)
        :payload payload})
     (catch Exception e
-      (log/error "Could not parse protobuf into map b/c"
-                 (.getLocalizedMessage e))
+      (log/error e "Could not parse protobuf into map")
       nil)))
 
 (defn- make-protobuf [context correlationId jwt to action payload]

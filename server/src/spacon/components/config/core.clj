@@ -42,11 +42,11 @@
    on its reply-to topic"
   [config-comp queue-comp msg]
   (if (s/valid? :spacon.specs.msg/msg msg)
-    (do (log/debugf "Received request for config" msg)
-        (let [user  (token->user (:jwt msg))
-              cfg   (create-config config-comp user)]
-          (log/debugf "Sending config to" user)
-          (queueapi/publish queue-comp (assoc msg :payload cfg))))
+    (do (log/debugf "Received request for config" msg))
+        ;(let [user  (token->user (:jwt msg))
+        ;      cfg   (create-config config-comp user)]
+        ;  (log/debugf "Sending config to" user)
+        ;  (queueapi/publish queue-comp (assoc msg :payload cfg))))
     (log/errorf "config message was invalid b/c %s" (s/explain :spacon.specs.msg/msg msg))))
 
 (defn- queue->register

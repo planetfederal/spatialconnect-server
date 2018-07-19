@@ -21,7 +21,7 @@
                  [org.slf4j/log4j-over-slf4j "1.7.21"]
                  [com.stuartsierra/component "0.3.1"]
                  [clojurewerkz/machine_head "1.0.0-beta9"]
-                 [com.boundlessgeo/schema "0.10"]
+                 [com.boundlessgeo/schema "0.14.7"]
                  ; todo: the protobuf dependency should be packaged into the schema artifact
                  [com.google.protobuf/protobuf-java "3.1.0"]
                  [buddy "1.1.0"]
